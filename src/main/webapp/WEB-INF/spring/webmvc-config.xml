@@ -13,7 +13,6 @@
          Also registers default Formatters and Validators for use across all @Controllers -->
     <mvc:annotation-driven/>
 
-
     <!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources -->
     <mvc:resources location="/, classpath:/META-INF/web-resources/" mapping="/resources/**"/>
 
@@ -21,33 +20,11 @@
     requests to the container's default Servlet -->
     <mvc:default-servlet-handler/>
 
-    <!-- Register "global" interceptor beans to apply to all registered HandlerMappings -->
-    <mvc:interceptors>
-        <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor"/>
-        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" p:paramName="lang"/>
-    </mvc:interceptors>
-
     <!-- Selects a static view for rendering without the need for an explicit controller -->
     <mvc:view-controller path="/" view-name="index"/>
     <mvc:view-controller path="/uncaughtException"/>
     <mvc:view-controller path="/resourceNotFound"/>
     <mvc:view-controller path="/dataAccessFailure"/>
-
-    <!-- Resolves localized messages*.properties and application.properties files in the application to allow for internationalization. 
-    The messages*.properties files translate Roo generated messages which are part of the admin interface, the 
-    application.properties resource bundle localizes all application specific messages such as entity names and menu items. -->
-    <bean class="org.springframework.context.support.ReloadableResourceBundleMessageSource" id="messageSource"
-          p:basenames="WEB-INF/i18n/messages,WEB-INF/i18n/application" p:fallbackToSystemLocale="false"/>
-
-    <!-- Store preferred language configuration in a cookie -->
-    <bean class="org.springframework.web.servlet.i18n.CookieLocaleResolver" id="localeResolver" p:cookieName="locale"/>
-
-    <!-- Resolves localized <theme_name>.properties files in the classpath to allow for theme support -->
-    <bean class="org.springframework.ui.context.support.ResourceBundleThemeSource" id="themeSource"/>
-
-    <!-- Store preferred theme configuration in a cookie -->
-    <bean class="org.springframework.web.servlet.theme.CookieThemeResolver" id="themeResolver" p:cookieName="theme"
-          p:defaultThemeName="standard"/>
 
     <!-- This bean resolves specific types of exceptions to corresponding logical - view names for error views. 
     The default behaviour of DispatcherServlet - is to propagate all exceptions to the servlet 
