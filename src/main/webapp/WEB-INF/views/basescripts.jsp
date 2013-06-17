@@ -10,6 +10,6 @@
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles" %>
 
 
-<link rel="stylesheet" type="text/css" href="resources/static/bootstrap/css/bootstrap.css"/>
+<link rel="stylesheet" type="text/css" href="webjars/bootstrap/2.3.2/css/bootstrap.min.css"/>
 
 </script>
