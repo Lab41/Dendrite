@@ -5,23 +5,9 @@
 
 <tiles-definitions>
 
-    <definition name="index" extends="fluid">
+    <definition name="index" extends="angular">
         <put-attribute name="body" value="/WEB-INF/views/body.jsp" />
-        <put-attribute name="header" value="/WEB-INF/views/header.jsp"/>
-        <put-attribute name="title" value="Hello"/>
-        <put-list-attribute name="css_js_list">
-            <add-attribute value="/WEB-INF/views/basescripts.jsp"/>
-        </put-list-attribute>
-    </definition>
-
-    <definition name="login" extends="fluid">
-        <put-attribute name="body" value="/WEB-INF/views/body.jsp" />
-        <put-attribute name="header" value="/WEB-INF/views/header.jsp"/>
-        <put-attribute name="title" value="Hello"/>
-        <put-list-attribute name="css_js_list">
-            <add-attribute value="/WEB-INF/views/basescripts.jsp"/>
-        </put-list-attribute>
-
+        <put-attribute name="title" value="My Angular App" />
     </definition>
 
 </tiles-definitions>

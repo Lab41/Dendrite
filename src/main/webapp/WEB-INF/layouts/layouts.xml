@@ -4,7 +4,5 @@
         "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
 
 <tiles-definitions>
-    <definition name="fluid" template="/WEB-INF/layouts/fluid.jsp"/>
-
-
+    <definition name="angular" template="/WEB-INF/layouts/angular.jsp" />
 </tiles-definitions>
