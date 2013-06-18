@@ -184,6 +184,27 @@
             <version>1.9.12</version>
         </dependency>
 
+        <!-- Titan Dependencies -->
+        <dependency>
+            <groupId>com.thinkaurelius.titan</groupId>
+            <artifactId>titan-core</artifactId>
+            <version>0.3.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>rexster-server</artifactId>
+                    <groupId>com.tinkerpop.rexster</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <groupId>javax.servlet</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>rexster-core</artifactId>
+                    <groupId>com.tinkerpop.rexster</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- Frontend Dependencies -->
         <dependency>
             <groupId>org.webjars</groupId>
