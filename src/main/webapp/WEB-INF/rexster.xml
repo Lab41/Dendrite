@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rexster>
+    <graphs>
+        <graph>
+            <graph-name>titanexample</graph-name>
+            <graph-type>com.thinkaurelius.titan.tinkerpop.rexster.TitanGraphConfiguration</graph-type>
+            <graph-location>/tmp/titan</graph-location>
+            <graph-read-only>false</graph-read-only>
+            <properties>
+                <storage.backend>local</storage.backend>
+                <storage.buffer-size>100</storage.buffer-size>
+            </properties>
+            <extensions>
+                <allows>
+                    <allow>tp:gremlin</allow>
+                </allows>
+            </extensions>
+        </graph>
+    </graphs>
+</rexster>

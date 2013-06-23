@@ -68,6 +68,27 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
+    <!--- Handles Jersey Request -->
+    <servlet>
+        <servlet-name>jerseyspring</servlet-name>
+        <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+        <param-value>com.tinkerpop.rexster</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.tinkerpop.rexster.config</param-name>
+            <param-value>/WEB-INF/rexster.xml</param-value>
+        </init-param>
+
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>jerseyspring</servlet-name>
+        <url-pattern>/rexster-resource/*</url-pattern>
+    </servlet-mapping>
+
+
 
     <session-config>
         <session-timeout>10</session-timeout>
