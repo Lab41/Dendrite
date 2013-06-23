@@ -13,6 +13,7 @@
         <roo.version>1.2.3.RELEASE</roo.version>
         <slf4j.version>1.7.2</slf4j.version>
         <spring.version>3.2.0.RELEASE</spring.version>
+        <jersey.version>1.17.1</jersey.version>
         <!-- TODO: Figure out what the plan with rexster is -->
         <rexster.version>2.3.0</rexster.version>
     </properties>
@@ -243,9 +244,14 @@
         </dependency>
         <!-- Jersey Dependency for Spring-->
         <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.sun.jersey.contribs</groupId>
             <artifactId>jersey-spring</artifactId>
-            <version>1.17.1</version>
+            <version>${jersey.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-core</artifactId>
