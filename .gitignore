@@ -2,3 +2,4 @@ target/
 .idea/
 *.iml
 berkeleyje-es.local/
+.DS_Store
