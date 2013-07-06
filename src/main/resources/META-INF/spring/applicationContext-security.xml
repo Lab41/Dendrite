@@ -9,7 +9,7 @@
     <http auto-config='true'>
         <intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/**" access="ROLE_USER" />
-        <form-login login-page='/login' />
+        <form-login login-page='/login.html' />
         <logout logout-url="/j_spring_security_logout" />
     </http>
 
