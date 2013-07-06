@@ -6,6 +6,8 @@ package org.lab41.web.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.tinkerpop.rexster.RexsterApplicationGraph;
 import org.lab41.titan.GraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,8 @@ public class DefaultController {
 
     @Autowired
     private GraphService graphService;
+
+
 
     @RequestMapping("/items")
     public @ResponseBody List<String> getItems() {

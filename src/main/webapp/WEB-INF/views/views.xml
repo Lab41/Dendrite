@@ -10,4 +10,9 @@
         <put-attribute name="title" value="My Angular App" />
     </definition>
 
+    <definition name="login" extends="angular">
+        <put-attribute name="body" value="/WEB-INF/views/login.jsp" />
+        <put-attribute name="title" value="Login to Dendrite" />
+    </definition>
+
 </tiles-definitions>
