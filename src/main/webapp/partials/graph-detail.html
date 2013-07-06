@@ -1,0 +1,14 @@
+<p>This is the partial for view 2.</p>
+<ul>
+    <li>{{ graph.name }}</li>
+    <li>{{ graph.queryTime }}</li>
+    <li>{{ graph.readOnly }}</li>
+    <li>{{ graph.type }}</li>
+    <li>{{ graph.version }}</li>
+    <li>
+        features:
+        <ul>
+            <li ng-repeat="(key, value) in graph.features track by $index">{{ key }}: {{ value }}</li>
+        </ul>
+    </li>
+</ul>

@@ -1,0 +1,6 @@
+<p>{{ graphs.graphs | json }}</p>
+<ul>
+    <li ng-repeat="graph in graphs.graphs">
+        <a href="#/graphs/{{ graph }}">{{ graph }}</a>
+    </li>
+</ul>
