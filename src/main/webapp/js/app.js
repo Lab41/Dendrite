@@ -12,5 +12,8 @@ angular.module('dendrite', [
     $routeProvider.
         when('/graphs', {templateUrl: 'partials/graph-list.html', controller: 'GraphListCtrl'}).
         when('/graphs/:graphId', {templateUrl: 'partials/graph-detail.html', controller: 'GraphDetailCtrl'}).
+        when('/graphs/:graphId/vertices', {templateUrl: 'partials/vertex-list.html', controller: 'VertexListCtrl'}).
+        when('/graphs/:graphId/vertices/:vertexId', {templateUrl: 'partials/vertex-detail.html', controller: 'VertexDetailCtrl'}).
+        when('/graphs/:graphId/create_vertex', {templateUrl: 'partials/vertex-create.html', controller: 'VertexCreateCtrl'}).
         otherwise({redirectTo: '/graphs'});
   }]);
