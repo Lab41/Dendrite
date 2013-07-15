@@ -48,7 +48,16 @@ angular.module('dendrite.services', ['ngResource']).
         });
     }).
     factory('Vertex', function($resource) {
-        return $resource('rexster-resource/graphs/:graphId/vertices/:vertexId', {}, {
-            query: {method: 'GET', params: {graphId: '@graphId', vertexId: '@vertexId'}, isArray: false}
+        return $resource('rexster-resource/graphs/:graphId/vertices/:vertexId', {
+            graphId: '@graphId',
+            vertexId: '@_id'
+        }, {
+            save: {
+                method: 'POST'
+            },
+            query: {
+                method: 'GET',
+                isArray: false
+            }
         });
     });

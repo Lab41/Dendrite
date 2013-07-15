@@ -1,7 +1,11 @@
 <a href="#/graphs/{{ graphId }}/create_vertex">Create Vertex</a>
 
-<ul ng-repeat="vertex in vertices.results">
+<ul ng-repeat="vertex in query.results">
     <li>
-        <a href="#/graphs/{{ graphId }}/vertices/{{ vertex._id }}">{{ vertex | json }}</a>
+        <a href="#/graphs/{{ graphId }}/vertices/{{ vertex._id }}">{{ vertex._id }}</a>
+        <ul ng-repeat="(key, value) in vertex">
+            <li>{{ key }}: {{ value }}</li>
+        </ul>
+        <button ng-click="deleteVertex(vertex)">delete</button>
     </li>
 </ul>

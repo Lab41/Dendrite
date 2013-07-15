@@ -1,5 +1,7 @@
 <form>
-    <label for="_id">Id</label><input type="text" name="_id" ng-model="vertex._id" />
-    <button ng-click="create()">save</button>
-    <pre>form = {{ vertex | json }}</pre>
+    Name: <input type="text" ng-model="vertex.name" /><br />
+    Address: <input type="text" ng-model="vertex.address" /><br />
+
+    <button ng-click="save()">save</button>
+    <pre>vertex = {{ vertex | json }}</pre>
 </form>
