@@ -7,9 +7,12 @@
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
     <http auto-config='false' entry-point-ref="jsonRestAuthenticationEntryPoint">
-        <intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/index*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/lib/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/partials/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/**" access="ROLE_USER"/>
-        <!--<form-login login-page='/login.html' />-->
         <logout logout-url="/j_spring_security_logout"/>
         <custom-filter ref="authenticationFilter" position="FORM_LOGIN_FILTER"/>
     </http>
@@ -29,7 +32,6 @@
 
     <beans:bean id="jsonRestAuthenticationEntryPoint"
                 class="org.lab41.web.security.JsonRestAuthenticationEntryPoint">
-        <!--<beans:property name="loginFormUrl" value="/login.html"/>-->
     </beans:bean>
 
     <authentication-manager alias="authenticationManager">
