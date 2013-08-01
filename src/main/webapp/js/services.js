@@ -4,7 +4,7 @@
 
 angular.module('dendrite.services', ['ngResource']).
     // User factory to handle authentication
-    factory('User', function($http, $location) {
+    factory('User', function($rootScope, $http, $location) {
       var _this = this;
       this.authenticated = false;
       this.name = null;
@@ -20,7 +20,7 @@ angular.module('dendrite.services', ['ngResource']).
         // login posts to spring password check and authenticates or returns empty callback
         // spring expects j_username/j_password as parameters
         login: function(username, password) {
-          return $http.post('j_spring_security_check', {
+          return $http.post($rootScope.url_login, {
             j_username: username,
             j_password: password
           }).success(function(response){
@@ -32,11 +32,12 @@ angular.module('dendrite.services', ['ngResource']).
         },
 
         // logout posts to spring logout URL
-        // callback remained undefined; apply location.path directly
+        // on success, broadcast to app
         logout: function() {
-          return $http.post('j_spring_security_logout', {}).
+          return $http.post($rootScope.url_logout, {}).
             success(function(response) {
               _this.authenticated = false;
+              $rootScope.$broadcast('event:logoutConfirmed');
             });
         }
       };
