@@ -3,3 +3,4 @@ target/
 *.iml
 berkeleyje-es.local/
 .DS_Store
+libpeerconnection.log
