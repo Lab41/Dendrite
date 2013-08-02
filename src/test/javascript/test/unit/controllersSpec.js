@@ -44,4 +44,46 @@ describe('controllers', function(){
       });
     });
   });
+
+
+  describe('GraphDetailCtrl', function(){
+    var $httpBackend, scope, ctrl;
+
+    beforeEach(inject(function($rootScope, _$httpBackend_, $controller){
+      $httpBackend = _$httpBackend_;
+      $httpBackend.expectGET('rexster-resource/graphs/a').respond({
+        name: "a",
+        queryTime: 0.1,
+        readOnly: false,
+        type: "titan",
+        version: "0.3.1"
+      });
+
+      scope = $rootScope.$new();
+      ctrl = $controller('GraphDetailCtrl', {
+          $scope: scope,
+          $routeParams: {graphId: "a"}
+      });
+    }));
+
+    afterEach(function(){
+      $httpBackend.verifyNoOutstandingExpectation();
+      $httpBackend.verifyNoOutstandingRequest();
+    });
+
+
+    it('should fetch graph detail', function(){
+      expect(scope.graph).toEqualData({});
+
+      $httpBackend.flush();
+
+      expect(scope.graph).toEqualData({
+        name: "a",
+        queryTime: 0.1,
+        readOnly: false,
+        type: "titan",
+        version: "0.3.1"
+      });
+    });
+  });
 });
