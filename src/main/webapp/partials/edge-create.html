@@ -1,0 +1,8 @@
+<form>
+    Label: <input type="text" ng-model="query._label" /><br>
+    In Vertex: <input type="number" ng-model="query._inV" /><br>
+    Out Vertex: <input type="number" ng-model="query._outV" /><br>
+
+    <button ng-click="save()">save</button>
+    <pre>edge = {{ edge | json }}</pre>
+</form>

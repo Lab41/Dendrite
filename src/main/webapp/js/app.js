@@ -16,6 +16,9 @@ angular.module('dendrite', [
         when('/graphs/:graphId/vertices', {templateUrl: 'partials/vertex-list.html', controller: 'VertexListCtrl'}).
         when('/graphs/:graphId/vertices/:vertexId', {templateUrl: 'partials/vertex-detail.html', controller: 'VertexDetailCtrl'}).
         when('/graphs/:graphId/create_vertex', {templateUrl: 'partials/vertex-create.html', controller: 'VertexCreateCtrl'}).
+        when('/graphs/:graphId/edges', {templateUrl: 'partials/edge-list.html', controller: 'EdgeListCtrl'}).
+        when('/graphs/:graphId/edges/:edgeId', {templateUrl: 'partials/edge-detail.html', controller: 'EdgeDetailCtrl'}).
+        when('/graphs/:graphId/create_edge', {templateUrl: 'partials/edge-create.html', controller: 'EdgeCreateCtrl'}).
         otherwise({redirectTo: '/graphs'});
   }]).
   config(['$httpProvider', function($httpProvider) {

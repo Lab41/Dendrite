@@ -162,4 +162,108 @@ describe('controllers', function(){
       });
     });
   });
+
+
+  describe('EdgeListCtrl', function(){
+    var $httpBackend, scope, ctrl;
+
+    beforeEach(inject(function($rootScope, _$httpBackend_, $controller){
+      $httpBackend = _$httpBackend_;
+      $httpBackend.expectGET('rexster-resource/graphs/a/edges').respond({
+        version: "2.3.0",
+        results:[{
+            _id: "Q1X-8-2F0LaTPQAK",
+            _type: "edge",
+            _outV: 8,
+            _inV: 4,
+            _label: "a"
+        }],
+        totalSize: 1,
+        queryTime: 7.591168
+      });
+
+      scope = $rootScope.$new();
+      ctrl = $controller('EdgeListCtrl', {
+          $scope: scope,
+          $routeParams: {graphId: "a"}
+      });
+    }));
+
+    afterEach(function(){
+      $httpBackend.verifyNoOutstandingExpectation();
+      $httpBackend.verifyNoOutstandingRequest();
+    });
+
+
+    it('should create "edge" model with 2 edges fetched from xhr', function(){
+      expect(scope.query).toEqualData({});
+
+      $httpBackend.flush();
+
+      expect(scope.query).toEqualData({
+        version: "2.3.0",
+        results: [{
+            _id: "Q1X-8-2F0LaTPQAK",
+            _type: "edge",
+            _outV: 8,
+            _inV: 4,
+            _label: "a"
+        }],
+        totalSize: 1,
+        queryTime: 7.591168
+      });
+    });
+  });
+
+
+  describe('EdgeDetailCtrl', function(){
+    var $httpBackend, scope, ctrl;
+
+    beforeEach(inject(function($rootScope, _$httpBackend_, $controller){
+      $httpBackend = _$httpBackend_;
+      $httpBackend.expectGET('rexster-resource/graphs/a/edges/Q1X-8-2F0LaTPQAK').respond({
+        version: "2.3.0",
+        results: [{
+            _id: "Q1X-8-2F0LaTPQAK",
+            _type: "edge",
+            _outV: 8,
+            _inV: 4,
+            _label: "a"
+        }],
+        totalSize: 1,
+        queryTime: 2.238976
+      });
+
+      scope = $rootScope.$new();
+      ctrl = $controller('EdgeDetailCtrl', {
+          $scope: scope,
+          $routeParams: {graphId: "a", edgeId: "Q1X-8-2F0LaTPQAK"}
+      });
+    }));
+
+    afterEach(function(){
+      $httpBackend.verifyNoOutstandingExpectation();
+      $httpBackend.verifyNoOutstandingRequest();
+    });
+
+
+    it('should fetch graph detail', function(){
+      expect(scope.query).toEqualData({});
+
+      $httpBackend.flush();
+
+      expect(scope.query).toEqualData({
+        version: "2.3.0",
+        results: [{
+            _id: "Q1X-8-2F0LaTPQAK",
+            _type: "edge",
+            _outV: 8,
+            _inV: 4,
+            _label: "a"
+        }],
+        totalSize: 1,
+        queryTime: 2.238976
+      });
+    });
+  });
 });

@@ -1,0 +1,7 @@
+<a href="#/graphs/{{ graphId }}/create_edge">Create Edge</a>
+
+<ul ng-repeat="edge in query.results">
+    <li>
+      <a href="#/graphs/{{ graphId }}/edges/{{ edge._id }}">label: {{ edge._label }}: {{ edge._inV }} -> {{ edge._outV }}</a>
+    </li>
+</ul>

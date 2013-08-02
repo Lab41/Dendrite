@@ -67,4 +67,34 @@ angular.module('dendrite.controllers', []).
                 $location.path('graphs/' + $scope.graphId + '/vertices');
             });
         };
+    }).
+    controller('EdgeListCtrl', function($scope, $routeParams, Edge) {
+        $scope.graphId = $routeParams.graphId;
+        $scope.query = Edge.query({graphId: $routeParams.graphId});
+
+        $scope.deleteEdge = function(edge) {
+            Edge.delete({graphId: $scope.graphId, edgeId: edge._id}, function() {
+               $scope.vertices.splice($scope.edges.indexOf(edge), 1);
+            });
+        }
+    }).
+    controller('EdgeDetailCtrl', function($scope, $routeParams, Edge) {
+        $scope.graphId = $routeParams.graphId;
+        $scope.edgeId = $routeParams.edgeId;
+        $scope.query = Edge.get({graphId: $routeParams.graphId, edgeId: $scope.edgeId});
+
+        $scope.delete = function() {
+            Edge.delete({graphId: $scope.graphId, edgeId: $scope.edge._id}, function() {
+                $location.path('graphs/' + $scope.graphId + '/edges');
+            });
+        }
+    }).
+    controller('EdgeCreateCtrl', function($scope, $routeParams, $location, Edge) {
+        $scope.graphId = $routeParams.graphId;
+
+        $scope.save = function() {
+            Edge.save({graphId: $scope.graphId}, $scope.edge, function() {
+                $location.path('graphs/' + $scope.graphId + '/edges');
+            });
+        };
     });
