@@ -86,4 +86,80 @@ describe('controllers', function(){
       });
     });
   });
+
+
+  describe('VertexListCtrl', function(){
+    var $httpBackend, scope, ctrl;
+
+    beforeEach(inject(function($rootScope, _$httpBackend_, $controller){
+      $httpBackend = _$httpBackend_;
+      $httpBackend.expectGET('rexster-resource/graphs/a/vertices').respond({
+        results: [
+            {_id: 4, _type: "vertex"},
+            {_id: 8, _type: "vertex"}
+        ],
+        totalSize: 2
+      });
+
+      scope = $rootScope.$new();
+      ctrl = $controller('VertexListCtrl', {
+          $scope: scope,
+          $routeParams: {graphId: "a"}
+      });
+    }));
+
+    afterEach(function(){
+      $httpBackend.verifyNoOutstandingExpectation();
+      $httpBackend.verifyNoOutstandingRequest();
+    });
+
+
+    it('should create "vertex" model with 2 vertices fetched from xhr', function(){
+      expect(scope.query).toEqualData({});
+
+      $httpBackend.flush();
+
+      expect(scope.query).toEqualData({
+        results: [
+            {_id: 4, _type: "vertex"},
+            {_id: 8, _type: "vertex"}
+        ],
+        totalSize: 2
+      });
+    });
+  });
+
+
+  describe('VertexDetailCtrl', function(){
+    var $httpBackend, scope, ctrl;
+
+    beforeEach(inject(function($rootScope, _$httpBackend_, $controller){
+      $httpBackend = _$httpBackend_;
+      $httpBackend.expectGET('rexster-resource/graphs/a/vertices/4').respond({
+        results: {_id: 4, _type: "vertex"}
+      });
+
+      scope = $rootScope.$new();
+      ctrl = $controller('VertexDetailCtrl', {
+          $scope: scope,
+          $routeParams: {graphId: "a", vertexId: 4}
+      });
+    }));
+
+    afterEach(function(){
+      $httpBackend.verifyNoOutstandingExpectation();
+      $httpBackend.verifyNoOutstandingRequest();
+    });
+
+
+    it('should fetch graph detail', function(){
+      expect(scope.query).toEqualData({});
+
+      $httpBackend.flush();
+
+      expect(scope.query).toEqualData({
+        results: {_id: 4, _type: "vertex"}
+      });
+    });
+  });
 });
