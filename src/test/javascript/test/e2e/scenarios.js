@@ -2,44 +2,68 @@
 
 /* http://docs.angularjs.org/guide/dev_guide.e2e-testing */
 
-describe('dendrite', function() {
+describe('dendrite', function($window) {
 
   beforeEach(function() {
-    browser().navigateTo('../../app/index.html');
+    browser().navigateTo('/');
   });
 
-
-  it('should automatically redirect to /view1 when location hash/fragment is empty', function() {
-    expect(browser().location().url()).toBe("/view1");
-  });
-
-
-  describe('view1', function() {
+  describe('loginSuccess', function($window) {
 
     beforeEach(function() {
-      browser().navigateTo('#/view1');
+      browser().navigateTo('#/login/');
     });
 
-
-    it('should render view1 when user navigates to /view1', function() {
-      expect(element('[ng-view] p:first').text()).
-        toMatch(/partial for view 1/);
+    it('unauthenticated users should redirect to /login', function() {
+      browser().navigateTo('#/graphs/');
+      expect(browser().location().url()).toBe('/login');
+      //pause();
     });
+
+    it('login screen should display Login button', function() {
+      expect(element('#form-login [ng-click]').text()).toMatch(/Login/);
+      //pause();
+    });
+
+    it('should accept valid login credentials', function() {
+      pause();
+      input('username').enter('user');
+      input('password').enter('password');
+      pause();
+      element('#form-login [ng-click]').click();
+      sleep(1);
+      expect(element('.button-logout').text()).toMatch(/Logout/);
+      pause();
+    });
+
+    it('should logout after logging in with valid credentials', function() {
+      browser().navigateTo('#/login/');
+      input('username').enter('user');
+      input('password').enter('password');
+      element('#form-login [ng-click]').click();
+      sleep(2);
+      pause();
+      expect(element('.button-logout').text()).toMatch(/Logout/);
+      element('[ng-click]').click();
+      console.log(element('[ng-click]'));
+      pause();
+      expect(element('#form-login [ng-click]').text()).toMatch(/Login/);
+      //pause();
+    });
+
 
   });
 
+  describe('loginFailure', function($window) {
+    it('should not accept invalid login credentials', function($window) {
+      var alertSpy = jasmine.createSpy('alert');
 
-  describe('view2', function() {
-
-    beforeEach(function() {
-      browser().navigateTo('#/view2');
+      input('username').enter('fake');
+      input('password').enter('password');
+      //pause();
+      element('#form-login [ng-click]').click();
+      sleep(1);
+      expect(element('#form-login [ng-click]').text()).toMatch(/Login/);
     });
-
-
-    it('should render view2 when user navigates to /view2', function() {
-      expect(element('[ng-view] p:first').text()).
-        toMatch(/partial for view 2/);
-    });
-
   });
 });
