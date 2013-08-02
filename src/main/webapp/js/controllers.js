@@ -4,7 +4,7 @@
 
 angular.module('dendrite.controllers', []).
     controller('GraphListCtrl', function($scope, Graph) {
-        $scope.graphs = Graph.query();
+        $scope.query = Graph.query();
     }).
     controller('GraphDetailCtrl', function($scope, $routeParams, Graph) {
         $scope.graphId = $routeParams.graphId;
