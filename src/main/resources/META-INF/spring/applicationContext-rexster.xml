@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This spring configuration file is used to instantiate all of the rexster base resources -->
+<!-- This also allows us to create and inject our own providers -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <bean id="edgeResource" class="com.tinkerpop.rexster.EdgeResource" scope="request"/>
+    <bean id="graphResource" class="com.tinkerpop.rexster.GraphResource" scope="request"/>
+    <bean id="indexResource" class="com.tinkerpop.rexster.IndexResource" scope="request"/>
+    <bean id="keyIndexResource" class="com.tinkerpop.rexster.KeyIndexResource" scope="request"/>
+    <bean id="prefixResource" class="com.tinkerpop.rexster.PrefixResource" scope="request"/>
+    <bean id="rexsterResource" class="com.tinkerpop.rexster.RexsterResource" scope="request"/>
+    <bean id="vertexResource" class="com.tinkerpop.rexster.VertexResource" scope="request"/>
+
+    <bean id="rexsterApplicationProvider" class="org.lab41.jersey.providers.RexsterApplicationProvider"
+          scope="singleton"/>
+
+    <bean class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <!-- TODO: Figure out how to parameterize this based on the enviornment -->
+                <value>classpath:META-INF/spring/dev/rexster.properties</value>
+            </list>
+        </property>
+    </bean>
+
+
+</beans>
