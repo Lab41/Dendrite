@@ -64,7 +64,10 @@
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
-
+    <!-- This allow for request scope for Spring beans -->
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
 
     <!-- Handles Spring requests -->
     <servlet>
@@ -86,10 +89,6 @@
     <servlet>
         <servlet-name>jerseyspring</servlet-name>
         <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
-        <init-param>
-            <param-name>com.sun.jersey.config.property.packages</param-name>
-        <param-value>com.tinkerpop.rexster</param-value>
-        </init-param>
         <init-param>
             <param-name>com.tinkerpop.rexster.config</param-name>
             <param-value>/WEB-INF/rexster.xml</param-value>
