@@ -1,11 +1,27 @@
-<a href="#/graphs/{{ graphId }}/create_vertex">Create Vertex</a>
-
-<ul ng-repeat="vertex in query.results">
-    <li>
-        <a href="#/graphs/{{ graphId }}/vertices/{{ vertex._id }}">{{ vertex._id }}</a>
-        <ul ng-repeat="(key, value) in vertex">
-            <li>{{ key }}: {{ value }}</li>
-        </ul>
-        <button ng-click="deleteVertex(vertex)">delete</button>
-    </li>
-</ul>
+<h3>Vertices</h3>
+<a class="btn" href="#/graphs/{{ graphId }}/create_vertex">Create Vertex</a>
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span12">
+      <table class="table table-condensed datatable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Address</th>                
+          </tr>
+        </thead>
+        <tbody ng-repeat="vertex in query.results">
+          <tr>
+            <td>
+              <a href="#/graphs/{{ graphId }}/vertices/{{ vertex._id }}">{{ vertex._id }}</a> 
+              <button ng-click="deleteVertex(vertex)" class="btn btn-primary">delete</button>
+            </td>          
+            <td>{{ vertex.name }}</td>
+            <td>{{ vertex.address }}</td>
+          </tr>                       
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

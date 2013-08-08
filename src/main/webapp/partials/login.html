@@ -1,7 +1,7 @@
-<div>
+<div ng-controller="LoginCtrl" >
     <form id="form-login">
-        <label>Username: <input type="text" name="username" ng-model="username"></label>
-        <label>Password: <input type="password" name="password" ng-model="password"></label>
-        <button id="button-login" ng-click="login()">Login</button>
+        <label><input type="text" name="username" ng-model="username" placeholder=" Username"></label>
+        <label><input type="password" name="password" ng-model="password" placeholder=" Password"></label>
+        <button class="btn btn-success" id="button-login" ng-click="login()">Login</button>
     </form>
 </div>

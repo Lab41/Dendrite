@@ -1,0 +1,14 @@
+//
+// mixins
+// --------------------------------------------------
+.rounded-corner (@radius: 6px) {
+  border-radius: @radius;
+  webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+}
+
+.shadow (@offset-left: 0, @offset-top: 1px, @blur: 2px, @spread: 0, @rgba: rgba(0,0,0,.15)) {
+  -webkit-box-shadow: @offset-left @offset-top @blur @spread @rgba;
+  -moz-box-shadow: @offset-left @offset-top @blur @spread @rgba;
+  box-shadow: @offset-left @offset-top @blur @spread @rgba;
+}

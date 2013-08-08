@@ -1,0 +1,410 @@
+@import "ui-colors.css.less";
+@import "ui-mixins.css.less";
+@import "angular.css.less";
+
+
+//
+// PROJECT VARIABLES
+// --------------------------------------------------
+@color-success:                   @color-green-light;
+@color-danger:                    @color-red-light;
+@color-warning:                   @color-yellow-light;
+@color-info:                      @color-blue-light;
+
+@btn-hsl-alpha: 1.0;
+@color-btn-primary-start:         @color-blue-light;
+@color-btn-primary-end:           @color-blue-dark;
+@color-btn-primary-hsv:           hsla(hue(@color-btn-primary-end), saturation(@color-btn-primary-end), lightness(@color-btn-primary-end), @btn-hsl-alpha);
+@color-btn-success-start:         @color-aqua-light;
+@color-btn-success-end:           @color-aqua-dark;
+@color-btn-success-hsv:           hsla(hue(@color-btn-success-end), saturation(@color-btn-success-end), lightness(@color-btn-success-end), @btn-hsl-alpha);
+@color-btn-attention-start:       @color-orange-light;
+@color-btn-attention-end:         @color-orange-dark;
+@color-btn-attention-hsv:         hsla(hue(@color-btn-attention-end), saturation(@color-btn-attention-end), lightness(@color-btn-attention-end), @btn-hsl-alpha);
+
+@color-heading-light:             @color-blue-dark;
+@color-heading-dark:              @color-navy-dark;
+@color-navbar-from:               @color-gray-light;
+@color-navbar-to:                 @color-gray-light;
+
+@color-page-background-mysql:     @color-red-light;
+@color-page-background-mongo:     @color-yellow-light;
+@color-page-background-redis:     @color-blue-light;
+@color-page-background-hemlock:   @color-aqua-light;
+
+@color-link:                      @color-blue-dark;
+@color-inverse:                   @color-white-dark;
+
+@font-size:                       12px;
+@margin-left:                     120px;
+
+@image-logo-project:              url("logo_project.png");
+@image-logo-secondary-mysql:      url("logo_mysql.png");
+@image-logo-secondary-mongo:      url("logo_mongo.png");
+@image-logo-secondary-redis:      url("logo_redis.png");
+
+
+
+// --------------------------------------------------
+// PROJECT CLASSES
+// --------------------------------------------------
+//
+
+/*************************************************/
+/* images */
+/*************************************************/
+.logo {
+  padding: 5px;
+  height: 50px;
+  width: 232px;
+}
+
+.logo-container {
+}
+
+.logo-project {
+  width: 200px;
+  width: auto;
+}
+
+.logo-secondary-mysql {
+  background-image: @image-logo-secondary-mysql;
+  background-size: auto 50px;
+  background-repeat: no-repeat;
+  height: 50px;
+  width: 175px;
+}
+
+.logo-secondary-mongo {
+  background-image: @image-logo-secondary-mongo;
+  background-size: auto 50px;
+  background-repeat: no-repeat;
+  height: 50px;
+  width: 175px;
+}
+
+.logo-secondary-redis {
+  background-image: @image-logo-secondary-redis;
+  background-size: auto 50px;
+  background-repeat: no-repeat;
+  height: 50px;
+  width: 175px;
+}
+
+/*************************************************/
+/* typography */
+/*************************************************/
+.role-enabled {
+  font-weight: bold;
+  color: @color-red-light;
+}
+
+.role-disabled {
+  font-weight: normal;
+  color:@color-navy-dark;
+}
+
+.heading {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: 'NoticiaBold', 'Times New Roman', serif;
+  text-decoration: none;
+  color: @color-heading-dark;
+  border-bottom: 1px solid @color-gray-light;
+  padding-bottom: 15px;
+}
+
+.subheading {
+  font-family: "BebasNeue",sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 20px;
+  line-height: 15px;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+.page-heading {
+  text-align:right;
+  padding:0; 
+  display:block;
+  float:right;
+  margin-top:-20px;
+  margin-right:-20px;
+}
+
+.page-heading h1 {
+  font-size:50px;
+  color: @color-gray-light;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  color: @color-orange-dark;
+}
+
+.dropdown-menu  a.link-disabled {
+  color: @color-gray-medium;
+}
+
+
+/*************************************************/
+/* layout */
+/*************************************************/
+body { 
+  padding-top: 60px; 
+  background-repeat: no-repeat; 
+}
+
+.body-mysql {
+  background-color: @color-page-background-mysql;
+}
+
+.body-mongo {
+  background-color: @color-page-background-mongo;
+}
+
+.body-redis {
+  background-color: @color-page-background-redis;
+}
+
+.body-hemlock {
+  background-color: @color-page-background-hemlock;
+}
+
+.content {
+  background-color: @color-gray-light;
+  padding: 40px;
+  margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
+  .rounded-corner;
+  .shadow;
+}
+
+.content-outer {
+  background-image: url("strip_horizontal.png");
+  background-repeat: repeat-x;
+  background-position: left bottom;
+}
+
+.container-comments {
+  border: 1px dashed @color-gray-light;
+  .rounded-corner(10px);
+}
+
+#canvas {
+  background-position: top left;
+  background-repeat: none;
+}
+
+
+/*************************************************/
+/* sections */
+/*************************************************/
+.align-top {
+  vertical-align:top;
+}
+
+.thick-divide-bottom {
+  margin-bottom: 15px;
+  border-bottom: 10px solid @color-gray-light;
+  padding-bottom: 15px;
+}
+
+
+/*************************************************/
+/* notifications */
+/*************************************************/
+.alert-success {
+  background-color: @color-aqua-light;
+  border-color: @color-aqua-dark;
+  color: @color-gray-light;
+}
+
+.alert-error {
+  background-color: @color-red-light;
+  border-color: @color-red-dark;
+  color: @color-gray-light;
+}
+
+.alert-warning {
+  background-color: @color-yellow-light;
+  border-color: @color-yellow-dark;
+  color: @color-navy-dark;
+}
+
+#errorExplanation {
+  color: #f00;
+  ul {
+    list-style: none;
+    margin: 0 0 18px 0;
+  }
+}
+
+
+/*************************************************/
+/* forms */
+/*************************************************/
+input:focus:invalid:focus, textarea:focus:invalid:focus, select:focus:invalid:focus {
+  border-color: @color-aqua-light;
+  .shadow(0, 0, 6px, 0, @color-aqua-dark);
+}
+
+.simple_form .error {
+  clear: left;
+  margin-left: @margin-left;
+  font-size: @font-size;
+  color: @color-gray-light;
+  display: block;
+}
+
+.simple_form .hint {
+  clear: left;
+  margin-left: @margin-left;
+  font-size: @font-size;
+  color: @color-gray-light;
+  display: block;
+  font-style: italic;
+}
+
+.disclaimer {
+  color: @color-gray-light;
+  text-align: center;
+  font-style: italic;
+  font-size: smaller;
+  line-height:14px;
+}
+
+abbr[title="required"] {
+  color: @color-red-light;
+}
+
+.form-tags {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+textarea {
+  width: 400px;
+}
+
+
+/*************************************************/
+/* ui elements */
+/*************************************************/
+.accordion-heading.accordion-heading-comment .accordion-toggle  {
+  display: inline;
+}
+
+div.span6 div.span6 div.dataTables_length label {
+  margin-left: 30px;
+}
+
+
+/*************************************************/
+/* navbar */
+/*************************************************/
+
+.navbar {
+  border-top: 2px solid @color-orange-dark;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.navbar-fixed-top {
+  min-height: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: @color-navbar-from;
+  background-image: -moz-linear-gradient(top, @color-navbar-from, @color-navbar-to);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@color-navbar-from), to(@color-navbar-to));
+  background-image: -webkit-linear-gradient(top, @color-navbar-from, @color-navbar-to);
+  background-image: -o-linear-gradient(top, @color-navbar-from, @color-navbar-to);
+  background-image: linear-gradient(to bottom, @color-navbar-from, @color-navbar-to);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=@color-navbar-from, @color-navbar-to, GradientType=0);
+  border: 1px solid #D4D4D4;
+  .shadow(0, 1px, 4px, 0, rgba(0, 0, 0, 0.065));
+}
+
+.navbar .nav .active a {
+  background-color: @color-white-dark;
+  .rounded-corner(3px);
+}
+
+
+/*************************************************/
+/* buttons */
+/*************************************************/
+.btn-group.btn-onelevel > .dropdown-menu > li > a:hover > [class^="icon-"],
+.btn-group.btn-onelevel > .dropdown-menu > li > a:hover > [class*=" icon-"] {
+  background-image: none;
+}
+
+.btn-group {
+  margin-bottom:10px;
+  display:inline-block;
+}
+
+.btn-small i {
+  vertical-align:bottom;
+}
+
+.btn-primary {
+  background-color: @color-btn-primary-hsv !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-primary-start", endColorstr="@color-btn-primary-end");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(@color-btn-primary-start), to(@color-btn-primary-end));
+  background-image: -moz-linear-gradient(top, @color-btn-primary-start, @color-btn-primary-end);
+  background-image: -ms-linear-gradient(top, @color-btn-primary-start, @color-btn-primary-end);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, @color-btn-primary-start), color-stop(100%, @color-btn-primary-end));
+  background-image: -webkit-linear-gradient(top, @color-btn-primary-start, @color-btn-primary-end);
+  background-image: -o-linear-gradient(top, @color-btn-primary-start, @color-btn-primary-end);
+  background-image: linear-gradient(@color-btn-primary-start, @color-btn-primary-end);
+  border-color: @color-btn-primary-end @color-btn-primary-end @color-btn-primary-hsv;
+  color: @color-white-dark !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn-success {
+  background-color: @color-btn-success-hsv !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-success-start", endColorstr="@color-btn-success-end");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(@color-btn-success-start), to(@color-btn-success-end));
+  background-image: -moz-linear-gradient(top, @color-btn-success-start, @color-btn-success-end);
+  background-image: -ms-linear-gradient(top, @color-btn-success-start, @color-btn-success-end);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, @color-btn-success-start), color-stop(100%, @color-btn-success-end));
+  background-image: -webkit-linear-gradient(top, @color-btn-success-start, @color-btn-success-end);
+  background-image: -o-linear-gradient(top, @color-btn-success-start, @color-btn-success-end);
+  background-image: linear-gradient(@color-btn-success-start, @color-btn-success-end);
+  border-color: @color-btn-success-end @color-btn-success-end @color-btn-success-hsv;
+  color: @color-white-dark !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn-attention {
+  background-color: @color-btn-attention-hsv !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-attention-start", endColorstr="@color-btn-attention-end");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(@color-btn-attention-start), to(@color-btn-attention-end));
+  background-image: -moz-linear-gradient(top, @color-btn-attention-start, @color-btn-attention-end);
+  background-image: -ms-linear-gradient(top, @color-btn-attention-start, @color-btn-attention-end);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, @color-btn-attention-start), color-stop(100%, @color-btn-attention-end));
+  background-image: -webkit-linear-gradient(top, @color-btn-attention-start, @color-btn-attention-end);
+  background-image: -o-linear-gradient(top, @color-btn-attention-start, @color-btn-attention-end);
+  background-image: linear-gradient(@color-btn-attention-start, @color-btn-attention-end);
+  border-color: @color-btn-attention-end @color-btn-attention-end @color-btn-attention-hsv;
+  color: @color-white-dark !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn-nostyle {
+  background-color: transparent;
+  border: none;
+  color: @color-blue-light;
+  text-decoration: underline;
+}
+
+.btn-nostyle:hover {
+  cursor: pointer;
+}

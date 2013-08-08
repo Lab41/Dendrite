@@ -1,0 +1,33 @@
+<header class="navbar navbar-fixed-top" ng-controller="navCtrl">
+  <div>
+  
+    <!-- authenticated users see account data -->
+    <div ng-if='User.isLoggedIn()'>
+      <a class="navbar-brand" href="#">Dendrite</a>
+      <ul class="nav navbar-nav">
+       
+        <!-- split button for graphs list -->
+        <div class="btn-group navbar-btn" ng-class='{open: $scope.open}'>
+          <button class="btn btn-default" ng-click='$scope.open=!$scope.open'>Graphs</button>
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-click='$scope.open=!$scope.open'><span class="caret"></span></button>
+          <ul class="dropdown-menu" ng-controller="GraphListCtrl">
+            <li ng-repeat="graph in query.graphs" >
+              <a ng-click='$scope.open=!$scope.open' href="#/graphs/{{ graph }}" >{{ graph }}</a>
+            </li>
+          </ul>
+        </div>
+
+      </ul>
+      <ul class="nav navbar-nav pull-right">
+        <li><button type="button" id="button-logout" class="btn navbar-btn button-logout" ng-click="User.logout()">Logout</button></li>
+      </ul> 
+    </div>
+    
+    <!-- unauthenticated users see user/login form -->
+    <div ng-if='!User.isLoggedIn()'>
+      <a class="navbar-brand" href="#">Dendrite</a> 
+      <div ng-include src="'partials/login.html'" class="nav navbar-nav pull-right" style="padding-top:10px"></div>           
+    </div>
+
+  </div>
+</header>
