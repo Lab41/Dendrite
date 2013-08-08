@@ -3,11 +3,38 @@
 /* Controllers */
 
 angular.module('dendrite.controllers', []).
+    controller('navCtrl', ['$scope', '$location', 'User', 'Graph', function ($scope, $location, User, Graph) {
+      $scope.User = User;
+      $scope.query = Graph.query();
+      
+      // update navbar class to highlight link of current page
+      $scope.navClass = function (page) {
+          var currentRoute = $location.path().substring(1) || 'home';
+          return page === currentRoute ? 'active' : '';
+      }; 
+      
+      // replicate LoginCtrl to embed user/pass in navbar
+      $scope.login = function() {
+        User.login($scope.username, $scope.password).
+          success(function(){
+            $scope.User = User;
+            $scope.$broadcast('event:returnHome');
+          }).
+          error(function(response){
+            window.alert('Authentication failed!', response);
+          });
+      }; 
+    }]).
+    controller('HomeCtrl', function($scope, $location, User, Graph) {
+      $scope.User = User; 
+      $scope.accessLevels = User.accessLevels;     
+    }).
     controller('LoginCtrl', function($scope, $location, User) {
       $scope.login = function() {
         User.login($scope.username, $scope.password).
           success(function(){
-            $location.path('/graphs');
+            $scope.User = User;
+            $scope.$broadcast('event:returnHome');
           }).
           error(function(response){
             window.alert('Authentication failed!', response);
@@ -18,11 +45,13 @@ angular.module('dendrite.controllers', []).
       $scope.logout = function() {
         User.logout().
           success(function(){
-            $location.path('/login');
+            $scope.$broadcast('event:loginRequired');
+            //$location.path('/login');
           }).
           error(function(response){
             window.alert('Logout failed!', response);
-            $location.path('/login');
+            //$location.path('/login');
+            $scope.$broadcast('event:loginRequired');
           });
       };
     }).
@@ -39,12 +68,12 @@ angular.module('dendrite.controllers', []).
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
         $scope.query = Vertex.query({graphId: $routeParams.graphId});
-
+            
         $scope.deleteVertex = function(vertex) {
             Vertex.delete({graphId: $scope.graphId, vertexId: vertex._id}, function() {
                $scope.query.results.splice($scope.query.results.indexOf(vertex), 1);
             });
-        }
+        };
     }).
     controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;

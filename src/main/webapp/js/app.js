@@ -6,20 +6,23 @@ angular.module('dendrite', [
         'dendrite.filters',
         'dendrite.services',
         'dendrite.directives',
-        'dendrite.controllers'
+        'dendrite.controllers',
+        'ngCookies'
     ]).
   config(['$routeProvider', function($routeProvider) {
+    var access = routingConfig.accessLevels;  
     $routeProvider.
-        when('/login', {templateUrl: 'partials/login.html', controller: 'LoginCtrl'}).
-        when('/graphs', {templateUrl: 'partials/graph-list.html', controller: 'GraphListCtrl'}).
-        when('/graphs/:graphId', {templateUrl: 'partials/graph-detail.html', controller: 'GraphDetailCtrl'}).
-        when('/graphs/:graphId/vertices', {templateUrl: 'partials/vertex-list.html', controller: 'VertexListCtrl'}).
-        when('/graphs/:graphId/vertices/:vertexId', {templateUrl: 'partials/vertex-detail.html', controller: 'VertexDetailCtrl'}).
-        when('/graphs/:graphId/create_vertex', {templateUrl: 'partials/vertex-create.html', controller: 'VertexCreateCtrl'}).
-        when('/graphs/:graphId/edges', {templateUrl: 'partials/edge-list.html', controller: 'EdgeListCtrl'}).
-        when('/graphs/:graphId/edges/:edgeId', {templateUrl: 'partials/edge-detail.html', controller: 'EdgeDetailCtrl'}).
-        when('/graphs/:graphId/create_edge', {templateUrl: 'partials/edge-create.html', controller: 'EdgeCreateCtrl'}).
-        otherwise({redirectTo: '/graphs'});
+        when('/home', {templateUrl: 'partials/home.html', controller: 'HomeCtrl', access: access.ROLE_ANON}).    
+        when('/login', {templateUrl: 'partials/login.html', controller: 'LoginCtrl', access: access.ROLE_ANON}).
+        when('/graphs', {templateUrl: 'partials/graph-list.html', controller: 'GraphListCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId', {templateUrl: 'partials/graph-detail.html', controller: 'GraphDetailCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/vertices', {templateUrl: 'partials/vertex-list.html', controller: 'VertexListCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/vertices/:vertexId', {templateUrl: 'partials/vertex-detail.html', controller: 'VertexDetailCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/create_vertex', {templateUrl: 'partials/vertex-create.html', controller: 'VertexCreateCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/edges', {templateUrl: 'partials/edge-list.html', controller: 'EdgeListCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/edges/:edgeId', {templateUrl: 'partials/edge-detail.html', controller: 'EdgeDetailCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/create_edge', {templateUrl: 'partials/edge-create.html', controller: 'EdgeCreateCtrl', access: access.ROLE_USER}).
+        otherwise({redirectTo: '/home'});
   }]).
   config(['$httpProvider', function($httpProvider) {
     var interceptor = ['$rootScope','$q', function(scope, $q) {
@@ -43,6 +46,7 @@ angular.module('dendrite', [
             deferred: deferred
           }
           scope.requests401.push(req);
+          console.log(response);
           scope.$broadcast('event:loginRequired');
           return deferred.promise;
         }
@@ -62,6 +66,18 @@ angular.module('dendrite', [
   }]).
   run(['$rootScope', '$http', '$location', 'User', function(scope, $http, $location, User) {
 
+    scope.$on("$routeChangeStart", function (event, next, current) {
+      User.getRole();
+      if (!User.authorize(next.access)) {
+        if (User.isLoggedIn()) {
+          scope.$broadcast('event:returnHome');
+        }
+        else {
+          scope.$broadcast('event:returnHome');
+        }
+      }
+    });
+
     // store requests which failed due to 401 response.
     scope.requests401 = [];
     
@@ -71,6 +87,7 @@ angular.module('dendrite', [
    
     // event:loginConfirmed - resend all the 401 requests.
     scope.$on('event:loginConfirmed', function() {
+      /*
       var i, requests = scope.requests401;
       for (i = 0; i < requests.length; i++) {
         retry(requests[i]);
@@ -82,8 +99,15 @@ angular.module('dendrite', [
           req.deferred.resolve(response);
         });
       }
+      */
     });
+
+    // event:returnHome - send user to homepage
+    scope.$on('event:returnHome', function() {
+      $location.path('/home');
+    });    
     
+                
     //event:loginRequest - send credentials to the server.
     scope.$on('event:loginRequest', function(event, username, password) {
       var payload = $.param({j_username: username, j_password: password});
@@ -91,7 +115,7 @@ angular.module('dendrite', [
         headers: {'Content-Type':'application/json; charset=UTF-8'}
       }
       $http.post(scope.url_login, payload, config).success(function(data) {
-        if (data === 'AUTHENTICATION_SUCCESS') {
+        if (data === 'AUTHENTICATION_SUCCESS') {      
           scope.$broadcast('event:loginConfirmed');
         }
       });
@@ -99,13 +123,13 @@ angular.module('dendrite', [
 
     // event:loginRequired - redirect to root URL
     scope.$on('event:loginRequired', function() {
-      $location.path("/login");
+      User.resetRole();
+      scope.$broadcast('event:returnHome');
     });
     
     // event: logoutConfirmed - redirect to root URL
     scope.$on('event:logoutConfirmed', function() {
-      $location.path("/login");
-      alert("Thanks for Dendrite-ing!  Come back soon, y'all!");
+      scope.$broadcast('event:returnHome');
     });
        
     // event: logoutRequest - invoke logout on the server and broadcast 'event:loginRequired'.
@@ -114,13 +138,5 @@ angular.module('dendrite', [
         ping();
       });
     });
-   
-    // placeholder function to test login status
-    function ping() {
-      $http.get('rest/ping').success(function() {
-        scope.$broadcast('event:loginConfirmed');
-      });
-    }
-    //ping();
-    
+
   }]);
