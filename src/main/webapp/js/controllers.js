@@ -73,7 +73,7 @@ angular.module('dendrite.controllers', []).
             columnDefs: [
                 {field: '_id', displayName: 'ID'},
                 {field: 'name', displayName: 'Name', enableCellEdit: true},
-                {field: 'address', displayName: 'Address', enableCellEdit: true},
+                {field: 'age', displayName: 'Age', enableCellEdit: true},
             ],
             filterOptions: {
                 filterText: "",
