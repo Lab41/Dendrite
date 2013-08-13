@@ -211,9 +211,18 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
-    controller('FileUploadCtrl', function ($scope) {
-        $scope.uploadFile = function (content) {
-          console.log(content);
-          $scope.uploadResponse = content.msg;
+    controller('FileUploadCtrl', function ($scope, $routeParams) {
+        $scope.graphId = $routeParams.graphId;
+        $scope.fileUploaded = false;
+
+        $scope.uploadFile = function(content, completed) {
+            if (completed) {
+                $scope.fileUploaded = true;
+                if (content.status === "ok") {
+                    $scope.uploadMessage = "file uploaded";
+                } else {
+                    $scope.uploadMessage = "upload failed: " + content.msg;
+                }
+            }
         }
     });

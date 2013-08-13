@@ -1,6 +1,35 @@
 <a href="#/graphs/{{ graphId }}/vertices">vertices</a>
 <a href="#/graphs/{{ graphId }}/edges">edges</a>
 
+<h2>{{ graph.name }}</h2>
+
+<div ng-controller="FileUploadCtrl">
+    <form ng-upload action="api/{{ graphId }}/file-upload" upload-options-enable-controls>
+        <fieldset>
+            <legend>File Upload</legend>
+
+            <label for="format">Select the file format:</label>
+            <select name="format" id="format">
+                <option value="GraphSON" selected>GraphSON</option>
+                <option value="GraphML">GraphML</option>
+                <option value="GML">GML</option>
+            </select>
+
+            <br>
+
+            <label for="file">Select a file to upload:</label>
+            <input type="file" name="file" id="file">
+        </fieldset>
+
+        <p>
+            <input type="submit" class="btn btn-primary" value="Submit" upload-submit="uploadFile(content, completed)" />
+        </p>
+    </form>
+    <div class="alert alert-info" ng-hide="!fileUploaded">{{ uploadMessage }}</div>
+</div>
+
+<h3>Graph Details</h3>
+
 <ul>
     <li>{{ graph.name }}</li>
     <li>{{ graph.queryTime }}</li>
