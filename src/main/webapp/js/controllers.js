@@ -75,6 +75,7 @@ angular.module('dendrite.controllers', []).
                 {field: 'name', displayName: 'Name', enableCellEdit: true},
                 {field: 'age', displayName: 'Age', enableCellEdit: true},
             ],
+            showFilter: false,
             filterOptions: {
                 filterText: "",
                 useExternalFilter: true
@@ -82,8 +83,8 @@ angular.module('dendrite.controllers', []).
             enablePaging: true,
             showFooter: true,
             pagingOptions: {
-                pageSizes: [50, 100],
-                pageSize: 50,
+                pageSizes: [25, 50, 100],
+                pageSize: 25,
                 currentPage: 1
             },
             useExternalSorting: true,
@@ -99,9 +100,17 @@ angular.module('dendrite.controllers', []).
 
         $scope.getData = function() {
           Vertex.query({graphId: $routeParams.graphId}, function(query) {
+            // We are going to pretend that the server does the filtering, sorting, and paging.
+
             var results = query.results;
 
-            // We are going to pretend that the server does the sorting and paging. So first sort the data:
+            // So first filter the data:
+            results = $filter('filter')(
+              results,
+              $scope.gridOptions.filterOptions.filterText
+            );
+
+            // So first sort the data:
             results = $filter('orderBy')(
               results,
               $scope.gridOptions.sortInfo.fields[0],
@@ -127,13 +136,13 @@ angular.module('dendrite.controllers', []).
 
         $scope.getData();
 
-        $scope.$watch('gridOptions.filterOptions', function(newVal, oldVal) {
-          if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
+        $scope.$watch('gridOptions.filterOptions.filterText', function(newVal, oldVal) {
+          if (newVal !== oldVal) {
             $scope.getData();
           }
         }, true);
         $scope.$watch('gridOptions.pagingOptions', function(newVal, oldVal) {
-          if (newVal !== oldVal) {
+          if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
             $scope.getData();
           }
         }, true);

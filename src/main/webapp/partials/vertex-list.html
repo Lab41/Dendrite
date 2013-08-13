@@ -3,6 +3,10 @@
 <div class="container-fluid">
   <div class="row-fluid">
     <div class="span12">
+      <div>
+        <input type="text" size="50" ng-model="gridOptions.filterOptions.filterText">
+      </div>
+
       <a class="btn" href="#/graphs/{{ graphId }}/create_vertex">Create Vertex</a>
       <button ng-click="deleteSelectedVertices()" ng-hide="isDeleteDisabled">Delete</button>
       <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
