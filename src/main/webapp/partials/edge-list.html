@@ -1,7 +1,11 @@
-<a href="#/graphs/{{ graphId }}/create_edge">Create Edge</a>
+<h3>Things We Know About People</h3>
 
-<ul ng-repeat="edge in query.results">
-    <li>
-      <a href="#/graphs/{{ graphId }}/edges/{{ edge._id }}">label: {{ edge._label }}: {{ edge._inV }} -> {{ edge._outV }}</a>
-    </li>
-</ul>
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span12">
+      <a class="btn" href="#/graphs/{{ graphId }}/create_edge">Create Edge</a>
+      <button ng-click="deleteSelectedEdges()" ng-hide="isDeleteDisabled">Delete</button>
+      <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
+    </div>
+  </div>
+</div>

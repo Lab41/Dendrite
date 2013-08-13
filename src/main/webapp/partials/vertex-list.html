@@ -1,4 +1,4 @@
-<h3>Vertices</h3>
+<h3>People We Know</h3>
 
 <div class="container-fluid">
   <div class="row-fluid">
@@ -6,20 +6,6 @@
       <a class="btn" href="#/graphs/{{ graphId }}/create_vertex">Create Vertex</a>
       <button ng-click="deleteSelectedVertices()" ng-hide="isDeleteDisabled">Delete</button>
       <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
-
-        <!--
-      <div class="selectedItems">{{ selections }}</div>
-      <table ng-table="tableParams" class="table">
-          <tr ng-repeat="vertex in vertices">
-            <td title="'ID'">
-              <a href="#/graphs/{{ graphId }}/vertices/{{ vertex._id }}">{{ vertex._id }}</a> 
-              <button ng-click="deleteVertex(vertex)" class="btn btn-primary">delete</button>
-            </td>          
-            <td title="'Name'" sortable="name">{{ vertex.name }}</td>
-            <td title="'Address'" sortable="address">{{ vertex.address }}</td>
-          </tr>                       
-      </table>
-      -->
     </div>
   </div>
 </div>

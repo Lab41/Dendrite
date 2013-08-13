@@ -64,14 +64,18 @@ angular.module('dendrite.controllers', []).
         $scope.graphId = $routeParams.graphId;
         $scope.graph = Graph.get({graphId: $routeParams.graphId});
     }).
-    controller('VertexListCtrl', function($scope, $routeParams, $filter, User, Vertex) {
+    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, User, Vertex) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
 
+        $scope.vertexDetail = function(id) {
+          $location.path('graphs/' + $scope.graphId + '/vertices/' + id);
+        };
+        
         $scope.gridOptions = {
             data: 'vertices',
             columnDefs: [
-                {field: '_id', displayName: 'ID'},
+                {field: '_id', displayName: 'ID', enableCellEdit: false, cellTemplate: '<div ng-click="vertexDetail(\'{{row.entity[col.field]}}\')"><a>{{row.entity[col.field]}}<a></div>'},
                 {field: 'name', displayName: 'Name', enableCellEdit: true},
                 {field: 'address', displayName: 'Address', enableCellEdit: true},
             ],
@@ -181,15 +185,106 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
-    controller('EdgeListCtrl', function($scope, $routeParams, Edge) {
+    controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, User, Edge) {
+        $scope.User = User;
         $scope.graphId = $routeParams.graphId;
-        $scope.query = Edge.query({graphId: $routeParams.graphId});
 
-        $scope.deleteEdge = function(edge) {
-            Edge.delete({graphId: $scope.graphId, edgeId: edge._id}, function() {
-               $scope.vertices.splice($scope.edges.indexOf(edge), 1);
+        $scope.edgeDetail = function(id) {
+          $location.path('graphs/' + $scope.graphId + '/edges/' + id);
+        };
+        
+        $scope.gridOptions = {
+            data: 'edges',
+            columnDefs: [
+                {field: '_id', displayName: 'ID', enableCellEdit: false, cellTemplate: '<div ng-click="edgeDetail(\'{{row.entity[col.field]}}\')"><a>{{row.entity[col.field]}}<a></div>'},
+                {field: '_inV', displayName: 'Vertex From', enableCellEdit: true},
+                {field: '_label', displayName: 'Link', enableCellEdit: true},
+                {field: '_outV', displayName: 'Vertex To', enableCellEdit: true},
+                {field: 'weight', displayName: 'Edge Weight', enableCellEdit: true},
+            ],
+            filterOptions: {
+                filterText: "",
+                useExternalFilter: true
+            },
+            enablePaging: true,
+            showFooter: true,
+            pagingOptions: {
+                pageSizes: [50, 100],
+                pageSize: 50,
+                currentPage: 1
+            },
+            useExternalSorting: true,
+            sortInfo: {
+                fields: ['_id'],
+                directions: ['asc']
+            },
+            selectedItems: [],
+            selectWithCheckboxOnly: true,
+            showSelectionCheckbox: true,
+            plugins: [new ngGridFlexibleHeightPlugin()]
+        };
+
+        $scope.getData = function() {
+          Edge.query({graphId: $routeParams.graphId}, function(query) {
+            var results = query.results;
+
+            // We are going to pretend that the server does the sorting and paging. So first sort the data:
+            results = $filter('orderBy')(
+              results,
+              $scope.gridOptions.sortInfo.fields[0],
+              $scope.gridOptions.sortInfo.directions[0] === 'asc'
+            );
+
+            // Then truncate the data to fit our "page".
+            results = results.slice(
+              ($scope.gridOptions.pagingOptions.currentPage - 1) * $scope.gridOptions.pagingOptions.pageSize,
+              $scope.gridOptions.pagingOptions.currentPage * $scope.gridOptions.pagingOptions.pageSize
+            );
+
+            $scope.gridOptions.totalServerItems = query.totalSize;
+
+            $scope.edges = results;
+
+            // Finally, make sure that the scope is updated.
+            if (!$scope.$$phase) {
+              $scope.$apply();
+            }
+          });
+        };
+
+        $scope.getData();
+
+        $scope.$watch('gridOptions.filterOptions', function(newVal, oldVal) {
+          if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
+            $scope.getData();
+          }
+        }, true);
+        $scope.$watch('gridOptions.pagingOptions', function(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            $scope.getData();
+          }
+        }, true);
+        $scope.$watch('gridOptions.sortInfo', function(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            $scope.getData();
+          }
+        }, true);
+
+        $scope.isDeleteDisabled = true;
+        $scope.$watch('gridOptions.selectedItems', function(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            $scope.isDeleteDisabled = (newVal.length === 0);
+          }
+        }, true);
+
+        $scope.deleteSelectedEdges = function() {
+            $scope.gridOptions.selectedItems.forEach(function(edge) {
+                Edge.delete({graphId: $scope.graphId, edgeId: edge._id}, function() {
+                    $scope.getData();
+                });
             });
-        }
+            $scope.isDeleteDisabled = true;
+        };
     }).
     controller('EdgeDetailCtrl', function($scope, $routeParams, Edge) {
         $scope.graphId = $routeParams.graphId;
