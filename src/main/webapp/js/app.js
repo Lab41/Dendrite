@@ -8,6 +8,7 @@ angular.module('dendrite', [
         'dendrite.directives',
         'dendrite.controllers',
         'ngCookies',
+        'ngUpload',
         'ngGrid'
     ]).
   config(['$routeProvider', function($routeProvider) {
@@ -15,6 +16,7 @@ angular.module('dendrite', [
     $routeProvider.
         when('/home', {templateUrl: 'partials/home.html', controller: 'HomeCtrl', access: access.ROLE_ANON}).    
         when('/login', {templateUrl: 'partials/login.html', controller: 'LoginCtrl', access: access.ROLE_ANON}).
+        when('/files', {templateUrl: 'partials/file-upload.html', controller: 'FileUploadCtrl', access: access.ROLE_USER}).
         when('/graphs', {templateUrl: 'partials/graph-list.html', controller: 'GraphListCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId', {templateUrl: 'partials/graph-detail.html', controller: 'GraphDetailCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/vertices', {templateUrl: 'partials/vertex-list.html', controller: 'VertexListCtrl', access: access.ROLE_USER}).
@@ -47,7 +49,6 @@ angular.module('dendrite', [
             deferred: deferred
           }
           scope.requests401.push(req);
-          console.log(response);
           scope.$broadcast('event:loginRequired');
           return deferred.promise;
         }

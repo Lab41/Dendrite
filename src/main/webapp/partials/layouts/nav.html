@@ -16,8 +16,12 @@
             </li>
           </ul>
         </div>
-
       </ul>
+      
+      <ul class="nav navbar-nav">
+        <li><a href="#/files">Files</a></li>      
+      </ul>
+      
       <ul class="nav navbar-nav pull-right">
         <li><button type="button" id="button-logout" class="btn navbar-btn button-logout" ng-click="User.logout()">Logout</button></li>
       </ul> 
@@ -25,7 +29,10 @@
     
     <!-- unauthenticated users see user/login form -->
     <div ng-if='!User.isLoggedIn()'>
-      <a class="navbar-brand" href="#">Dendrite</a> 
+      <a class="navbar-brand" href="#">Dendrite</a>
+      <ul class="nav navbar-nav">       
+        <li><a href="#/files">Files</a></li>
+      </ul>
       <div ng-include src="'partials/login.html'" class="nav navbar-nav pull-right" style="padding-top:10px"></div>           
     </div>
 
