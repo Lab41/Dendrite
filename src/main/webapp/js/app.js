@@ -7,7 +7,8 @@ angular.module('dendrite', [
         'dendrite.services',
         'dendrite.directives',
         'dendrite.controllers',
-        'ngCookies'
+        'ngCookies',
+        'ngGrid'
     ]).
   config(['$routeProvider', function($routeProvider) {
     var access = routingConfig.accessLevels;  

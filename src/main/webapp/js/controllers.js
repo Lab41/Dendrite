@@ -64,15 +64,99 @@ angular.module('dendrite.controllers', []).
         $scope.graphId = $routeParams.graphId;
         $scope.graph = Graph.get({graphId: $routeParams.graphId});
     }).
-    controller('VertexListCtrl', function($scope, $routeParams, User, Vertex) {
+    controller('VertexListCtrl', function($scope, $routeParams, $filter, User, Vertex) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
-        $scope.query = Vertex.query({graphId: $routeParams.graphId});
-            
-        $scope.deleteVertex = function(vertex) {
-            Vertex.delete({graphId: $scope.graphId, vertexId: vertex._id}, function() {
-               $scope.query.results.splice($scope.query.results.indexOf(vertex), 1);
+
+        $scope.gridOptions = {
+            data: 'vertices',
+            columnDefs: [
+                {field: '_id', displayName: 'ID'},
+                {field: 'name', displayName: 'Name', enableCellEdit: true},
+                {field: 'address', displayName: 'Address', enableCellEdit: true},
+            ],
+            filterOptions: {
+                filterText: "",
+                useExternalFilter: true
+            },
+            enablePaging: true,
+            showFooter: true,
+            pagingOptions: {
+                pageSizes: [50, 100],
+                pageSize: 50,
+                currentPage: 1
+            },
+            useExternalSorting: true,
+            sortInfo: {
+                fields: ['_id'],
+                directions: ['asc']
+            },
+            selectedItems: [],
+            selectWithCheckboxOnly: true,
+            showSelectionCheckbox: true,
+            plugins: [new ngGridFlexibleHeightPlugin()]
+        };
+
+        $scope.getData = function() {
+          Vertex.query({graphId: $routeParams.graphId}, function(query) {
+            var results = query.results;
+
+            // We are going to pretend that the server does the sorting and paging. So first sort the data:
+            results = $filter('orderBy')(
+              results,
+              $scope.gridOptions.sortInfo.fields[0],
+              $scope.gridOptions.sortInfo.directions[0] === 'asc'
+            );
+
+            // Then truncate the data to fit our "page".
+            results = results.slice(
+              ($scope.gridOptions.pagingOptions.currentPage - 1) * $scope.gridOptions.pagingOptions.pageSize,
+              $scope.gridOptions.pagingOptions.currentPage * $scope.gridOptions.pagingOptions.pageSize
+            );
+
+            $scope.gridOptions.totalServerItems = query.totalSize;
+
+            $scope.vertices = results;
+
+            // Finally, make sure that the scope is updated.
+            if (!$scope.$$phase) {
+              $scope.$apply();
+            }
+          });
+        };
+
+        $scope.getData();
+
+        $scope.$watch('gridOptions.filterOptions', function(newVal, oldVal) {
+          if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
+            $scope.getData();
+          }
+        }, true);
+        $scope.$watch('gridOptions.pagingOptions', function(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            $scope.getData();
+          }
+        }, true);
+        $scope.$watch('gridOptions.sortInfo', function(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            $scope.getData();
+          }
+        }, true);
+
+        $scope.isDeleteDisabled = true;
+        $scope.$watch('gridOptions.selectedItems', function(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            $scope.isDeleteDisabled = (newVal.length === 0);
+          }
+        }, true);
+
+        $scope.deleteSelectedVertices = function() {
+            $scope.gridOptions.selectedItems.forEach(function(vertex) {
+                Vertex.delete({graphId: $scope.graphId, vertexId: vertex._id}, function() {
+                    $scope.getData();
+                });
             });
+            $scope.isDeleteDisabled = true;
         };
     }).
     controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {
