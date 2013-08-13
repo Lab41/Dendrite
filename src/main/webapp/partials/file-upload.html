@@ -1,0 +1,14 @@
+<h2>File Upload</h2>
+<!-- (TODO: upload destination)-->
+<form ng-upload action="/TODO-file-upload" upload-options-enable-controls>
+  <p>
+    <label>Select a file to upload:</label>
+    <input type="file" name="file" />
+  </p>
+  <p>
+    <input type="submit" class="btn" value="Submit" upload-submit="uploadFile(content, completed)" />
+  </p>
+</form>
+<div class="alert alert-info">Server Response: <div ng-bind-html-unsafe="uploadResponse"</div></div>
+
+

@@ -210,4 +210,10 @@ angular.module('dendrite.controllers', []).
                 $location.path('graphs/' + $scope.graphId + '/edges');
             });
         };
+    }).
+    controller('FileUploadCtrl', function ($scope) {
+        $scope.uploadFile = function (content) {
+          console.log(content);
+          $scope.uploadResponse = content.msg;
+        }
     });
