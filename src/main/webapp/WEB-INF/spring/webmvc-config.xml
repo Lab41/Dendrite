@@ -21,5 +21,7 @@
     requests to the container's default Servlet -->
     <mvc:default-servlet-handler/>
 
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    </bean>
 
 </beans>

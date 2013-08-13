@@ -13,6 +13,7 @@
         <intercept-url pattern="/lib/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/partials/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/public/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/api/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/**" access="ROLE_USER"/>
         <logout logout-url="/j_spring_security_logout"/>
         <custom-filter ref="authenticationFilter" position="FORM_LOGIN_FILTER"/>
