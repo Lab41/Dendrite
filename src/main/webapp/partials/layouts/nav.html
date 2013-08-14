@@ -3,9 +3,12 @@
   
     <!-- authenticated users see account data -->
     <div ng-if='User.isLoggedIn()'>
-      <a class="navbar-brand" href="#">Dendrite</a>
-      <ul class="nav navbar-nav">
-       
+      <div style="float:left">
+        <a class="navbar-brand" href="#">Dendrite</a>
+        <div class="img-badge" ng-class='User.getRole().title'></div>
+      </div>
+      
+      <ul class="nav navbar-nav">              
         <!-- split button for graphs list -->
         <div class="btn-group navbar-btn" ng-class='{open: $scope.open}'>
           <button class="btn btn-default" ng-click='$scope.open=!$scope.open'>Graphs</button>
@@ -25,7 +28,10 @@
     
     <!-- unauthenticated users see user/login form -->
     <div ng-if='!User.isLoggedIn()'>
-      <a class="navbar-brand" href="#">Dendrite</a>
+      <div style="float:left">
+        <a class="navbar-brand" href="#">Dendrite</a>
+      </div>
+
       <div ng-include src="'partials/login.html'" class="nav navbar-nav pull-right" style="padding-top:10px"></div>
     </div>
 

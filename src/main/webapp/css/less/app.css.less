@@ -39,9 +39,6 @@
 @margin-left:                     120px;
 
 @image-logo-project:              url("logo_project.png");
-@image-logo-secondary-mysql:      url("logo_mysql.png");
-@image-logo-secondary-mongo:      url("logo_mongo.png");
-@image-logo-secondary-redis:      url("logo_redis.png");
 
 
 
@@ -67,28 +64,21 @@
   width: auto;
 }
 
-.logo-secondary-mysql {
-  background-image: @image-logo-secondary-mysql;
-  background-size: auto 50px;
-  background-repeat: no-repeat;
+
+.img-badge {
   height: 50px;
-  width: 175px;
+  width: 75px;
+  display: inline-block;  
 }
 
-.logo-secondary-mongo {
-  background-image: @image-logo-secondary-mongo;
+.img-badge.ROLE_USER {
+  background: url("../img/badge_user.png") no-repeat left top;
   background-size: auto 50px;
-  background-repeat: no-repeat;
-  height: 50px;
-  width: 175px;
 }
 
-.logo-secondary-redis {
-  background-image: @image-logo-secondary-redis;
+.img-badge.ROLE_ADMIN {
+  background: url("../img/badge_admin.png") no-repeat left top;
   background-size: auto 50px;
-  background-repeat: no-repeat;
-  height: 50px;
-  width: 175px;
 }
 
 /*************************************************/
