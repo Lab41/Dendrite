@@ -94,113 +94,216 @@ angular.module('dendrite.controllers', []).
         $scope.reloadGraph();
 
     }).
-    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, User, Vertex) {
+    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
+        $scope.data = [];
+        $scope.selectedItems = [];
+        $scope.totalServerItems = 0;
 
-        $scope.vertexDetail = function(id) {
-          $location.path('graphs/' + $scope.graphId + '/vertices/' + id);
-        };
-        
+        if ($routeParams.mode === undefined || $routeParams.mode === "vertex") {
+          var Item = Vertex;
+          var columnDefs = [
+            {field: '_id', displayName: 'ID', enableCellEdit: false},
+            {field: 'name', displayName: 'Name', enableCellEdit: true},
+            {field: 'type', displayName: 'Type', enableCellEdit: true},
+            {field: 'age', displayName: 'Age', enableCellEdit: true},
+            {field: 'lang', displayName: 'Favorite Language', enableCellEdit: true}
+          ];
+        } else if ($routeParams.mode === "edge") {
+          var Item = Edge;
+          var columnDefs = [
+            {field: '_id', displayName: 'ID', enableCellEdit: false},
+            {field: '_label', displayName: 'Label', enableCellEdit: true},
+            {field: '_inV', displayName: 'In Vertex', enableCellEdit: true},
+            {field: '_outV', displayName: 'Out Vertex', enableCellEdit: true}
+          ]
+        }
+
         $scope.gridOptions = {
-            data: 'vertices',
-            columnDefs: [
-                {field: '_id', displayName: 'ID', enableCellEdit: false, cellTemplate: '<div ng-click="vertexDetail(\'{{row.entity[col.field]}}\')"><a>{{row.entity[col.field]}}<a></div>'},
-                {field: 'name', displayName: 'Name', enableCellEdit: true},
-                {field: 'age', displayName: 'Age', enableCellEdit: true},
-            ],
+            data: 'data',
+            columnDefs: columnDefs,
             showFilter: false,
             filterOptions: {
-                filterText: "",
+                filterText: $routeParams.filterText || '',
                 useExternalFilter: true
             },
             enablePaging: true,
             showFooter: true,
             pagingOptions: {
-                pageSizes: [25, 50, 100],
-                pageSize: 25,
+                pageSizes: [10, 25, 50, 100],
+                pageSize: 10,
                 currentPage: 1
             },
+            totalServerItems: 'totalServerItems',
             useExternalSorting: true,
             sortInfo: {
-                fields: ['_id'],
-                directions: ['asc']
+                fields: [$routeParams.sortField || '_id'],
+                directions: [$routeParams.sortDirection || 'asc']
             },
-            selectedItems: [],
-            selectWithCheckboxOnly: true,
-            showSelectionCheckbox: true,
-            plugins: [new ngGridFlexibleHeightPlugin()]
+            selectedItems: $scope.selectedItems,
+            multiSelect: false,
+            //selectWithCheckboxOnly: true,
+            //showSelectionCheckbox: true,
+            //plugins: [new ngGridFlexibleHeightPlugin()]
         };
 
-        $scope.getData = function() {
-          Vertex.query({graphId: $routeParams.graphId}, function(query) {
-            // We are going to pretend that the server does the filtering, sorting, and paging.
-
-            var results = query.results;
-
-            // So first filter the data:
-            results = $filter('filter')(
-              results,
-              $scope.gridOptions.filterOptions.filterText
-            );
-
-            // So first sort the data:
-            results = $filter('orderBy')(
-              results,
-              $scope.gridOptions.sortInfo.fields[0],
-              $scope.gridOptions.sortInfo.directions[0] === 'asc'
-            );
-
-            // Then truncate the data to fit our "page".
-            results = results.slice(
-              ($scope.gridOptions.pagingOptions.currentPage - 1) * $scope.gridOptions.pagingOptions.pageSize,
-              $scope.gridOptions.pagingOptions.currentPage * $scope.gridOptions.pagingOptions.pageSize
-            );
-
-            $scope.gridOptions.totalServerItems = query.totalSize;
-
-            $scope.vertices = results;
-
-            // Finally, make sure that the scope is updated.
-            if (!$scope.$$phase) {
-              $scope.$apply();
-            }
-          });
-        };
-
-        $scope.getData();
-
+        // Trigger a refresh when the filter changes.
         $scope.$watch('gridOptions.filterOptions.filterText', function(newVal, oldVal) {
           if (newVal !== oldVal) {
-            $scope.getData();
+            $location.search('filterText', newVal);
+            $scope.reloadData();
           }
         }, true);
+
+        // Trigger a refresh when the page changes.
         $scope.$watch('gridOptions.pagingOptions', function(newVal, oldVal) {
           if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
-            $scope.getData();
+            $location.search('currentPage', newVal.currentPage);
+            $scope.reloadData();
           }
         }, true);
+
+        // Trigger a refresh when the sort order changes.
         $scope.$watch('gridOptions.sortInfo', function(newVal, oldVal) {
           if (newVal !== oldVal) {
-            $scope.getData();
+            $location.search('sortField', newVal.fields[0]);
+            $location.search('sortDirection', newVal.directions[0]);
+            $scope.reloadData();
           }
         }, true);
 
-        $scope.isDeleteDisabled = true;
-        $scope.$watch('gridOptions.selectedItems', function(newVal, oldVal) {
+        // Update the hasSelectedItems when selectedItem changes.
+        $scope.$watch('selectedItems', function(newVal, oldVal) {
           if (newVal !== oldVal) {
-            $scope.isDeleteDisabled = (newVal.length === 0);
+            $scope.hasSelectedItems = ($scope.selectedItems.length !== 0);
           }
         }, true);
 
-        $scope.deleteSelectedVertices = function() {
-            $scope.gridOptions.selectedItems.forEach(function(vertex) {
-                Vertex.delete({graphId: $scope.graphId, vertexId: vertex._id}, function() {
-                    $scope.getData();
-                });
-            });
-            $scope.isDeleteDisabled = true;
+        // Delete the selected items.
+        $scope.deleteSelectedItems = function() {
+          $q.all(
+            $scope.selectedItems.map(function(vertex) {
+              var deferred = $q.defer();
+              Vertex.delete({graphId: $scope.graphId, vertexId: vertex._id}, function() {
+                deferred.resolve();
+              }, function() {
+                deferred.reject();
+              });
+              return deferred.promise;
+            })
+          ).then(function() {
+            // Refresh the data once all the items are deleted.
+            $scope.reloadData();
+          });
+
+          // Make sure to clear the selected list of items.
+          $scope.selectedItems.length = 0;
         };
+
+        var currentId;
+
+        function queryNormal() {
+          Vertex.query({graphId: $routeParams.graphId}, function(query) {
+              // We are going to pretend that the server does the filtering, sorting, and paging.
+              reload(query.results, query.totalSize);
+          });
+        }
+
+        var queryStyle = "vertices";
+
+        $scope.followEdges = function() {
+          queryStyle = "edges";
+          $scope.reloadData();
+        };
+
+        $scope.followInEdges = function() {
+          queryStyle = "in-edges";
+          $scope.reloadData();
+        };
+
+        $scope.followOutEdges = function() {
+          queryStyle = "out-edges";
+          $scope.reloadData();
+        };
+
+        $scope.resetItems = function() {
+          queryStyle = "vertices";
+          $scope.reloadData();
+        }
+
+        $scope.reloadData = function() {
+          if (queryStyle === "vertices") {
+            Vertex.query({graphId: $routeParams.graphId}, function(query) {
+              // We are going to pretend that the server does the filtering, sorting, and paging.
+              reload(query);
+            });
+          } else {
+            $q.all(
+              $scope.selectedItems.map(function(vertex) {
+                var deferred = $q.defer();
+                var f;
+                if (queryStyle === "edges") {
+                  f =  Vertex.queryConnectedVertices;
+                } else if (queryStyle === "in-edges") {
+                  f =  Vertex.queryConnectedInVertices;
+                } else if (queryStyle === "out-edges") {
+                  f =  Vertex.queryConnectedOutVertices;
+                }
+                f({graphId: $scope.graphId, vertexId: vertex._id}, function(vertices) {
+                  deferred.resolve(vertices);
+                });
+                return deferred.promise;
+              })
+            ).then(function(queries) {
+                var query = queries[0];
+
+                // Filter out duplicates...
+                var vertexExists = {};
+                var results = [];
+                query.results.forEach(function(vertex) {
+                  if (vertexExists[vertex._id] === undefined) {
+                    vertexExists[vertex._id] = vertex._id;
+                    results.push(vertex);
+                  }
+
+                });
+                query.results = results;
+
+                reload(query);
+            });
+          }
+        }
+
+        function reload(query) {
+          // So first filter the data:
+          var results = $filter('filter')(query.results, $scope.gridOptions.filterOptions.filterText);
+
+          // So first sort the data:
+          results = $filter('orderBy')(
+            results,
+            $scope.gridOptions.sortInfo.fields[0],
+            $scope.gridOptions.sortInfo.directions[0] === 'asc'
+          );
+
+          // Then truncate the data to fit our "page".
+          results = results.slice(
+            ($scope.gridOptions.pagingOptions.currentPage - 1) * $scope.gridOptions.pagingOptions.pageSize,
+            $scope.gridOptions.pagingOptions.currentPage * $scope.gridOptions.pagingOptions.pageSize
+          );
+
+          $scope.totalServerItems = query.totalSize;
+
+          $scope.data = results;
+
+          // Finally, make sure that the scope is updated.
+          if (!$scope.$$phase) {
+            $scope.$apply();
+          }
+        }
+
+        // Finally, fetch the initial list of data.
+        $scope.reloadData();
     }).
     controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;
@@ -224,6 +327,7 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
+  /*
     controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, User, Edge) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
@@ -263,7 +367,7 @@ angular.module('dendrite.controllers', []).
             plugins: [new ngGridFlexibleHeightPlugin()]
         };
 
-        $scope.getData = function() {
+        $scope.$scope.reloadData = function() {
           Edge.query({graphId: $routeParams.graphId}, function(query) {
             var results = query.results;
 
@@ -291,16 +395,16 @@ angular.module('dendrite.controllers', []).
           });
         };
 
-        $scope.getData();
+        $scope.$scope.reloadData();
 
         $scope.$watch('gridOptions.filterOptions', function(newVal, oldVal) {
           if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
-            $scope.getData();
+            $scope.$scope.reloadData();
           }
         }, true);
         $scope.$watch('gridOptions.pagingOptions', function(newVal, oldVal) {
           if (newVal !== oldVal) {
-            $scope.getData();
+            $scope.$scope.reloadData();
           }
         }, true);
         $scope.$watch('gridOptions.sortInfo', function(newVal, oldVal) {
@@ -325,6 +429,7 @@ angular.module('dendrite.controllers', []).
             $scope.isDeleteDisabled = true;
         };
     }).
+    */
     controller('EdgeDetailCtrl', function($scope, $routeParams, Edge) {
         $scope.graphId = $routeParams.graphId;
         $scope.edgeId = $routeParams.edgeId;
@@ -354,6 +459,7 @@ angular.module('dendrite.controllers', []).
                 $scope.fileUploaded = true;
                 if (content.status === "ok") {
                     $scope.uploadMessage = "file uploaded";
+                    $scope.reloadGraph();
                 } else {
                     $scope.uploadMessage = "upload failed: " + content.msg;
                 }

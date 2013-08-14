@@ -18,7 +18,12 @@ angular.module('dendrite', [
         when('/login', {templateUrl: 'partials/login.html', controller: 'LoginCtrl', access: access.ROLE_ANON}).
         when('/graphs', {templateUrl: 'partials/graph-list.html', controller: 'GraphListCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId', {templateUrl: 'partials/graph-detail.html', controller: 'GraphDetailCtrl', access: access.ROLE_USER}).
-        when('/graphs/:graphId/vertices', {templateUrl: 'partials/vertex-list.html', controller: 'VertexListCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/vertices', {
+          templateUrl: 'partials/vertex-list.html',
+          controller: 'VertexListCtrl',
+          access: access.ROLE_USER,
+          reloadOnSearch: false
+        }).
         when('/graphs/:graphId/vertices/:vertexId', {templateUrl: 'partials/vertex-detail.html', controller: 'VertexDetailCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/create_vertex', {templateUrl: 'partials/vertex-create.html', controller: 'VertexCreateCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/edges', {templateUrl: 'partials/edge-list.html', controller: 'EdgeListCtrl', access: access.ROLE_USER}).

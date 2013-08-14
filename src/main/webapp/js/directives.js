@@ -121,7 +121,7 @@ angular.module('dendrite.directives', []).
           // Enter any new nodes.
           node.enter().append("circle")
             //.attr("class", "node")
-            .attr("r", 5)
+            .attr("r", 7)
             .style("stroke", "#fff")
             .style("stroke-width", "1.5px")
             .style("fill", function(d) { return color(d._id); })

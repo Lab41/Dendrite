@@ -1,15 +1,31 @@
 <h3>People We Know</h3>
 
-<div class="container-fluid">
-  <div class="row-fluid">
-    <div class="span12">
-      <div>
-        <input type="text" size="50" ng-model="gridOptions.filterOptions.filterText">
-      </div>
+<div class="row">
+  <label for="filter">Search:</label>
+  <input type="text" size="50" ng-model="gridOptions.filterOptions.filterText" id="filter">
+</div>
 
-      <a class="btn" href="#/graphs/{{ graphId }}/create_vertex">Create Vertex</a>
-      <button ng-click="deleteSelectedVertices()" ng-hide="isDeleteDisabled">Delete</button>
-      <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
-    </div>
+<div class="row">
+  <a class="btn" href="#/graphs/{{ graphId }}/create_vertex">Create Vertex</a>
+  <button ng-click="resetItems()">Reload</button>
+  <button ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete</button>
+</div>
+
+<div class="row">
+  <div class="col-8">
+    <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
+  </div>
+
+  <div class="col-4">
+    <ul>
+      <li ng-repeat="vertex in selectedItems">
+        <button ng-click="followEdges()" ng-show="hasSelectedItems">Follow Edges</button><br>
+        <button ng-click="followInEdges()" ng-show="hasSelectedItems">Follow In Edges</button><br>
+        <button ng-click="followOutEdges()" ng-show="hasSelectedItems">Follow Out Edges</button><br>
+        <ul>
+          <li ng-repeat="(key, value) in vertex track by $index">{{ key }}: {{ value }}</li>
+        </ul>
+      </li>
+    </ul>
   </div>
 </div>
