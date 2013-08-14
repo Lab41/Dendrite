@@ -59,10 +59,40 @@ angular.module('dendrite.controllers', []).
         $scope.User = User;
         $scope.query = Graph.query();
     }).
-    controller('GraphDetailCtrl', function($scope, $routeParams, User, Graph) {
+    controller('GraphDetailCtrl', function($scope, $routeParams, $q, User, Graph, Vertex, Edge) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
         $scope.graph = Graph.get({graphId: $routeParams.graphId});
+
+        $scope.forceDirectedGraphData = {};
+
+        // This can be removed after we upgrade to angular 1.2.
+        //$scope.forceDirectedGraphData = {
+        //  vertices: Vertex.query({graphId: $scope.graphId}),
+        //  edges: Edge.query({graphId: $scope.graphId})
+        //};
+
+        $scope.reloadGraph = function() {
+          $scope.forceDirectedGraphData = {
+            vertices: $q.defer(),
+            edges: $q.defer(),
+          };
+
+          Vertex.query({graphId: $scope.graphId}, function(vertices) {
+            $scope.forceDirectedGraphData.vertices.resolve(vertices);
+          }, function() {
+            $scope.forceDirectedGraphData.vertices.reject();
+          });
+
+          Edge.query({graphId: $scope.graphId}, function(edges) {
+            $scope.forceDirectedGraphData.edges.resolve(edges);
+          }, function() {
+            $scope.forceDirectedGraphData.edges.reject();
+          });
+        }
+
+        $scope.reloadGraph();
+
     }).
     controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, User, Vertex) {
         $scope.User = User;
