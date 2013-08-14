@@ -127,6 +127,36 @@ angular.module('dendrite.services', ['ngResource']).
             query: {
                 method: 'GET',
                 isArray: false
+            },
+            queryConnectedVertices: {
+                url: 'rexster-resource/graphs/:graphId/vertices/:vertexId/both',
+                method: 'GET',
+                isArray: false
+            },
+            queryConnectedInVertices: {
+                url: 'rexster-resource/graphs/:graphId/vertices/:vertexId/in',
+                method: 'GET',
+                isArray: false
+            },
+            queryConnectedOutVertices: {
+                url: 'rexster-resource/graphs/:graphId/vertices/:vertexId/out',
+                method: 'GET',
+                isArray: false
+            },
+            queryEdges: {
+                url: 'rexster-resource/graphs/:graphId/vertices/:vertexId/bothE',
+                method: 'GET',
+                isArray: false
+            },
+            queryInEdges: {
+                url: 'rexster-resource/graphs/:graphId/vertices/:vertexId/inE',
+                method: 'GET',
+                isArray: false
+            },
+            queryOutEdges: {
+                url: 'rexster-resource/graphs/:graphId/vertices/:vertexId/outE',
+                method: 'GET',
+                isArray: false
             }
         });
     }).
