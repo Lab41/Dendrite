@@ -10,7 +10,7 @@ import java.io.IOException;
 
 /**
  * Used by the {@link org.springframework.security.web.access.ExceptionTranslationFilter} to commence a form login
- * authentication via the {@link JsonUsernamePasswordAuthenticationFilter}.
+ * authentication via the {@link org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter}.
  * <p/>
  * Upon authentication failure it simply returns a response code of 401.
  * <p/>
@@ -26,7 +26,7 @@ import java.io.IOException;
  * Time: 4:13 PM
  * To change this template use File | Settings | File Templates.
  */
-public class JsonRestAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     /**
      * Commences an authentication scheme.  Uponeon failure this will return a 401.

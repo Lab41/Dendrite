@@ -6,7 +6,7 @@
              xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
-    <http auto-config='false' entry-point-ref="jsonRestAuthenticationEntryPoint">
+    <http auto-config='false' entry-point-ref="restAuthenticationEntryPoint">
         <intercept-url pattern="/index*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
@@ -14,26 +14,22 @@
         <intercept-url pattern="/partials/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/public/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/**" access="ROLE_USER"/>
-        <logout logout-url="/j_spring_security_logout"/>
-        <custom-filter ref="authenticationFilter" position="FORM_LOGIN_FILTER"/>
+        <form-login authentication-success-handler-ref="restAuthenticationSuccessHandler"
+                    authentication-failure-handler-ref="restAuthenticationFailureHandler"
+                />
+        <logout/>
+        <http-basic/>
+        <remember-me key="myDendrite"/>
     </http>
 
-    <beans:bean name="jsonAuthenticatoinSuccessHandler"
-                class="org.lab41.web.security.JsonAuthenticationSuccessHandler"/>
+    <beans:bean name="restAuthenticationEntryPoint"
+                class="org.lab41.web.security.RestAuthenticationEntryPoint"/>
 
-    <beans:bean name="httpUnauthorizedResponseFailureHandler"
+    <beans:bean name="restAuthenticationSuccessHandler"
+                class="org.lab41.web.security.RestAuthenticationSuccessHandler"/>
+
+    <beans:bean name="restAuthenticationFailureHandler"
                 class="org.lab41.web.security.HttpUnauthorizedResponseFailureHandler"/>
-
-
-    <beans:bean name="authenticationFilter" class="org.lab41.web.security.JsonUsernamePasswordAuthenticationFilter">
-        <beans:property name="authenticationManager" ref="authenticationManager"/>
-        <beans:property name="authenticationSuccessHandler" ref="jsonAuthenticatoinSuccessHandler"/>
-        <beans:property name="authenticationFailureHandler" ref="httpUnauthorizedResponseFailureHandler"/>
-    </beans:bean>
-
-    <beans:bean id="jsonRestAuthenticationEntryPoint"
-                class="org.lab41.web.security.JsonRestAuthenticationEntryPoint">
-    </beans:bean>
 
     <authentication-manager alias="authenticationManager">
         <authentication-provider>

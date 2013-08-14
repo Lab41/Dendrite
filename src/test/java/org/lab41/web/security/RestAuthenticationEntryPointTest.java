@@ -17,12 +17,12 @@ import static org.junit.Assert.assertEquals;
  *
  * @author kramachandran
  */
-public class JsonRestAuthenticationEntryPointTest {
-    private JsonRestAuthenticationEntryPoint jsonRestAuthenticationEntryPoint;
+public class RestAuthenticationEntryPointTest {
+    private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     @Before
     public void setUp() throws Exception {
-        jsonRestAuthenticationEntryPoint = new JsonRestAuthenticationEntryPoint();
+        restAuthenticationEntryPoint = new RestAuthenticationEntryPoint();
 
     }
 
@@ -32,7 +32,7 @@ public class JsonRestAuthenticationEntryPointTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         AuthenticationException exception = new BadCredentialsException("Bad Credential");
 
-        jsonRestAuthenticationEntryPoint.commence(request, response, exception);
+        restAuthenticationEntryPoint.commence(request, response, exception);
 
         assertEquals(response.getStatus(), MockHttpServletResponse.SC_UNAUTHORIZED);
 

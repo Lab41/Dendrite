@@ -8,7 +8,7 @@ angular.module('dendrite.services', ['ngResource']).
       var _this = this;
       this.authenticated = false;
       this.name = null;
-      
+
       var accessLevels = routingConfig.accessLevels
           , userRoles = routingConfig.userRoles
           , currentUser = $cookieStore.get('user') || { username: '', role: userRoles.ROLE_PUBLIC };
@@ -17,7 +17,22 @@ angular.module('dendrite.services', ['ngResource']).
       
       function changeUser(user) {
           _.extend(currentUser, user);
-      };
+      }
+
+      function ping() {
+        // Check if we're already authenticated...
+        $http.get('api/user').success(function(response) {
+          if (response.name === "anonymous") {
+            $rootScope.$emit("event:loginRequired");
+          } else {
+            _this.authenticated = true;
+            _this.name = response.name;
+            currentUser.role = userRoles[response.authorities[0].authority];
+          }
+        });
+      }
+
+      ping();
     
       return {
         isAuthenticated: function() {
@@ -31,19 +46,17 @@ angular.module('dendrite.services', ['ngResource']).
         // login posts to spring password check and authenticates or returns empty callback
         // spring expects j_username/j_password as parameters
         login: function(username, password) {
-          return $http.post($rootScope.url_login, {
+          var payload = $.param({
             j_username: username,
-            j_password: password
-          }).success(function(response){
-            if (response.authenticated) {
-              // set User properties, including role from server JSON response
-              _this.name = username;
-              _this.authenticated = true;
-              currentUser.role = userRoles[response.authorities[0].authority];
+            j_password: password,
+            _spring_security_remember_me: "on"
+          });
+          var config = {
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+          };
 
-              // alert app to successful login
-              $rootScope.$broadcast('event:loginConfirmed');
-            }
+          return $http.post($rootScope.url_login, payload, config).success(function(response) {
+            ping();
           });
         },
 

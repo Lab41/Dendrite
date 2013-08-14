@@ -34,7 +34,6 @@ angular.module('dendrite', [
       }
    
       function error(response) {
-      
         // notify user if login incorrect
         if (response.config.url === scope.url_login){
           alert("Username or Password Incorrect!");
@@ -66,29 +65,16 @@ angular.module('dendrite', [
     $httpProvider.responseInterceptors.push(interceptor);
   }]).
   run(['$rootScope', '$http', '$location', 'User', function(scope, $http, $location, User) {
-
-    scope.$on("$routeChangeStart", function (event, next, current) {
-      User.getRole();
-      if (!User.authorize(next.access)) {
-        if (User.isLoggedIn()) {
-          scope.$broadcast('event:returnHome');
-        }
-        else {
-          scope.$broadcast('event:returnHome');
-        }
-      }
-    });
-
     // store requests which failed due to 401 response.
     scope.requests401 = [];
     
     // store auth URLs
     scope.url_login = 'j_spring_security_check';
     scope.url_logout = 'j_spring_security_logout';
-   
+
+    /*
     // event:loginConfirmed - resend all the 401 requests.
     scope.$on('event:loginConfirmed', function() {
-      /*
       var i, requests = scope.requests401;
       for (i = 0; i < requests.length; i++) {
         retry(requests[i]);
@@ -100,12 +86,13 @@ angular.module('dendrite', [
           req.deferred.resolve(response);
         });
       }
-      */
     });
+    */
 
     // event:returnHome - send user to homepage
     scope.$on('event:returnHome', function() {
       $location.path('/home');
+      $location.search({});
     });    
     
                 
