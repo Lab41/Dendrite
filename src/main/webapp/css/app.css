@@ -36,26 +36,18 @@
   width: 200px;
   width: auto;
 }
-.logo-secondary-mysql {
-  background-image: url("logo_mysql.png");
-  background-size: auto 50px;
-  background-repeat: no-repeat;
+.img-badge {
   height: 50px;
-  width: 175px;
+  width: 75px;
+  display: inline-block;
 }
-.logo-secondary-mongo {
-  background-image: url("logo_mongo.png");
+.img-badge.ROLE_USER {
+  background: url("../img/badge_user.png") no-repeat left top;
   background-size: auto 50px;
-  background-repeat: no-repeat;
-  height: 50px;
-  width: 175px;
 }
-.logo-secondary-redis {
-  background-image: url("logo_redis.png");
+.img-badge.ROLE_ADMIN {
+  background: url("../img/badge_admin.png") no-repeat left top;
   background-size: auto 50px;
-  background-repeat: no-repeat;
-  height: 50px;
-  width: 175px;
 }
 /*************************************************/
 /* typography */
