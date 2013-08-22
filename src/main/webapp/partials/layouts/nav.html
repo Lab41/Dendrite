@@ -1,36 +1,38 @@
 <header class="navbar navbar-fixed-top" ng-controller="navCtrl">
   <div>
-  
+
+      <div style="float:left">
+        <a class="navbar-brand" href="#">
+          <img src="public/img/logo.png" height="50" width="50">
+          <span style="display:inline-block; height: 100%; padding-top:10px">Dendrite</span>
+        </a>
+      </div>
+
     <!-- authenticated users see account data -->
     <div ng-if='User.isLoggedIn()'>
-      <div style="float:left">
-        <a class="navbar-brand" href="#">Dendrite</a>
-        <div class="img-badge" ng-class='User.getRole().title'></div>
-      </div>
-      
-      <ul class="nav navbar-nav">              
+
+
+
+      <ul class="nav navbar-nav">
         <!-- split button for graphs list -->
-        <div class="btn-group navbar-btn" ng-class='{open: $scope.open}'>
-          <button class="btn btn-default" ng-click='$scope.open=!$scope.open'>Graphs</button>
-          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-click='$scope.open=!$scope.open'><span class="caret"></span></button>
+        <div class="btn-group navbar-btn">
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">Graphs <span class="caret"></span></button>
           <ul class="dropdown-menu" ng-controller="GraphListCtrl">
             <li ng-repeat="graph in query.graphs" >
-              <a ng-click='$scope.open=!$scope.open' href="#/graphs/{{ graph }}" >{{ graph }}</a>
+              <a href="#/graphs/{{ graph }}" >{{ graph }}</a>
             </li>
           </ul>
         </div>
       </ul>
 
       <ul class="nav navbar-nav pull-right">
-        <li><button type="button" id="button-logout" class="btn navbar-btn button-logout" ng-click="User.logout()">Logout</button></li>
-      </ul> 
+        <li class="img-badge" ng-class='User.getRole().title'></li>
+        <li><button type="button" id="button-logout" class="btn btn-default navbar-btn button-logout" ng-click="User.logout()">Logout</button></li>
+      </ul>
     </div>
-    
+
     <!-- unauthenticated users see user/login form -->
     <div ng-if='!User.isLoggedIn()'>
-      <div style="float:left">
-        <a class="navbar-brand" href="#">Dendrite</a>
-      </div>
 
       <div ng-include src="'partials/login.html'" class="nav navbar-nav pull-right" style="padding-top:10px"></div>
     </div>

@@ -1,3 +1,4 @@
+@import url("http://fonts.googleapis.com/css?family=Syncopate:400,700|Oxygen");
 /*************************************************/
 /* angular-specific styles */
 /*************************************************/
@@ -24,6 +25,483 @@
   content: "";
   padding: 0;
 }
+.ngGrid {
+  background-color: #fdfdfd;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+}
+.ngGrid input[type="checkbox"] {
+  margin: 0;
+  padding: 0;
+}
+.ngGrid input {
+  vertical-align: top;
+}
+.ngGrid.unselectable {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.ngViewport {
+  overflow: auto;
+  min-height: 20px;
+}
+.ngViewport:focus {
+  outline: none;
+}
+.ngCanvas {
+  position: relative;
+}
+.ngVerticalBar {
+  position: absolute;
+  right: 0;
+  width: 0;
+}
+.ngVerticalBarVisible {
+  width: 1px;
+  background-color: #d4d4d4;
+}
+.ngHeaderContainer {
+  position: relative;
+  overflow: hidden;
+  font-weight: bold;
+  background-color: #34495e;
+  color: #ecf0f1;
+  -webkit-border-radius: 6px 6px 0 0;
+  -moz-border-radius: 6px 6px 0 0;
+  -khtml-border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 0 0;
+  -webkit-border-radius: 6px 6px 0 0;
+  -moz-border-radius: 6px 6px 0 0;
+  -khtml-border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 0 0;
+}
+.ngHeaderCell {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background-color: inherit;
+}
+.ngHeaderCell.pinned {
+  z-index: 1;
+}
+.ngHeaderSortColumn {
+  position: absolute;
+  overflow: hidden;
+}
+.ngTopPanel {
+  position: relative;
+  z-index: 1;
+  background-color: #eaeaea;
+  border-bottom: 1px solid #d4d4d4;
+}
+.ngSortButtonDown {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  border-color: gray transparent;
+  border-style: solid;
+  border-width: 0 5px 5px 5px;
+  height: 0;
+  width: 0;
+}
+.ngNoSort {
+  cursor: default;
+}
+.ngHeaderButton {
+  position: absolute;
+  right: 2px;
+  top: 8px;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  z-index: 1;
+  background-color: #9fbbb4;
+  cursor: pointer;
+}
+.ngSortButtonUp {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  border-color: gray transparent;
+  border-style: solid;
+  border-width: 5px 5px 0 5px;
+  height: 0;
+  width: 0;
+}
+.ngHeaderScroller {
+  position: absolute;
+  background-color: inherit;
+}
+.ngSortPriority {
+  position: absolute;
+  top: -5px;
+  left: 1px;
+  font-size: 6pt;
+  font-weight: bold;
+}
+.ngHeaderGrip {
+  cursor: col-resize;
+  width: 10px;
+  right: -5px;
+  top: 0;
+  height: 100%;
+  position: absolute;
+  background-color: transparent;
+}
+.ngHeaderText {
+  padding: 5px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  white-space: nowrap;
+  -ms-text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.ngHeaderButtonArrow {
+  position: absolute;
+  top: 4px;
+  left: 3px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6.5px 4.5px 0 4.5px;
+  border-color: #4d4d4d transparent transparent transparent;
+}
+.ngPinnedIcon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAmElEQVQoU33PQapBURjA8UtkwJuaWYGSgfQWYBMvczPmTCzAAGVuaA228BZhRCkDGSmE31FucuRfvzq3vr5zT/JSjSU7DsypEPXDkDVn2hSIytJhw4kWGaLCxgHh2gt/RBuLzNhz5caWPjnSqqw4EraFfwznf8qklWjwy4IRTerkiQoPGtPl40OehcEJvcfXl8LglLfBJLkDcMgbgHlHhK8AAAAASUVORK5CYII=);
+  background-repeat: no-repeat;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  height: 10px;
+  width: 10px;
+}
+.ngUnPinnedIcon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAlElEQVQoU33PPQrCQBRF4fFnI2KfZVi5ARvdgo1l6mwmkCJVOgluwd5OwUoDtnoOxAei8cLXTN7cvEl/skCNDCMPfsUPO5zQwOHIDEvYtMURHe6wOVLgigvOePRyeDkyR4ln7wZ//7XfFBu8B23+aDJjrHGAwza7hjtHJvDmHg7b7Bru7AMjK7Rw2ObBVHDY5oGk9AKQNB2zy8MBTgAAAABJRU5ErkJggg==);
+  background-repeat: no-repeat;
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  right: 5px;
+  top: 5px;
+}
+.ngColMenu {
+  right: 2px;
+  padding: 5px;
+  top: 25px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  background-color: #bdd0cb;
+  position: absolute;
+  border: 2px solid #d4d4d4;
+  z-index: 1;
+}
+.ngColListCheckbox {
+  position: relative;
+  right: 3px;
+  top: 4px;
+}
+.ngColList {
+  list-style-type: none;
+}
+.ngColListItem {
+  position: relative;
+  right: 17px;
+  top: 2px;
+  white-space: nowrap;
+}
+.ngMenuText {
+  position: relative;
+  top: 2px;
+  left: 2px;
+}
+.ngGroupPanel {
+  background-color: #eaeaea;
+  overflow: hidden;
+  border-bottom: 1px solid #d4d4d4;
+}
+.ngGroupPanelDescription {
+  margin-top: 5px;
+  margin-left: 5px;
+}
+.ngGroupList {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.ngAggHeader {
+  position: absolute;
+  border: none;
+}
+.ngGroupElement {
+  float: left;
+  height: 100%;
+  width: 100%;
+}
+.ngGroupIcon {
+  background-image: url(data:image/png;
+    base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAANCAYAAACZ3F9/AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAEFJREFUKFNjoAhISkr+h2J5JDZODNXGwGBsbPwfhIGAA8bGh6HaGBiAGhxAGJmND4M1gQCSM0adCsVQbcPcqQwMALWDGyDvWPefAAAAAElFTkSuQmCC);
+  background-repeat: no-repeat;
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  right: -2px;
+  top: 2px;
+}
+.ngGroupedByIcon {
+  background-image: url(data:image/png;
+    base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAANCAYAAACZ3F9/AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAElJREFUKFNjoAhISkr+R8LyaHwMDNXGwGBsbPwfhoGAA5mPDUO1oWpE52PDYE0gALTFAYbR+dgwWBMIoPlh1I9ADNU2NPzIwAAAFQYI9E4OLvEAAAAASUVORK5CYII=);
+  background-repeat: no-repeat;
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  right: -2px;
+  top: 2px;
+}
+.ngGroupName {
+  background-color: #fdfdfd;
+  border: 1px solid #d4d4d4;
+  padding: 3px 10px;
+  float: left;
+  margin-left: 0;
+  margin-top: 2px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+.ngGroupArrow {
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 6px solid black;
+  margin-top: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
+  float: right;
+}
+.ngGroupingNumber {
+  position: absolute;
+  right: -10px;
+  top: -2px;
+}
+.ngAggArrowCollapsed {
+  position: absolute;
+  left: 8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 8.7px;
+  border-color: transparent transparent transparent #000000;
+}
+.ngGroupItem {
+  float: left;
+}
+.ngGroupItem:first-child {
+  margin-left: 2px;
+}
+.ngRemoveGroup {
+  width: 5px;
+  -moz-opacity: 0.4;
+  opacity: 0.4;
+  margin-top: -1px;
+  margin-left: 5px;
+}
+.ngRemoveGroup:hover {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+  -moz-opacity: 0.7;
+  opacity: 0.7;
+}
+.ngAggArrowExpanded {
+  position: absolute;
+  left: 8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 9px 9px;
+  border-color: transparent transparent #000000 transparent;
+}
+.ngAggregate {
+  position: absolute;
+  background-color: #c9dde1;
+  border-bottom: 1px solid beige;
+  overflow: hidden;
+  top: 0;
+  bottom: 0;
+  right: -1px;
+  left: 0;
+}
+.ngAggregateText {
+  position: absolute;
+  left: 27px;
+  top: 5px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+.ngRow {
+  position: absolute;
+  border-bottom: 1px solid #d4d4d4;
+}
+.ngRow.odd {
+  background-color: #fdfdfd;
+}
+.ngRow.even {
+  background-color: #f3f3f3;
+}
+.ngRow.selected {
+  background-color: #16a085;
+  color: #ecf0f1;
+}
+.ngCell {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background-color: inherit;
+}
+.ngCell.pinned {
+  z-index: 1;
+}
+.ngCellText {
+  padding: 5px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  white-space: nowrap;
+  -ms-text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.ngSelectionCell {
+  margin-top: 9px;
+  margin-left: 6px;
+}
+.ngSelectionHeader {
+  position: absolute;
+  top: 11px;
+  left: 6px;
+}
+.ngCellElement:focus {
+  outline: 0;
+  background-color: #b3c4c7;
+}
+.ngRow.canSelect {
+  cursor: pointer;
+}
+.ngSelectionCheckbox {
+  margin-top: 9px;
+  margin-left: 6px;
+}
+.ngGridFooter {
+  padding-top: 2px;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+}
+.ngFooterPanel {
+  background-color: #7f8c8d;
+  padding: 0;
+  border-top: 1px solid #7f8c8d;
+  color: #ecf0f1;
+  position: relative;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+}
+.nglabel {
+  display: block;
+  float: left;
+  font-weight: bold;
+  padding-right: 5px;
+}
+.ngTotalSelectContainer {
+  float: left;
+  margin: 5px;
+  margin-top: 7px;
+}
+.ngFooterSelectedItems {
+  padding: 2px;
+}
+.ngFooterTotalItems.ngnoMultiSelect {
+  padding: 0 !important;
+}
+.ngPagerFirstBar {
+  width: 10px;
+  border-left: 2px solid #4d4d4d;
+  margin-top: -6px;
+  height: 12px;
+  margin-left: -3px;
+}
+.ngPagerButton {
+  height: 25px;
+  min-width: 26px;
+}
+.ngPagerFirstTriangle {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 8.7px 5px 0;
+  border-color: transparent #4d4d4d transparent transparent;
+  margin-left: 2px;
+}
+.ngPagerNextTriangle {
+  margin-left: 1px;
+}
+.ngPagerPrevTriangle {
+  margin-left: 0;
+}
+.ngPagerLastTriangle {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 8.7px;
+  border-color: transparent transparent transparent #4d4d4d;
+  margin-left: -1px;
+}
+.ngPagerLastBar {
+  width: 10px;
+  border-left: 2px solid #4d4d4d;
+  margin-top: -6px;
+  height: 12px;
+  margin-left: 1px;
+}
+.ngFooterTotalItems {
+  padding: 2px;
+}
 /*************************************************/
 /* images */
 /*************************************************/
@@ -32,9 +510,28 @@
   height: 50px;
   width: 232px;
 }
+.logo-lab41 {
+  font-weight: bold;
+  display: inline;
+}
+.logo-lab41 img {
+  vertical-align: text-top;
+}
+.logo-lab41 .font-lab {
+  color: #2980b9;
+}
+.logo-lab41 .font-41 {
+  color: #d35400;
+}
 .logo-project {
   width: 200px;
   width: auto;
+}
+.img-logo {
+  background: url("../img/logo.png") no-repeat left top;
+  height: 50px;
+  width: 50px;
+  display: inline-block;
 }
 .img-badge {
   height: 50px;
@@ -49,6 +546,16 @@
   background: url("../img/badge_admin.png") no-repeat left top;
   background-size: auto 50px;
 }
+circle.node {
+  cursor: pointer;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+}
+line.link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
+}
 /*************************************************/
 /* typography */
 /*************************************************/
@@ -60,13 +567,16 @@
   font-weight: normal;
   color: #2c3e50;
 }
+.titlebar {
+  border-bottom: 1px solid #7f8c8d;
+}
 .heading {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-family: 'NoticiaBold', 'Times New Roman', serif;
   text-decoration: none;
   color: #2c3e50;
-  border-bottom: 1px solid #bdc3c7;
+  border-bottom: 1px solid #7f8c8d;
   padding-bottom: 15px;
 }
 .subheading {
@@ -89,6 +599,14 @@
   font-size: 50px;
   color: #bdc3c7;
 }
+.jumbotron h1,
+.jumbotron h2,
+.jumbotron h3,
+.jumbotron h4,
+.jumbotron h5,
+.jumbotron h6 {
+  color: #d35400;
+}
 h1,
 h2,
 h3,
@@ -100,12 +618,20 @@ h6 {
 .dropdown-menu a.link-disabled {
   color: #95a5a6;
 }
+.dropdown-menu .divider {
+  background-color: #bdc3c7;
+}
+.text-logo {
+  font-family: 'Syncopate', sans-serif;
+  font-weight: 700;
+}
 /*************************************************/
 /* layout */
 /*************************************************/
 body {
   padding-top: 60px;
-  background-repeat: no-repeat;
+  background-image: url("../public/img/texture.png");
+  font-family: 'Oxygen', sans-serif;
 }
 .body-mysql {
   background-color: #e74c3c;
@@ -128,6 +654,12 @@ body {
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
@@ -142,10 +674,22 @@ body {
   border-radius: 10px;
   webkit-border-radius: 10px;
   -moz-border-radius: 10px;
+  border-radius: 10px;
+  webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
 }
 #canvas {
   background-position: top left;
   background-repeat: none;
+}
+.float-right {
+  float: right;
+}
+.float-left {
+  float: left;
+}
+.inline {
+  display: inline;
 }
 /*************************************************/
 /* sections */
@@ -176,6 +720,11 @@ body {
   border-color: #f39c12;
   color: #2c3e50;
 }
+.alert-info {
+  background-color: #3498db;
+  border-color: #2980b9;
+  color: #ecf0f1;
+}
 #errorExplanation {
   color: #f00;
 }
@@ -190,6 +739,9 @@ input:focus:invalid:focus,
 textarea:focus:invalid:focus,
 select:focus:invalid:focus {
   border-color: #1abc9c;
+  -webkit-box-shadow: 0 0 6px 0 #16a085;
+  -moz-box-shadow: 0 0 6px 0 #16a085;
+  box-shadow: 0 0 6px 0 #16a085;
   -webkit-box-shadow: 0 0 6px 0 #16a085;
   -moz-box-shadow: 0 0 6px 0 #16a085;
   box-shadow: 0 0 6px 0 #16a085;
@@ -226,6 +778,10 @@ abbr[title="required"] {
 textarea {
   width: 400px;
 }
+.searchbar {
+  width: 33%;
+  margin-left: 20px;
+}
 /*************************************************/
 /* ui elements */
 /*************************************************/
@@ -235,6 +791,9 @@ textarea {
 div.span6 div.span6 div.dataTables_length label {
   margin-left: 30px;
 }
+.row-padded {
+  padding: 0 5px 10px 5px ;
+}
 /*************************************************/
 /* navbar */
 /*************************************************/
@@ -242,20 +801,31 @@ div.span6 div.span6 div.dataTables_length label {
   border-top: 2px solid #d35400;
   padding-right: 0;
   padding-left: 0;
+  font-weight: bold;
+}
+.navbar-brand {
+  padding: 0 15px;
+  color: #ecf0f1;
+  font-family: 'Syncopate', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
 }
 .navbar-fixed-top {
   min-height: 40px;
   padding-left: 20px;
   padding-right: 20px;
-  background-color: #bdc3c7;
-  background-image: -moz-linear-gradient(top, #bdc3c7, #bdc3c7);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#bdc3c7), to(#bdc3c7));
-  background-image: -webkit-linear-gradient(top, #bdc3c7, #bdc3c7);
-  background-image: -o-linear-gradient(top, #bdc3c7, #bdc3c7);
-  background-image: linear-gradient(to bottom, #bdc3c7, #bdc3c7);
+  background-color: #424a4a;
+  background-image: -moz-linear-gradient(top, #424a4a, #424a4a);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#424a4a), to(#424a4a));
+  background-image: -webkit-linear-gradient(top, #424a4a, #424a4a);
+  background-image: -o-linear-gradient(top, #424a4a, #424a4a);
+  background-image: linear-gradient(to bottom, #424a4a, #424a4a);
   background-repeat: repeat-x;
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr=#bdc3c7, #bdc3c7, GradientType=0);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr=#424a4a, #424a4a, GradientType=0);
   border: 1px solid #D4D4D4;
+  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
@@ -265,6 +835,12 @@ div.span6 div.span6 div.dataTables_length label {
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+}
+.navbar button {
+  font-weight: bold;
 }
 /*************************************************/
 /* buttons */
@@ -280,18 +856,49 @@ div.span6 div.span6 div.dataTables_length label {
 .btn-small i {
   vertical-align: bottom;
 }
+.btn {
+  background-color: #edf1f2 !important;
+  background-repeat: repeat-x;
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-start", endColorstr="@color-btn-end");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#ecf0f1), to(#ecf0f1));
+  background-image: -moz-linear-gradient(top, #ecf0f1, #ecf0f1);
+  background-image: -ms-linear-gradient(top, #ecf0f1, #ecf0f1);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ecf0f1), color-stop(100%, #ecf0f1));
+  background-image: -webkit-linear-gradient(top, #ecf0f1, #ecf0f1);
+  background-image: -o-linear-gradient(top, #ecf0f1, #ecf0f1);
+  background-image: linear-gradient(#ecf0f1, #ecf0f1);
+  border-color: #ecf0f1 #ecf0f1 #edf1f2;
+  color: #424a4a !important;
+  -webkit-font-smoothing: antialiased;
+}
 .btn-primary {
   background-color: #287fb8 !important;
   background-repeat: repeat-x;
   filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-primary-start", endColorstr="@color-btn-primary-end");
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#3498db), to(#2980b9));
-  background-image: -moz-linear-gradient(top, #3498db, #2980b9);
-  background-image: -ms-linear-gradient(top, #3498db, #2980b9);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #3498db), color-stop(100%, #2980b9));
-  background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
-  background-image: -o-linear-gradient(top, #3498db, #2980b9);
-  background-image: linear-gradient(#3498db, #2980b9);
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#2980b9), to(#2980b9));
+  background-image: -moz-linear-gradient(top, #2980b9, #2980b9);
+  background-image: -ms-linear-gradient(top, #2980b9, #2980b9);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2980b9), color-stop(100%, #2980b9));
+  background-image: -webkit-linear-gradient(top, #2980b9, #2980b9);
+  background-image: -o-linear-gradient(top, #2980b9, #2980b9);
+  background-image: linear-gradient(#2980b9, #2980b9);
   border-color: #2980b9 #2980b9 #287fb8;
+  color: #ecf0f1 !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
+  -webkit-font-smoothing: antialiased;
+}
+.btn-file {
+  background-color: #808d8e !important;
+  background-repeat: repeat-x;
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-file-start", endColorstr="@color-btn-file-end");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#7f8c8d), to(#7f8c8d));
+  background-image: -moz-linear-gradient(top, #7f8c8d, #7f8c8d);
+  background-image: -ms-linear-gradient(top, #7f8c8d, #7f8c8d);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #7f8c8d), color-stop(100%, #7f8c8d));
+  background-image: -webkit-linear-gradient(top, #7f8c8d, #7f8c8d);
+  background-image: -o-linear-gradient(top, #7f8c8d, #7f8c8d);
+  background-image: linear-gradient(#7f8c8d, #7f8c8d);
+  border-color: #7f8c8d #7f8c8d #808d8e;
   color: #ecf0f1 !important;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
   -webkit-font-smoothing: antialiased;
@@ -300,13 +907,13 @@ div.span6 div.span6 div.dataTables_length label {
   background-color: #16a286 !important;
   background-repeat: repeat-x;
   filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-success-start", endColorstr="@color-btn-success-end");
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#1abc9c), to(#16a085));
-  background-image: -moz-linear-gradient(top, #1abc9c, #16a085);
-  background-image: -ms-linear-gradient(top, #1abc9c, #16a085);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1abc9c), color-stop(100%, #16a085));
-  background-image: -webkit-linear-gradient(top, #1abc9c, #16a085);
-  background-image: -o-linear-gradient(top, #1abc9c, #16a085);
-  background-image: linear-gradient(#1abc9c, #16a085);
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#16a085), to(#16a085));
+  background-image: -moz-linear-gradient(top, #16a085, #16a085);
+  background-image: -ms-linear-gradient(top, #16a085, #16a085);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #16a085), color-stop(100%, #16a085));
+  background-image: -webkit-linear-gradient(top, #16a085, #16a085);
+  background-image: -o-linear-gradient(top, #16a085, #16a085);
+  background-image: linear-gradient(#16a085, #16a085);
   border-color: #16a085 #16a085 #16a286;
   color: #ecf0f1 !important;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
@@ -316,14 +923,30 @@ div.span6 div.span6 div.dataTables_length label {
   background-color: #d15400 !important;
   background-repeat: repeat-x;
   filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-attention-start", endColorstr="@color-btn-attention-end");
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#e67e22), to(#d35400));
-  background-image: -moz-linear-gradient(top, #e67e22, #d35400);
-  background-image: -ms-linear-gradient(top, #e67e22, #d35400);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e67e22), color-stop(100%, #d35400));
-  background-image: -webkit-linear-gradient(top, #e67e22, #d35400);
-  background-image: -o-linear-gradient(top, #e67e22, #d35400);
-  background-image: linear-gradient(#e67e22, #d35400);
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#d35400), to(#d35400));
+  background-image: -moz-linear-gradient(top, #d35400, #d35400);
+  background-image: -ms-linear-gradient(top, #d35400, #d35400);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d35400), color-stop(100%, #d35400));
+  background-image: -webkit-linear-gradient(top, #d35400, #d35400);
+  background-image: -o-linear-gradient(top, #d35400, #d35400);
+  background-image: linear-gradient(#d35400, #d35400);
   border-color: #d35400 #d35400 #d15400;
+  color: #ecf0f1 !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
+  -webkit-font-smoothing: antialiased;
+}
+.btn-default {
+  background-color: #808d8e !important;
+  background-repeat: repeat-x;
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-default-start", endColorstr="@color-btn-default-end");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#7f8c8d), to(#7f8c8d));
+  background-image: -moz-linear-gradient(top, #7f8c8d, #7f8c8d);
+  background-image: -ms-linear-gradient(top, #7f8c8d, #7f8c8d);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #7f8c8d), color-stop(100%, #7f8c8d));
+  background-image: -webkit-linear-gradient(top, #7f8c8d, #7f8c8d);
+  background-image: -o-linear-gradient(top, #7f8c8d, #7f8c8d);
+  background-image: linear-gradient(#7f8c8d, #7f8c8d);
+  border-color: #7f8c8d #7f8c8d #808d8e;
   color: #ecf0f1 !important;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
   -webkit-font-smoothing: antialiased;

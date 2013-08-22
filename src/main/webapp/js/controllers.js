@@ -6,13 +6,13 @@ angular.module('dendrite.controllers', []).
     controller('navCtrl', ['$scope', '$location', 'User', 'Graph', function ($scope, $location, User, Graph) {
       $scope.User = User;
       $scope.query = Graph.query();
-      
+
       // update navbar class to highlight link of current page
       $scope.navClass = function (page) {
           var currentRoute = $location.path().substring(1) || 'home';
           return page === currentRoute ? 'active' : '';
-      }; 
-      
+      };
+
       // replicate LoginCtrl to embed user/pass in navbar
       $scope.login = function() {
         User.login($scope.username, $scope.password).
@@ -23,11 +23,11 @@ angular.module('dendrite.controllers', []).
           error(function(response){
             window.alert('Authentication failed!', response);
           });
-      }; 
+      };
     }]).
     controller('HomeCtrl', function($scope, $location, User, Graph) {
-      $scope.User = User; 
-      $scope.accessLevels = User.accessLevels;     
+      $scope.User = User;
+      $scope.accessLevels = User.accessLevels;
     }).
     controller('LoginCtrl', function($scope, $location, User) {
       $scope.login = function() {
@@ -104,9 +104,9 @@ angular.module('dendrite.controllers', []).
         if ($routeParams.mode === undefined || $routeParams.mode === "vertex") {
           var Item = Vertex;
           var columnDefs = [
-            {field: '_id', displayName: 'ID', enableCellEdit: false},
+            //{field: '_id', displayName: 'ID', enableCellEdit: false},
             {field: 'name', displayName: 'Name', enableCellEdit: true},
-            {field: 'type', displayName: 'Type', enableCellEdit: true},
+            //{field: 'type', displayName: 'Type', enableCellEdit: true},
             {field: 'age', displayName: 'Age', enableCellEdit: true},
             {field: 'lang', displayName: 'Favorite Language', enableCellEdit: true}
           ];
@@ -177,6 +177,7 @@ angular.module('dendrite.controllers', []).
         $scope.$watch('selectedItems', function(newVal, oldVal) {
           if (newVal !== oldVal) {
             $scope.hasSelectedItems = ($scope.selectedItems.length !== 0);
+            $scope.selectedVertex = $scope.selectedItems[0];
           }
         }, true);
 
@@ -212,27 +213,37 @@ angular.module('dendrite.controllers', []).
 
         var queryStyle = "vertices";
 
-        $scope.followEdges = function() {
+        $scope.followEdges = function(element) {
+          $routeParams.mode = "edge";
           queryStyle = "edges";
           $scope.reloadData();
+          return false; // prevent normal link behavior
         };
 
         $scope.followInEdges = function() {
           queryStyle = "in-edges";
           $scope.reloadData();
+          return false; // prevent normal link behavior
         };
 
         $scope.followOutEdges = function() {
           queryStyle = "out-edges";
           $scope.reloadData();
+          return false; // prevent normal link behavior
+        };
+
+        $scope.addVertexEdge = function() {
+          $location.path('graphs/' + $scope.graphId + '/create_edge/' + $scope.selectedItems[0]._id);
         };
 
         $scope.resetItems = function() {
+          $scope.selectedItems.shift();
           queryStyle = "vertices";
           $scope.reloadData();
         }
 
         $scope.reloadData = function() {
+
           if (queryStyle === "vertices") {
             Vertex.query({graphId: $routeParams.graphId}, function(query) {
               // We are going to pretend that the server does the filtering, sorting, and paging.
@@ -327,7 +338,7 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
-  /*
+/*
     controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, User, Edge) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
@@ -335,7 +346,7 @@ angular.module('dendrite.controllers', []).
         $scope.edgeDetail = function(id) {
           $location.path('graphs/' + $scope.graphId + '/edges/' + id);
         };
-        
+
         $scope.gridOptions = {
             data: 'edges',
             columnDefs: [
@@ -429,7 +440,7 @@ angular.module('dendrite.controllers', []).
             $scope.isDeleteDisabled = true;
         };
     }).
-    */
+*/
     controller('EdgeDetailCtrl', function($scope, $routeParams, Edge) {
         $scope.graphId = $routeParams.graphId;
         $scope.edgeId = $routeParams.edgeId;
@@ -441,8 +452,13 @@ angular.module('dendrite.controllers', []).
             });
         }
     }).
-    controller('EdgeCreateCtrl', function($scope, $routeParams, $location, Edge) {
+    controller('EdgeCreateCtrl', function($scope, $routeParams, $location, Edge, Vertex) {
         $scope.graphId = $routeParams.graphId;
+        $scope.query = Vertex.list({graphId: $scope.graphId});
+        console.log('here');
+        if ($routeParams.vertexId != undefined) {
+          $scope.vertexId = $routeParams.vertexId;
+        }
 
         $scope.save = function() {
             Edge.save({graphId: $scope.graphId}, $scope.edge, function() {

@@ -1,7 +1,10 @@
 @import "ui-colors.css.less";
 @import "ui-mixins.css.less";
 @import "angular.css.less";
+@import "ng-grid.css.less";
 
+// fonts
+@import url("http://fonts.googleapis.com/css?family=Syncopate:400,700|Oxygen");
 
 //
 // PROJECT VARIABLES
@@ -12,20 +15,29 @@
 @color-info:                      @color-blue-light;
 
 @btn-hsl-alpha: 1.0;
-@color-btn-primary-start:         @color-blue-light;
+@color-btn-start:                  @color-white-dark;
+@color-btn-end:                   @color-white-dark;
+@color-btn-hsv:                   hsla(hue(@color-btn-end), saturation(@color-btn-end), lightness(@color-btn-end), @btn-hsl-alpha);
+@color-btn-primary-start:         @color-blue-dark;
 @color-btn-primary-end:           @color-blue-dark;
 @color-btn-primary-hsv:           hsla(hue(@color-btn-primary-end), saturation(@color-btn-primary-end), lightness(@color-btn-primary-end), @btn-hsl-alpha);
-@color-btn-success-start:         @color-aqua-light;
+@color-btn-success-start:         @color-aqua-dark;
 @color-btn-success-end:           @color-aqua-dark;
 @color-btn-success-hsv:           hsla(hue(@color-btn-success-end), saturation(@color-btn-success-end), lightness(@color-btn-success-end), @btn-hsl-alpha);
-@color-btn-attention-start:       @color-orange-light;
+@color-btn-attention-start:       @color-orange-dark;
 @color-btn-attention-end:         @color-orange-dark;
 @color-btn-attention-hsv:         hsla(hue(@color-btn-attention-end), saturation(@color-btn-attention-end), lightness(@color-btn-attention-end), @btn-hsl-alpha);
+@color-btn-file-start:            @color-gray-dark;
+@color-btn-file-end:              @color-gray-dark;
+@color-btn-file-hsv:              hsla(hue(@color-btn-file-end), saturation(@color-btn-file-end), lightness(@color-btn-file-end), @btn-hsl-alpha);
+@color-btn-default-start:         @color-gray-dark;
+@color-btn-default-end:           @color-gray-dark;
+@color-btn-default-hsv:           hsla(hue(@color-btn-default-end), saturation(@color-btn-default-end), lightness(@color-btn-default-end), @btn-hsl-alpha);
 
 @color-heading-light:             @color-blue-dark;
 @color-heading-dark:              @color-navy-dark;
-@color-navbar-from:               @color-gray-light;
-@color-navbar-to:                 @color-gray-light;
+@color-navbar-from:               @color-black-light;
+@color-navbar-to:                 @color-black-light;
 
 @color-page-background-mysql:     @color-red-light;
 @color-page-background-mongo:     @color-yellow-light;
@@ -56,6 +68,21 @@
   width: 232px;
 }
 
+.logo-lab41 {
+  font-weight: bold;
+  display: inline;
+  img {
+    vertical-align: text-top;
+  }
+  .font-lab {
+    color: @color-blue-dark;
+  }
+
+  .font-41 {
+    color: @color-orange-dark;
+  }
+}
+
 .logo-container {
 }
 
@@ -64,11 +91,17 @@
   width: auto;
 }
 
+.img-logo {
+  background: url("../img/logo.png") no-repeat left top;
+  height: 50px;
+  width: 50px;
+  display: inline-block;
+}
 
 .img-badge {
   height: 50px;
   width: 75px;
-  display: inline-block;  
+  display: inline-block;
 }
 
 .img-badge.ROLE_USER {
@@ -81,6 +114,17 @@
   background-size: auto 50px;
 }
 
+circle.node {
+  cursor: pointer;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+}
+
+line.link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
+}
 /*************************************************/
 /* typography */
 /*************************************************/
@@ -94,13 +138,17 @@
   color:@color-navy-dark;
 }
 
+.titlebar {
+  border-bottom: 1px solid @color-gray-dark;
+}
+
 .heading {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-family: 'NoticiaBold', 'Times New Roman', serif;
   text-decoration: none;
   color: @color-heading-dark;
-  border-bottom: 1px solid @color-gray-light;
+  .titlebar;
   padding-bottom: 15px;
 }
 
@@ -115,7 +163,7 @@
 
 .page-heading {
   text-align:right;
-  padding:0; 
+  padding:0;
   display:block;
   float:right;
   margin-top:-20px;
@@ -127,6 +175,12 @@
   color: @color-gray-light;
 }
 
+.jumbotron {
+  h1,h2,h3,h4,h5,h6 {
+    color: @color-orange-dark;
+  }
+}
+
 h1,h2,h3,h4,h5,h6 {
   color: @color-orange-dark;
 }
@@ -135,13 +189,22 @@ h1,h2,h3,h4,h5,h6 {
   color: @color-gray-medium;
 }
 
+.dropdown-menu .divider {
+  background-color: @color-gray-light;
+}
+
+.text-logo {
+  font-family: 'Syncopate', sans-serif;
+  font-weight: 700;
+}
 
 /*************************************************/
 /* layout */
 /*************************************************/
-body { 
-  padding-top: 60px; 
-  background-repeat: no-repeat; 
+body {
+  padding-top: 60px;
+  background-image: url("../public/img/texture.png");
+    font-family: 'Oxygen', sans-serif;
 }
 
 .body-mysql {
@@ -184,6 +247,17 @@ body {
   background-repeat: none;
 }
 
+.float-right {
+  float: right;
+}
+
+.float-left {
+  float: left;
+}
+
+.inline {
+  display: inline;
+}
 
 /*************************************************/
 /* sections */
@@ -218,6 +292,12 @@ body {
   background-color: @color-yellow-light;
   border-color: @color-yellow-dark;
   color: @color-navy-dark;
+}
+
+.alert-info {
+  background-color: @color-blue-light;
+  border-color: @color-blue-dark;
+  color: @color-white-dark;
 }
 
 #errorExplanation {
@@ -275,6 +355,10 @@ textarea {
   width: 400px;
 }
 
+.searchbar {
+  width:33%;
+  margin-left: 20px
+}
 
 /*************************************************/
 /* ui elements */
@@ -287,6 +371,9 @@ div.span6 div.span6 div.dataTables_length label {
   margin-left: 30px;
 }
 
+.row-padded {
+  padding: 0 5px 10px 5px ;
+}
 
 /*************************************************/
 /* navbar */
@@ -296,6 +383,15 @@ div.span6 div.span6 div.dataTables_length label {
   border-top: 2px solid @color-orange-dark;
   padding-right: 0;
   padding-left: 0;
+  font-weight: bold;
+}
+
+.navbar-brand {
+  padding: 0 15px;
+  color: @color-white-dark;
+  font-family: 'Syncopate', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
 }
 
 .navbar-fixed-top {
@@ -319,6 +415,9 @@ div.span6 div.span6 div.dataTables_length label {
   .rounded-corner(3px);
 }
 
+.navbar button {
+  font-weight: bold;
+}
 
 /*************************************************/
 /* buttons */
@@ -337,6 +436,22 @@ div.span6 div.span6 div.dataTables_length label {
   vertical-align:bottom;
 }
 
+.btn {
+  background-color: @color-btn-hsv !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-start", endColorstr="@color-btn-end");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(@color-btn-start), to(@color-btn-end));
+  background-image: -moz-linear-gradient(top, @color-btn-start, @color-btn-end);
+  background-image: -ms-linear-gradient(top, @color-btn-start, @color-btn-end);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, @color-btn-start), color-stop(100%, @color-btn-end));
+  background-image: -webkit-linear-gradient(top, @color-btn-start, @color-btn-end);
+  background-image: -o-linear-gradient(top, @color-btn-start, @color-btn-end);
+  background-image: linear-gradient(@color-btn-start, @color-btn-end);
+  border-color: @color-btn-end @color-btn-end @color-btn-hsv;
+  color: @color-black-light !important;
+  -webkit-font-smoothing: antialiased;
+}
+
 .btn-primary {
   background-color: @color-btn-primary-hsv !important;
   background-repeat: repeat-x;
@@ -349,6 +464,23 @@ div.span6 div.span6 div.dataTables_length label {
   background-image: -o-linear-gradient(top, @color-btn-primary-start, @color-btn-primary-end);
   background-image: linear-gradient(@color-btn-primary-start, @color-btn-primary-end);
   border-color: @color-btn-primary-end @color-btn-primary-end @color-btn-primary-hsv;
+  color: @color-white-dark !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn-file {
+  background-color: @color-btn-file-hsv !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-file-start", endColorstr="@color-btn-file-end");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(@color-btn-file-start), to(@color-btn-file-end));
+  background-image: -moz-linear-gradient(top, @color-btn-file-start, @color-btn-file-end);
+  background-image: -ms-linear-gradient(top, @color-btn-file-start, @color-btn-file-end);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, @color-btn-file-start), color-stop(100%, @color-btn-file-end));
+  background-image: -webkit-linear-gradient(top, @color-btn-file-start, @color-btn-file-end);
+  background-image: -o-linear-gradient(top, @color-btn-file-start, @color-btn-file-end);
+  background-image: linear-gradient(@color-btn-file-start, @color-btn-file-end);
+  border-color: @color-btn-file-end @color-btn-file-end @color-btn-file-hsv;
   color: @color-white-dark !important;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
   -webkit-font-smoothing: antialiased;
@@ -383,6 +515,23 @@ div.span6 div.span6 div.dataTables_length label {
   background-image: -o-linear-gradient(top, @color-btn-attention-start, @color-btn-attention-end);
   background-image: linear-gradient(@color-btn-attention-start, @color-btn-attention-end);
   border-color: @color-btn-attention-end @color-btn-attention-end @color-btn-attention-hsv;
+  color: @color-white-dark !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn-default {
+  background-color: @color-btn-default-hsv !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-default-start", endColorstr="@color-btn-default-end");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(@color-btn-default-start), to(@color-btn-default-end));
+  background-image: -moz-linear-gradient(top, @color-btn-default-start, @color-btn-default-end);
+  background-image: -ms-linear-gradient(top, @color-btn-default-start, @color-btn-default-end);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, @color-btn-default-start), color-stop(100%, @color-btn-default-end));
+  background-image: -webkit-linear-gradient(top, @color-btn-default-start, @color-btn-default-end);
+  background-image: -o-linear-gradient(top, @color-btn-default-start, @color-btn-default-end);
+  background-image: linear-gradient(@color-btn-default-start, @color-btn-default-end);
+  border-color: @color-btn-default-end @color-btn-default-end @color-btn-default-hsv;
   color: @color-white-dark !important;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.36);
   -webkit-font-smoothing: antialiased;

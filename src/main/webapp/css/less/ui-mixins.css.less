@@ -12,3 +12,17 @@
   -moz-box-shadow: @offset-left @offset-top @blur @spread @rgba;
   box-shadow: @offset-left @offset-top @blur @spread @rgba;
 }
+
+.rounded-top (@radius: 6px) {
+ -webkit-border-radius: @radius @radius 0 0;
+ -moz-border-radius: @radius @radius 0 0;
+ -khtml-border-radius: @radius @radius 0 0;
+ border-radius: @radius @radius 0 0;
+}
+
+.rounded-bottom (@radius: 6px) {
+ -webkit-border-radius: 0 0 @radius @radius;
+ -moz-border-radius: 0 0 @radius @radius;
+ -khtml-border-radius: 0 0 @radius @radius;
+ border-radius: 0 0 @radius @radius;
+}
