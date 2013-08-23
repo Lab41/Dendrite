@@ -1,54 +1,66 @@
-<h2>Graph: {{ graph.name }}</h2>
+<h2 class="titlebar">Graph: {{ graph.name }}</h2>
 <div class="row">
-  <div class="col-lg-8">
-    <h3>Graph Details</h3>
-      <a href="#/graphs/{{ graphId }}/vertices" class="btn btn-attention">People</a>
-    <!--
-      <a href="#/graphs/{{ graphId }}/edges" class="btn btn-attention">Attributes</a>
+  <div class="col-sm-6" style="margin-bottom:20px">
+    <h4>Details</h4>
       <ul>
-        <li>{{ graph.name }}</li>
+        <li><strong>Name</strong>: {{ graph.name }}</li>
+        <li><strong>Version</strong>: {{ graph.version }}</li>
+        <!--
         <li>{{ graph.queryTime }}</li>
         <li>{{ graph.readOnly }}</li>
         <li>{{ graph.type }}</li>
-        <li>{{ graph.version }}</li>
         <li>
           features:
           <ul>
             <li ng-repeat="(key, value) in graph.features track by $index">{{ key }}: {{ value }}</li>
           </ul>
         </li>
+        -->
       </ul>
-      -->
+
   </div>
-  
-  <div class="col-lg-4">
-    <div ng-controller="FileUploadCtrl">
-        <form ng-upload action="api/{{ graphId }}/file-upload" upload-options-enable-controls>
-            <fieldset>
-                <legend>File Upload</legend>
 
-                <label for="format">Select the file format:</label>
-                <select name="format" id="format">
-                    <option value="GraphSON" selected>GraphSON</option>
-                    <option value="GraphML">GraphML</option>
-                    <option value="GML">GML</option>
-                </select>
-
-                <br>
-
-                <label for="file">Select a file to upload:</label>
-                <input type="file" name="file" id="file">
-            </fieldset>
-
-            <p>
-                <input type="submit" class="btn btn-primary" value="Submit" upload-submit="uploadFile(content, completed)" />
-            </p>
-        </form>
-        <div class="alert alert-info" ng-hide="!fileUploaded">{{ uploadMessage }}</div>
-    </div>
+  <div class="col-sm-6">
+    <h4>Explore</h4>
+    <a href="#/graphs/{{ graphId }}/vertices" class="btn btn-success">People</a>
+    <a href="#/graphs/{{ graphId }}/edges" class="btn btn-success">Connections</a>
   </div>
 </div>
 
 <div class="row">
-  <svg force-directed-graph data="forceDirectedGraphData"></svg>
+  <div class="col-sm-12">
+    <label for="format" style="text-align:right">Upload a file to add to the network:</label>
+    <div ng-controller="FileUploadCtrl">
+      <form ng-upload action="api/{{ graphId }}/file-upload" upload-options-enable-controls>
+        <select name="format" id="format" class="inline form-control" style="width:25%">
+            <option selected>Select Format</option>
+            <option value="GraphSON">GraphSON</option>
+            <option value="GraphML">GraphML</option>
+            <option value="GML">GML</option>
+        </select>
+
+
+
+        <div class="inline fileupload fileupload-new" data-provides="fileupload">
+          <span class="btn btn-file">
+            <span class="fileupload-new">Select file</span>
+            <span class="fileupload-exists">Change</span>
+            <input type="file" name="file" id="file" style="display:inline">
+          </span>
+          <span class="inline fileupload-preview"> </span>
+          <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+        </div>
+        <input type="submit" class="inline btn btn-primary" value="Submit" upload-submit="uploadFile(content, completed)" />
+        <div class="alert alert-info" ng-hide="!fileUploaded">{{ uploadMessage }}</div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<div class="row" style="margin-top:40px">
+  <h3 class="titlebar">Snapshot of {{ graphId }}</h3>
+  <div class="col-sm-8">
+    <svg force-directed-graph data="forceDirectedGraphData"></svg>
+  </div>
 </div>

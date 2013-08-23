@@ -1,15 +1,23 @@
-<h3>People We Know</h3>
-
-<div class="row">
-  <label for="filter">Search:</label>
-  <input type="text" size="50" ng-model="gridOptions.filterOptions.filterText" id="filter">
+<div ng-if='!hasSelectedItems'>
+  <h3>People We Know</h3>
+</div>
+<div ng-if='hasSelectedItems'>
+  <h3>People Connected to {{ selectedVertex.name | capitalize  }}</h3>
 </div>
 
-<div class="row">
-  <a class="btn" href="#/graphs/{{ graphId }}/create_vertex">Create Vertex</a>
-  <button ng-click="resetItems()">Reload</button>
-  <button ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete</button>
+<div class="row row-padded">
+  <div class="inline float-left">
+    <a class="btn btn-primary" href="#/graphs/{{ graphId }}/create_vertex">Add Person</a>
+    <a href="#/graphs/{{ graphId }}/edges" class="btn btn-success">View Connections</a>
+  </div>
+  <div class="inline">
+    <input type="text" class="form-control inline searchbar" placeholder="Search" ng-model="gridOptions.filterOptions.filterText" id="filter">
+  </div>
+  <div class="inline">
+    <button class="btn" ng-click="resetItems()">Reload Data</button>
+  </div>
 </div>
+
 
 <div class="row">
   <div class="col-8">
@@ -17,14 +25,35 @@
   </div>
 
   <div class="col-4">
-    <ul>
+    <ul style="list-style:none">
       <li ng-repeat="vertex in selectedItems">
-        <button ng-click="followEdges()" ng-show="hasSelectedItems">Follow Edges</button><br>
-        <button ng-click="followInEdges()" ng-show="hasSelectedItems">Follow In Edges</button><br>
-        <button ng-click="followOutEdges()" ng-show="hasSelectedItems">Follow Out Edges</button><br>
+
+        <h4 class="titlebar">{{ vertex.name | capitalize  }}</h4>
+
+        <!-- dropdown button -->
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-attention dropdown-toggle" data-toggle="dropdown">
+            Explore <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a ng-click="followEdges()" ng-show="hasSelectedItems">All Connections</a></li>
+            <li class="divider"></li>
+            <li><a ng-click="followInEdges()" ng-show="hasSelectedItems">From {{ vertex.name | capitalize }}</a></li>
+            <li><a ng-click="followOutEdges()" ng-show="hasSelectedItems">To {{ vertex.name | capitalize  }}</a></li>
+          </ul>
+
+          <button class="btn btn-sm btn-primary" ng-click="addVertexEdge()">Add Link</button>
+        </div>
+
+
         <ul>
-          <li ng-repeat="(key, value) in vertex track by $index">{{ key }}: {{ value }}</li>
+          <li><strong>Name</strong>: {{ vertex.name | capitalize  }}</li>
+          <li><strong>Age</strong>: {{ vertex.age }}</li>
         </ul>
+
+        <div style="float:right">
+          <button class="btn btn-sm" ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete {{ vertex.name | capitalize  }}</button>
+        </div>
       </li>
     </ul>
   </div>

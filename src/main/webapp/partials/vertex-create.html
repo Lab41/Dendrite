@@ -1,7 +1,28 @@
-<form>
-    Name: <input type="text" ng-model="vertex.name" /><br />
-    Age: <input type="text" ng-model="vertex.age" /><br />
+<h2>Add Person</h2>
 
-    <button ng-click="save()">save</button>
-    <pre>vertex = {{ vertex | json }}</pre>
+<form>
+
+  <div class="row">
+    <div class="col-8">
+
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" ng-model="vertex.name" class="inline form-control" placeholder="Name" /><br />
+      </div>
+
+      <div class="form-group">
+        <label>Age</label>
+        <input type="number" ng-model="vertex.age" class="inline form-control" placeholder="Age" /><br />
+      </div>
+      <button class="btn btn-primary" ng-click="save()">Add Person</button>
+      <button class="btn" ng-click="back()">Cancel</button>
+    </div>
+
+    <div class="col-4">
+      <label>Preview</label>
+      <pre>Person = {{ vertex | json }}</pre>
+    </div>
+  </div>
+
+
 </form>

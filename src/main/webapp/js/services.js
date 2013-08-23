@@ -14,7 +14,7 @@ angular.module('dendrite.services', ['ngResource']).
           , currentUser = $cookieStore.get('user') || { username: '', role: userRoles.ROLE_PUBLIC };
 
       $cookieStore.remove('user');
-      
+
       function changeUser(user) {
           _.extend(currentUser, user);
       }
@@ -33,7 +33,7 @@ angular.module('dendrite.services', ['ngResource']).
       }
 
       ping();
-    
+
       return {
         isAuthenticated: function() {
           return _this.authenticated;
@@ -71,7 +71,7 @@ angular.module('dendrite.services', ['ngResource']).
               $rootScope.$broadcast('event:logoutConfirmed');
             });
         },
-        
+
         //TODO: implement SpringMVC "ping" route to return ROLE_xxx
         getRole: function() {
           /*
@@ -79,14 +79,14 @@ angular.module('dendrite.services', ['ngResource']).
             currentUser.role = userRoles[response.authorities[0].authority];
           });
           */
-          return currentUser.role;          
+          return currentUser.role;
         },
 
         // resetRole reverts current user's role to public access
         resetRole: function() {
           return currentUser.role = userRoles.ROLE_ANON;
         },
-                   
+
         authorize: function(accessLevel, role) {
             if(role === undefined)
                 role = currentUser.role;
@@ -94,13 +94,13 @@ angular.module('dendrite.services', ['ngResource']).
                 accessLevel = userRoles.ROLE_PUBLIC;
             return accessLevel.bitMask & role.bitMask;
         },
-        
+
         isLoggedIn: function(user) {
             if(user === undefined)
                 user = currentUser;
             return user.role == userRoles.ROLE_USER || user.role == userRoles.ROLE_ADMIN;
         },
-        
+
         accessLevels: accessLevels,
         userRoles: userRoles,
         user: currentUser
@@ -157,6 +157,11 @@ angular.module('dendrite.services', ['ngResource']).
                 url: 'rexster-resource/graphs/:graphId/vertices/:vertexId/outE',
                 method: 'GET',
                 isArray: false
+            },
+            list: {
+                url: 'rexster-resource/graphs/:graphId/vertices',
+                method: 'GET',
+                isArray: false
             }
         });
     }).
@@ -174,8 +179,3 @@ angular.module('dendrite.services', ['ngResource']).
             }
         });
     });
- 
- 
- 
- 
- 

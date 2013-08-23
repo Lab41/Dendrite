@@ -1,11 +1,31 @@
 <h3>Things We Know About People</h3>
+<div class="row row-padded">
+  <div class="inline float-left">
+    <a class="btn btn-primary" href="#/graphs/{{ graphId }}/create_edge">Add Connection</a>
+    <a href="#/graphs/{{ graphId }}/vertices" class="btn btn-success">View People</a>
+  </div>
+  <div class="inline">
+    <input type="text" class="form-control inline searchbar" placeholder="Search" ng-model="gridOptions.filterOptions.filterText" id="filter">
+  </div>
+  <div class="inline">
+    <button class="btn" ng-click="resetItems()">Reload Data</button>
+    <button class="btn" ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete Selected</button>
+  </div>
+</div>
 
-<div class="container-fluid">
-  <div class="row-fluid">
-    <div class="span12">
-      <a class="btn" href="#/graphs/{{ graphId }}/create_edge">Create Edge</a>
-      <button ng-click="deleteSelectedEdges()" ng-hide="isDeleteDisabled">Delete</button>
-      <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
-    </div>
+
+<div class="row">
+  <div class="col-8">
+    <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
+  </div>
+
+  <div class="col-4">
+    <ul>
+      <li ng-repeat="edge in selectedItems">
+        <ul>
+          <li ng-repeat="(key, value) in edge track by $index">{{ key }}: {{ value }}</li>
+        </ul>
+      </li>
+    </ul>
   </div>
 </div>
