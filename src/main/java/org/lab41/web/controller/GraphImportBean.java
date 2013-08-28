@@ -6,7 +6,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
  * Created with IntelliJ IDEA. User: etryzelaar Date: 8/12/13 Time: 5:55 PM To change this template
  * use File | Settings | File Templates.
  */
-public class FileUploadBean {
+public class GraphImportBean {
     private String format;
     private CommonsMultipartFile file;
 

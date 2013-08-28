@@ -31,7 +31,7 @@
   <div class="col-sm-12">
     <label for="format" style="text-align:right">Upload a file to add to the network:</label>
     <div ng-controller="FileUploadCtrl">
-      <form ng-upload action="api/{{ graphId }}/file-upload" upload-options-enable-controls>
+      <form ng-upload action="api/{{ graphId }}/file-import" upload-options-enable-controls>
         <select name="format" id="format" class="inline form-control" style="width:25%">
             <option selected>Select Format</option>
             <option value="GraphSON">GraphSON</option>

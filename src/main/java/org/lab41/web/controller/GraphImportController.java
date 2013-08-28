@@ -26,13 +26,13 @@ import java.io.IOException;
  * use File | Settings | File Templates.
  */
 @Controller
-public class FileUploadController {
+public class GraphImportController {
 
     @Autowired
     DendriteRexsterApplication application;
 
-    @RequestMapping(value = "/api/{graphName}/file-upload", method = RequestMethod.POST)
-    public ResponseEntity<String> upload(@PathVariable String graphName, FileUploadBean uploadItem, BindingResult result)
+    @RequestMapping(value = "/api/{graphName}/file-import", method = RequestMethod.POST)
+    public ResponseEntity<String> importGraph(@PathVariable String graphName, GraphImportBean importItem, BindingResult result)
         throws JSONException {
         HttpHeaders responseHeaders = new HttpHeaders();
 
@@ -47,19 +47,19 @@ public class FileUploadController {
             return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        if (uploadItem.getFile() == null) {
+        if (importItem.getFile() == null) {
             json.put("status", "error");
             json.put("msg", "missing 'file' field");
             return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
-        System.err.println("filename: '" + uploadItem.getFile().getOriginalFilename() + "'");
+        System.err.println("filename: '" + importItem.getFile().getOriginalFilename() + "'");
 
-        if (uploadItem.getFormat() == null) {
+        if (importItem.getFormat() == null) {
             json.put("status", "error");
             json.put("msg", "missing 'format' field");
             return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
-        System.err.println("format: '" + uploadItem.getFormat());
+        System.err.println("format: '" + importItem.getFormat());
 
         Graph graph = application.getGraph(graphName);
         if (graph == null) {
@@ -69,14 +69,14 @@ public class FileUploadController {
         }
         System.err.println("graph:" + graph);
 
-        String format = uploadItem.getFormat();
+        String format = importItem.getFormat();
         try {
             if (format.equalsIgnoreCase("GraphSON")) {
-                GraphSONReader.inputGraph(graph, uploadItem.getFile().getInputStream());
+                GraphSONReader.inputGraph(graph, importItem.getFile().getInputStream());
             } else if (format.equalsIgnoreCase("GraphML")) {
-                GraphMLReader.inputGraph(graph, uploadItem.getFile().getInputStream());
+                GraphMLReader.inputGraph(graph, importItem.getFile().getInputStream());
             } else if (format.equalsIgnoreCase("GML")) {
-                GMLReader.inputGraph(graph, uploadItem.getFile().getInputStream());
+                GMLReader.inputGraph(graph, importItem.getFile().getInputStream());
             } else {
                 json.put("status", "error");
                 json.put("msg", "unknown format '" + format + "'");
