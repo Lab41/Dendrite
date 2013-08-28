@@ -1,6 +1,7 @@
 package org.lab41.web.controller;
 
 import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 
@@ -65,7 +66,7 @@ public class GraphExportController {
                 GraphMLWriter.outputGraph(graph, response.getOutputStream());
             } else if (format.equalsIgnoreCase("GML")) {
                 response.setContentType("application/vnd.rexster+gml");
-                GraphMLWriter.outputGraph(graph, response.getOutputStream());
+                GMLWriter.outputGraph(graph, response.getOutputStream());
             } else {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             }
