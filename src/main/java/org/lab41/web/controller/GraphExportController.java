@@ -60,12 +60,15 @@ public class GraphExportController {
         try {
             if (format.equalsIgnoreCase("GraphSON")) {
                 response.setContentType("application/vnd.rexster+json");
+                response.setHeader("Content-Disposition", "attachment; filename=\"graph.json\"");
                 GraphSONWriter.outputGraph(graph, response.getOutputStream());
             } else if (format.equalsIgnoreCase("GraphML")) {
                 response.setContentType("application/vnd.rexster+xml");
+                response.setHeader("Content-Disposition", "attachment; filename=\"graph.xml\"");
                 GraphMLWriter.outputGraph(graph, response.getOutputStream());
             } else if (format.equalsIgnoreCase("GML")) {
                 response.setContentType("application/vnd.rexster+gml");
+                response.setHeader("Content-Disposition", "attachment; filename=\"graph.gml\"");
                 GMLWriter.outputGraph(graph, response.getOutputStream());
             } else {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
