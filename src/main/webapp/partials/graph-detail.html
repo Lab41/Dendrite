@@ -57,6 +57,24 @@
   </div>
 </div>
 
+<div class="row">
+    <div class="col-sm-12">
+        <label for="format" style="text-align:right">Download this graph:</label>
+        <div>
+            <form action="api/{{graphId}}/file-export" method="POST">
+                <select name="format" id="format" class="inline form-control" style="width:25%">
+                    <option selected>Select Format</option>
+                    <option value="GraphSON">GraphSON</option>
+                    <option value="GraphML">GraphML</option>
+                    <option value="GML">GML</option>
+                </select>
+
+                <input type="submit" class="inline btn btn-primary" value="Download"/>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <div class="row" style="margin-top:40px">
   <h3 class="titlebar">Snapshot of {{ graphId }}</h3>
