@@ -8,7 +8,7 @@
         then be used within application context files in the form of
         ${propertyKey}.
     -->
-    <context:property-placeholder location="classpath*:META-INF/spring/*.properties"/>
+    <context:property-placeholder location="classpath:META-INF/spring/dev/*.properties"/>
 
     <!--
         This declaration will cause Spring to locate every @Component,
