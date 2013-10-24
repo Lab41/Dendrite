@@ -48,3 +48,5 @@ Contributing to Dendrite
 =======================
 
 What to contribute?  Awesome!  Issue a pull request or see more details [here](https://github.com/Lab41/Dendrite/blob/master/CONTRIBUTING.md).
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Lab41/dendrite/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
