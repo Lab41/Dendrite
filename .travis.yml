@@ -1,0 +1,21 @@
+language: java
+
+jdk:
+  - oraclejdk7
+  - openjdk7
+
+install: mvn install
+
+after_success:
+  - mvn cobertura:cobertura coveralls:cobertura 
+
+branches:
+  except:
+    - gh-pages
+
+notifications:
+  email:
+    - charliel@lab41.org
+    - erickt@lab41.org
+    - karthikr@lab41.org
+    - kylef@lab41.org
