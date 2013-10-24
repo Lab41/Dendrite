@@ -1,6 +1,6 @@
 Dendrite
 =======
-[![Build Status](https://travis-ci.org/Lab41/Dendrite.png?branch=master)](https://travis-ci.org/Lab41/Dendrite) [![Coverage Status](https://coveralls.io/repos/Lab41/Dendrite/badge.png?branch=master)](https://coveralls.io/r/Lab41/Dendrite?branch=master)
+[![Build Status](https://travis-ci.org/Lab41/Dendrite.png?branch=master)](https://travis-ci.org/Lab41/Dendrite) [![Coverage Status](https://coveralls.io/repos/Lab41/Dendrite/badge.png)](https://coveralls.io/r/Lab41/Dendrite)
 
 People. Places. Things. Graphs.
 
