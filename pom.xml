@@ -16,8 +16,9 @@
         <spring.version>3.2.0.RELEASE</spring.version>
         <spring.security.version>3.1.4.RELEASE</spring.security.version>
         <jersey.version>1.17.1</jersey.version>
-        <!-- TODO: Figure out what the plan with rexster is -->
-        <rexster.version>2.3.0</rexster.version>
+        <rexster.version>2.4.0</rexster.version>
+        <faunus.version>0.4.0</faunus.version>
+        <titan.version>0.4.0</titan.version>
     </properties>
     <repositories>
         <repository>
@@ -302,26 +303,17 @@
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
             <artifactId>titan-core</artifactId>
-            <version>0.3.1</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>rexster-server</artifactId>
-                    <groupId>com.tinkerpop.rexster</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>javax.servlet-api</artifactId>
-                    <groupId>javax.servlet</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>rexster-core</artifactId>
-                    <groupId>com.tinkerpop.rexster</groupId>
-                </exclusion>
-            </exclusions>
+            <version>${titan.version}</version>
         </dependency>
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
             <artifactId>titan-berkeleyje</artifactId>
-            <version>0.3.1</version>
+            <version>${titan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.thinkaurelius.titan</groupId>
+            <artifactId>titan-rexster</artifactId>
+            <version>${titan.version}</version>
         </dependency>
 
         <!-- Frontend Dependencies -->
