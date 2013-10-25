@@ -1,3 +1,4 @@
+@import url("http://fonts.googleapis.com/css?family=Syncopate:400,700|Oxygen");
 /**
  * Copyright 2013 In-Q-Tel/Lab41
  *
@@ -13,8 +14,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@import url("http://fonts.googleapis.com/css?family=Syncopate:400,700|Oxygen");
+/**
+ * Copyright 2013 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Copyright 2013 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Copyright 2013 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*************************************************/
 /* angular-specific styles */
 /*************************************************/
@@ -41,6 +85,51 @@
   content: "";
   padding: 0;
 }
+/**
+ * Copyright 2013 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Copyright 2013 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Copyright 2013 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 .ngGrid {
   background-color: #fdfdfd;
   border-radius: 6px;
@@ -646,6 +735,13 @@ h6 {
 /*************************************************/
 body {
   padding-top: 60px;
+}
+@media (max-width: 979px) {
+  body {
+    padding-top: 0px;
+  }
+}
+body {
   background-image: url("../public/img/texture.png");
   font-family: 'Oxygen', sans-serif;
 }
@@ -717,6 +813,22 @@ body {
   margin-bottom: 15px;
   border-bottom: 10px solid #bdc3c7;
   padding-bottom: 15px;
+}
+.well {
+  background-color: #bdc3c7;
+}
+/*************************************************/
+/* analytics */
+/*************************************************/
+.sidepane-analytics {
+  background-color: #ecf0f1;
+  background-color: rgba(236, 240, 241, 0.5);
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
 }
 /*************************************************/
 /* notifications */
@@ -857,6 +969,22 @@ div.span6 div.span6 div.dataTables_length label {
 }
 .navbar button {
   font-weight: bold;
+}
+.nav .dropdown-toggle .caret {
+  margin-top: 6px;
+  border-top-color: #ecf0f1;
+  border-bottom-color: #ecf0f1;
+}
+.nav .dropdown-toggle:hover .caret,
+.nav .dropdown-toggle:focus .caret {
+  border-top-color: #2ecc71;
+  border-bottom-color: #2ecc71;
+}
+.navbar-nav label {
+  display: inline-block;
+}
+.navbar-nav form {
+  margin-bottom: 0;
 }
 /*************************************************/
 /* buttons */
