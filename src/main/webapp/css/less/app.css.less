@@ -219,8 +219,16 @@ h1,h2,h3,h4,h5,h6 {
 /*************************************************/
 body {
   padding-top: 60px;
+}
+@media (max-width: 979px) {
+  body {
+    padding-top: 0px;
+  }
+}
+
+body {
   background-image: url("../public/img/texture.png");
-    font-family: 'Oxygen', sans-serif;
+  font-family: 'Oxygen', sans-serif;
 }
 
 .body-mysql {
@@ -288,6 +296,19 @@ body {
   padding-bottom: 15px;
 }
 
+.well {
+  background-color: @color-gray-light;
+}
+
+
+/*************************************************/
+/* analytics */
+/*************************************************/
+.sidepane-analytics {
+  background-color: @color-white-dark;
+  background-color: fadeout(@color-white-dark, 50%);
+  .rounded-corner;
+}
 
 /*************************************************/
 /* notifications */
@@ -435,6 +456,25 @@ div.span6 div.span6 div.dataTables_length label {
   font-weight: bold;
 }
 
+.nav .dropdown-toggle .caret {
+  margin-top: 6px;
+  border-top-color: @color-white-dark;
+  border-bottom-color: @color-white-dark;
+}
+
+.nav .dropdown-toggle:hover .caret,
+.nav .dropdown-toggle:focus .caret {
+  border-top-color: @color-green-light;
+  border-bottom-color: @color-green-light;
+}
+
+.navbar-nav label {
+  display:inline-block;
+}
+
+.navbar-nav form {
+  margin-bottom: 0;
+}
 /*************************************************/
 /* buttons */
 /*************************************************/

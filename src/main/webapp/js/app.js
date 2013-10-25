@@ -24,7 +24,8 @@ angular.module('dendrite', [
         'dendrite.controllers',
         'ngCookies',
         'ngUpload',
-        'ngGrid'
+        'ngGrid',
+        '$strap.directives'
     ]).
   config(['$routeProvider', function($routeProvider) {
     var access = routingConfig.accessLevels;
@@ -45,6 +46,8 @@ angular.module('dendrite', [
         when('/graphs/:graphId/edges/:edgeId', {templateUrl: 'partials/edge-detail.html', controller: 'EdgeDetailCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/create_edge/:vertexId', {templateUrl: 'partials/edge-create.html', controller: 'EdgeCreateCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/create_edge', {templateUrl: 'partials/edge-create.html', controller: 'EdgeCreateCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/analytics', {templateUrl: 'partials/analytics/index.html', controller: 'AnalyticsListCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/analytics/:analyticsId', {templateUrl: 'partials/analytics/show.html', controller: 'AnalyticsDetailCtrl', access: access.ROLE_USER}).
         otherwise({redirectTo: '/home'});
   }]).
   config(['$httpProvider', function($httpProvider) {

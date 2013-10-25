@@ -1,0 +1,10 @@
+<h4 class="titlebar" style="padding-top:20px">Status</h4>
+<ul style="margin-top:10px">
+  <li>ID: {{analytic.id}}</li>
+  <li>Type: <strong>{{analytic.analyticType}}</strong></li>
+  <li>Progress:
+    <div class="progress progress-{{colorProgress(analytic.percentComplete)}} progress-striped active">
+      <div class="bar" style="width:{{analytic.percentComplete}}%;">{{analytic.percentComplete}}%</div>
+    </div>
+  </li>
+</ul>
