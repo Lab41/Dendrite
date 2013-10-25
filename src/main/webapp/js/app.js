@@ -24,7 +24,8 @@ angular.module('dendrite', [
         'dendrite.controllers',
         'ngCookies',
         'ngUpload',
-        'ngGrid'
+        'ngGrid',
+        '$strap.directives'
     ]).
   config(['$routeProvider', function($routeProvider) {
     var access = routingConfig.accessLevels;
