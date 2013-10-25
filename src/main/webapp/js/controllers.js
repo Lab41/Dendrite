@@ -110,6 +110,51 @@ angular.module('dendrite.controllers', []).
         $scope.reloadGraph();
 
     }).
+    controller('AnalyticsDetailCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge, Analytics, Helpers, $timeout) {
+        // config
+        $scope.activeAnalytics = [];
+        $scope.colorProgressBars = Helpers.colorProgressBars;
+
+        Analytics.createDummyResults();
+
+        // periodically poll for active calculations
+        var pollActive = function() {
+          console.log(Analytics.analyticConfig.metadata.pollTimeout);
+          $scope.activeAnalytics = Analytics.pollActive();
+          $scope.analytic = Analytics.getAnalytic($routeParams.analyticsId);
+          $timeout(pollActive, Analytics.analyticConfig.metadata.pollTimeout);
+        }
+        pollActive();
+    }).
+    controller('AnalyticsFormCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge, Analytics, Helpers, $timeout) {
+        // placeholder default attributes
+
+        $scope.$watch('analyticType', function () {
+          $scope.attr = Analytics.analyticConfig[$scope.analyticType];
+        });
+
+        // submit calculation
+        $scope.calculate = function() {
+          Analytics.calculate($scope.attr);
+        };
+    }).
+    controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge, Analytics, Helpers, $timeout) {
+        // config
+        $scope.activeAnalytics = [];
+        $scope.colorProgressBars = Helpers.colorProgressBars;
+
+        // show result
+        $scope.showAnalytic = function(id) {
+          $location.path('graphs/' + $routeParams.graphId + '/analytics/' + id);
+        };
+
+        // periodically poll for active calculations
+        var pollActive = function() {
+          $scope.activeAnalytics = Analytics.pollActive();
+          $timeout(pollActive, Analytics.analyticConfig.metadata.pollTimeout);
+        }
+        pollActive();
+    }).
     controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
@@ -471,7 +516,6 @@ angular.module('dendrite.controllers', []).
     controller('EdgeCreateCtrl', function($scope, $routeParams, $location, Edge, Vertex) {
         $scope.graphId = $routeParams.graphId;
         $scope.query = Vertex.list({graphId: $scope.graphId});
-        console.log('here');
         if ($routeParams.vertexId != undefined) {
           $scope.vertexId = $routeParams.vertexId;
         }

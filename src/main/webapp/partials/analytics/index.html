@@ -1,0 +1,15 @@
+<h3>Analytics</h3>
+
+<div ng-controller="AnalyticsListCtrl">
+  <h4 class="titlebar">Calculate</h4>
+
+  <!-- Button to trigger modal -->
+  <div ng-controller="AnalyticsFormCtrl">
+    <div ng-init="analyticType = 'PageRank'">
+      <button type="button" class="btn btn-primary" bs-modal="'partials/analytics/pagerank/form.html'">PageRank</button>
+    </div>
+  </div>
+
+  <!-- list -->
+  <div ng-include="'partials/analytics/list.html'"></div>
+</div>

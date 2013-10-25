@@ -122,6 +122,109 @@ angular.module('dendrite.services', ['ngResource']).
         user: currentUser
       };
     }).
+    factory('Helpers', function($resource) {
+        //TODO: delete once backend APIs complete - dummy result array
+        var analyticResults = [];
+
+        return {
+          //TODO: delete once backend APIs complete - function to add class for progress bars
+          colorProgressBars: function(progress) {
+            if (progress < 33) {
+              return 'danger';
+            } else if (progress < 66) {
+              return 'warning';
+            } else if (progress < 100) {
+              return 'info';
+            } else {
+              return 'success';
+            }
+          }
+        };
+    }).
+    factory('Analytics', function($resource) {
+        //TODO: delete once backend APIs complete - dummy result array
+        var analyticResults = [];
+
+        return {
+          // TODO: delete once backend APIs complete - reset dummy results
+          createDummyResults: function() {
+            analyticResults = [
+              {'id': 0, 'analyticType': 'PageRank', 'percentComplete': 0},
+              {'id': 1, 'analyticType': 'Degree Centrality', 'percentComplete': 0},
+              {'id': 2, 'analyticType': 'Betweenness Centrality', 'percentComplete': 0},
+              {'id': 3, 'analyticType': 'Proximity Prestige', 'percentComplete': 0},
+            ];
+          },
+
+          // configuration options for various analytics
+          analyticConfig: {
+            'metadata': {
+              'pollTimeout': 750,
+              'analyticsExecuting': false
+            },
+
+            'PageRank': {
+              saved: false,
+              dampingFactor: 0.85
+            }
+          },
+
+          // TODO: delete once backend APIs complete - retrieve dummy result
+          getAnalytic: function(id) {
+            return analyticResults[id];
+          },
+
+          // fire off calculation
+          calculate: function(attr) {
+            alert("calculating " + attr.analyticType + " with input " + attr.dampingFactor);
+            this.analyticConfig.metadata.analyticsExecuting = true;
+            this.createDummyResults();
+            /*
+            //TODO enable once backend APIs complete
+            return $resource('rexster-resource/graphs/:graphId/analytics/execute', {
+                graphId: '@name',
+                analyticParams: attr
+            }, {
+                query: {
+                    method: 'GET',
+                    isArray: false
+                }
+            });
+            */
+          },
+
+          // poll server for active calculations
+          pollActive: function() {
+            console.log("polling for active analytics");
+
+            if (this.analyticConfig.metadata.analyticsExecuting) {
+              this.analyticConfig.metadata.analyticsExecuting = false;
+
+              //TODO: delete once backend APIs complete - dummy function to simulate job progress
+              for (var i = 0; i < analyticResults.length; i++) {
+                if (analyticResults[i].percentComplete < 100) {
+                  this.analyticConfig.metadata.analyticsExecuting = true;
+                  var newNum = analyticResults[i].percentComplete += Math.floor((Math.random()*15)+1);
+                  analyticResults[i].percentComplete = (newNum > 100) ? 100 : newNum;
+                }
+              }
+            }
+            return analyticResults;
+            /*
+            //TODO enable once backend APIs complete
+            return $resource('rexster-resource/graphs/:graphId/analytics/poll', {
+                graphId: '@name',
+            }, {
+                query: {
+                    method: 'GET',
+                    isArray: false
+                }
+            });
+            */
+
+          },
+        };
+    }).
     factory('Graph', function($resource) {
         return $resource('rexster-resource/graphs/:graphId', {
             graphId: '@name'
