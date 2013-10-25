@@ -41,8 +41,8 @@ Currently supported graph formats
 Related repositories
 ====================
 
- - [graph-generators](http://lab41.github.io/graph-generators/)
  - [MRKronecker](https://github.com/Lab41/MRKronecker)
+ - [graph-generators](http://lab41.github.io/graph-generators/)
 
 Contributing to Dendrite
 =======================
