@@ -1,0 +1,29 @@
+<!-- Modal (external ./partials/modal.html or inline ng-template) -->
+<div ng-controller="AnalyticsFormCtrl">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>Analytics: PageRank</h3>
+  </div>
+
+  <div class="modal-body">
+    <div class="well">
+      <p><strong>Definition: </strong>PageRank is a link analysis algorithm that assigns a numerical weighting to each element of a hyperlinked set of documents, such as the World Wide Web, with the purpose of "measuring" its relative importance within the set. The algorithm may be applied to any collection of entities with reciprocal quotations and references.</p>
+    </div>
+
+    <p>
+      <label>Damping Factor</label>
+      <input type="text" ng-model="attr.dampingFactor">
+    </p>
+    <br />
+
+    <h4>Calculation Parameters</h4>
+    <pre>
+      Damping Factor: {{attr.dampingFactor}}
+    </pre>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="dismiss()">Cancel</button>
+    <button class="btn btn-primary" ng-click="calculate(); dismiss()">Calculate PageRank</button>
+  </div>
+</div>
