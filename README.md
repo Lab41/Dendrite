@@ -15,7 +15,7 @@ Install instructions
 ```bash
 git clone https://github.com/Lab4/Dendrite.git
 cd Dendrite
-mvn tomcat:run
+mvn tomcat7:run
 ```
 
 Required Dependencies
