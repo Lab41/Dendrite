@@ -286,14 +286,6 @@
             <artifactId>titan-rexster</artifactId>
             <version>${titan.version}</version>
         </dependency>
-
-        <!-- Frontend Dependencies -->
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>2.3.2</version>
-        </dependency>
-
     </dependencies>
     <build>
         <plugins>
