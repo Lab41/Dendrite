@@ -2,13 +2,30 @@
 <rexster>
     <graphs>
         <graph>
-            <graph-name>titanexample</graph-name>
+            <graph-name>dendrite-berkeleydb</graph-name>
             <graph-type>com.thinkaurelius.titan.tinkerpop.rexster.TitanGraphConfiguration</graph-type>
-            <graph-location>/tmp/titan</graph-location>
+            <graph-location>/tmp/dendrite/dendrite-berkeleydb</graph-location>
             <graph-read-only>false</graph-read-only>
             <properties>
                 <storage.backend>local</storage.backend>
                 <storage.buffer-size>100</storage.buffer-size>
+            </properties>
+            <extensions>
+                <allows>
+                    <allow>tp:gremlin</allow>
+                </allows>
+            </extensions>
+        </graph>
+        <graph>
+            <graph-name>dendrite-hbase</graph-name>
+            <graph-type>com.thinkaurelius.titan.tinkerpop.rexster.TitanGraphConfiguration</graph-type>
+            <graph-location></graph-location>
+            <graph-read-only>false</graph-read-only>
+            <properties>
+                <storage.backend>hbase</storage.backend>
+                <storage.tablename>dendrite-hbase</storage.tablename>
+                <storage.hostname>localhost</storage.hostname>
+                <storage.port>2181</storage.port>
             </properties>
             <extensions>
                 <allows>

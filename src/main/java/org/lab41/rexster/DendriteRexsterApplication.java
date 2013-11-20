@@ -16,11 +16,14 @@
 
 package org.lab41.rexster;
 
+import com.google.common.base.Preconditions;
+import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 import com.tinkerpop.rexster.RexsterApplicationGraph;
 import com.tinkerpop.rexster.Tokens;
 import com.tinkerpop.rexster.config.GraphConfigurationContainer;
 import com.tinkerpop.rexster.config.GraphConfigurationException;
 import com.tinkerpop.rexster.server.AbstractMapRexsterApplication;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.slf4j.Logger;
@@ -31,6 +34,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,12 +52,14 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
     Logger logger = LoggerFactory.getLogger(DendriteRexsterApplication.class);
     private static XMLConfiguration configurationProperties;
 
+    private Map<String, HierarchicalConfiguration> configMap;
+
 
     @Autowired(required = true)
-    public DendriteRexsterApplication(@Value("${rexster_xml}") String pathToXML, ResourceLoader resouceLoader) {
+    public DendriteRexsterApplication(@Value("${rexster_xml}") String pathToXML, ResourceLoader resourceLoader) {
 
         logger.debug("Path to XML: " + pathToXML);
-        Resource resource = resouceLoader.getResource(pathToXML);
+        Resource resource = resourceLoader.getResource(pathToXML);
 
         if (resource == null || !resource.exists()) {
             throw new RuntimeException("Unable to initialize RexsterApplicaton, Rexster xml configuration file is either null or does not exist. ");
@@ -73,6 +79,18 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
                 final Map<String, RexsterApplicationGraph> configuredGraphs = container.getApplicationGraphs();
                 graphs.putAll(configuredGraphs);
 
+                // There is unfortunately no way to look up the config for a graph, which makes a connection to Faunus
+                // difficult. So instead we'll cache all the configs so we can look things up.
+                configMap = new HashMap<String, HierarchicalConfiguration>();
+
+                for(HierarchicalConfiguration config: graphConfigs) {
+                    String name = config.getString(Tokens.REXSTER_GRAPH_NAME, "");
+                    Preconditions.checkArgument(!name.isEmpty());
+
+                    configMap.put(name, config);
+                }
+
+
             } catch (GraphConfigurationException e) {
                 logger.error("Graph initialization fialed. Check rexster.xml", e);
 
@@ -81,6 +99,15 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
             }
         }
 
+    }
+
+    public HierarchicalConfiguration getConfig(String graphName) {
+        return configMap.get(graphName);
+    }
+
+    public HierarchicalConfiguration getStorageConfig(String graphName) {
+        return getConfig(graphName).configurationAt(Tokens.REXSTER_GRAPH_PROPERTIES);
+        //.configurationAt(GraphDatabaseConfiguration.STORAGE_NAMESPACE);
     }
 
     // Begin Cut and Paste: TODO - Refactor to extend XmlRexsterApplication -------------------------------
