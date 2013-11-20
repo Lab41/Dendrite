@@ -556,10 +556,12 @@
                     <groupId>com.thinkaurelius.titan</groupId>
                     <artifactId>titan-cassandra</artifactId>
                 </exclusion>
+                -->
                 <exclusion>
                     <groupId>com.tinkerpop.blueprints</groupId>
                     <artifactId>blueprints-sail-graph</artifactId>
                 </exclusion>
+                <!--
                 <exclusion>
                     <groupId>log4j</groupId>
                     <artifactId>log4j</artifactId>
