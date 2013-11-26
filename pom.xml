@@ -15,7 +15,7 @@
         <commons-lang3.version>3.1</commons-lang3.version>
         <commons-logging.version>1.1.1</commons-logging.version>
         <commons-net.version>3.3</commons-net.version>
-        <faunus.version>0.4.1-Lab41</faunus.version>
+        <faunus.version>0.4.1-Lab41-SNAPSHOT</faunus.version>
         <hbase.version>0.94.6-cdh4.4.0</hbase.version>
         <hadoop-core.version>2.0.0-mr1-cdh4.4.0</hadoop-core.version>
         <hadoop-common.version>2.0.0-cdh4.4.0</hadoop-common.version>
@@ -30,7 +30,7 @@
         <slf4j.version>1.7.5</slf4j.version>
         <spring-security.version>3.1.4.RELEASE</spring-security.version>
         <spring.version>3.2.0.RELEASE</spring.version>
-        <titan.version>0.4.1-Lab41</titan.version>
+        <titan.version>0.4.1-Lab41-SNAPSHOT</titan.version>
     </properties>
     <repositories>
         <repository>
