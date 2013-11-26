@@ -23,13 +23,13 @@
     </http>
 
     <beans:bean name="restAuthenticationEntryPoint"
-                class="org.lab41.web.security.RestAuthenticationEntryPoint"/>
+                class="org.lab41.dendrite.web.security.RestAuthenticationEntryPoint"/>
 
     <beans:bean name="restAuthenticationSuccessHandler"
-                class="org.lab41.web.security.RestAuthenticationSuccessHandler"/>
+                class="org.lab41.dendrite.web.security.RestAuthenticationSuccessHandler"/>
 
     <beans:bean name="restAuthenticationFailureHandler"
-                class="org.lab41.web.security.HttpUnauthorizedResponseFailureHandler"/>
+                class="org.lab41.dendrite.web.security.HttpUnauthorizedResponseFailureHandler"/>
 
     <authentication-manager alias="authenticationManager">
         <authentication-provider>
