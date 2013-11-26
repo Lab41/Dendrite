@@ -14,7 +14,7 @@
     <bean id="rexsterResource" class="com.tinkerpop.rexster.RexsterResource" scope="request"/>
     <bean id="vertexResource" class="com.tinkerpop.rexster.VertexResource" scope="request"/>
 
-    <bean id="rexsterApplicationProvider" class="org.lab41.jersey.providers.RexsterApplicationProvider"
+    <bean id="rexsterApplicationProvider" class="org.lab41.dendrite.jersey.providers.RexsterApplicationProvider"
           scope="singleton"/>
 
     <bean class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
