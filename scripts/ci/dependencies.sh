@@ -18,3 +18,4 @@ cd faunus
 git checkout dendrite
 mvn install -DskipTests
 cd
+cd Dendrite
