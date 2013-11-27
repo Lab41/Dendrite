@@ -1,69 +1,37 @@
-package org.lab41.dendrite.web.controller.algorithms;
+package org.lab41.dendrite.services.algorithms;
 
 import com.thinkaurelius.faunus.FaunusGraph;
 import com.thinkaurelius.faunus.FaunusPipeline;
-import com.thinkaurelius.faunus.formats.graphson.GraphSONOutputFormat;
-import com.thinkaurelius.faunus.formats.noop.NoOpOutputFormat;
 import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseInputFormat;
 import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseOutputFormat;
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.graphdb.types.TypeAttribute;
-import com.tinkerpop.blueprints.Graph;
-
 import com.tinkerpop.blueprints.Vertex;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.codehaus.jettison.json.JSONObject;
-import org.lab41.dendrite.faunus.AdjacencyFileOutputFormat;
-import org.lab41.dendrite.rexster.DendriteRexsterApplication;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
-import java.util.Iterator;
-import java.util.Map;
 import java.util.UUID;
 
-@Controller
-public class DegreeController {
+@Service
+public class EdgeDegreesService {
 
-    @Autowired
-    DendriteRexsterApplication application;
-
-    @RequestMapping(value = "/api/{graphName}/algorithms/degree", method = RequestMethod.GET)
-    public ResponseEntity<String> pageRank(@PathVariable String graphName) throws Exception {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-        JSONObject json = new JSONObject();
-
-        TitanGraph graph = (TitanGraph) application.getGraph(graphName);
-
-        if (graph == null) {
-            json.put("status", "error");
-            json.put("msg", "unknown graph '" + graphName + "'");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+    @Async
+    public void countDegrees(String graphName, TitanGraph graph) throws Exception {
+        // Make sure our indexes exist.
+        if (graph.getType("in_degrees") == null) {
+            graph.makeKey("in_degrees").dataType(Integer.class).indexed(Vertex.class).make();
         }
 
-        if (!(graph instanceof TitanGraph)) {
-            json.put("status", "error");
-            json.put("error", "graph is not a titan graph");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        if (graph.getType("out_degrees") == null) {
+            graph.makeKey("out_degrees").dataType(Integer.class).indexed(Vertex.class).make();
         }
 
-        // Make sure we have a "degrees" index made.
-        graph.makeKey("degrees").dataType(Integer.class).indexed(Vertex.class).make();
+        if (graph.getType("degrees") == null) {
+            graph.makeKey("degrees").dataType(Integer.class).indexed(Vertex.class).make();
+        }
 
         FaunusGraph faunusGraph = new FaunusGraph();
 
@@ -102,12 +70,16 @@ public class DegreeController {
         // Filter out all the edges
         faunusGraph.getConf().set("faunus.graph.input.vertex-query-filter", "v.query().limit(0)");
 
-        faunusPipeline = (new FaunusPipeline(faunusGraph)).
-                V().
-                sideEffect("{ it.degrees = it.bothE().count() }");
+        String sideEffect =
+                "{ it ->\n" +
+                "it.in_degrees = it.inE().count()\n" +
+                "it.out_degrees = it.outE().count()\n" +
+                "it.degrees = it.in_degrees + it.out_degrees\n" +
+                "}";
+        faunusPipeline = (new FaunusPipeline(faunusGraph)).V().sideEffect(sideEffect);
         faunusPipeline.submit();
 
-        return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
+        System.out.println("Done!");
     }
 
 }
