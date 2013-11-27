@@ -175,8 +175,8 @@ angular.module('dendrite.services', ['ngResource']).
           },
 
           // fire off calculation
-          calculate: function(attr) {
-            alert("calculating " + attr.analyticType + " with input " + attr.dampingFactor);
+          calculate: function(analyticType, attr) {
+            alert("calculating " + analyticType + " with input " + attr.dampingFactor);
             this.analyticConfig.metadata.analyticsExecuting = true;
             this.createDummyResults();
             /*
@@ -241,7 +241,21 @@ angular.module('dendrite.services', ['ngResource']).
             vertexId: '@_id'
         }, {
             save: {
+                url: 'rexster-resource/graphs/:graphId/vertices',
                 method: 'POST'
+            },
+            show: {
+                url: 'rexster-resource/graphs/:graphId/vertices/:vertexId',
+                method: 'GET',
+                isArray: false
+            },
+            update: {
+                url: 'rexster-resource/graphs/:graphId/vertices/:vertexId',
+                method: 'PUT'
+            },
+            delete: {
+                url: 'rexster-resource/graphs/:graphId/vertices/:vertexId',
+                method: 'DELETE'
             },
             query: {
                 method: 'GET',
@@ -291,6 +305,14 @@ angular.module('dendrite.services', ['ngResource']).
         }, {
             save: {
                 method: 'POST'
+            },
+            update: {
+                url: 'rexster-resource/graphs/:graphId/edges/:edgeId',
+                method: 'PUT'
+            },
+            delete: {
+                url: 'rexster-resource/graphs/:graphId/edges/:edgeId',
+                method: 'DELETE'
             },
             query: {
                 method: 'GET',

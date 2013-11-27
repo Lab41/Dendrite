@@ -1,0 +1,27 @@
+<h2>Edit {{vertex.name}}</h2>
+
+<form>
+
+  <div class="row">
+    <div class="col-8">
+
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" ng-model="vertex.name" class="inline form-control" placeholder="Name" value="{{query.results.name}}"/><br />
+      </div>
+
+      <div class="form-group">
+        <label>Age</label>
+        <input type="number" ng-model="vertex.age" class="inline form-control" placeholder="Age" value="{{query.results.age}}"/><br />
+      </div>
+      <button class="btn btn-primary" ng-click="save()">Update</button>
+      <button class="btn" ng-click="back()">Cancel</button>
+    </div>
+
+    <div class="col-4">
+      <label>Preview</label>
+      <pre>Person = {{ vertex | json }}</pre>
+    </div>
+  </div>
+
+</form>
