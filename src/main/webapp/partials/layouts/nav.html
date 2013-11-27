@@ -3,7 +3,7 @@
 
       <div style="float:left">
         <a class="navbar-brand" href="#">
-          <img src="public/img/logo.png" height="50" width="50">
+          <img class="logo" src="public/img/logo.png" height="50" width="50">
           <span style="display:inline-block; height: 100%; padding-top:10px">Dendrite</span>
         </a>
       </div>
@@ -34,7 +34,7 @@
     <!-- unauthenticated users see user/login form -->
     <div ng-if='!User.isLoggedIn()'>
 
-      <div ng-include src="'partials/login.html'" class="nav navbar-nav pull-right" style="padding-top:10px"></div>
+      <div ng-include src="'partials/login.html'" class="nav navbar-nav navbar-login pull-right"></div>
     </div>
 
   </div>

@@ -79,9 +79,7 @@
 /* images */
 /*************************************************/
 .logo {
-  padding: 5px;
-  height: 50px;
-  width: 232px;
+  padding: 5px 0;
 }
 
 .logo-lab41 {
@@ -141,6 +139,31 @@ line.link {
   stroke: #9ecae1;
   stroke-width: 1.5px;
 }
+
+/*************************************************/
+/* visuals */
+/*************************************************/
+.chart rect {
+  stroke: @color-white-dark;
+  fill: @color-blue-dark;
+}
+
+.chart text {
+  fill: @color-white-dark;
+}
+
+.chart text.name {
+  fill: darken(@color-blue-dark, 20%);
+}
+
+.chart line {
+  stroke: @color-gray-light;
+}
+
+.chart .rule {
+  fill: @color-gray-dark;
+}
+
 /*************************************************/
 /* typography */
 /*************************************************/
@@ -290,6 +313,10 @@ body {
   vertical-align:top;
 }
 
+.vertical-align-middle {
+  vertical-align:middle ! important;
+}
+
 .thick-divide-bottom {
   margin-bottom: 15px;
   border-bottom: 10px solid @color-gray-light;
@@ -432,7 +459,7 @@ div.span6 div.span6 div.dataTables_length label {
 }
 
 .navbar-fixed-top {
-  min-height: 40px;
+  height: 60px;
   padding-left: 20px;
   padding-right: 20px;
   background-color: @color-navbar-from;
@@ -454,6 +481,15 @@ div.span6 div.span6 div.dataTables_length label {
 
 .navbar button {
   font-weight: bold;
+}
+
+.navbar-login {
+  padding-top: 15px;
+}
+
+.navbar .btn,
+.navbar .btn-group {
+  margin-top: 15px;
 }
 
 .nav .dropdown-toggle .caret {
@@ -478,6 +514,10 @@ div.span6 div.span6 div.dataTables_length label {
 /*************************************************/
 /* buttons */
 /*************************************************/
+#button-login {
+  margin:0 0 10px 0;
+}
+
 .btn-group.btn-onelevel > .dropdown-menu > li > a:hover > [class^="icon-"],
 .btn-group.btn-onelevel > .dropdown-menu > li > a:hover > [class*=" icon-"] {
   background-image: none;
