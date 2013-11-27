@@ -42,10 +42,18 @@ angular.module('dendrite', [
         }).
         when('/graphs/:graphId/vertices/:vertexId', {templateUrl: 'partials/vertex-detail.html', controller: 'VertexDetailCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/create_vertex', {templateUrl: 'partials/vertex-create.html', controller: 'VertexCreateCtrl', access: access.ROLE_USER}).
-        when('/graphs/:graphId/edges', {templateUrl: 'partials/edge-list.html', controller: 'VertexListCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/vertices/:vertexId/edit_vertex', {templateUrl: 'partials/vertex-edit.html', controller: 'VertexEditCtrl', access: access.ROLE_USER}).
+        //when('/graphs/:graphId/edges', {templateUrl: 'partials/edge-list.html', controller: 'EdgeListCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/edges', {
+          templateUrl: 'partials/edge-list.html',
+          controller: 'EdgeListCtrl',
+          access: access.ROLE_USER,
+          reloadOnSearch: false
+        }).
         when('/graphs/:graphId/edges/:edgeId', {templateUrl: 'partials/edge-detail.html', controller: 'EdgeDetailCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/create_edge/:vertexId', {templateUrl: 'partials/edge-create.html', controller: 'EdgeCreateCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/create_edge', {templateUrl: 'partials/edge-create.html', controller: 'EdgeCreateCtrl', access: access.ROLE_USER}).
+        when('/graphs/:graphId/edges/:edgeId/edit_edge', {templateUrl: 'partials/edge-edit.html', controller: 'EdgeEditCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/analytics', {templateUrl: 'partials/analytics/index.html', controller: 'AnalyticsListCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/analytics/:analyticsId', {templateUrl: 'partials/analytics/show.html', controller: 'AnalyticsDetailCtrl', access: access.ROLE_USER}).
         otherwise({redirectTo: '/home'});

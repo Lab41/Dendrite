@@ -3,9 +3,9 @@
 <!-- list of active analytics jobs -->
 <ul style="margin-top:10px">
   <li ng-repeat="analytic in activeAnalytics">
-    <strong>{{analytic.analyticType}}</strong>
-    <button ng-if="analytic.percentComplete == 100" class="btn btn-small btn-attention" ng-click="showAnalytic({{analytic.id}})">SHOW</button>
-    <div class="progress progress-{{colorProgressBars(analytic.percentComplete)}} progress-striped active">
+    <div ng-if="analytic.percentComplete == 100" class="btn btn-small btn-attention"><i class="icon-white icon-zoom-in vertical-align-middle" ng-click="showAnalytic({{analytic.id}})"></i></div>
+    <strong> {{analytic.analyticType}}</strong>
+    <div class="progress-{{colorProgressBars(analytic.percentComplete)}} active progress" ng-class="(analytic.percentComplete != 100) ? 'progress-striped' : ''" >
       <div class="bar" style="width:{{analytic.percentComplete}}%;">{{analytic.percentComplete}}%</div>
     </div>
   </li>

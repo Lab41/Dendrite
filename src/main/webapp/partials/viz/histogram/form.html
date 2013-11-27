@@ -1,0 +1,10 @@
+<!-- Modal (external ./partials/modal.html or inline ng-template) -->
+<div ng-controller="VizHistogramCtrl">
+  <form class="form-inline">
+    <input ng-model="query" type="text" class="input-small" placeholder="Query">
+    <input ng-model="facet" type="text" class="input-small" placeholder="Facet">
+    <button type="submit" class="btn" ng-click="visualize()">Visualize</button>
+  </form>
+  <h4 id="viz-histogram-title"></h4>
+  <svg id="viz-histogram-wrapper"></svg>
+</div>
