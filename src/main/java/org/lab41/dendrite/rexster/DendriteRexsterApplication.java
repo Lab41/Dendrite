@@ -48,10 +48,8 @@ import java.util.Map;
 public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
 
     Logger logger = LoggerFactory.getLogger(DendriteRexsterApplication.class);
-    private static XMLConfiguration configurationProperties;
 
     private Map<String, HierarchicalConfiguration> configMap;
-
 
     @Autowired(required = true)
     public DendriteRexsterApplication(@Value("${rexster_xml}") String pathToXML, ResourceLoader resourceLoader) {
@@ -63,7 +61,7 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
             throw new RuntimeException("Unable to initialize RexsterApplicaton, Rexster xml configuration file is either null or does not exist. ");
 
         } else {
-            configurationProperties = new XMLConfiguration();
+            XMLConfiguration configurationProperties = new XMLConfiguration();
             try {
                 configurationProperties.load(resource.getInputStream());
             } catch (Exception e) {
@@ -72,7 +70,7 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
             }
 
             try {
-                final List<HierarchicalConfiguration> graphConfigs = configurationProperties.configurationsAt(Tokens.REXSTER_GRAPH_PATH);
+                final List graphConfigs = configurationProperties.configurationsAt(Tokens.REXSTER_GRAPH_PATH);
                 final GraphConfigurationContainer container = new GraphConfigurationContainer(graphConfigs);
                 final Map<String, RexsterApplicationGraph> configuredGraphs = container.getApplicationGraphs();
                 graphs.putAll(configuredGraphs);
@@ -81,7 +79,8 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
                 // difficult. So instead we'll cache all the configs so we can look things up.
                 configMap = new HashMap<String, HierarchicalConfiguration>();
 
-                for(HierarchicalConfiguration config: graphConfigs) {
+                for(Object graphConfig: graphConfigs) {
+                    HierarchicalConfiguration config = (HierarchicalConfiguration) graphConfig;
                     String name = config.getString(Tokens.REXSTER_GRAPH_NAME, "");
                     Preconditions.checkArgument(!name.isEmpty());
 
