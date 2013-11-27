@@ -10,12 +10,11 @@ git clone https://github.com/Lab41/titan.git
 cd titan
 git checkout dendrite
 mvn install -DskipTests
-cd
+cd ..
 
 # build faunus-lab41
 git clone https://github.com/Lab41/faunus.git
 cd faunus
 git checkout dendrite
 mvn install -DskipTests
-cd
-cd Dendrite
+cd ..
