@@ -107,9 +107,7 @@ public class ElasticSearchController {
         StringBuilder stringBuilderElasticSearchURL = new StringBuilder();
         stringBuilderElasticSearchURL.append("http://");
         stringBuilderElasticSearchURL.append(elasticSearchHost);
-        stringBuilderElasticSearchURL.append(":9200/");
-        stringBuilderElasticSearchURL.append(indexName);
-        stringBuilderElasticSearchURL.append("/_search");
+        stringBuilderElasticSearchURL.append(":9200/titan/_search");
         String elasticSearchURL = stringBuilderElasticSearchURL.toString();
 
         // decode url-encoded json response back into json
