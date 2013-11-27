@@ -660,6 +660,25 @@ line.link {
   stroke-width: 1.5px;
 }
 /*************************************************/
+/* visuals */
+/*************************************************/
+.chart rect {
+  stroke: #ecf0f1;
+  fill: #2980b9;
+}
+.chart text {
+  fill: #ecf0f1;
+}
+.chart text.name {
+  fill: #164666;
+}
+.chart line {
+  stroke: #bdc3c7;
+}
+.chart .rule {
+  fill: #7f8c8d;
+}
+/*************************************************/
 /* typography */
 /*************************************************/
 .role-enabled {

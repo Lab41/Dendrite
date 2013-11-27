@@ -639,4 +639,9 @@ angular.module('dendrite.controllers', []).
                 }
             }
         }
+    }).
+    controller('VizHistogramCtrl', function($scope, $location, Histogram) {
+      $scope.visualize = function() {
+        Histogram.display($scope.query, $scope.facet);
+      };
     });

@@ -55,7 +55,7 @@ angular.module('dendrite.directives', []).
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
-        var width = 960,
+        var width = 500,
           height = 500;
 
         var color = d3.scale.category20();
@@ -170,5 +170,3 @@ angular.module('dendrite.directives', []).
       }
     };
   }]);
-
- 
