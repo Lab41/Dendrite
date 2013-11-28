@@ -15,6 +15,7 @@
         then be used within application context files in the form of
         ${propertyKey}.
     -->
+    <!-- TODO: Figure out how to parameterize this based on the enviornment -->
     <context:property-placeholder location="classpath:META-INF/spring/dev/*.properties"/>
 
     <!--
