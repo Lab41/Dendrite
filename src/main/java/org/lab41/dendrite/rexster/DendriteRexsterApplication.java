@@ -89,10 +89,10 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
 
 
             } catch (GraphConfigurationException e) {
-                logger.error("Graph initialization fialed. Check rexster.xml", e);
+                logger.error("GraphMetadata initialization fialed. Check rexster.xml", e);
 
                 //Should failuere to intializat the graphs result in a shut down of the whole system.
-                throw new RuntimeException("Graph Initialization failed");
+                throw new RuntimeException("GraphMetadata Initialization failed");
             }
         }
 

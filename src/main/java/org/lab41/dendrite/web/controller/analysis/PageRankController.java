@@ -1,4 +1,4 @@
-package org.lab41.dendrite.web.controller.algorithms;
+package org.lab41.dendrite.web.controller.analysis;
 
 import com.thinkaurelius.faunus.FaunusGraph;
 import com.thinkaurelius.faunus.FaunusPipeline;
