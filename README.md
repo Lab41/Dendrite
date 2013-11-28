@@ -15,6 +15,7 @@ Install instructions
 ```bash
 git clone https://github.com/Lab4/Dendrite.git
 cd Dendrite
+$TITAN/bin/gremlin.sh -e ./bin/initialize-graph.groovy
 mvn tomcat7:run
 ```
 
