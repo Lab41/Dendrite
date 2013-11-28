@@ -10,6 +10,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.lab41.dendrite.models.Job;
+import org.lab41.dendrite.services.MetadataService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +21,11 @@ import java.util.UUID;
 @Service
 public class EdgeDegreesService {
 
+    @Autowired
+    MetadataService metadataService;
+
     @Async
-    public void countDegrees(String graphName, TitanGraph graph) throws Exception {
+    public void countDegrees(String graphName, TitanGraph graph, Job job) throws Exception {
         // Make sure our indexes exist.
         if (graph.getType("in_degrees") == null) {
             graph.makeKey("in_degrees").dataType(Integer.class).indexed(Vertex.class).make();
@@ -77,9 +83,14 @@ public class EdgeDegreesService {
                 "it.degrees = it.in_degrees + it.out_degrees\n" +
                 "}";
         faunusPipeline = (new FaunusPipeline(faunusGraph)).V().sideEffect(sideEffect);
+
+        job.setStatus("running");
+        metadataService.commit();
+
         faunusPipeline.submit();
 
-        System.out.println("Done!");
+        job.setStatus("done");
+        metadataService.commit();
     }
 
 }
