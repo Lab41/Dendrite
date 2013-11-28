@@ -938,6 +938,11 @@
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
+                <configuration>
+                    <additionalClasspathDirs>
+                        <additionalClasspathDir>${HADOOP_CONF_DIR}</additionalClasspathDir>
+                    </additionalClasspathDirs>
+                </configuration>
             </plugin>
 
             <!--
