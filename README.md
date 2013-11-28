@@ -16,7 +16,8 @@ Install instructions
 git clone https://github.com/Lab4/Dendrite.git
 cd Dendrite
 $TITAN/bin/gremlin.sh -e ./bin/initialize-graph.groovy
-mvn tomcat7:run
+hadoop -fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy
+mvn tomcat7:run -Pmaven.tomcat.port=8000
 ```
 
 Required Dependencies
