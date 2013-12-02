@@ -141,7 +141,7 @@ angular.module('dendrite.services', ['ngResource']).
           }
         };
     }).
-    factory('Histogram', function($resource) {
+    factory('Histogram', function($resource, $routeParams, appConfig) {
       return {
         display: function(queryTerm, queryFacet) {
           // default inputs
@@ -156,7 +156,7 @@ angular.module('dendrite.services', ['ngResource']).
           var inputJson = {
                     "query" : { "query_string" : {"query" : queryTerm} },
                     "facets" : {
-                        "tags" : { "terms": {"field": queryFacet}
+                        "tags" : { "terms": {"field": queryFacet, "size": appConfig.elasticSearch.fieldSize}
                         }
                     }
                   };
@@ -164,7 +164,7 @@ angular.module('dendrite.services', ['ngResource']).
           // query server
           $.ajax({
               method: "POST",
-              url: "/dendrite/api/dendrite3/viz/elasticsearch/search",
+              url: '/dendrite/api/'+$routeParams.graphId+'/viz/elasticsearch/'+appConfig.elasticSearch.index,
               data: JSON.stringify(inputJson)
           })
           .done(function(json) {

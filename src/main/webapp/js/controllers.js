@@ -503,30 +503,6 @@ angular.module('dendrite.controllers', []).
           })
           .$then(function(res) {
             $scope.vertices = Vertex.get({graphId: $routeParams.graphId});
-/*
-            for (var i=0; i<$scope.edges.length; i++) {
-              var inV = $scope.edges[i]._inV;
-              var outV = $scope.edges[i]._outV;
-              console.log('outV='+outV);
-              if ($scope.vertices[inV] === undefined) {
-                Vertex.get({graphId: $scope.graphId, vertexId: inV})
-                      .$then(function(res) {
-                        $scope.vertices.inV = res.resource.results;
-                      });
-              }
-              if ($scope.vertices[outV] === undefined) {
-                Vertex.get({graphId: $scope.graphId, vertexId: outV})
-                      .$then(function(res) {
-                        $scope.vertices.outV = res.resource.results;
-                      });
-              }
-            }
-            console.log($scope.vertices);
-            for (var i=0; i<$scope.vertices.length; i++) {
-              console.log('vertex=');
-              console.log($scope.vertices[i]);
-            }
-*/
           });
         };
 
