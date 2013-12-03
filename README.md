@@ -17,7 +17,7 @@ git clone https://github.com/Lab4/Dendrite.git
 cd Dendrite
 $TITAN/bin/gremlin.sh -e ./bin/initialize-graph.groovy
 hadoop -fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy
-mvn tomcat7:run -Pmaven.tomcat.port=8000
+MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=128m" mvn tomcat7:run -Pmaven.tomcat.port=8000
 ```
 
 Required Dependencies
