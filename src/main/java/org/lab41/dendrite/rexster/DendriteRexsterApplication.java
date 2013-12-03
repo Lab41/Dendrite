@@ -21,7 +21,10 @@ import com.tinkerpop.rexster.RexsterApplicationGraph;
 import com.tinkerpop.rexster.Tokens;
 import com.tinkerpop.rexster.config.GraphConfigurationContainer;
 import com.tinkerpop.rexster.config.GraphConfigurationException;
+import com.tinkerpop.rexster.protocol.EngineConfiguration;
+import com.tinkerpop.rexster.protocol.EngineController;
 import com.tinkerpop.rexster.server.AbstractMapRexsterApplication;
+import com.tinkerpop.rexster.server.RexsterProperties;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.slf4j.Logger;
@@ -32,6 +35,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +53,7 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
 
     Logger logger = LoggerFactory.getLogger(DendriteRexsterApplication.class);
 
+    private RexsterProperties properties;
     private Map<String, HierarchicalConfiguration> configMap;
 
     @Autowired(required = true)
@@ -61,41 +66,57 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
             throw new RuntimeException("Unable to initialize RexsterApplicaton, Rexster xml configuration file is either null or does not exist. ");
 
         } else {
-            XMLConfiguration configurationProperties = new XMLConfiguration();
+            XMLConfiguration xmlConfiguration = new XMLConfiguration();
+
             try {
-                configurationProperties.load(resource.getInputStream());
+                xmlConfiguration.load(resource.getInputStream());
             } catch (Exception e) {
                 throw new RuntimeException(String.format(
                         "Could not load %s properties file. Message: %s", pathToXML, e.getMessage()), e);
             }
 
+            properties = new RexsterProperties(xmlConfiguration);
+            final List<HierarchicalConfiguration> graphConfigs = properties.getGraphConfigurations();
+            final GraphConfigurationContainer container;
+
             try {
-                final List graphConfigs = configurationProperties.configurationsAt(Tokens.REXSTER_GRAPH_PATH);
-                final GraphConfigurationContainer container = new GraphConfigurationContainer(graphConfigs);
-                final Map<String, RexsterApplicationGraph> configuredGraphs = container.getApplicationGraphs();
-                graphs.putAll(configuredGraphs);
-
-                // There is unfortunately no way to look up the config for a graph, which makes a connection to Faunus
-                // difficult. So instead we'll cache all the configs so we can look things up.
-                configMap = new HashMap<String, HierarchicalConfiguration>();
-
-                for(Object graphConfig: graphConfigs) {
-                    HierarchicalConfiguration config = (HierarchicalConfiguration) graphConfig;
-                    String name = config.getString(Tokens.REXSTER_GRAPH_NAME, "");
-                    Preconditions.checkArgument(!name.isEmpty());
-
-                    configMap.put(name, config);
-                }
-
-
+                container = new GraphConfigurationContainer(graphConfigs);
             } catch (GraphConfigurationException e) {
                 logger.error("GraphMetadata initialization fialed. Check rexster.xml", e);
 
-                //Should failuere to intializat the graphs result in a shut down of the whole system.
+                // Failure to initialize the graphs should result in shutting down the whole system.
                 throw new RuntimeException("GraphMetadata Initialization failed");
+            }
+
+            graphs.putAll(container.getApplicationGraphs());
+
+            // There is unfortunately no way to look up the config for a graph, which makes a connection to Faunus
+            // difficult. So instead we'll cache all the configs so we can look things up.
+            configMap = new HashMap<String, HierarchicalConfiguration>();
+
+            for(Object graphConfig: graphConfigs) {
+                HierarchicalConfiguration config = (HierarchicalConfiguration) graphConfig;
+                String name = config.getString(Tokens.REXSTER_GRAPH_NAME, "");
+                Preconditions.checkArgument(!name.isEmpty());
+
+                configMap.put(name, config);
             }
         }
 
+        configureScriptEngine();
+    }
+
+    private void configureScriptEngine() {
+        // the EngineController needs to be configured statically before requests start serving so that it can
+        // properly construct ScriptEngine objects with the correct reset policy. allow scriptengines to be
+        // configured so that folks can drop in different gremlin flavors.
+        final List<EngineConfiguration> configuredScriptEngines = new ArrayList<EngineConfiguration>();
+        final List<HierarchicalConfiguration> configs = this.properties.getScriptEngines();
+        for(HierarchicalConfiguration config : configs) {
+            configuredScriptEngines.add(new EngineConfiguration(config));
+        }
+
+        EngineController.configure(configuredScriptEngines);
     }
 
     public HierarchicalConfiguration getConfig(String graphName) {
@@ -108,6 +129,5 @@ public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
     }
 
     // Begin Cut and Paste: TODO - Refactor to extend XmlRexsterApplication -------------------------------
-
 
 }
