@@ -1,4 +1,4 @@
-package org.lab41.dendrite.services.algorithms;
+package org.lab41.dendrite.services.analysis;
 
 import com.thinkaurelius.faunus.FaunusGraph;
 import com.thinkaurelius.faunus.FaunusPipeline;
@@ -12,6 +12,8 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.lab41.dendrite.models.Job;
 import org.lab41.dendrite.services.MetadataService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -21,11 +23,16 @@ import java.util.UUID;
 @Service
 public class EdgeDegreesService {
 
+    Logger logger = LoggerFactory.getLogger(EdgeDegreesService.class);
+
     @Autowired
     MetadataService metadataService;
 
     @Async
     public void countDegrees(String graphName, TitanGraph graph, Job job) throws Exception {
+
+        logger.debug("Starting degree counting analysis on " + graphName + " " + Thread.currentThread().getName());
+
         // Make sure our indexes exist.
         if (graph.getType("in_degrees") == null) {
             graph.makeKey("in_degrees").dataType(Integer.class).indexed(Vertex.class).make();
@@ -87,7 +94,11 @@ public class EdgeDegreesService {
         job.setStatus("running");
         metadataService.commit();
 
+        logger.debug("Submitting job");
+
         faunusPipeline.submit();
+
+        logger.debug("Job finished");
 
         job.setStatus("done");
         metadataService.commit();
