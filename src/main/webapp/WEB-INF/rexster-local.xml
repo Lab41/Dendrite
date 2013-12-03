@@ -26,6 +26,10 @@
                 <storage.tablename>dendrite-hbase</storage.tablename>
                 <storage.hostname>localhost</storage.hostname>
                 <storage.port>2181</storage.port>
+                <storage.index.titan.backend>elasticsearch</storage.index.titan.backend>
+                <storage.index.titan.directory>/tmp/searchindex</storage.index.titan.directory>
+                <storage.index.titan.client-only>false</storage.index.titan.client-only>
+                <storage.index.titan.local-mode>true</storage.index.titan.local-mode>
             </properties>
             <extensions>
                 <allows>
