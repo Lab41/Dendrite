@@ -6,7 +6,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.lab41.dendrite.models.Job;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.lab41.dendrite.services.MetadataService;
-import org.lab41.dendrite.services.algorithms.EdgeDegreesService;
+import org.lab41.dendrite.services.analysis.EdgeDegreesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
