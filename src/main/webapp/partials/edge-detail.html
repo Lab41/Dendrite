@@ -1,6 +1,10 @@
 <h3>Things We Know About People</h3>
 <ul>
-    <li ng-repeat="(key, value) in query.results track by $index">{{ key }}: {{ value }}</li>
+    <!--<li ng-repeat="(key, value) in query.results track by $index">{{ key }}: {{ value }}</li>-->
+    <li><strong>ID</strong>: {{query.results._id}}</li>
+    <li><strong>From</strong>: {{vertexIn.results.name}}</li>
+    <li><strong>To</strong>: {{vertexOut.results.name}}</li>
+    <li><strong>Link</strong>: {{query.results._label}}</li>
 </ul>
-
-<button ng-click="delete()" class="btn">delete</button>
+<button ng-click="editEdge()" class="btn btn-downplay">Edit</button>
+<button ng-click="delete()" class="btn">Delete</button>
