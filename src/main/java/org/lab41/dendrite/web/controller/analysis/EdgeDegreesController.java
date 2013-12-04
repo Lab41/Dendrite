@@ -30,6 +30,33 @@ public class EdgeDegreesController {
     EdgeDegreesService edgeDegreesService;
 
     @RequestMapping(value = "/api/{graphName}/analysis/degrees", method = RequestMethod.GET)
+    public ResponseEntity<String> status(@PathVariable String graphName) throws Exception {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        JSONObject json = new JSONObject();
+
+        TitanGraph graph = (TitanGraph) application.getGraph(graphName);
+
+        if (graph == null) {
+            json.put("status", "error");
+            json.put("msg", "unknown graph '" + graphName + "'");
+            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        }
+
+        if (!(graph instanceof TitanGraph)) {
+            json.put("status", "error");
+            json.put("error", "graph is not a titan graph");
+            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        }
+
+        Job job = metadataService.getJob(graphName, "degrees");
+        json.put("status", job.getStatus());
+
+        return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/{graphName}/analysis/degrees", method = RequestMethod.POST)
     public ResponseEntity<String> degrees(@PathVariable String graphName) throws Exception {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -71,34 +98,7 @@ public class EdgeDegreesController {
         }
     }
 
-    @RequestMapping(value = "/api/{graphName}/analysis/degrees/status", method = RequestMethod.GET)
-    public ResponseEntity<String> status(@PathVariable String graphName) throws Exception {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-        JSONObject json = new JSONObject();
-
-        TitanGraph graph = (TitanGraph) application.getGraph(graphName);
-
-        if (graph == null) {
-            json.put("status", "error");
-            json.put("msg", "unknown graph '" + graphName + "'");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
-        }
-
-        if (!(graph instanceof TitanGraph)) {
-            json.put("status", "error");
-            json.put("error", "graph is not a titan graph");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
-        }
-
-        Job job = metadataService.getJob(graphName, "degrees");
-        json.put("status", job.getStatus());
-
-        return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/api/{graphName}/analysis/degrees/cancel", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/{graphName}/analysis/degrees", method = RequestMethod.DELETE)
     public ResponseEntity<String> cancel(@PathVariable String graphName) throws Exception {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
