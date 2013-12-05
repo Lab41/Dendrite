@@ -44,6 +44,9 @@ import java.io.IOException;
  */
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+    final private String X_REQUESTED_WITH = "x-requested-with";
+    final private String XML_HTTP_REQUEST = "XMLHttpRequest";
+
     /**
      * Commences an authentication scheme.  Uponeon failure this will return a 401.
      * <p/>
@@ -60,8 +63,17 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
      */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
+        if (!response.isCommitted()) {
+            String ajax = request.getHeader(X_REQUESTED_WITH);
+
+            // Don't include the `WWW-Authenticate` header for Ajax calls
+            if (!XML_HTTP_REQUEST.equals(ajax)) {
+                response.addHeader("WWW-Authenticate", "Basic realm=\"\"");
+            }
+        }
+
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 
 }
