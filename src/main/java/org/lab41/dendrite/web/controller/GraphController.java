@@ -110,6 +110,36 @@ public class GraphController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.PUT)
+    public ResponseEntity<Map<String, Object>> updateGraph(@PathVariable String graphId, GraphBean item, BindingResult result) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        if (result.hasErrors()) {
+            response.put("error", result.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        GraphMetadata graphMetadata = metadataService.getGraph(graphId);
+
+        if (graphMetadata == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        graphMetadata.setName(item.getName());
+        graphMetadata.setBackend(item.getBackend());
+        graphMetadata.setDirectory(item.getDirectory());
+        graphMetadata.setHostname(item.getHostname());
+        graphMetadata.setPort(item.getPort());
+        graphMetadata.setTablename(item.getTablename());
+        metadataService.commit();
+
+        response.put("graph", getGraphMap(graphMetadata));
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
     @RequestMapping(value = "/projects/{projectId}/current-graph", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId) {
 
@@ -181,6 +211,7 @@ public class GraphController {
         graph.put("hostname", graphMetadata.getHostname());
         graph.put("port", graphMetadata.getPort());
         graph.put("tablename", graphMetadata.getTablename());
+        graph.put("project", graphMetadata.getProject().getId());
 
         return graph;
     }

@@ -149,6 +149,13 @@ public class MetadataService {
                     .make();
         }
 
+        if (titanGraph.getType("mapreduceJobId") == null) {
+            titanGraph.makeKey("mapreduceJobId")
+                    .dataType(String.class)
+                    .indexed(Vertex.class)
+                    .make();
+        }
+
         if (titanGraph.getType("dependsOn") == null) {
             titanGraph.makeLabel("dependsOn").oneToMany().make();
         }
@@ -200,28 +207,6 @@ public class MetadataService {
 
         return projectMetadata;
     }
-
-    /*
-    public ProjectMetadata getOrCreateProject(String projectName) throws Exception {
-        ProjectMetadata projectMetadata = getProject(projectName);
-
-        if (projectMetadata == null) {
-            projectMetadata = actuallyCreateProject(projectName);
-        }
-
-        return projectMetadata;
-    }
-
-    private ProjectMetadata actuallyCreateProject(String projectName) {
-        ProjectMetadata projectMetadata = createNamedVertex("project", projectName, ProjectMetadata.class);
-
-        GraphMetadata graphMetadata = createVertex("graph", GraphMetadata.class);
-        projectMetadata.setGraphHead(graphMetadata);
-        graphMetadata.setProject(projectMetadata);
-
-        return projectMetadata;
-    }
-    */
 
     public void deleteProject(ProjectMetadata projectMetadata) {
         framedGraph.removeVertex(projectMetadata.asVertex());

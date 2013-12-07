@@ -27,10 +27,10 @@ public interface GraphMetadata extends NamedMetadata {
     public void setHostname(String hostname);
 
     @Property("port")
-    public int getPort();
+    public Integer getPort();
 
     @Property("port")
-    public void setPort(int port);
+    public void setPort(Integer port);
 
     @Property("tablename")
     public String getTablename();

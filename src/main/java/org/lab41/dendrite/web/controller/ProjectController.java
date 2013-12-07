@@ -114,8 +114,8 @@ public class ProjectController {
 
         String id = projectMetadata.getId();
         project.put("_id", id);
-        String name = projectMetadata.getName();
-        project.put("name", name);
+        project.put("name", projectMetadata.getName());
+        project.put("current_graph", projectMetadata.getCurrentGraph().getId());
 
         return project;
     }

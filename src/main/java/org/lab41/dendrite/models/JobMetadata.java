@@ -26,6 +26,18 @@ public interface JobMetadata extends NamedMetadata {
     @Property("progress")
     public void setProgress(float progress);
 
+    @Property("message")
+    public String getMessage();
+
+    @Property("message")
+    public void setMessage(String message);
+
+    @Property("mapreduceJobId")
+    public String getMapreduceJobId();
+
+    @Property("mapreduceJobId")
+    public void setMapreduceJobId(String jobId);
+
     /*
     @JavaHandler
     public float getTotalProgress();
