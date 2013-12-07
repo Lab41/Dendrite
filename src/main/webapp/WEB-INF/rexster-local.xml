@@ -24,6 +24,7 @@
                 </allows>
             </extensions>
         </graph>
+        <!--
         <graph>
             <graph-name>dendrite-hbase</graph-name>
             <graph-type>com.thinkaurelius.titan.tinkerpop.rexster.TitanGraphConfiguration</graph-type>
@@ -45,5 +46,6 @@
                 </allows>
             </extensions>
         </graph>
+-->
     </graphs>
 </rexster>

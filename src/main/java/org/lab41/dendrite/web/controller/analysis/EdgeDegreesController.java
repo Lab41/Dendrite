@@ -3,7 +3,7 @@ package org.lab41.dendrite.web.controller.analysis;
 import com.thinkaurelius.titan.core.TitanGraph;
 
 import org.codehaus.jettison.json.JSONObject;
-import org.lab41.dendrite.models.Job;
+import org.lab41.dendrite.models.EdgeDegreesJobMetadata;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.lab41.dendrite.services.MetadataService;
 import org.lab41.dendrite.services.analysis.EdgeDegreesService;
@@ -29,7 +29,7 @@ public class EdgeDegreesController {
     @Autowired
     EdgeDegreesService edgeDegreesService;
 
-    @RequestMapping(value = "/api/{graphName}/analysis/degrees", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/graphs/{graphId}/analysis/degrees", method = RequestMethod.GET)
     public ResponseEntity<String> status(@PathVariable String graphName) throws Exception {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -50,8 +50,10 @@ public class EdgeDegreesController {
             return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        Job job = metadataService.getJob(graphName, "degrees");
-        json.put("status", job.getStatus());
+        /*
+        EdgeDegreesJobMetadata edgeDegreesJob = metadataService.getEdgeDegreesJob(graphName, "degrees");
+        json.put("status", job.getState());
+        */
 
         return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
     }
@@ -77,7 +79,15 @@ public class EdgeDegreesController {
             return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        Job job = metadataService.getJob(graphName, "degrees");
+        edgeDegreesService.countDegrees(graphName, graph);
+
+        String status = "queued";
+        json.put("status", status);
+
+        return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
+
+        /*
+        EdgeDegreesJobMetadata job = metadataService.getJob(graphName, "degrees");
         String status = job.getStatus();
 
         if (status.equals("none")) {
@@ -96,10 +106,12 @@ public class EdgeDegreesController {
 
             return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
+        */
     }
 
     @RequestMapping(value = "/api/{graphName}/analysis/degrees", method = RequestMethod.DELETE)
     public ResponseEntity<String> cancel(@PathVariable String graphName) throws Exception {
+
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
@@ -119,11 +131,13 @@ public class EdgeDegreesController {
             return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        Job job = metadataService.getJob(graphName, "degrees");
+        /*
+        EdgeDegreesJobMetadata job = metadataService.getJob(graphName, "degrees");
         job.setStatus("none");
         metadataService.commit();
 
         json.put("status", "none");
+        */
 
         return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
     }
