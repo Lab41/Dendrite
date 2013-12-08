@@ -1,0 +1,54 @@
+#!/bin/sh
+
+set -e
+
+if [[ $# != 2 ]]; then
+    echo "name and backend must be provided" 2>&1
+    exit 1
+fi
+
+name="$1"
+backend="$2"
+
+if [[ "$name" == "" ]]; then
+    echo "name must be provided" 2>&1
+    exit 1
+fi
+
+case $backend in
+    "berkeleydb")
+        graph="
+        {
+            \"name\":\"$name\",
+            \"directory\":\"/tmp/dendrite/dendrite-$name\"
+        }"
+        ;;
+    "hbase")
+        graph="
+        {
+            \"name\":\"$name\",
+            \"hostname\":\"localhost\",
+            \"port\":2181,
+            \"tablename\":\"dendrite-$name\"
+        }"
+        ;;
+    *)
+        echo "backend must be 'hbase' or 'berkeleydb'" 2>&1
+        exit 1
+        ;;
+esac
+
+project="
+{
+    \"name\":\"$name\",
+    \"graph\":$graph
+}
+"
+
+curl \
+    -v \
+    -u 'user:password' \
+    -H 'Content-Type: application/json' \
+    -XPOST \
+    "http://localhost:8000/dendrite/api/projects" \
+    -d "$project"

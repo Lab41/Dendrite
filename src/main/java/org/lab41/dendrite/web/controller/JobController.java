@@ -1,5 +1,6 @@
 package org.lab41.dendrite.web.controller;
 
+import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.models.JobMetadata;
 import org.lab41.dendrite.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
@@ -19,13 +20,39 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/api/projects/{projectName}/jobs")
+@RequestMapping("/api")
 public class JobController {
 
     @Autowired
     MetadataService metadataService;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "/jobs", method = RequestMethod.GET)
+    public ResponseEntity<List<Map<String, Object>>> getJobs() {
+
+        List<Map<String, Object>> jobs = new ArrayList<>();
+        for (JobMetadata jobMetadata: metadataService.getJobs()) {
+            jobs.add(getJobMap(jobMetadata));
+        }
+
+        return new ResponseEntity<>(jobs, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> getJob(@PathVariable String jobId) {
+
+        JobMetadata jobMetadata = metadataService.getJob(jobId);
+
+        if (jobMetadata == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("job", getJobMap(jobMetadata));
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{projectId}/jobs", method = RequestMethod.GET)
     public ResponseEntity<List<Map<String, Object>>> getJobs(@PathVariable String projectId) {
 
         ProjectMetadata project = metadataService.getProject(projectId);
@@ -40,6 +67,23 @@ public class JobController {
         }
 
         return new ResponseEntity<>(jobs, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
+    public ResponseEntity<Map<String, Object>> deleteJob(@PathVariable String jobId) throws Exception {
+
+        JobMetadata jobMetadata = metadataService.getJob(jobId);
+        if (jobMetadata == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        metadataService.deleteJob(jobMetadata);
+        metadataService.commit();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("msg", "deleted");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private Map<String, Object> getJobMap(JobMetadata jobMetadata) {

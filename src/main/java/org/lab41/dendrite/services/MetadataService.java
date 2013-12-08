@@ -203,7 +203,9 @@ public class MetadataService {
         return projectMetadata;
     }
 
-    public void deleteProject(ProjectMetadata projectMetadata) {
+    public void deleteProject(ProjectMetadata projectMetadata) throws Exception {
+
+        projectMetadata.setCurrentGraph(null);
 
         for (GraphMetadata graphMetadata: projectMetadata.getGraphs()) {
             deleteGraph(graphMetadata);
@@ -232,12 +234,25 @@ public class MetadataService {
         return graphMetadata;
     }
 
-    public void deleteGraph(GraphMetadata graphMetadata) {
+    public void deleteGraph(GraphMetadata graphMetadata) throws Exception {
+        // We cannot delete the current graph.
+        ProjectMetadata projectMetadata = graphMetadata.getProject();
+        if (projectMetadata != null) {
+            GraphMetadata currentGraphMetadata = projectMetadata.getCurrentGraph();
+            if (currentGraphMetadata != null && graphMetadata.getId().equals(currentGraphMetadata.getId())) {
+                throw new Exception("cannot delete the current graph");
+            }
+        }
+
         framedGraph.removeVertex(graphMetadata.asVertex());
     }
 
     public Iterable<? extends JobMetadata> getJobs() {
         return getVertices("job", JobMetadata.class);
+    }
+
+    public JobMetadata getJob(String jobId) {
+        return framedGraph.getVertex(jobId, JobMetadata.class);
     }
 
     public JobMetadata createJob(ProjectMetadata projectMetadata) {

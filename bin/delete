@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -e
+
+name="$1"
+if [[ "$name" == "" ]]; then
+    echo "name must be provided" 2>&1
+    exit 1
+fi
+
+case $name in
+    "project")
+        id="$2"
+        if [[ "$id" == "" ]]; then
+            echo "id must be provided" 2>&1
+            exit 1
+        fi
+        url="http://localhost:8000/dendrite/api/projects/$id"
+        ;;
+    "graph")
+        id="$2"
+        if [[ "$id" == "" ]]; then
+            echo "id must be provided" 2>&1
+            exit 1
+        fi
+        url="http://localhost:8000/dendrite/api/graphs/$id"
+        ;;
+    "job")
+        id="$2"
+        if [[ "$id" == "" ]]; then
+            echo "id must be provided" 2>&1
+            exit 1
+        fi
+        url="http://localhost:8000/dendrite/api/jobs/$id"
+        ;;
+    *)
+        echo "cannot delete: $name" 2>&1
+        exit 1
+        ;;
+esac
+
+curl \
+    -v \
+    -u 'user:password' \
+    -H 'Content-Type: application/json' \
+    -XDELETE \
+    $url

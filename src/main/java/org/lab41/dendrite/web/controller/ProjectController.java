@@ -99,7 +99,9 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) {
+    public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) throws Exception {
+
+        metadataService.rollback();
 
         ProjectMetadata projectMetadata = metadataService.getProject(projectId);
         if (projectMetadata == null) {

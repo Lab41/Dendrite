@@ -56,7 +56,7 @@ public class GraphController {
     }
 
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) {
+    public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) throws Exception {
 
         GraphMetadata graphMetadata = metadataService.getGraph(graphId);
 
@@ -215,7 +215,11 @@ public class GraphController {
         graph.put("hostname", graphMetadata.getHostname());
         graph.put("port", graphMetadata.getPort());
         graph.put("tablename", graphMetadata.getTablename());
-        graph.put("project", graphMetadata.getProject().getId());
+
+        ProjectMetadata projectMetadata = graphMetadata.getProject();
+        if (projectMetadata != null) {
+            graph.put("projectId", graphMetadata.getProject().getId());
+        }
 
         return graph;
     }
