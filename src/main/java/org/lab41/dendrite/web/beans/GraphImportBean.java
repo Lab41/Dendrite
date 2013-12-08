@@ -14,10 +14,20 @@
  * limitations under the License.
  */
 
-package org.lab41.dendrite.web.controller;
+package org.lab41.dendrite.web.beans;
 
-public class GraphExportBean {
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import javax.validation.constraints.NotNull;
+
+public class GraphImportBean {
+    @NotNull
+    @NotEmpty
     private String format;
+
+    @NotNull
+    private CommonsMultipartFile file;
 
     public String getFormat() {
         return format;
@@ -25,5 +35,13 @@ public class GraphExportBean {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public CommonsMultipartFile getFile() {
+        return file;
+    }
+
+    public void setFile(CommonsMultipartFile file) {
+        this.file = file;
     }
 }

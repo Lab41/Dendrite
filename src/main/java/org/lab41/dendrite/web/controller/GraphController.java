@@ -3,16 +3,20 @@ package org.lab41.dendrite.web.controller;
 import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.web.beans.GraphBean;
+import org.lab41.dendrite.web.beans.UpdateCurrentGraphBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +91,10 @@ public class GraphController {
     }
 
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> createGraph(@PathVariable String projectId, GraphBean item, UriComponentsBuilder builder, BindingResult result) {
+    public ResponseEntity<Map<String, Object>> createGraph(@PathVariable String projectId,
+                                                           @Valid @RequestBody GraphBean item,
+                                                           BindingResult result,
+                                                           UriComponentsBuilder builder) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -111,7 +118,9 @@ public class GraphController {
     }
 
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.PUT)
-    public ResponseEntity<Map<String, Object>> updateGraph(@PathVariable String graphId, GraphBean item, BindingResult result) {
+    public ResponseEntity<Map<String, Object>> updateGraph(@PathVariable String graphId,
+                                                           @Valid @RequestBody GraphBean item,
+                                                           BindingResult result) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -158,19 +167,14 @@ public class GraphController {
     }
 
     @RequestMapping(value = "/projects/{projectId}/current-graph", method = RequestMethod.PUT)
-    public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId, Map<String, String> data, BindingResult result) {
+    public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId,
+                                                               @Valid @RequestBody UpdateCurrentGraphBean item,
+                                                               BindingResult result) {
 
         Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
             response.put("error", result.toString());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-
-        String graphId = data.get("graph");
-
-        if (graphId == null) {
-            response.put("error", "'graph' field is missing");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
@@ -181,7 +185,7 @@ public class GraphController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        GraphMetadata graphMetadata = metadataService.getGraph(graphId);
+        GraphMetadata graphMetadata = metadataService.getGraph(item.getGraphId());
 
         if (graphMetadata == null) {
             response.put("error", "graph does not exist");

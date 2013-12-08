@@ -1,9 +1,9 @@
-package org.lab41.dendrite.web.controller;
+package org.lab41.dendrite.web.beans;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.lab41.dendrite.web.beans.GraphBean;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 public class ProjectBean {
     @NotNull

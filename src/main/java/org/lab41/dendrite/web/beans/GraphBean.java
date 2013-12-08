@@ -1,12 +1,25 @@
-package org.lab41.dendrite.web.controller;
+package org.lab41.dendrite.web.beans;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
 
 public class GraphBean {
 
+    @NotNull
+    @NotEmpty
     private String name;
+
+    @NotNull
+    @NotEmpty
     private String backend;
+
     private String directory;
+
     private String hostname;
+
     private int port;
+
     private String tablename;
 
     public String getName() {

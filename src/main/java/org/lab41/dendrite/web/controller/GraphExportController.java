@@ -24,6 +24,7 @@ import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.web.beans.GraphExportBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -52,30 +55,28 @@ public class GraphExportController {
     MetadataService metadataService;
 
     @RequestMapping(value = "/api/graphs/{graphId}/file-export", method = RequestMethod.POST)
-    public ResponseEntity<byte[]> export(@PathVariable String graphId, GraphExportBean exportItem, BindingResult result) {
+    public ResponseEntity<byte[]> export(@PathVariable String graphId,
+                                         @Valid @RequestBody GraphExportBean item,
+                                         BindingResult result) {
 
         if (result.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        String format = exportItem.getFormat();
-        if (format == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        String format = item.getFormat();
 
         GraphMetadata graphMetadata = metadataService.getGraph(graphId);
-
         if (graphMetadata == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         String graphName = graphMetadata.getName();
+        logger.debug("exporting graph '" + graphName + "'");
+
         Graph graph = application.getGraph(graphName);
         if (graph == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        logger.debug("exporting graph '" + graphName + "'");
 
         HttpHeaders headers = new HttpHeaders();
 

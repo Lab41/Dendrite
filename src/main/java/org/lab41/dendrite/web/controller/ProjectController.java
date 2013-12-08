@@ -2,10 +2,10 @@ package org.lab41.dendrite.web.controller;
 
 import org.codehaus.jettison.json.JSONException;
 import org.lab41.dendrite.models.GraphMetadata;
-import org.lab41.dendrite.models.JobMetadata;
 import org.lab41.dendrite.models.ProjectMetadata;
-import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.web.beans.GraphBean;
+import org.lab41.dendrite.web.beans.ProjectBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -65,7 +62,9 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/projects", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody ProjectBean item, BindingResult result, UriComponentsBuilder builder) throws Exception {
+    public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody ProjectBean item,
+                                                             BindingResult result,
+                                                             UriComponentsBuilder builder) throws Exception {
 
         Map<String, Object> response = new HashMap<>();
 
