@@ -193,13 +193,8 @@ public class MetadataService {
         return framedGraph.getVertex(projectId, ProjectMetadata.class);
     }
 
-    public ProjectMetadata createProject(String projectName) throws Exception {
-        if (getProject(projectName) != null) {
-            throw new Exception("Project already exists");
-        }
-
-        ProjectMetadata projectMetadata = createNamedVertex("project", projectName, ProjectMetadata.class);
-        projectMetadata.setName(projectName);
+    public ProjectMetadata createProject() throws Exception {
+        ProjectMetadata projectMetadata = createVertex("project", ProjectMetadata.class);
 
         // Create the initial graph.
         GraphMetadata graphMetadata = createGraph(projectMetadata);
@@ -245,98 +240,11 @@ public class MetadataService {
 
     public JobMetadata createJob(JobMetadata parentJobMetadata) {
         JobMetadata jobMetadata = framedGraph.addVertex(null, JobMetadata.class);
-        /*
-        jobMetadata.setParentJob(parentJobMetadata);
-        */
+        //jobMetadata.setParentJob(parentJobMetadata);
         parentJobMetadata.addChildJob(jobMetadata);
 
         return jobMetadata;
     }
-
-    public HadoopJobMetadata createHadoopJob(JobMetadata parentJob, String jobId) {
-        HadoopJobMetadata jobMetadata = framedGraph.addVertex(null, HadoopJobMetadata.class);
-
-        jobMetadata.setJobId(jobId);
-        //jobMetadata.setParentJob(parentJob);
-        parentJob.addChildJob(jobMetadata);
-
-        return jobMetadata;
-    }
-
-    /*
-    public GraphMetadata getGraphMetadata(String graphName) throws Exception {
-        Iterator<Vertex> vertices = titanGraph.query()
-                .has("type", "GraphMetadata")
-                .has("name", graphName)
-                .limit(1)
-                .vertices()
-                .iterator();
-
-        GraphMetadata graph;
-
-        if (vertices.hasNext()) {
-            Vertex vertex = vertices.next();
-            graph = framedGraph.frame(vertex, GraphMetadata.class);
-        } else {
-            graph = framedGraph.addVertex(null, GraphMetadata.class);
-            graph.setName(graphName);
-
-            logger.debug("creating GraphMetadata " + graphName);
-        }
-
-        framedGraph.commit();
-
-        return graph;
-    }
-
-    public EdgeDegreesJobMetadata createEdgeDegreesJob(String graphName, String jobName) throws Exception {
-        GraphMetadata graph = getGraphMetadata(graphName);
-
-        Iterator<EdgeDegreesJobMetadata> jobs = graph.getJobsNamed(jobName).iterator();
-        EdgeDegreesJobMetadata job;
-
-        if (jobs.hasNext()) {
-            job = jobs.next();
-            throw new Exception("job already exists");
-            logger.debug("job found: " + job.getName() + " " + job.getStatus());
-        } else {
-            job = graph.addJob();
-            job.setType("EdgeDegreesJobMetadata");
-            job.setName(jobName);
-            job.setStatus("none");
-
-            logger.debug("creating EdgeDegreesJobMetadata " + graphName + " " + jobName);
-        }
-
-        framedGraph.commit();
-
-        return job;
-    }
-
-    public EdgeDegreesJobMetadata createJobMetadata(String projectName) throws Exception {
-        GraphMetadata graphMetadata = getGraphMetadata(graphName);
-        JobMetadata job = framedGraph.addVertex(null, JobMetadata.class);
-        graphMetadata.addJob(job);
-
-
-        JobMetadata job = new JobMetadata();
-        JobMetadata job = graph.addJob();
-        job.setName(jobName);
-        job.setStatus("none");
-
-        logger.debug("creating EdgeDegreesJobMetadata " + graphName + " " + jobName);
-
-        framedGraph.commit();
-
-        return job;
-    }
-
-    public HadoopJobMetadata createHadoopJobMetadata(String jobId) {
-        HadoopJobMetadata job = framedGraph.addVertex(null, HadoopJobMetadata.class);
-        job.setJobId(jobId);
-        return job;
-    }
-    */
 
     private <F> Iterable<F> getVertices(String type, final Class<F> kind) {
         return framedGraph.getVertices("type", type, kind);

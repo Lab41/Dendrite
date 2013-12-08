@@ -14,13 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,21 +65,30 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/projects", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> createProject(ProjectBean item, UriComponentsBuilder builder, BindingResult result) throws Exception {
+    public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody ProjectBean item, BindingResult result, UriComponentsBuilder builder) throws Exception {
 
         Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
-            response.put("error", result.toString());
+            response.put("status", "error");
+            response.put("msg", result.toString());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        if (item.getName().equals("")) {
-            response.put("error", "'name' field cannot be empty");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
+        String name = item.getName();
+        GraphBean graph = item.getGraph();
 
-        ProjectMetadata projectMetadata = metadataService.createProject(item.getName());
+        ProjectMetadata projectMetadata = metadataService.createProject();
+        projectMetadata.setName(name);
+
+        GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
+        graphMetadata.setName(graph.getName());
+        graphMetadata.setBackend(graph.getName());
+        graphMetadata.setDirectory(graph.getDirectory());
+        graphMetadata.setHostname(graph.getHostname());
+        graphMetadata.setPort(graph.getPort());
+        graphMetadata.setTablename(graph.getTablename());
+
         metadataService.commit();
 
         HttpHeaders headers = new HttpHeaders();
