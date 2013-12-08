@@ -193,7 +193,7 @@ public class MetadataService {
         return framedGraph.getVertex(projectId, ProjectMetadata.class);
     }
 
-    public ProjectMetadata createProject() throws Exception {
+    public ProjectMetadata createProject() {
         ProjectMetadata projectMetadata = createVertex("project", ProjectMetadata.class);
 
         // Create the initial graph.

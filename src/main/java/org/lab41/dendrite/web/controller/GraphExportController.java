@@ -67,6 +67,7 @@ public class GraphExportController {
 
         GraphMetadata graphMetadata = metadataService.getGraph(graphId);
         if (graphMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -75,6 +76,7 @@ public class GraphExportController {
 
         Graph graph = application.getGraph(graphName);
         if (graph == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -99,11 +101,16 @@ public class GraphExportController {
 
                 GMLWriter.outputGraph(graph, byteArrayOutputStream);
             } else {
+                metadataService.rollback();
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), headers, HttpStatus.OK);
     }

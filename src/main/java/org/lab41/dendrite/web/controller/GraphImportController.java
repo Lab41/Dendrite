@@ -64,6 +64,7 @@ public class GraphImportController {
         if (result.hasErrors()) {
             response.put("status", "error");
             response.put("msg", result.toString());
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
@@ -77,6 +78,7 @@ public class GraphImportController {
         if (graphMetadata == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph metadata '" + graphId + "'");
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -86,6 +88,7 @@ public class GraphImportController {
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphName + "'");
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -99,15 +102,21 @@ public class GraphImportController {
             } else {
                 response.put("status", "error");
                 response.put("msg", "unknown format '" + format + "'");
+                metadataService.rollback();
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch(IOException err) {
             response.put("status", "error");
             response.put("msg", "exception: " + err.toString());
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         response.put("status", "ok");
+
+        // Commit must come after all graph access.
+        metadataService.commit();
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

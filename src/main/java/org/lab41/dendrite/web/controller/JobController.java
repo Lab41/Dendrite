@@ -34,6 +34,9 @@ public class JobController {
             jobs.add(getJobMap(jobMetadata));
         }
 
+        // Commit must come after all graph access.
+        metadataService.commit();
+
         return new ResponseEntity<>(jobs, HttpStatus.OK);
     }
 
@@ -43,11 +46,15 @@ public class JobController {
         JobMetadata jobMetadata = metadataService.getJob(jobId);
 
         if (jobMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         Map<String, Object> response = new HashMap<>();
         response.put("job", getJobMap(jobMetadata));
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -58,6 +65,7 @@ public class JobController {
         ProjectMetadata project = metadataService.getProject(projectId);
 
         if (project == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -66,22 +74,28 @@ public class JobController {
             jobs.add(getJobMap(jobMetadata));
         }
 
+        // Commit must come after all graph access.
+        metadataService.commit();
+
         return new ResponseEntity<>(jobs, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteJob(@PathVariable String jobId) throws Exception {
+    public ResponseEntity<Map<String, Object>> deleteJob(@PathVariable String jobId) {
 
         JobMetadata jobMetadata = metadataService.getJob(jobId);
         if (jobMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         metadataService.deleteJob(jobMetadata);
-        metadataService.commit();
 
         Map<String, Object> response = new HashMap<>();
         response.put("msg", "deleted");
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -37,6 +37,9 @@ public class GraphController {
             graphs.add(getGraphMap(graphMetadata));
         }
 
+        // Commit must come after all graph access.
+        metadataService.commit();
+
         return new ResponseEntity<>(graphs, HttpStatus.OK);
     }
 
@@ -46,29 +49,44 @@ public class GraphController {
         GraphMetadata graphMetadata = metadataService.getGraph(graphId);
 
         if (graphMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         Map<String, Object> response = new HashMap<>();
         response.put("graph", getGraphMap(graphMetadata));
 
+        // Commit must come after all graph access.
+        metadataService.commit();
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) throws Exception {
+    public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) {
 
         GraphMetadata graphMetadata = metadataService.getGraph(graphId);
 
         if (graphMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        metadataService.deleteGraph(graphMetadata);
-        metadataService.commit();
-
         Map<String, Object> response = new HashMap<>();
+
+        try {
+            metadataService.deleteGraph(graphMetadata);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("msg", e.toString());
+            metadataService.rollback();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         response.put("msg", "deleted");
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -79,6 +97,7 @@ public class GraphController {
         ProjectMetadata projectMetadata = metadataService.getProject(projectId);
 
         if (projectMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -86,6 +105,9 @@ public class GraphController {
         for (GraphMetadata graphMetadata: projectMetadata.getGraphs()) {
             graphs.add(getGraphMap(graphMetadata));
         }
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(graphs, HttpStatus.OK);
     }
@@ -100,19 +122,23 @@ public class GraphController {
 
         if (result.hasErrors()) {
             response.put("error", result.toString());
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         ProjectMetadata projectMetadata = metadataService.getProject(projectId);
 
         if (projectMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         GraphMetadata graphMetadata = metadataService.createGraph(projectMetadata);
-        metadataService.commit();
 
         response.put("graph", getGraphMap(graphMetadata));
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -126,12 +152,14 @@ public class GraphController {
 
         if (result.hasErrors()) {
             response.put("error", result.toString());
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         GraphMetadata graphMetadata = metadataService.getGraph(graphId);
 
         if (graphMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -141,9 +169,11 @@ public class GraphController {
         graphMetadata.setHostname(item.getHostname());
         graphMetadata.setPort(item.getPort());
         graphMetadata.setTablename(item.getTablename());
-        metadataService.commit();
 
         response.put("graph", getGraphMap(graphMetadata));
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -155,6 +185,7 @@ public class GraphController {
         ProjectMetadata projectMetadata = metadataService.getProject(projectId);
 
         if (projectMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -162,6 +193,9 @@ public class GraphController {
 
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
         response.put("graph", getGraphMap(graphMetadata));
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -175,6 +209,7 @@ public class GraphController {
 
         if (result.hasErrors()) {
             response.put("error", result.toString());
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
@@ -182,6 +217,7 @@ public class GraphController {
 
         if (projectMetadata == null) {
             response.put("error", "project does not exist");
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -189,18 +225,22 @@ public class GraphController {
 
         if (graphMetadata == null) {
             response.put("error", "graph does not exist");
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
         if (projectMetadata != graphMetadata.getProject()) {
             response.put("error", "project does not own graph");
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         projectMetadata.setCurrentGraph(graphMetadata);
-        metadataService.commit();
 
         response.put("msg", "current graph changed");
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

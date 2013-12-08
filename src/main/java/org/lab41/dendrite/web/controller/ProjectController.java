@@ -32,7 +32,7 @@ public class ProjectController {
     MetadataService metadataService;
 
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
-    public @ResponseBody Map<String, Object> getProjects() throws JSONException {
+    public @ResponseBody Map<String, Object> getProjects() {
 
         Map<String, Object> response = new HashMap<>();
         ArrayList<Object> projects = new ArrayList<>();
@@ -42,20 +42,27 @@ public class ProjectController {
             projects.add(getProjectMap(projectMetadata));
         }
 
+        // Commit must come after all graph access.
+        metadataService.commit();
+
         return response;
     }
 
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getProject(@PathVariable String projectId) throws Exception {
+    public ResponseEntity<Map<String, Object>> getProject(@PathVariable String projectId) {
 
         ProjectMetadata projectMetadata = metadataService.getProject(projectId);
 
         if (projectMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         Map<String, Object> response = new HashMap<>();
         response.put("project", getProjectMap(projectMetadata));
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -64,13 +71,14 @@ public class ProjectController {
     @RequestMapping(value = "/projects", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody ProjectBean item,
                                                              BindingResult result,
-                                                             UriComponentsBuilder builder) throws Exception {
+                                                             UriComponentsBuilder builder) {
 
         Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
             response.put("status", "error");
             response.put("msg", result.toString());
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
@@ -88,31 +96,41 @@ public class ProjectController {
         graphMetadata.setPort(graph.getPort());
         graphMetadata.setTablename(graph.getTablename());
 
-        metadataService.commit();
-
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(builder.path("/{projectId}").buildAndExpand(projectMetadata.getId()).toUri());
 
         response.put("project", getProjectMap(projectMetadata));
 
+        // Commit must come after all graph access.
+        metadataService.commit();
+
         return new ResponseEntity<>(response, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) throws Exception {
+    public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) {
 
-        metadataService.rollback();
+        Map<String, Object> response = new HashMap<>();
 
         ProjectMetadata projectMetadata = metadataService.getProject(projectId);
         if (projectMetadata == null) {
+            metadataService.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        metadataService.deleteProject(projectMetadata);
-        metadataService.commit();
+        try {
+            metadataService.deleteProject(projectMetadata);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("msg", e.toString());
+            metadataService.rollback();
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
 
-        Map<String, Object> response = new HashMap<>();
         response.put("msg", "deleted");
+
+        // Commit must come after all graph access.
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -41,6 +41,7 @@ public class EdgeDegreesController {
         if (graphMetadata == null) {
             response.put("status", "error");
             response.put("msg", "missing graph metadata '" + graphId + "'");
+            metadataService.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -49,11 +50,11 @@ public class EdgeDegreesController {
 
         edgeDegreesService.countDegrees(graphMetadata, jobMetadata);
 
-        metadataService.commit();
-
         response.put("status", "ok");
         response.put("msg", "job submittied");
         response.put("href", "");
+
+        metadataService.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
