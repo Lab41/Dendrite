@@ -204,6 +204,15 @@ public class MetadataService {
     }
 
     public void deleteProject(ProjectMetadata projectMetadata) {
+
+        for (GraphMetadata graphMetadata: projectMetadata.getGraphs()) {
+            deleteGraph(graphMetadata);
+        }
+
+        for (JobMetadata jobMetadata: projectMetadata.getJobs()) {
+            deleteJob(jobMetadata);
+        }
+
         framedGraph.removeVertex(projectMetadata.asVertex());
     }
 
@@ -244,6 +253,14 @@ public class MetadataService {
         parentJobMetadata.addChildJob(jobMetadata);
 
         return jobMetadata;
+    }
+
+    public void deleteJob(JobMetadata jobMetadata) {
+        for (JobMetadata childJobMetadata: jobMetadata.getChildJobs()) {
+            deleteJob(childJobMetadata);
+        }
+
+        framedGraph.removeVertex(jobMetadata.asVertex());
     }
 
     private <F> Iterable<F> getVertices(String type, final Class<F> kind) {
