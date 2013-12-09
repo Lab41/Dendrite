@@ -901,6 +901,9 @@ select:focus:invalid:focus {
   color: #bdc3c7;
   display: block;
 }
+select {
+  margin-bottom: 0;
+}
 .simple_form .hint {
   clear: left;
   margin-left: 120px;
