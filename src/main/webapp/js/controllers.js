@@ -603,9 +603,12 @@ angular.module('dendrite.controllers', []).
     controller('FileUploadCtrl', function ($scope, $routeParams) {
         $scope.graphId = $routeParams.graphId;
         $scope.fileUploaded = false;
+        $scope.fileUploading = false;
 
         $scope.uploadFile = function(content, completed) {
+            $scope.fileUploading = true;
             if (completed) {
+                $scope.fileUploading = false;
                 $scope.fileUploaded = true;
                 if (content.status === "ok") {
                     $scope.uploadMessage = "file uploaded";
@@ -617,7 +620,15 @@ angular.module('dendrite.controllers', []).
         }
     }).
     controller('VizHistogramCtrl', function($scope, $location, Histogram) {
+      $scope.searching = false;
       $scope.visualize = function() {
-        Histogram.display($scope.query, $scope.facet);
+        $scope.searching = true;
+        Histogram.display($scope.query, $scope.facet)
+          .success(function() {
+            $scope.searching = false;
+          })
+          .error(function() {
+            $scope.searching = false;
+          });
       };
     });

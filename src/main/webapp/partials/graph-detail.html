@@ -53,6 +53,7 @@
           </div>
           <input type="submit" class="inline btn btn-primary" value="Submit" upload-submit="uploadFile(content, completed)" />
           <div class="alert alert-info" ng-hide="!fileUploaded">{{ uploadMessage }}</div>
+          <div ng-hide="!fileUploading"><img src="img/icons/ajax-loader.gif"></div>
         </form>
       </div>
     </div>
