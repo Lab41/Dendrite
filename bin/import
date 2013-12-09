@@ -30,7 +30,6 @@ case $format in
 esac
 
 curl \
-    -v \
     -u 'user:password' \
     -XPOST \
     "http://localhost:8000/dendrite/api/graphs/$id/file-import" \
