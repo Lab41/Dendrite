@@ -88,6 +88,7 @@ public class EdgeDegreesService {
                 + " " + Thread.currentThread().getName());
 
         setJobName(jobId, "faunus-degrees");
+        setJobState(jobId, JobMetadata.RUNNING);
 
         try {
             MetadataTx tx = metadataService.newTransaction();
@@ -224,7 +225,6 @@ public class EdgeDegreesService {
     private class FaunusCounter {
         private String graphId;
         private String jobId;
-        private Path tmpDir = createTempDir();
         private Map<JobID, String> jobMap = new HashMap<>();
         private Set<JobID> doneJobs = new HashSet<>();
 
@@ -234,35 +234,38 @@ public class EdgeDegreesService {
         }
 
         public void run() throws Exception {
-            FaunusGraph faunusGraph = new FaunusGraph();
-            FaunusPipeline exportPipeline =  exportGraphPipeline(faunusGraph);
-            runPipeline(exportPipeline);
-
-            logger.debug("EdgeDegreesJobMetadata export finished");
-
-            faunusGraph = faunusGraph.getNextGraph();
-            FaunusPipeline importPipeline = importGraphPipeline(faunusGraph);
-            runPipeline(importPipeline);
-
-            logger.debug("EdgeDegreesJobMetadata import finished");
-
-            MetadataTx tx = metadataService.newTransaction();
-            JobMetadata jobMetadata = tx.getJob(jobId);
-            jobMetadata.setProgress(1);
-            jobMetadata.setState(JobMetadata.DONE);
-            tx.commit();
-        }
-
-        private Path createTempDir() throws IOException {
-            Path tmpDir = new Path("dendrite/tmp/" + UUID.randomUUID() + "/");
             FileSystem fs = FileSystem.get(new Configuration());
+
+            // Create the temporary directory.
+            Path tmpDir = new Path("dendrite/tmp/" + UUID.randomUUID() + "/");
             fs.mkdirs(tmpDir);
             fs.deleteOnExit(tmpDir);
 
-            return tmpDir;
+            try {
+                FaunusGraph faunusGraph = new FaunusGraph();
+                FaunusPipeline exportPipeline =  exportGraphPipeline(faunusGraph, tmpDir);
+                runPipeline(exportPipeline);
+
+                logger.debug("EdgeDegreesJobMetadata export finished");
+
+                faunusGraph = faunusGraph.getNextGraph();
+                FaunusPipeline importPipeline = importGraphPipeline(faunusGraph);
+                runPipeline(importPipeline);
+
+                logger.debug("EdgeDegreesJobMetadata import finished");
+
+                MetadataTx tx = metadataService.newTransaction();
+                JobMetadata jobMetadata = tx.getJob(jobId);
+                jobMetadata.setProgress(1);
+                jobMetadata.setState(JobMetadata.DONE);
+                tx.commit();
+            } finally {
+                // Clean up after ourselves.
+                fs.delete(tmpDir, true);
+            }
         }
 
-        private FaunusPipeline exportGraphPipeline(FaunusGraph faunusGraph) {
+        private FaunusPipeline exportGraphPipeline(FaunusGraph faunusGraph, Path tmpDir) {
             MetadataTx tx = metadataService.newTransaction();
             GraphMetadata graphMetadata = tx.getGraph(graphId);
 
@@ -276,7 +279,7 @@ public class EdgeDegreesService {
 
             faunusGraph.setGraphOutputFormat(SequenceFileOutputFormat.class);
             faunusGraph.setSideEffectOutputFormat(TextOutputFormat.class);
-            faunusGraph.setOutputLocation(new Path(tmpDir, "export"));
+            faunusGraph.setOutputLocation(tmpDir);
             faunusGraph.setOutputLocationOverwrite(true);
 
             tx.commit();
@@ -314,22 +317,9 @@ public class EdgeDegreesService {
         }
 
         private void runPipeline(FaunusPipeline faunusPipeline) throws Exception {
-            MetadataTx tx = metadataService.newTransaction();
-            JobMetadata jobMetadata = tx.getJob(jobId);
-
             faunusPipeline.done();
             FaunusCompiler compiler = faunusPipeline.getCompiler();
             FaunusJobControl jobControl = new FaunusJobControl(faunusPipeline.getGraph(), compiler.getJobs());
-
-            // Create nodes for all the job ids.
-            for (Job hadoopJob: jobControl.getJobsInProgress()) {
-                JobID jobId = hadoopJob.getJobID();
-                JobMetadata childJobMetadata = tx.createJob(jobMetadata);
-                childJobMetadata.setMapreduceJobId(jobId.toString());
-
-                jobMap.put(jobId, childJobMetadata.getId());
-            }
-            tx.commit();
 
             Thread thread = new Thread(jobControl);
             thread.start();
@@ -350,36 +340,90 @@ public class EdgeDegreesService {
         }
 
         private void checkJobControl(FaunusJobControl jobControl) throws Exception {
-            MetadataTx tx = metadataService.newTransaction();
+            logger.debug("checking jobs");
 
-            for (Job hadoopJob: jobControl.getSuccessfulJobs()) {
+            List<Job> jobsInProgress = jobControl.getJobsInProgress();
+            List<Job> successfulJobs = jobControl.getSuccessfulJobs();
+            List<Job> failedJobs = jobControl.getFailedJobs();
+
+            float totalProgress = ((float) jobsInProgress.size()) / ((float) successfulJobs.size());
+
+            for (Job hadoopJob: successfulJobs) {
                 JobID hadoopJobId = hadoopJob.getJobID();
+                logger.debug("found successful hadoop job:", hadoopJobId.toString());
 
                 if (!doneJobs.contains(hadoopJobId)) {
                     doneJobs.add(hadoopJobId);
-                    setJobState(jobMap.get(hadoopJobId), JobMetadata.DONE);
+
+                    if (jobMap.containsKey(hadoopJobId)) {
+                        setJobState(jobMap.get(hadoopJobId), JobMetadata.DONE);
+                    } else {
+                        MetadataTx tx = metadataService.newTransaction();
+                        JobMetadata jobMetadata = tx.getJob(jobId);
+                        JobMetadata childJobMetadata = tx.createJob(jobMetadata);
+                        childJobMetadata.setState(JobMetadata.DONE);
+                        childJobMetadata.setProgress(1.0f);
+                        childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
+                        tx.commit();
+
+                        jobMap.put(hadoopJobId, childJobMetadata.getId());
+                    }
+                }
+            }
+
+            for (Job hadoopJob: failedJobs) {
+                JobID hadoopJobId = hadoopJob.getJobID();
+                logger.debug("found failed hadoop job:", hadoopJobId.toString());
+
+                if (jobMap.containsKey(hadoopJobId)) {
+                    setJobState(jobMap.get(hadoopJobId), JobMetadata.ERROR);
+                } else {
+                    MetadataTx tx = metadataService.newTransaction();
+                    JobMetadata jobMetadata = tx.getJob(jobId);
+                    JobMetadata childJobMetadata = tx.createJob(jobMetadata);
+                    childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
+                    childJobMetadata.setState(JobMetadata.ERROR);
+                    tx.commit();
                 }
             }
 
             Job hadoopRunningJob = jobControl.getRunningJob();
             if (hadoopRunningJob != null) {
                 JobID hadoopJobId = hadoopRunningJob.getJobID();
+                logger.debug("found active hadoop job:", hadoopJobId.toString());
 
                 JobStatus status = hadoopRunningJob.getStatus();
-                float progress =
+                float progress = 0.25f * (
                         status.getSetupProgress() +
-                                status.getMapProgress() +
-                                status.getReduceProgress() +
-                                status.getCleanupProgress();
+                        status.getMapProgress() +
+                        status.getReduceProgress() +
+                        status.getCleanupProgress());
 
-                setJobProgress(jobMap.get(hadoopJobId), progress * 0.25f);
+                logger.debug("found progress: "
+                        + status.getSetupProgress() + " "
+                        + status.getMapProgress() + " "
+                        + status.getReduceProgress() + " "
+                        + status.getCleanupProgress() + " "
+                        + progress);
+
+                if (jobMap.containsKey(hadoopJobId)) {
+                    setJobProgress(jobMap.get(hadoopJobId), progress);
+                } else {
+                    MetadataTx tx = metadataService.newTransaction();
+                    JobMetadata jobMetadata = tx.getJob(jobId);
+                    JobMetadata childJobMetadata = tx.createJob(jobMetadata);
+                    childJobMetadata.setProgress(progress);
+                    childJobMetadata.setState(JobMetadata.RUNNING);
+                    childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
+                    tx.commit();
+                }
+
+                setJobProgress(jobMap.get(hadoopJobId), progress);
+                setJobProgress(jobId, totalProgress + (progress / ((float) jobsInProgress.size())));
             }
 
-            tx.commit();
-
-            for (Job hadoopJob: jobControl.getFailedJobs()) {
-                String id = hadoopJob.getJobID().toString();
-                throw new Exception("hadoop job '" + id + "' died");
+            if (!failedJobs.isEmpty()) {
+                throw new Exception("hadoop job failed");
             }
         }
     }

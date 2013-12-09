@@ -117,6 +117,8 @@ public class JobController {
         project.put("name", jobMetadata.getName());
         project.put("state", jobMetadata.getState().toString());
         project.put("progress", jobMetadata.getProgress());
+        project.put("msg", jobMetadata.getMessage());
+        project.put("mapreduceJobId", jobMetadata.getMapreduceJobId());
 
         return project;
     }
