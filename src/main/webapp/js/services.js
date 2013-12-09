@@ -380,6 +380,20 @@ angular.module('dendrite.services', ['ngResource']).
             }
         });
     }).
+    factory('GraphTransform', function($resource, $rootScope, $http) {
+        return {
+          saveFile: function(graphId, outputFormat) {
+            var payload = $.param({
+              format: outputFormat
+            });
+            var config = {
+              headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+            };
+
+            return $http.post('api/'+graphId+'/file-save', payload, config);
+          }
+        };
+    }).
     factory('Vertex', function($resource) {
         return $resource('rexster-resource/graphs/:graphId/vertices/:vertexId', {
             graphId: '@graphId',

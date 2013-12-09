@@ -37,6 +37,11 @@ public class ElasticSearchController {
     @Autowired
     DendriteRexsterApplication application;
 
+    @RequestMapping(value = "/api/{graphName}/viz/elasticsearch/{indexName}/facets", method = RequestMethod.GET)
+    public ResponseEntity<String> elasticSearch(@RequestBody String body, @PathVariable String graphName, @PathVariable String indexName) throws Exception {
+
+    }
+
     @RequestMapping(value = "/api/{graphName}/viz/elasticsearch/{indexName}", method = RequestMethod.POST)
     public ResponseEntity<String> elasticSearch(@RequestBody String body, @PathVariable String graphName, @PathVariable String indexName) throws Exception {
         HttpHeaders responseHeaders = new HttpHeaders();

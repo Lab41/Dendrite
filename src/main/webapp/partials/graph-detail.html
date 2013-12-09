@@ -77,6 +77,25 @@
       </div>
   </div>
 
+  <div class="row-fluid">
+      <div class="span12">
+          <label for="format">Checkpoint this graph:</label>
+          <div ng-controller="GraphSaveCtrl">
+            <form ng-submit="saveFile(content, completed)">
+              <select ng-model="format" name="format" id="format" class="inline form-control" style="width:25%">
+                <option selected ng-selected="true">Select Format</option>
+                <option value="GraphSON">GraphSON</option>
+                <option value="GraphML">GraphML</option>
+                <option value="GML">GML</option>
+              </select>
+
+              <input type="submit" class="inline btn btn-primary" value="Checkpoint" ng-click="saveFile"/>
+              <div ng-hide="!fileSaving"><img src="img/icons/ajax-loader.gif"></div>
+              <div class="alert alert-info" ng-hide="!fileSaved">{{ savedMessage }}</div>
+            </form>
+          </div>
+      </div>
+  </div>
 
   <div class="row-fluid" style="margin-top:40px">
     <div class="span6">

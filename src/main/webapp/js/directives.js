@@ -78,6 +78,8 @@ angular.module('dendrite.directives', []).
                 data.vertices.promise,
                 data.edges.promise
               ]).then(function(data) {
+                console.log('data=');
+                console.log(data);
                 var vertices = data[0].results;
                 var edges = data[1].results;
 
@@ -90,6 +92,7 @@ angular.module('dendrite.directives', []).
 
                 var vertexToNode = {};
                 vertices.forEach(function(vertex, idx) {
+                  console.log(idx);
                   vertexToNode[vertex._id] = idx;
                 })
 
