@@ -56,7 +56,7 @@ public class GraphImportController {
 
     @RequestMapping(value = "/api/graphs/{graphId}/file-import", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> importGraph(@PathVariable String graphId,
-                                                           @Valid @RequestBody GraphImportBean item,
+                                                           @Valid GraphImportBean item,
                                                            BindingResult result) {
 
         Map<String, Object> response = new HashMap<>();

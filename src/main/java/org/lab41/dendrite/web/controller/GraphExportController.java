@@ -56,7 +56,7 @@ public class GraphExportController {
 
     @RequestMapping(value = "/api/graphs/{graphId}/file-export", method = RequestMethod.POST)
     public ResponseEntity<byte[]> export(@PathVariable String graphId,
-                                         @Valid @RequestBody GraphExportBean item,
+                                         @Valid GraphExportBean item,
                                          BindingResult result) {
 
         if (result.hasErrors()) {

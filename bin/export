@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set -e
+
+if [[ $# != 3 ]]; then
+    echo "id, format, and file must be provided" 2>&1
+    exit 1
+fi
+
+id="$1"
+format="$2"
+file="$3"
+
+if [[ "$id" == "" ]]; then
+    echo "id must be provided" 2>&1
+    exit 1
+fi
+
+case $format in
+    "graphson")
+        ;;
+    "graphml")
+        ;;
+    "gml")
+        ;;
+    *)
+        echo "format must be 'graphson', 'graphml', or 'gml'" 2>&1
+        exit 1
+        ;;
+esac
+
+if [[ "$file" == "" ]]; then
+    echo "file must be provided" 2>&1
+    exit 1
+fi
+
+curl \
+    -v \
+    -u 'user:password' \
+    -XPOST \
+    "http://localhost:8000/dendrite/api/graphs/$id/file-export" \
+    -F "format=$format" \
+    -o "$file"
