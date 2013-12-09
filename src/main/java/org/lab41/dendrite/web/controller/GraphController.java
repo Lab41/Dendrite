@@ -31,7 +31,7 @@ public class GraphController {
     MetadataService metadataService;
 
     @RequestMapping(value = "/graphs", method = RequestMethod.GET)
-    public ResponseEntity<List<Map<String, Object>>> getGraphs() {
+    public ResponseEntity<Map<String, Object>> getGraphs() {
 
         MetadataTx tx = metadataService.newTransaction();
 
@@ -40,10 +40,13 @@ public class GraphController {
             graphs.add(getGraphMap(graphMetadata));
         }
 
+        Map<String, Object> response = new HashMap<>();
+        response.put("graphs", graphs);
+
         // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(graphs, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.GET)

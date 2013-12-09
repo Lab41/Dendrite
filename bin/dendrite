@@ -1,0 +1,264 @@
+#!/usr/bin/env python
+
+import argparse
+import base64
+import getpass
+import json
+import sys
+import httplib
+import urllib2
+import urlparse
+
+def json_request(method, url, data=None, user=None, password=None):
+    base64string = base64.encodestring('%s:%s' % (user, password)).replace('\n', '')
+
+    if data is not None:
+        data = json.dumps(data)
+
+    request = urllib2.Request(url,
+            data=data,
+            headers={
+                'Authorization': 'Basic %s' % base64string,
+                'Content-Type': 'application/json'
+            })
+    request.get_method = lambda: method
+
+    f = urllib2.urlopen(request)
+    return json.loads(f.read())
+
+def print_rows(rows, headers=None, show_headers=True):
+    if headers is None:
+        headers = set()
+        for row in rows:
+            for header in row.iterkeys():
+                headers.add(header)
+        headers = sorted(headers)
+
+    sizes = [len(header) for header in headers]
+
+    for row in rows:
+        for i, header in enumerate(headers):
+            value = row[header]
+            if value is not None:
+                value = str(value)
+                if sizes[i] < len(value):
+                    sizes[i] = len(value)
+
+    if show_headers:
+        for i, header in enumerate(headers):
+            sys.stdout.write(header.ljust(sizes[i]))
+            sys.stdout.write(' ')
+        print
+
+        for size in sizes:
+            sys.stdout.write('=' * size)
+            sys.stdout.write(' ')
+        print
+
+    for row in rows:
+        for i, header in enumerate(headers):
+            value = row[header]
+            if value is None:
+                sys.stdout.write(' ' * sizes[i])
+                sys.stdout.write(' ')
+            else:
+                sys.stdout.write(str(value).ljust(sizes[i]))
+                sys.stdout.write(' ')
+        print
+
+
+def create_project(args):
+    graph = {}
+    graph['name'] = args.name
+
+    if args.backend == 'berkeleydb':
+        graph['directory'] = '/tmp/dendrite/dendrite-' + args.name
+    elif args.backend == 'hbase':
+        graph['hostname'] = 'localhost'
+        graph['port'] = 2181
+        graph['tablename'] = 'dendrite-' + args.name
+    else:
+        print >> sys.stderr, 'unknown backend', args.backend
+        return 1
+
+    if args.script == '':
+        print >> sys.stderr, 'script cannot be empty'
+        return 1
+
+    project = {
+        'name': args.name,
+        'graph': graph,
+    }
+
+    script = {
+        'script': args.script.read()
+    }
+
+    # Create the project
+    print 'Creating the project...'
+    try:
+        response = json_request(
+                'POST',
+                args.url + '/api/projects',
+                project,
+                args.user,
+                args.password)
+    except urllib2.HTTPError, e:
+        print 'Failed to create project. Server returned:', e
+        return 1
+    
+    print_rows([response['project']],
+            headers=['_id', 'name', 'current_graph'],
+            show_headers=args.show_headers)
+    print
+
+    # Initialize the indices
+    print 'Creating the indices...'
+    print 'done'
+    return
+
+    try:
+        response = json_request(
+                'POST',
+                args.url + '/rexster-resource/graphs/%s/tp/gremlin' % args.name,
+                script,
+                args.user,
+                args.password)
+    except urllib2.HTTPError, e:
+        print 'Failed to create indices. Server returned:', e
+        return 1
+
+    print_rows(response,
+            show_headers=args.show_headers)
+
+    return 0
+
+def show(path, name, args):
+    try:
+        response = json_request(
+                'GET',
+                '%s/%s' % (args.url, path),
+                None,
+                args.user,
+                args.password)
+    except urllib2.HTTPError, e:
+        print 'Failed to create project. Server returned:', e
+        return 1
+
+    print_rows(response[name],
+            show_headers=args.show_headers)
+
+    return 0
+
+def show_projects(args):
+    return show('/api/projects', 'projects', args)
+
+def show_graphs(args):
+    return show('/api/graphs', 'graphs', args)
+
+def show_jobs(args):
+    return show('/api/jobs', 'jobs', args)
+
+def delete(path, name, args):
+    try:
+        response = json_request(
+                'DELETE',
+                '%s/%s/%s' % (args.url, path, args.id),
+                None,
+                args.user,
+                args.password)
+    except urllib2.HTTPError, e:
+        print 'Failed to create project. Server returned:', e
+        return 1
+
+    print 'project deleted'
+
+    return 0
+
+def delete_project(args):
+    return delete('/api/projects', 'project', args)
+
+def delete_graph(args):
+    return delete('/api/graphs', 'graph', args)
+
+def delete_job(args):
+    return delete('/api/jobs', 'job', args)
+
+def not_empty(string):
+    if string == '':
+        raise argparse.ArgumentTypeError('cannot be empty')
+    return string
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-u', '--user',
+            help='the dendrite user. May include password after a ":"')
+    parser.add_argument('--password',
+            help='the dendrite password')
+    parser.add_argument('--url',
+            help='which server to use',
+            default='http://localhost:8000/dendrite')
+    parser.add_argument('--no-headers', '--nh',
+            dest='show_headers',
+            help='do not show headers',
+            action='store_false',
+            default=True)
+
+    subparsers = parser.add_subparsers(
+            help='sub-command help')
+
+    parser_create_project = subparsers.add_parser('create-project')
+    parser_create_project.add_argument('name',
+            type=not_empty)
+    parser_create_project.add_argument('backend',
+            type=not_empty,
+            choices=['berkeleydb', 'hbase'])
+    parser_create_project.add_argument('script',
+            type=argparse.FileType('rb'))
+    parser_create_project.set_defaults(func=create_project)
+
+    parser_show_projects = subparsers.add_parser('show-projects')
+    parser_show_projects.set_defaults(func=show_projects)
+
+    parser_show_graphs = subparsers.add_parser('show-graphs')
+    parser_show_graphs.set_defaults(func=show_graphs)
+
+    parser_show_jobs = subparsers.add_parser('show-jobs')
+    parser_show_jobs.set_defaults(func=show_jobs)
+
+    parser_delete_project = subparsers.add_parser('delete-project')
+    parser_delete_project.add_argument('id',
+            type=int)
+    parser_delete_project.set_defaults(func=delete_project)
+
+    parser_delete_graph = subparsers.add_parser('delete-graph')
+    parser_delete_graph.add_argument('id',
+            type=int)
+    parser_delete_graph.set_defaults(func=delete_graph)
+
+    parser_delete_job = subparsers.add_parser('delete-job')
+    parser_delete_job.add_argument('id',
+            type=int)
+    parser_delete_job.set_defaults(func=delete_job)
+
+    args = parser.parse_args()
+
+    if args.user is not None and ':' in args.user:
+        user, password = args.user.split(':', 1)
+        args.user = user
+        args.password = password
+
+    while args.user is None or args.user == '':
+        sys.stdout.write('please enter in the username: ')
+        sys.stdout.flush()
+        args.user = sys.stdin.readline()
+
+    while args.password is None or args.password == '':
+        sys.stdout.write('please enter in the password: ')
+        sys.stdout.flush()
+        args.password = getpass.getpass()
+
+    return args.func(args)
+
+if __name__ == '__main__':
+    sys.exit(main())

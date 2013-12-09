@@ -28,7 +28,7 @@ public class JobController {
     MetadataService metadataService;
 
     @RequestMapping(value = "/jobs", method = RequestMethod.GET)
-    public ResponseEntity<List<Map<String, Object>>> getJobs() {
+    public ResponseEntity<Map<String, Object>> getJobs() {
 
         MetadataTx tx = metadataService.newTransaction();
 
@@ -37,10 +37,13 @@ public class JobController {
             jobs.add(getJobMap(jobMetadata));
         }
 
+        Map<String, Object> response = new HashMap<>();
+        response.put("jobs", jobs);
+
         // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(jobs, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
@@ -65,7 +68,7 @@ public class JobController {
     }
 
     @RequestMapping(value = "/projects/{projectId}/jobs", method = RequestMethod.GET)
-    public ResponseEntity<List<Map<String, Object>>> getJobs(@PathVariable String projectId) {
+    public ResponseEntity<Map<String, Object>> getJobs(@PathVariable String projectId) {
 
         MetadataTx tx = metadataService.newTransaction();
 
@@ -81,10 +84,13 @@ public class JobController {
             jobs.add(getJobMap(jobMetadata));
         }
 
+        Map<String, Object> response = new HashMap<>();
+        response.put("jobs", jobs);
+
         // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(jobs, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
