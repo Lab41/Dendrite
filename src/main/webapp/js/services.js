@@ -141,7 +141,7 @@ angular.module('dendrite.services', ['ngResource']).
           }
         };
     }).
-    factory('Histogram', function($resource, $routeParams, appConfig) {
+    factory('Histogram', function($resource, $routeParams, $http, appConfig) {
       return {
         display: function(queryTerm, queryFacet) {
           // default inputs
@@ -162,12 +162,12 @@ angular.module('dendrite.services', ['ngResource']).
                   };
 
           // query server
-          $.ajax({
+          return $http({
               method: "POST",
               url: '/dendrite/api/'+$routeParams.graphId+'/viz/elasticsearch/'+appConfig.elasticSearch.index,
               data: JSON.stringify(inputJson)
           })
-          .done(function(json) {
+          .success(function(json) {
             var facets = json.facets.tags.terms;
 
             // helper functions to extract properties of object array
