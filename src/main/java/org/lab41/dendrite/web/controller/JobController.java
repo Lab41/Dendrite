@@ -4,6 +4,7 @@ import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.models.JobMetadata;
 import org.lab41.dendrite.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetadataTx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +30,15 @@ public class JobController {
     @RequestMapping(value = "/jobs", method = RequestMethod.GET)
     public ResponseEntity<List<Map<String, Object>>> getJobs() {
 
+        MetadataTx tx = metadataService.newTransaction();
+
         List<Map<String, Object>> jobs = new ArrayList<>();
-        for (JobMetadata jobMetadata: metadataService.getJobs()) {
+        for (JobMetadata jobMetadata: tx.getJobs()) {
             jobs.add(getJobMap(jobMetadata));
         }
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return new ResponseEntity<>(jobs, HttpStatus.OK);
     }
@@ -43,10 +46,12 @@ public class JobController {
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getJob(@PathVariable String jobId) {
 
-        JobMetadata jobMetadata = metadataService.getJob(jobId);
+        MetadataTx tx = metadataService.newTransaction();
+
+        JobMetadata jobMetadata = tx.getJob(jobId);
 
         if (jobMetadata == null) {
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -54,7 +59,7 @@ public class JobController {
         response.put("job", getJobMap(jobMetadata));
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -62,10 +67,12 @@ public class JobController {
     @RequestMapping(value = "/projects/{projectId}/jobs", method = RequestMethod.GET)
     public ResponseEntity<List<Map<String, Object>>> getJobs(@PathVariable String projectId) {
 
-        ProjectMetadata project = metadataService.getProject(projectId);
+        MetadataTx tx = metadataService.newTransaction();
+
+        ProjectMetadata project = tx.getProject(projectId);
 
         if (project == null) {
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -75,7 +82,7 @@ public class JobController {
         }
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return new ResponseEntity<>(jobs, HttpStatus.OK);
     }
@@ -83,19 +90,21 @@ public class JobController {
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteJob(@PathVariable String jobId) {
 
-        JobMetadata jobMetadata = metadataService.getJob(jobId);
+        MetadataTx tx = metadataService.newTransaction();
+
+        JobMetadata jobMetadata = tx.getJob(jobId);
         if (jobMetadata == null) {
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        metadataService.deleteJob(jobMetadata);
+        tx.deleteJob(jobMetadata);
 
         Map<String, Object> response = new HashMap<>();
         response.put("msg", "deleted");
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

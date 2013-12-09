@@ -24,6 +24,7 @@ import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.web.beans.GraphExportBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,15 +60,17 @@ public class GraphExportController {
                                          @Valid GraphExportBean item,
                                          BindingResult result) {
 
+        MetadataTx tx = metadataService.newTransaction();
+
         if (result.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         String format = item.getFormat();
 
-        GraphMetadata graphMetadata = metadataService.getGraph(graphId);
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
         if (graphMetadata == null) {
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -76,7 +79,7 @@ public class GraphExportController {
 
         Graph graph = application.getGraph(graphName);
         if (graph == null) {
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -101,16 +104,16 @@ public class GraphExportController {
 
                 GMLWriter.outputGraph(graph, byteArrayOutputStream);
             } else {
-                metadataService.rollback();
+                tx.rollback();
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), headers, HttpStatus.OK);
     }

@@ -4,6 +4,7 @@ import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.models.JobMetadata;
 import org.lab41.dendrite.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.services.analysis.EdgeDegreesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,13 +29,15 @@ public class EdgeDegreesController {
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/titan-degrees", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> startJob(@PathVariable String graphId) throws Exception {
 
+        MetadataTx tx = metadataService.newTransaction();
+
         Map<String, Object> response = new HashMap<>();
 
-        GraphMetadata graphMetadata = metadataService.getGraph(graphId);
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
         if (graphMetadata == null) {
             response.put("status", "error");
             response.put("msg", "missing graph metadata '" + graphId + "'");
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -42,19 +45,20 @@ public class EdgeDegreesController {
         if (projectMetadata == null) {
             response.put("status", "error");
             response.put("msg", "missing project metadata for graph '" + graphId + "'");
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        JobMetadata jobMetadata = metadataService.createJob(projectMetadata);
-
-        edgeDegreesService.titanCountDegrees(graphMetadata, jobMetadata);
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
         response.put("jobId", jobMetadata.getId());
 
-        metadataService.commit();
+        tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        edgeDegreesService.titanCountDegrees(graphMetadata.getId(), jobMetadata.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -62,13 +66,15 @@ public class EdgeDegreesController {
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/faunus-degrees", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> startFaunusJob(@PathVariable String graphId) throws Exception {
 
+        MetadataTx tx = metadataService.newTransaction();
+
         Map<String, Object> response = new HashMap<>();
 
-        GraphMetadata graphMetadata = metadataService.getGraph(graphId);
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
         if (graphMetadata == null) {
             response.put("status", "error");
             response.put("msg", "missing graph metadata '" + graphId + "'");
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -76,20 +82,20 @@ public class EdgeDegreesController {
         if (projectMetadata == null) {
             response.put("status", "error");
             response.put("msg", "missing project metadata for graph '" + graphId + "'");
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        JobMetadata jobMetadata = metadataService.createJob(projectMetadata);
-
-        edgeDegreesService.faunusCountDegrees(graphMetadata, jobMetadata);
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
         response.put("jobId", jobMetadata.getId());
-;
 
-        metadataService.commit();
+        tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        edgeDegreesService.faunusCountDegrees(graphMetadata.getId(), jobMetadata.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -24,6 +24,7 @@ import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
 import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.web.beans.GraphImportBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,12 +60,14 @@ public class GraphImportController {
                                                            @Valid GraphImportBean item,
                                                            BindingResult result) {
 
+        MetadataTx tx = metadataService.newTransaction();
+
         Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
             response.put("status", "error");
             response.put("msg", result.toString());
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
@@ -74,11 +77,11 @@ public class GraphImportController {
         logger.debug("receiving file:", file.getOriginalFilename());
         logger.debug("file format:", format);
 
-        GraphMetadata graphMetadata = metadataService.getGraph(graphId);
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
         if (graphMetadata == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph metadata '" + graphId + "'");
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -88,7 +91,7 @@ public class GraphImportController {
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphName + "'");
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -102,20 +105,20 @@ public class GraphImportController {
             } else {
                 response.put("status", "error");
                 response.put("msg", "unknown format '" + format + "'");
-                metadataService.rollback();
+                tx.rollback();
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch(IOException err) {
             response.put("status", "error");
             response.put("msg", "exception: " + err.toString());
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         response.put("status", "ok");
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

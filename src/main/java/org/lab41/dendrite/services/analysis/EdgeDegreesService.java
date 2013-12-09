@@ -21,6 +21,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.lab41.dendrite.models.*;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetadataTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +43,13 @@ public class EdgeDegreesService {
     MetadataService metadataService;
 
     @Async
-    public void titanCountDegrees(GraphMetadata graphMetadata, JobMetadata jobMetadata) {
+    public void titanCountDegrees(String graphId, String jobId) {
 
-        logger.debug("titanCountDegrees: running job: " + jobMetadata.getId());
+        logger.debug("titanCountDegrees: running graph: " + graphId + " job: " + jobId);
+
+        MetadataTx tx = metadataService.newTransaction();
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
+        JobMetadata jobMetadata = tx.getJob(jobId);
 
         try {
             String graphName = graphMetadata.getName();
@@ -55,13 +60,13 @@ public class EdgeDegreesService {
 
                 jobMetadata.setState(JobMetadata.ERROR);
                 jobMetadata.setMessage("graph does not exist");
-                metadataService.commit();
+                tx.commit();
                 return;
             }
 
             jobMetadata.setState(JobMetadata.RUNNING);
             jobMetadata.setName("titan_degrees");
-            metadataService.commit();
+            tx.commit();
 
             // Make sure our indexes exist.
             createIndices(titanGraph);
@@ -69,13 +74,13 @@ public class EdgeDegreesService {
 
             logger.debug("Starting degree counting analysis on " + graphName + " " + Thread.currentThread().getName());
 
-            TitanCounter titanCounter = new TitanCounter(titanGraph, jobMetadata);
+            TitanCounter titanCounter = new TitanCounter(tx, titanGraph, jobMetadata);
             titanCounter.run();
         } catch (Exception e) {
             logger.debug("titanCountDegrees: error: ", e);
             e.printStackTrace();
             jobMetadata.setState(JobMetadata.ERROR);
-            metadataService.commit();
+            tx.commit();
 
             throw e;
         }
@@ -84,9 +89,13 @@ public class EdgeDegreesService {
     }
 
     @Async
-    public void faunusCountDegrees(GraphMetadata graphMetadata, JobMetadata jobMetadata) throws Exception {
+    public void faunusCountDegrees(String graphId, String jobId) throws Exception {
 
-        logger.debug("faunusCountDegrees: running job: " + jobMetadata.getId());
+        logger.debug("faunusCountDegrees: running graph: " + graphId + " job: " + jobId);
+
+        MetadataTx tx = metadataService.newTransaction();
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
+        JobMetadata jobMetadata = tx.getJob(jobId);
 
         String graphName = graphMetadata.getName();
         TitanGraph titanGraph = (TitanGraph) application.getGraph(graphName);
@@ -94,13 +103,13 @@ public class EdgeDegreesService {
         if (titanGraph == null) {
             jobMetadata.setState(JobMetadata.ERROR);
             jobMetadata.setMessage("graph does not exist");
-            metadataService.commit();
+            tx.commit();
             return;
         }
 
         jobMetadata.setState(JobMetadata.RUNNING);
         jobMetadata.setName("faunus_degrees");
-        metadataService.commit();
+        tx.commit();
 
         // Make sure our indexes exist.
         createIndices(titanGraph);
@@ -108,7 +117,7 @@ public class EdgeDegreesService {
 
         logger.debug("Starting degree counting analysis on " + graphName + " " + Thread.currentThread().getName());
 
-        FaunusCounter faunusCounter = new FaunusCounter(graphMetadata, jobMetadata);
+        FaunusCounter faunusCounter = new FaunusCounter(tx, graphMetadata, jobMetadata);
         faunusCounter.run();
 
         logger.debug("faunusCountDegrees: finished running job: " + jobMetadata.getId());
@@ -138,10 +147,12 @@ public class EdgeDegreesService {
     }
 
     private class TitanCounter {
+        private MetadataTx tx;
         private TitanGraph titanGraph;
         private JobMetadata jobMetadata;
 
-        public TitanCounter(TitanGraph titanGraph, JobMetadata jobMetadata) {
+        public TitanCounter(MetadataTx tx, TitanGraph titanGraph, JobMetadata jobMetadata) {
+            this.tx = tx;
             this.titanGraph = titanGraph;
             this.jobMetadata = jobMetadata;
         }
@@ -170,18 +181,20 @@ public class EdgeDegreesService {
             jobMetadata.setState(JobMetadata.DONE);
             jobMetadata.setProgress(1);
 
-            metadataService.commit();
+            tx.commit();
         }
     }
 
     private class FaunusCounter {
+        private MetadataTx tx;
         private GraphMetadata graphMetadata;
         private JobMetadata jobMetadata;
         private Path tmpDir = createTempDir();
         private Map<JobID, JobMetadata> jobMap = new HashMap<>();
         private Set<JobID> doneJobs = new HashSet<>();
 
-        public FaunusCounter(GraphMetadata graphMetadata, JobMetadata jobMetadata) throws IOException {
+        public FaunusCounter(MetadataTx tx, GraphMetadata graphMetadata, JobMetadata jobMetadata) throws IOException {
+            this.tx = tx;
             this.graphMetadata = graphMetadata;
             this.jobMetadata = jobMetadata;
         }
@@ -202,7 +215,7 @@ public class EdgeDegreesService {
             jobMetadata.setProgress(1);
             jobMetadata.setState(JobMetadata.DONE);
 
-            metadataService.commit();
+            tx.commit();
         }
 
         private Path createTempDir() throws IOException {
@@ -263,7 +276,7 @@ public class EdgeDegreesService {
             // Create nodes for all the job ids.
             for (Job hadoopJob: jobControl.getJobsInProgress()) {
                 JobID jobId = hadoopJob.getJobID();
-                JobMetadata childJobMetadata = metadataService.createJob(jobMetadata);
+                JobMetadata childJobMetadata = tx.createJob(jobMetadata);
                 childJobMetadata.setMapreduceJobId(jobId.toString());
 
                 jobMap.put(jobId, childJobMetadata);
@@ -275,7 +288,7 @@ public class EdgeDegreesService {
             logger.debug("Submitted job");
 
             jobMetadata.setState(JobMetadata.RUNNING);
-            metadataService.commit();
+            tx.commit();
 
             while (jobControl.allFinished()) {
                 try {
@@ -328,7 +341,7 @@ public class EdgeDegreesService {
 
                 JobMetadata hadoopJobMetdata = jobMap.get(jobId);
                 hadoopJobMetdata.setProgress(progress * 0.25f);
-                metadataService.commit();
+                tx.commit();
             }
         }
     }

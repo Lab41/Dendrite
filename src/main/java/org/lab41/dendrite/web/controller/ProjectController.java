@@ -4,6 +4,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.web.beans.GraphBean;
 import org.lab41.dendrite.web.beans.ProjectBean;
 import org.slf4j.Logger;
@@ -34,16 +35,18 @@ public class ProjectController {
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
     public @ResponseBody Map<String, Object> getProjects() {
 
+        MetadataTx tx = metadataService.newTransaction();
+
         Map<String, Object> response = new HashMap<>();
         ArrayList<Object> projects = new ArrayList<>();
         response.put("projects", projects);
 
-        for(ProjectMetadata projectMetadata: metadataService.getProjects()) {
+        for(ProjectMetadata projectMetadata: tx.getProjects()) {
             projects.add(getProjectMap(projectMetadata));
         }
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return response;
     }
@@ -51,10 +54,12 @@ public class ProjectController {
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getProject(@PathVariable String projectId) {
 
-        ProjectMetadata projectMetadata = metadataService.getProject(projectId);
+        MetadataTx tx = metadataService.newTransaction();
+
+        ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -62,7 +67,7 @@ public class ProjectController {
         response.put("project", getProjectMap(projectMetadata));
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -73,19 +78,21 @@ public class ProjectController {
                                                              BindingResult result,
                                                              UriComponentsBuilder builder) {
 
+        MetadataTx tx = metadataService.newTransaction();
+
         Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
             response.put("status", "error");
             response.put("msg", result.toString());
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         String name = item.getName();
         GraphBean graph = item.getGraph();
 
-        ProjectMetadata projectMetadata = metadataService.createProject();
+        ProjectMetadata projectMetadata = tx.createProject();
         projectMetadata.setName(name);
 
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
@@ -103,7 +110,7 @@ public class ProjectController {
         response.put("project", getProjectMap(projectMetadata));
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return new ResponseEntity<>(response, headers, HttpStatus.CREATED);
     }
@@ -111,27 +118,29 @@ public class ProjectController {
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) {
 
+        MetadataTx tx = metadataService.newTransaction();
+
         Map<String, Object> response = new HashMap<>();
 
-        ProjectMetadata projectMetadata = metadataService.getProject(projectId);
+        ProjectMetadata projectMetadata = tx.getProject(projectId);
         if (projectMetadata == null) {
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         try {
-            metadataService.deleteProject(projectMetadata);
+            tx.deleteProject(projectMetadata);
         } catch (Exception e) {
             response.put("status", "error");
             response.put("msg", e.toString());
-            metadataService.rollback();
+            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         response.put("msg", "deleted");
 
         // Commit must come after all graph access.
-        metadataService.commit();
+        tx.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
