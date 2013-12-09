@@ -70,6 +70,7 @@ public class EdgeDegreesService {
             titanCounter.run();
         } catch (Exception e) {
             logger.debug("titanCountDegrees: error: ", e);
+            e.printStackTrace();
             setJobState(jobId, JobMetadata.ERROR, e.getMessage());
             throw e;
         }
@@ -103,8 +104,9 @@ public class EdgeDegreesService {
             faunusCounter.run();
 
             logger.debug("faunusCountDegrees: finished running job: " + jobMetadata.getId());
-        } catch (TitanException e) {
+        } catch (Exception e) {
             logger.debug("faunusCountDegrees: error: ", e);
+            e.printStackTrace();
             setJobState(jobId, JobMetadata.ERROR, e.getMessage());
             throw e;
         }
@@ -259,6 +261,10 @@ public class EdgeDegreesService {
                 jobMetadata.setProgress(1);
                 jobMetadata.setState(JobMetadata.DONE);
                 tx.commit();
+            } catch (Exception e) {
+                logger.debug("exception", e);
+                e.printStackTrace();
+                throw e;
             } finally {
                 // Clean up after ourselves.
                 fs.delete(tmpDir, true);
