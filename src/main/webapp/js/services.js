@@ -143,6 +143,13 @@ angular.module('dendrite.services', ['ngResource']).
     }).
     factory('Histogram', function($resource, $routeParams, $http, appConfig) {
       return {
+        searchFacets: function() {
+          return $http({
+              method: "GET",
+              url: '/dendrite/api/'+$routeParams.graphId+'/viz/elasticsearch/'+appConfig.elasticSearch.index+'/facets'
+          })
+        },
+
         display: function(queryTerm, queryFacet) {
           // default inputs
           if (queryTerm === undefined || queryTerm === '') {
