@@ -46,7 +46,6 @@ project="
 "
 
 curl \
-    -v \
     -u 'user:password' \
     -H 'Content-Type: application/json' \
     -XPOST \

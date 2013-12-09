@@ -49,8 +49,7 @@ case $name in
 esac
 
 curl \
-    -v \
     -u 'user:password' \
     -H 'Content-Type: application/json' \
     -XGET \
-    $url
+    "$url"
