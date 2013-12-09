@@ -332,7 +332,7 @@ public class EdgeDegreesService {
 
             logger.debug("Submitted job");
 
-            while (jobControl.allFinished()) {
+            while (!jobControl.allFinished()) {
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
@@ -352,7 +352,11 @@ public class EdgeDegreesService {
             List<Job> successfulJobs = jobControl.getSuccessfulJobs();
             List<Job> failedJobs = jobControl.getFailedJobs();
 
-            float totalProgress = ((float) jobsInProgress.size()) / ((float) successfulJobs.size());
+            if (jobsInProgress.isEmpty()) {
+                return;
+            }
+
+            float totalProgress = ((float) successfulJobs.size()) / ((float) jobsInProgress.size());
 
             for (Job hadoopJob: successfulJobs) {
                 JobID hadoopJobId = hadoopJob.getJobID();
@@ -390,6 +394,8 @@ public class EdgeDegreesService {
                     childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
                     childJobMetadata.setState(JobMetadata.ERROR);
                     tx.commit();
+
+                    jobMap.put(hadoopJobId, childJobMetadata.getId());
                 }
             }
 
@@ -422,6 +428,8 @@ public class EdgeDegreesService {
                     childJobMetadata.setState(JobMetadata.RUNNING);
                     childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
                     tx.commit();
+
+                    jobMap.put(hadoopJobId, childJobMetadata.getId());
                 }
 
                 setJobProgress(jobMap.get(hadoopJobId), progress);
