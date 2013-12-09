@@ -41,6 +41,9 @@ public class MetadataService {
 
         Resource resource = resourceLoader.getResource(pathToProperties);
         Configuration configuration = new PropertiesConfiguration(resource.getFile());
+        titanGraph = TitanFactory.open(configuration);
+
+        initializeGraph();
 
         framedGraphFactory = new FramedGraphFactory(
                 new GremlinGroovyModule(),
@@ -53,9 +56,6 @@ public class MetadataService {
                         //.withClass(HadoopJobMetadata.class)
                         .build()
         );
-        titanGraph = TitanFactory.open(configuration);
-
-        initializeGraph();
     }
 
     private void initializeGraph() {
@@ -178,8 +178,6 @@ public class MetadataService {
     }
 
     public MetadataTx newTransaction() {
-        TitanTransaction tx = titanGraph.newTransaction();
-        FramedTransactionalGraph<TitanTransaction> framedGraph = framedGraphFactory.create(tx);
-        return new MetadataTx(framedGraph);
+        return new MetadataTx(titanGraph, framedGraphFactory);
     }
 }
