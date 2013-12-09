@@ -7,6 +7,8 @@ import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseOutputFormat;
 import com.thinkaurelius.faunus.mapreduce.FaunusCompiler;
 import com.thinkaurelius.faunus.mapreduce.FaunusJobControl;
 import com.thinkaurelius.titan.core.TitanGraph;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -31,8 +33,6 @@ import java.util.*;
 @Service
 public class EdgeDegreesService {
 
-    final static String NAME = "degrees";
-
     Logger logger = LoggerFactory.getLogger(EdgeDegreesService.class);
 
     @Autowired
@@ -42,62 +42,146 @@ public class EdgeDegreesService {
     MetadataService metadataService;
 
     @Async
-    public void countDegrees(GraphMetadata graphMetadata, JobMetadata jobMetadata) throws Exception {
+    public void titanCountDegrees(GraphMetadata graphMetadata, JobMetadata jobMetadata) {
 
-        jobMetadata.setState(JobMetadata.State.RUNNING);
-        metadataService.commit();
+        logger.debug("titanCountDegrees: running job: " + jobMetadata.getId());
+
+        try {
+            String graphName = graphMetadata.getName();
+            TitanGraph titanGraph = (TitanGraph) application.getGraph(graphName);
+
+            if (titanGraph == null) {
+                logger.debug("titanCountDegrees: could not find titan graph", titanGraph);
+
+                jobMetadata.setState(JobMetadata.ERROR);
+                jobMetadata.setMessage("graph does not exist");
+                metadataService.commit();
+                return;
+            }
+
+            jobMetadata.setState(JobMetadata.RUNNING);
+            jobMetadata.setName("titan_degrees");
+            metadataService.commit();
+
+            // Make sure our indexes exist.
+            createIndices(titanGraph);
+            titanGraph.commit();
+
+            logger.debug("Starting degree counting analysis on " + graphName + " " + Thread.currentThread().getName());
+
+            TitanCounter titanCounter = new TitanCounter(titanGraph, jobMetadata);
+            titanCounter.run();
+        } catch (Exception e) {
+            logger.debug("titanCountDegrees: error: ", e);
+            e.printStackTrace();
+            jobMetadata.setState(JobMetadata.ERROR);
+            metadataService.commit();
+
+            throw e;
+        }
+
+        logger.debug("titanCountDegrees: finished job: " + jobMetadata.getId());
+    }
+
+    @Async
+    public void faunusCountDegrees(GraphMetadata graphMetadata, JobMetadata jobMetadata) throws Exception {
+
+        logger.debug("faunusCountDegrees: running job: " + jobMetadata.getId());
 
         String graphName = graphMetadata.getName();
-        TitanGraph graph = (TitanGraph) application.getGraph(graphName);
+        TitanGraph titanGraph = (TitanGraph) application.getGraph(graphName);
 
-        if (graph == null) {
-            jobMetadata.setState(JobMetadata.State.ERROR);
+        if (titanGraph == null) {
+            jobMetadata.setState(JobMetadata.ERROR);
             jobMetadata.setMessage("graph does not exist");
             metadataService.commit();
             return;
         }
 
+        jobMetadata.setState(JobMetadata.RUNNING);
+        jobMetadata.setName("faunus_degrees");
+        metadataService.commit();
+
         // Make sure our indexes exist.
-        createIndices(graph);
+        createIndices(titanGraph);
+        titanGraph.commit();
 
         logger.debug("Starting degree counting analysis on " + graphName + " " + Thread.currentThread().getName());
 
-        // Run the counter.
-        Counter counter = new Counter(graphMetadata, jobMetadata);
-        counter.run();
+        FaunusCounter faunusCounter = new FaunusCounter(graphMetadata, jobMetadata);
+        faunusCounter.run();
+
+        logger.debug("faunusCountDegrees: finished running job: " + jobMetadata.getId());
     }
 
     private void createIndices(TitanGraph graph) {
-        boolean createdIndices = false;
-
         if (graph.getType("in_degrees") == null) {
-            createdIndices = true;
-            graph.makeKey("in_degrees").dataType(Integer.class).indexed(Vertex.class).make();
+            graph.makeKey("in_degrees")
+                    .dataType(Integer.class)
+                    .indexed(Vertex.class)
+                    .make();
         }
 
         if (graph.getType("out_degrees") == null) {
-            createdIndices = true;
-            graph.makeKey("out_degrees").dataType(Integer.class).indexed(Vertex.class).make();
+            graph.makeKey("out_degrees")
+                    .dataType(Integer.class)
+                    .indexed(Vertex.class)
+                    .make();
         }
 
         if (graph.getType("degrees") == null) {
-            createdIndices = true;
-            graph.makeKey("degrees").dataType(Integer.class).indexed(Vertex.class).make();
-        }
-
-        if (createdIndices) {
-            graph.commit();
+            graph.makeKey("degrees")
+                    .dataType(Integer.class)
+                    .indexed(Vertex.class)
+                    .make();
         }
     }
 
-    private class Counter {
+    private class TitanCounter {
+        private TitanGraph titanGraph;
+        private JobMetadata jobMetadata;
+
+        public TitanCounter(TitanGraph titanGraph, JobMetadata jobMetadata) {
+            this.titanGraph = titanGraph;
+            this.jobMetadata = jobMetadata;
+        }
+
+        public void run() {
+
+            for (Vertex vertex: titanGraph.getVertices()) {
+                int inDegrees = 0;
+                int outDegrees = 0;
+
+                for (Edge edge: vertex.getEdges(Direction.IN)) {
+                    inDegrees += 1;
+                }
+
+                for (Edge edge: vertex.getEdges(Direction.OUT)) {
+                    outDegrees += 1;
+                }
+
+                vertex.setProperty("in_degrees", inDegrees);
+                vertex.setProperty("out_degrees", outDegrees);
+                vertex.setProperty("degrees", inDegrees + outDegrees);
+            }
+
+            titanGraph.commit();
+
+            jobMetadata.setState(JobMetadata.DONE);
+            jobMetadata.setProgress(1);
+
+            metadataService.commit();
+        }
+    }
+
+    private class FaunusCounter {
         private GraphMetadata graphMetadata;
         private JobMetadata jobMetadata;
         private Path tmpDir = createTempDir();
         private Map<JobID, JobMetadata> jobMap = new HashMap<>();
         private Set<JobID> doneJobs = new HashSet<>();
 
-        public Counter(GraphMetadata graphMetadata, JobMetadata jobMetadata) throws IOException {
+        public FaunusCounter(GraphMetadata graphMetadata, JobMetadata jobMetadata) throws IOException {
             this.graphMetadata = graphMetadata;
             this.jobMetadata = jobMetadata;
         }
@@ -116,7 +200,8 @@ public class EdgeDegreesService {
             logger.debug("EdgeDegreesJobMetadata import finished");
 
             jobMetadata.setProgress(1);
-            jobMetadata.setState(JobMetadata.State.DONE);
+            jobMetadata.setState(JobMetadata.DONE);
+
             metadataService.commit();
         }
 
@@ -189,7 +274,7 @@ public class EdgeDegreesService {
 
             logger.debug("Submitted job");
 
-            jobMetadata.setState(JobMetadata.State.RUNNING);
+            jobMetadata.setState(JobMetadata.RUNNING);
             metadataService.commit();
 
             while (jobControl.allFinished()) {
@@ -214,7 +299,7 @@ public class EdgeDegreesService {
 
                     JobMetadata hadoopJobMetadata = jobMap.get(jobId);
                     hadoopJobMetadata.setProgress(1);
-                    hadoopJobMetadata.setState(JobMetadata.State.DONE);
+                    hadoopJobMetadata.setState(JobMetadata.DONE);
                 }
             }
 
@@ -225,7 +310,7 @@ public class EdgeDegreesService {
                     doneJobs.add(jobId);
 
                     JobMetadata jobMetadata = jobMap.get(jobId);
-                    jobMetadata.setState(JobMetadata.State.ERROR);
+                    jobMetadata.setState(JobMetadata.ERROR);
                 }
             }
 

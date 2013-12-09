@@ -12,13 +12,19 @@ import com.tinkerpop.frames.modules.typedgraph.TypeValue;
 @TypeValue("job")
 public interface JobMetadata extends NamedMetadata {
 
-    enum State { WAITING, RUNNING, DONE, ERROR };
+    // frames doesn't seem to like enums...
+    //public enum State { WAITING, RUNNING, DONE, ERROR };
+
+    public static String WAITING = "WAITING";
+    public static String RUNNING = "RUNNING";
+    public static String DONE = "DONE";
+    public static String ERROR = "ERROR";
 
     @Property("state")
-    public State getState();
+    public String getState();
 
     @Property("state")
-    public void setState(State state);
+    public void setState(String state);
 
     @Property("progress")
     public float getProgress();
@@ -69,7 +75,7 @@ public interface JobMetadata extends NamedMetadata {
 
         @Initializer
         public void init() {
-            setState(State.WAITING);
+            setState(WAITING);
             setProgress(0);
         }
 

@@ -95,6 +95,7 @@ public class ProjectController {
         graphMetadata.setHostname(graph.getHostname());
         graphMetadata.setPort(graph.getPort());
         graphMetadata.setTablename(graph.getTablename());
+        graphMetadata.setProject(projectMetadata);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(builder.path("/{projectId}").buildAndExpand(projectMetadata.getId()).toUri());

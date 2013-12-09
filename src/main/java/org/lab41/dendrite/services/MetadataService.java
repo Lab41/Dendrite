@@ -137,7 +137,7 @@ public class MetadataService {
         // JobMetadata keys
         if (titanGraph.getType("state") == null) {
             titanGraph.makeKey("state")
-                    .dataType(JobMetadata.State.class)
+                    .dataType(String.class)
                     .indexed(Vertex.class)
                     .make();
         }

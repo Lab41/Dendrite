@@ -2,11 +2,6 @@
 
 set -e
 
-if [[ $# != 3 ]]; then
-    echo "id, format, and file must be provided" 2>&1
-    exit 1
-fi
-
 id="$1"
 format="$2"
 file="$3"
@@ -30,8 +25,7 @@ case $format in
 esac
 
 if [[ "$file" == "" ]]; then
-    echo "file must be provided" 2>&1
-    exit 1
+    file="-"
 fi
 
 curl \
