@@ -164,7 +164,7 @@ angular.module('dendrite.services', ['ngResource']).
           // query server
           $.ajax({
               method: "POST",
-              url: '/dendrite/api/'+$routeParams.graphId+'/viz/elasticsearch/'+appConfig.elasticSearch.index,
+              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.elasticSearch.index+'/'+appConfig.elasticSearch.name,
               data: JSON.stringify(inputJson)
           })
           .done(function(json) {
