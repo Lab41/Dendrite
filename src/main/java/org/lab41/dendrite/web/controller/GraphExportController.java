@@ -63,6 +63,7 @@ public class GraphExportController {
         MetadataTx tx = metadataService.newTransaction();
 
         if (result.hasErrors()) {
+            tx.rollback();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
