@@ -603,9 +603,12 @@ angular.module('dendrite.controllers', []).
     controller('FileUploadCtrl', function ($scope, $routeParams) {
         $scope.graphId = $routeParams.graphId;
         $scope.fileUploaded = false;
+        $scope.fileUploading = false;
 
         $scope.uploadFile = function(content, completed) {
+            $scope.fileUploading = true;
             if (completed) {
+                $scope.fileUploading = false;
                 $scope.fileUploaded = true;
                 if (content.status === "ok") {
                     $scope.uploadMessage = "file uploaded";
@@ -616,8 +619,42 @@ angular.module('dendrite.controllers', []).
             }
         }
     }).
-    controller('VizHistogramCtrl', function($scope, $location, Histogram) {
+    controller('GraphSaveCtrl', function ($scope, $routeParams, $http, GraphTransform) {
+        $scope.graphId = $routeParams.graphId;
+        $scope.fileSaved = false;
+        $scope.fileSaving = false;
+
+        $scope.saveFile = function() {
+          $scope.fileSaving = true;
+          GraphTransform.saveFile($scope.graphId, this.format)
+            .success(function(){
+                $scope.fileSaving = false;
+                $scope.fileSaved = true;
+                $scope.savedMessage = "Graph "+$scope.graphId+" saved";
+            })
+            .error(function(response){
+                $scope.fileSaved = true;
+                $scope.fileSaving = false;
+                $scope.savedMessage = "upload failed!";
+            });
+        };
+    }).
+    controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
+      $scope.searching = false;
+
+      Histogram.searchFacets()
+        .success(function(data) {
+          $scope.searchFacets = Object.keys(data[appConfig.elasticSearch.index].vertex.properties);
+        });
+
       $scope.visualize = function() {
-        Histogram.display($scope.query, $scope.facet);
+        $scope.searching = true;
+        Histogram.display($scope.query, $scope.facet)
+          .success(function() {
+            $scope.searching = false;
+          })
+          .error(function() {
+            $scope.searching = false;
+          });
       };
     });
