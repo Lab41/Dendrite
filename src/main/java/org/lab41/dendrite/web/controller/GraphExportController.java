@@ -23,6 +23,7 @@ import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 
 import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
+import org.lab41.dendrite.services.HistoryService;
 import org.lab41.dendrite.services.MetadataService;
 import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.web.beans.GraphExportBean;
@@ -54,6 +55,9 @@ public class GraphExportController {
 
     @Autowired
     MetadataService metadataService;
+
+    @Autowired
+    HistoryService historyService;
 
     @RequestMapping(value = "/api/graphs/{graphId}/file-export", method = RequestMethod.POST)
     public ResponseEntity<byte[]> export(@PathVariable String graphId,
@@ -119,4 +123,48 @@ public class GraphExportController {
         return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), headers, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/{graphName}/file-save", method = RequestMethod.POST)
+    public void save(@PathVariable String graphName, GraphExportBean exportItem, HttpServletResponse response, BindingResult result) {
+
+        JSONObject json = new JSONObject();
+
+        if (result.hasErrors()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        if (exportItem.getFormat() == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        Graph graph = application.getGraph(graphName);
+        if (graph == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        // extract the storage location for the history
+        String historyStorageLocation = historyService.getHistoryStorage();
+
+        String format = exportItem.getFormat();
+        try {
+
+            if (format.equalsIgnoreCase("GraphSON")) {
+                GraphSONWriter.outputGraph(graph, historyStorageLocation+"/"+graphName+".json");
+                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            } else if (format.equalsIgnoreCase("GraphML")) {
+                GraphMLWriter.outputGraph(graph, historyStorageLocation+"/"+graphName+".xml");
+                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            } else if (format.equalsIgnoreCase("GML")) {
+                GMLWriter.outputGraph(graph, historyStorageLocation+"/"+graphName+".gml");
+                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            } else {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
+        } catch (IOException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+    }
 }

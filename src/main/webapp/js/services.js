@@ -141,8 +141,15 @@ angular.module('dendrite.services', ['ngResource']).
           }
         };
     }).
-    factory('Histogram', function($resource, $routeParams, appConfig) {
+    factory('Histogram', function($resource, $routeParams, $http, appConfig) {
       return {
+        searchFacets: function() {
+          return $http({
+              method: "GET",
+              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.elasticSearch.index+'/'+appConfig.elastichSearch.name+'/facets'
+          })
+        },
+
         display: function(queryTerm, queryFacet) {
           // default inputs
           if (queryTerm === undefined || queryTerm === '') {
@@ -162,12 +169,12 @@ angular.module('dendrite.services', ['ngResource']).
                   };
 
           // query server
-          $.ajax({
+          return $http({
               method: "POST",
-              url: '/dendrite/api/'+$routeParams.graphId+'/viz/elasticsearch/'+appConfig.elasticSearch.index,
+              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.elasticSearch.index+'/'+appConfig.elasticSearch.name,
               data: JSON.stringify(inputJson)
           })
-          .done(function(json) {
+          .success(function(json) {
             var facets = json.facets.tags.terms;
 
             // helper functions to extract properties of object array
@@ -379,6 +386,20 @@ angular.module('dendrite.services', ['ngResource']).
                 isArray: false
             }
         });
+    }).
+    factory('GraphTransform', function($resource, $rootScope, $http) {
+        return {
+          saveFile: function(graphId, outputFormat) {
+            var payload = $.param({
+              format: outputFormat
+            });
+            var config = {
+              headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+            };
+
+            return $http.post('api/'+graphId+'/file-save', payload, config);
+          }
+        };
     }).
     factory('Vertex', function($resource) {
         return $resource('rexster-resource/graphs/:graphId/vertices/:vertexId', {
