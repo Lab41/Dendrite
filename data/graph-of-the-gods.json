@@ -79,19 +79,16 @@
             },
             {
                 "_inV": 20,
-                "_id": "6v-g-2G",
                 "_outV": 16,
                 "_label": "brother"
             },
             {
                 "_inV": 32,
-                "_id": "6x-g-2G",
                 "_outV": 16,
                 "_label": "brother"
             },
             {
                 "_inV": 4,
-                "_id": "6r-g-22",
                 "_outV": 16,
                 "_label": "father"
             },
@@ -104,19 +101,16 @@
             },
             {
                 "_inV": 16,
-                "_id": "6B-k-2G",
                 "_outV": 20,
                 "_label": "brother"
             },
             {
                 "_inV": 32,
-                "_id": "6D-k-2G",
                 "_outV": 20,
                 "_label": "brother"
             },
             {
                 "_inV": 28,
-                "_id": "6H-o-2a",
                 "_outV": 24,
                 "_label": "mother"
             },
@@ -146,7 +140,6 @@
             },
             {
                 "_inV": 16,
-                "_id": "6F-o-22",
                 "_outV": 24,
                 "_label": "father"
             },
@@ -159,25 +152,21 @@
             },
             {
                 "_inV": 44,
-                "_id": "6V-w-2y",
                 "_outV": 32,
                 "_label": "pet"
             },
             {
                 "_inV": 20,
-                "_id": "6R-w-2G",
                 "_outV": 32,
                 "_label": "brother"
             },
             {
                 "_inV": 16,
-                "_id": "6P-w-2G",
                 "_outV": 32,
                 "_label": "brother"
             },
             {
                 "_inV": 48,
-                "_id": "6X-I-2q",
                 "_outV": 44,
                 "_label": "lives"
             }
