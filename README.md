@@ -13,11 +13,14 @@ Install instructions
 ====================
 
 ```bash
-git clone https://github.com/Lab4/Dendrite.git
-cd Dendrite
-$TITAN/bin/gremlin.sh -e ./bin/initialize-graph.groovy
-hadoop -fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy
-MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=128m" mvn tomcat7:run -Pmaven.tomcat.port=8000
+% git clone https://github.com/Lab4/Dendrite.git
+% cd Dendrite
+% hadoop fs -mkdir -p dendrite/
+% hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
+% MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=128m" mvn tomcat7:run -Pmaven.tomcat.port=8000
+% pip install requests
+% ./bin/dendrite create-project hbase hbase ./data/init-graph-of-the-gods.groovy
+% ./bin/dendrite import-graph <graph-id> graphson ./data/graph-of-the-gods.json
 ```
 
 Required Dependencies
@@ -25,6 +28,8 @@ Required Dependencies
 
 - Java
 - Maven
+- Python
+- Python Pip
 
 Getting started
 ----------------
