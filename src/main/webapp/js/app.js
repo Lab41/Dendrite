@@ -95,6 +95,7 @@ angular.module('dendrite', [
 
     // add interceptor to app
     $httpProvider.responseInterceptors.push(interceptor);
+    $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
   }]).
   constant('appConfig', {
     elasticSearch: {index: "titan", fieldSize: 1000}

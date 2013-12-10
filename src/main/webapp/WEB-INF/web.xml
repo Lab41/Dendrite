@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.5"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3.0.xsd"
+         version="3.0">
 
+    <display-name>dendrite</display-name>
 
-    <display-name>lab41</display-name>
-
-    <description>Roo generated lab41 application</description>
+    <description>Roo generated dendrite application</description>
 
 
     <!-- Enable escaping of form submission contents -->
@@ -77,7 +78,9 @@
             <param-name>contextConfigLocation</param-name>
             <param-value>WEB-INF/spring/webmvc-config.xml</param-value>
         </init-param>
+
         <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
     </servlet>
 
     <servlet-mapping>
@@ -96,12 +99,11 @@
 
         <load-on-startup>1</load-on-startup>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>jerseyspring</servlet-name>
         <url-pattern>/rexster-resource/*</url-pattern>
     </servlet-mapping>
-
-
 
     <session-config>
         <session-timeout>10</session-timeout>
