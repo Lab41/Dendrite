@@ -8,7 +8,15 @@
         then be used within application context files in the form of
         ${propertyKey}.
     -->
-    <context:property-placeholder location="classpath:META-INF/spring/dev/*.properties"/>
+    <bean class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <!-- TODO: Figure out how to parameterize this based on the enviornment -->
+                <value>classpath:META-INF/spring/dev/*.properties</value>
+            </list>
+        </property>
+    </bean>
+
 
     <!--
         This declaration will cause Spring to locate every @Component,
