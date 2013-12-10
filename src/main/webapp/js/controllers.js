@@ -111,6 +111,26 @@ angular.module('dendrite.controllers', []).
         $scope.reloadGraph();
 
     }).
+    controller('GraphSaveCtrl', function ($scope, $routeParams, $http, GraphTransform) {
+        $scope.graphId = $routeParams.graphId;
+        $scope.fileSaved = false;
+        $scope.fileSaving = false;
+
+        $scope.saveFile = function() {
+          $scope.fileSaving = true;
+          GraphTransform.saveFile($scope.graphId, this.format)
+            .success(function(){
+                $scope.fileSaving = false;
+                $scope.fileSaved = true;
+                $scope.savedMessage = "Graph "+$scope.graphId+" saved";
+            })
+            .error(function(response){
+                $scope.fileSaved = true;
+                $scope.fileSaving = false;
+                $scope.savedMessage = "upload failed!";
+            });
+        };
+    }).
     controller('AnalyticsDetailCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // config
         $scope.activeAnalytics = [];
