@@ -352,12 +352,6 @@ public class EdgeDegreesService {
             List<Job> successfulJobs = jobControl.getSuccessfulJobs();
             List<Job> failedJobs = jobControl.getFailedJobs();
 
-            if (jobsInProgress.isEmpty()) {
-                return;
-            }
-
-            float totalProgress = ((float) successfulJobs.size()) / ((float) jobsInProgress.size());
-
             for (Job hadoopJob: successfulJobs) {
                 JobID hadoopJobId = hadoopJob.getJobID();
                 logger.debug("found successful hadoop job:", hadoopJobId.toString());
@@ -399,6 +393,15 @@ public class EdgeDegreesService {
                 }
             }
 
+            float totalProgress;
+
+            // Don't divide by zero if we don't have any jobs in progress.
+            if (jobsInProgress.isEmpty()) {
+                totalProgress = 1;
+            } else {
+                totalProgress = ((float) successfulJobs.size()) / ((float) jobsInProgress.size());
+            }
+
             Job hadoopRunningJob = jobControl.getRunningJob();
             if (hadoopRunningJob != null) {
                 JobID hadoopJobId = hadoopRunningJob.getJobID();
@@ -432,9 +435,16 @@ public class EdgeDegreesService {
                     jobMap.put(hadoopJobId, childJobMetadata.getId());
                 }
 
-                setJobProgress(jobMap.get(hadoopJobId), progress);
-                setJobProgress(jobId, totalProgress + (progress / ((float) jobsInProgress.size())));
+                String jobMetadataId = jobMap.get(hadoopJobId);
+                setJobProgress(jobMetadataId, progress);
+                totalProgress += (progress / ((float) jobsInProgress.size()));
+
+                if (!failedJobs.isEmpty()) {
+                    setJobState(jobMetadataId, JobMetadata.ERROR);
+                }
             }
+
+            setJobProgress(jobId, totalProgress);
 
             if (!failedJobs.isEmpty()) {
                 throw new Exception("hadoop job failed");

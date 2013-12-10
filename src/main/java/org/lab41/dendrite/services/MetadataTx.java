@@ -119,7 +119,7 @@ public class MetadataTx {
 
     public JobMetadata createJob(JobMetadata parentJobMetadata) {
         JobMetadata jobMetadata = getAutoStartTx().addVertex(null, JobMetadata.class);
-        //jobMetadata.setParentJob(parentJobMetadata);
+        jobMetadata.setParentJob(parentJobMetadata);
         parentJobMetadata.addChildJob(jobMetadata);
 
         return jobMetadata;

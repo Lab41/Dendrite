@@ -116,16 +116,20 @@ public class JobController {
     }
 
     private Map<String, Object> getJobMap(JobMetadata jobMetadata) {
-        Map<String, Object> project = new HashMap<>();
+        Map<String, Object> job = new HashMap<>();
 
         String id = jobMetadata.getId();
-        project.put("_id", id);
-        project.put("name", jobMetadata.getName());
-        project.put("state", jobMetadata.getState().toString());
-        project.put("progress", jobMetadata.getProgress());
-        project.put("msg", jobMetadata.getMessage());
-        project.put("mapreduceJobId", jobMetadata.getMapreduceJobId());
+        job.put("_id", id);
+        JobMetadata parentJobMetadata = jobMetadata.getParentJob();
+        if (parentJobMetadata != null) {
+            job.put("parentJob", parentJobMetadata.getId());
+        }
+        job.put("name", jobMetadata.getName());
+        job.put("state", jobMetadata.getState());
+        job.put("progress", jobMetadata.getProgress());
+        job.put("msg", jobMetadata.getMessage());
+        job.put("mapreduceJobId", jobMetadata.getMapreduceJobId());
 
-        return project;
+        return job;
     }
 }

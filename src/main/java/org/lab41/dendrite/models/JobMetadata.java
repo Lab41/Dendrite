@@ -44,32 +44,17 @@ public interface JobMetadata extends NamedMetadata {
     @Property("mapreduceJobId")
     public void setMapreduceJobId(String jobId);
 
-    /*
-    @JavaHandler
-    public float getTotalProgress();
-    */
-
-    @Adjacency(label = "dependsOn", direction = Direction.OUT)
+    @Adjacency(label = "childJob", direction = Direction.OUT)
     public Iterable<JobMetadata> getChildJobs();
 
-    @Adjacency(label = "dependsOn", direction = Direction.OUT)
+    @Adjacency(label = "childJob", direction = Direction.OUT)
     public void addChildJob(JobMetadata job);
 
-    /*
-    @Adjacency(label = "ownedByJob", direction = Direction.OUT)
-    public Iterable<JobMetadata> getParentJobs();
+    @Adjacency(label = "parentJob", direction = Direction.OUT)
+    public JobMetadata getParentJob();
 
-    @Adjacency(label = "ownedByJob", direction = Direction.OUT)
-    public void addParentJob(JobMetadata job);
-    */
-
-    /*
-    @Adjacency(label = "childJob", direction = Direction.OUT)
-    public Iterable<? extends JobMetadata> getChildJobs();
-
-    @Adjacency(label = "childJob", direction = Direction.OUT)
-    public void addChildJob(JobMetadata jobMetadata);
-    */
+    @Adjacency(label = "parentJob", direction = Direction.OUT)
+    public void setParentJob(JobMetadata job);
 
     public abstract class Impl implements JavaHandlerContext<Vertex>, JobMetadata {
 
@@ -78,12 +63,5 @@ public interface JobMetadata extends NamedMetadata {
             setState(WAITING);
             setProgress(0);
         }
-
-        /*
-        @Override
-        public float getTotalProgress() {
-            return getProgress();
-        }
-        */
     }
 }

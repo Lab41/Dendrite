@@ -156,22 +156,12 @@ public class MetadataService {
                     .make();
         }
 
-        if (titanGraph.getType("dependsOn") == null) {
-            titanGraph.makeLabel("dependsOn").oneToMany().make();
+        if (titanGraph.getType("childJob") == null) {
+            titanGraph.makeLabel("childJob").oneToMany().make();
         }
 
-        /*
-        if (titanGraph.getType("dependedOnBy") == null) {
-            titanGraph.makeLabel("dependedOnBy").manyToOne().make();
-        }
-        */
-
-        // HadoopJobMetadata keys
-        if (titanGraph.getType("jobid") == null) {
-            titanGraph.makeKey("jobid")
-                    .dataType(String.class)
-                    .indexed(Vertex.class)
-                    .make();
+        if (titanGraph.getType("parentJob") == null) {
+            titanGraph.makeLabel("parentJob").manyToOne().make();
         }
 
         titanGraph.commit();

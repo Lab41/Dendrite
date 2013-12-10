@@ -46,7 +46,7 @@ def print_rows(rows, headers=None, show_headers=True):
 
     for row in rows:
         for i, header in enumerate(headers):
-            value = row[header]
+            value = row.get(header)
             if value is not None:
                 value = str(value)
                 if sizes[i] < len(value):
@@ -66,7 +66,7 @@ def print_rows(rows, headers=None, show_headers=True):
 
     for row in rows:
         for i, header in enumerate(headers):
-            value = row[header]
+            value = row.get(header)
             if value is None:
                 sys.stdout.write(' ' * sizes[i])
                 sys.stdout.write(' ')
