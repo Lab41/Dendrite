@@ -1,4 +1,4 @@
-package org.lab41.services;
+package org.lab41.dendrite.services;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;

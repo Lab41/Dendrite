@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import org.lab41.services.HistoryService;
+import org.lab41.dendrite.services.HistoryService;
 
 import java.io.IOError;
 import java.io.IOException;
