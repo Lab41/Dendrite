@@ -197,7 +197,7 @@ public class ElasticSearchController {
     }
 
     @RequestMapping(value = "/api/{graphName}/viz/{indexName}/{esName}/facets", method = RequestMethod.GET)
-    public ResponseEntity<String> elasticSearchFacets(@RequestBody String body, @PathVariable String graphName, @PathVariable String indexName @PathVariable String esName) throws Exception {
+    public ResponseEntity<String> elasticSearchFacets(@RequestBody String body, @PathVariable String graphName, @PathVariable String indexName, @PathVariable String esName) throws Exception {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
