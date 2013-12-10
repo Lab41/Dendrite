@@ -146,7 +146,7 @@ angular.module('dendrite.services', ['ngResource']).
         searchFacets: function() {
           return $http({
               method: "GET",
-              url: '/dendrite/api/'+$routeParams.graphId+'/viz/elasticsearch/'+appConfig.elasticSearch.index+'/facets'
+              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.elasticSearch.index+'/'+appConfig.elastichSearch.name+'/facets'
           })
         },
 
@@ -171,7 +171,7 @@ angular.module('dendrite.services', ['ngResource']).
           // query server
           return $http({
               method: "POST",
-              url: '/dendrite/api/'+$routeParams.graphId+'/viz/elasticsearch/'+appConfig.elasticSearch.index,
+              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.elasticSearch.index+'/'+appConfig.elasticSearch.name,
               data: JSON.stringify(inputJson)
           })
           .success(function(json) {
