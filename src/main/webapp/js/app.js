@@ -97,7 +97,7 @@ angular.module('dendrite', [
     $httpProvider.responseInterceptors.push(interceptor);
   }]).
   constant('appConfig', {
-    elasticSearch: {index: "search", fieldSize: 1000}
+    elasticSearch: {index: "titan", fieldSize: 1000}
   }).
   run(['$rootScope', '$http', '$location', 'User', function(scope, $http, $location, User) {
     // store requests which failed due to 401 response.

@@ -619,8 +619,14 @@ angular.module('dendrite.controllers', []).
             }
         }
     }).
-    controller('VizHistogramCtrl', function($scope, $location, Histogram) {
+    controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
       $scope.searching = false;
+
+      Histogram.searchFacets()
+        .success(function(data) {
+          $scope.searchFacets = Object.keys(data[appConfig.elasticSearch.index].vertex.properties);
+        });
+
       $scope.visualize = function() {
         $scope.searching = true;
         Histogram.display($scope.query, $scope.facet)
