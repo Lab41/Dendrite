@@ -1,8 +1,6 @@
-package org.lab41.web.controller.viz;
+package org.lab41.dendrite.web.controller.viz;
 
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.diskstorage.es.ElasticSearchIndex;
-import com.thinkaurelius.titan.graphdb.database.StandardTitanGraph;
 import com.tinkerpop.blueprints.Graph;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -12,10 +10,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.HttpEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.lab41.faunus.AdjacencyFileOutputFormat;
-import org.lab41.rexster.DendriteRexsterApplication;
+import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
