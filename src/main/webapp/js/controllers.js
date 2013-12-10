@@ -639,10 +639,13 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
-    controller('VizHistogramCtrl', function($scope, $location, Histogram) {
+    controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
       $scope.searching = false;
 
-      $scope.searchFacets = Histogram.searchFacets();
+      Histogram.searchFacets()
+        .success(function(data) {
+          $scope.searchFacets = Object.keys(data[appConfig.elasticSearch.index].vertex.properties);
+        });
 
       $scope.visualize = function() {
         $scope.searching = true;
