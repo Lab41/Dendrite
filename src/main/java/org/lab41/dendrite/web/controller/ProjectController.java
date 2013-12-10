@@ -78,19 +78,18 @@ public class ProjectController {
                                                              BindingResult result,
                                                              UriComponentsBuilder builder) {
 
-        MetadataTx tx = metadataService.newTransaction();
-
         Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
             response.put("status", "error");
             response.put("msg", result.toString());
-            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         String name = item.getName();
         GraphBean graph = item.getGraph();
+
+        MetadataTx tx = metadataService.newTransaction();
 
         ProjectMetadata projectMetadata = tx.createProject();
         projectMetadata.setName(name);

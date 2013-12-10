@@ -60,14 +60,11 @@ public class GraphImportController {
                                                            @Valid GraphImportBean item,
                                                            BindingResult result) {
 
-        MetadataTx tx = metadataService.newTransaction();
-
         Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
             response.put("status", "error");
             response.put("msg", result.toString());
-            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
@@ -77,7 +74,9 @@ public class GraphImportController {
         logger.debug("receiving file:", file.getOriginalFilename());
         logger.debug("file format:", format);
 
+        MetadataTx tx = metadataService.newTransaction();
         GraphMetadata graphMetadata = tx.getGraph(graphId);
+
         if (graphMetadata == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph metadata '" + graphId + "'");
@@ -86,12 +85,12 @@ public class GraphImportController {
         }
 
         String graphName = graphMetadata.getName();
+        tx.commit();
 
         Graph graph = application.getGraph(graphName);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphName + "'");
-            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -105,20 +104,15 @@ public class GraphImportController {
             } else {
                 response.put("status", "error");
                 response.put("msg", "unknown format '" + format + "'");
-                tx.rollback();
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-        } catch(IOException err) {
+        } catch(IOException e) {
             response.put("status", "error");
-            response.put("msg", "exception: " + err.toString());
-            tx.rollback();
+            response.put("msg", "exception: " + e.toString());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         response.put("status", "ok");
-
-        // Commit must come after all graph access.
-        tx.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

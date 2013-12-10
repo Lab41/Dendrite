@@ -37,13 +37,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class GraphExportController {
@@ -64,32 +65,30 @@ public class GraphExportController {
                                          @Valid GraphExportBean item,
                                          BindingResult result) {
 
-        MetadataTx tx = metadataService.newTransaction();
-
         if (result.hasErrors()) {
-            tx.rollback();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        String format = item.getFormat();
-
+        MetadataTx tx = metadataService.newTransaction();
         GraphMetadata graphMetadata = tx.getGraph(graphId);
+
         if (graphMetadata == null) {
             tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         String graphName = graphMetadata.getName();
+        tx.commit();
+
         logger.debug("exporting graph '" + graphName + "'");
 
         Graph graph = application.getGraph(graphName);
         if (graph == null) {
-            tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
+        String format = item.getFormat();
         HttpHeaders headers = new HttpHeaders();
-
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         try {
@@ -109,62 +108,74 @@ public class GraphExportController {
 
                 GMLWriter.outputGraph(graph, byteArrayOutputStream);
             } else {
-                tx.rollback();
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
-            tx.rollback();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
-        // Commit must come after all graph access.
-        tx.commit();
 
         return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), headers, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/{graphName}/file-save", method = RequestMethod.POST)
-    public void save(@PathVariable String graphName, GraphExportBean exportItem, HttpServletResponse response, BindingResult result) {
+    @RequestMapping(value = "/api/graphs/{graphId}/file-save", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> save(@PathVariable String graphId,
+                                                    @Valid GraphExportBean item,
+                                                    BindingResult result) {
 
-        JSONObject json = new JSONObject();
+        Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            response.put("status", "error");
+            response.put("msg", result.toString());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        if (exportItem.getFormat() == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+        MetadataTx tx = metadataService.newTransaction();
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
+
+        if (graphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "cannot find graph metadata '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+
+        String graphName = graphMetadata.getName();
+        tx.commit();
+
+        logger.debug("exporting graph '" + graphName + "'");
 
         Graph graph = application.getGraph(graphName);
         if (graph == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            response.put("status", "error");
+            response.put("msg", "cannot find graph '" + graphName + "'");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         // extract the storage location for the history
         String historyStorageLocation = historyService.getHistoryStorage();
+        String format = item.getFormat();
 
-        String format = exportItem.getFormat();
         try {
-
             if (format.equalsIgnoreCase("GraphSON")) {
                 GraphSONWriter.outputGraph(graph, historyStorageLocation+"/"+graphName+".json");
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } else if (format.equalsIgnoreCase("GraphML")) {
                 GraphMLWriter.outputGraph(graph, historyStorageLocation+"/"+graphName+".xml");
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } else if (format.equalsIgnoreCase("GML")) {
                 GMLWriter.outputGraph(graph, historyStorageLocation+"/"+graphName+".gml");
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } else {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.put("status", "error");
+                response.put("msg", "unknown format '" + format + "'");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.put("status", "error");
+            response.put("msg", "exception: " + e.toString());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+        response.put("status", "ok");
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
