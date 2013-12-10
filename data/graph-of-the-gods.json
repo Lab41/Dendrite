@@ -1,0 +1,175 @@
+{
+    "graph": {
+        "mode": "NORMAL",
+        "vertices": [
+            {
+                "age": 10000,
+                "_id": 4,
+                "type": "titan",
+                "name": "saturn"
+            },
+            {
+                "_id": 8,
+                "type": "location",
+                "name": "sky"
+            },
+            {
+                "_id": 12,
+                "type": "location",
+                "name": "sea"
+            },
+            {
+                "age": 5000,
+                "_id": 16,
+                "type": "god",
+                "name": "jupiter"
+            },
+            {
+                "age": 4500,
+                "_id": 20,
+                "type": "god",
+                "name": "neptune"
+            },
+            {
+                "age": 30,
+                "_id": 24,
+                "type": "demigod",
+                "name": "hercules"
+            },
+            {
+                "age": 45,
+                "_id": 28,
+                "type": "human",
+                "name": "alcmene"
+            },
+            {
+                "age": 4000,
+                "_id": 32,
+                "type": "god",
+                "name": "pluto"
+            },
+            {
+                "_id": 36,
+                "type": "monster",
+                "name": "nemean"
+            },
+            {
+                "_id": 40,
+                "type": "monster",
+                "name": "hydra"
+            },
+            {
+                "_id": 44,
+                "type": "monster",
+                "name": "cerberus"
+            },
+            {
+                "_id": 48,
+                "type": "location",
+                "name": "tartarus"
+            }
+        ],
+        "edges": [
+            {
+                "_label": "lives",
+                "_inV": 8,
+                "reason": "loves fresh breezes",
+                "_outV": 16,
+                "_id": "6t-g-2q"
+            },
+            {
+                "_inV": 20,
+                "_outV": 16,
+                "_label": "brother"
+            },
+            {
+                "_inV": 32,
+                "_outV": 16,
+                "_label": "brother"
+            },
+            {
+                "_inV": 4,
+                "_outV": 16,
+                "_label": "father"
+            },
+            {
+                "_label": "lives",
+                "_inV": 12,
+                "reason": "loves waves",
+                "_outV": 20,
+                "_id": "6z-k-2q"
+            },
+            {
+                "_inV": 16,
+                "_outV": 20,
+                "_label": "brother"
+            },
+            {
+                "_inV": 32,
+                "_outV": 20,
+                "_label": "brother"
+            },
+            {
+                "_inV": 28,
+                "_outV": 24,
+                "_label": "mother"
+            },
+            {
+                "_label": "battled",
+                "_outV": 24,
+                "place": "point[38.1,23.7]",
+                "time": 1,
+                "_inV": 36,
+                "_id": "6J-o-2i"
+            },
+            {
+                "_label": "battled",
+                "_outV": 24,
+                "place": "point[37.7,23.9]",
+                "time": 2,
+                "_inV": 40,
+                "_id": "6L-o-2i"
+            },
+            {
+                "_label": "battled",
+                "_outV": 24,
+                "place": "point[39.0,22.0]",
+                "time": 12,
+                "_inV": 44,
+                "_id": "6N-o-2i"
+            },
+            {
+                "_inV": 16,
+                "_outV": 24,
+                "_label": "father"
+            },
+            {
+                "_label": "lives",
+                "_inV": 48,
+                "reason": "no fear of death",
+                "_outV": 32,
+                "_id": "6T-w-2q"
+            },
+            {
+                "_inV": 44,
+                "_outV": 32,
+                "_label": "pet"
+            },
+            {
+                "_inV": 20,
+                "_outV": 32,
+                "_label": "brother"
+            },
+            {
+                "_inV": 16,
+                "_outV": 32,
+                "_label": "brother"
+            },
+            {
+                "_inV": 48,
+                "_outV": 44,
+                "_label": "lives"
+            }
+        ]
+    }
+}

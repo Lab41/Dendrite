@@ -54,7 +54,10 @@ public class ElasticSearchController {
     DendriteRexsterApplication application;
 
     @RequestMapping(value = "/api/{graphName}/viz/{indexName}/{esName}", method = RequestMethod.POST)
-    public ResponseEntity<String> elasticSearch(@RequestBody String body, @PathVariable String graphName, @PathVariable String indexName) throws Exception {
+    public ResponseEntity<String> elasticSearch(@RequestBody String body,
+                                                @PathVariable String graphName,
+                                                @PathVariable String indexName,
+                                                @PathVariable String esName) throws Exception {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
@@ -109,40 +112,40 @@ public class ElasticSearchController {
         stringBuilderIndexName.append("storage..index..");
         stringBuilderIndexName.append(indexName);
         stringBuilderIndexName.append("..index-name");
-        String indexName = stringBuilderIndexName.toString();
+        String esIndexName = stringBuilderIndexName.toString();
 
         // check rexster keys
-        int flag = 0;
+        boolean flag = false;
         final Iterator<String> rexsterConfigurationKeys = conf.getKeys();
         while (rexsterConfigurationKeys.hasNext()) {
             String key = rexsterConfigurationKeys.next();
             if (key.equals(indexHost)) {
                 elasticSearchHost = conf.getString(key);
-                flag = 1;
+                flag = true;
             }
             else if (key.equals(localMode)) {
                 elasticSearchHost = "127.0.0.1";
-                flag = 1;
+                flag = true;
             }
         }
 
         // if it didn't find either index hostname or local-mode for the specified index
-        if (flag == 0) {
+        if (!flag) {
             json.put("status", "error");
             json.put("msg", "ElasticSearch index not found '" + indexName + "'");
             return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        }
 
         // get elasticsearch index name
-        flag = 0;
-        final Iterator<String> rexsterConfigurationKeys = conf.getKeys();
+        flag = false;
         while (rexsterConfigurationKeys.hasNext()) {
             String key = rexsterConfigurationKeys.next();
-            if (key.equals(indexName)) {
+            if (key.equals(esIndexName)) {
                 elasticSearchName = conf.getString(key);
-                flag = 1;
+                flag = true;
             }
         }
-        if (flag == 0) {
+        if (!flag) {
             elasticSearchName = "titan";
         }
 
@@ -197,7 +200,10 @@ public class ElasticSearchController {
     }
 
     @RequestMapping(value = "/api/{graphName}/viz/{indexName}/{esName}/facets", method = RequestMethod.GET)
-    public ResponseEntity<String> elasticSearchFacets(@RequestBody String body, @PathVariable String graphName, @PathVariable String indexName, @PathVariable String esName) throws Exception {
+    public ResponseEntity<String> elasticSearchFacets(@RequestBody String body,
+                                                      @PathVariable String graphName,
+                                                      @PathVariable String indexName,
+                                                      @PathVariable String esName) throws Exception {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
@@ -246,47 +252,53 @@ public class ElasticSearchController {
         stringBuilderLocalMode.append("..local-mode");
         String localMode = stringBuilderLocalMode.toString();
 
+        // build the index-name key
+        StringBuilder stringBuilderIndexName = new StringBuilder();
+        stringBuilderIndexName.append("storage..index..");
+        stringBuilderIndexName.append(indexName);
+        stringBuilderIndexName.append("..index-name");
+        String esIndexName = stringBuilderIndexName.toString();
+
         // check rexster keys
-        int flag = 0;
+        boolean flag = false;
         final Iterator<String> rexsterConfigurationKeys = conf.getKeys();
         while (rexsterConfigurationKeys.hasNext()) {
             String key = rexsterConfigurationKeys.next();
             if (key.equals(indexHost)) {
                 elasticSearchHost = conf.getString(key);
-                flag = 1;
+                flag = true;
             }
             else if (key.equals(localMode)) {
                 elasticSearchHost = "127.0.0.1";
-                flag = 1;
+                flag = true;
             }
         }
 
         // if it didn't find either index hostname or local-mode for the specified index
-        if (flag == 0) {
+        if (!flag) {
             json.put("status", "error");
             json.put("msg", "ElasticSearch index not found '" + indexName + "'");
             return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
         // get elasticsearch index name
-        flag = 0;
-        final Iterator<String> rexsterConfigurationKeys = conf.getKeys();
+        flag = false;
         while (rexsterConfigurationKeys.hasNext()) {
             String key = rexsterConfigurationKeys.next();
             if (key.equals(indexName)) {
-                elasticSearchName = conf.getString(key);
-                flag = 1;
+                esIndexName = conf.getString(key);
+                flag = true;
             }
         }
-        if (flag == 0) {
-            elasticSearchName = "titan";
+        if (!flag) {
+            esIndexName = "titan";
         }
 
         // build the elasticsearch url
         StringBuilder stringBuilderElasticSearchURL = new StringBuilder();
         stringBuilderElasticSearchURL.append("http://");
         stringBuilderElasticSearchURL.append(elasticSearchHost);
-        stringBuilderElasticSearchURL.append(":9200/"+elasticSearchName+"/_mapping");
+        stringBuilderElasticSearchURL.append(":9200/"+esIndexName+"/_mapping");
         String elasticSearchURL = stringBuilderElasticSearchURL.toString();
 
         // object for json response back into json

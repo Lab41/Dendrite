@@ -21,87 +21,99 @@ import com.tinkerpop.blueprints.util.io.gml.GMLReader;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLReader;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
 
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
+import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetadataTx;
+import org.lab41.dendrite.web.beans.GraphImportBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class GraphImportController {
 
+    static Logger logger = LoggerFactory.getLogger(GraphImportController.class);
+
     @Autowired
     DendriteRexsterApplication application;
 
-    @RequestMapping(value = "/api/{graphName}/file-import", method = RequestMethod.POST)
-    public ResponseEntity<String> importGraph(@PathVariable String graphName, GraphImportBean importItem, BindingResult result)
-        throws JSONException {
-        HttpHeaders responseHeaders = new HttpHeaders();
+    @Autowired
+    MetadataService metadataService;
 
-        // FIXME: We can uncomment this once https://github.com/twilson63/ngUpload/pull/61 lands.
-        //responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-        responseHeaders.setContentType(MediaType.TEXT_HTML);
+    @RequestMapping(value = "/api/graphs/{graphId}/file-import", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> importGraph(@PathVariable String graphId,
+                                                           @Valid GraphImportBean item,
+                                                           BindingResult result) {
 
-        JSONObject json = new JSONObject();
+        Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
-            json.put("status", "error");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+            response.put("status", "error");
+            response.put("msg", result.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        if (importItem.getFile() == null) {
-            json.put("status", "error");
-            json.put("msg", "missing 'file' field");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
-        }
-        System.err.println("filename: '" + importItem.getFile().getOriginalFilename() + "'");
+        String format = item.getFormat();
+        CommonsMultipartFile file = item.getFile();
 
-        if (importItem.getFormat() == null) {
-            json.put("status", "error");
-            json.put("msg", "missing 'format' field");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        logger.debug("receiving file:", file.getOriginalFilename());
+        logger.debug("file format:", format);
+
+        MetadataTx tx = metadataService.newTransaction();
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
+
+        if (graphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "cannot find graph metadata '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-        System.err.println("format: '" + importItem.getFormat());
+
+        String graphName = graphMetadata.getName();
+        tx.commit();
 
         Graph graph = application.getGraph(graphName);
         if (graph == null) {
-            json.put("status", "error");
-            json.put("msg", "unknown graph '" + graphName + "'");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+            response.put("status", "error");
+            response.put("msg", "cannot find graph '" + graphName + "'");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-        System.err.println("graph:" + graph);
 
-        String format = importItem.getFormat();
         try {
             if (format.equalsIgnoreCase("GraphSON")) {
-                GraphSONReader.inputGraph(graph, importItem.getFile().getInputStream());
+                GraphSONReader.inputGraph(graph, file.getInputStream());
             } else if (format.equalsIgnoreCase("GraphML")) {
-                GraphMLReader.inputGraph(graph, importItem.getFile().getInputStream());
+                GraphMLReader.inputGraph(graph, file.getInputStream());
             } else if (format.equalsIgnoreCase("GML")) {
-                GMLReader.inputGraph(graph, importItem.getFile().getInputStream());
+                GMLReader.inputGraph(graph, file.getInputStream());
             } else {
-                json.put("status", "error");
-                json.put("msg", "unknown format '" + format + "'");
-                return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+                response.put("status", "error");
+                response.put("msg", "unknown format '" + format + "'");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-        } catch(IOException err) {
-            json.put("status", "error");
-            json.put("msg", "exception: " + err.toString());
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        } catch(IOException e) {
+            response.put("status", "error");
+            response.put("msg", "exception: " + e.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        json.put("status", "ok");
-        return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
-    }
+        response.put("status", "ok");
 
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

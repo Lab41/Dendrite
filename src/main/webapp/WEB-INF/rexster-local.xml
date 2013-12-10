@@ -10,7 +10,7 @@
     </script-engines>
     <graphs>
         <graph>
-            <graph-name>dendrite-berkeleydb</graph-name>
+            <graph-name>berkeleydb</graph-name>
             <graph-type>com.thinkaurelius.titan.tinkerpop.rexster.TitanGraphConfiguration</graph-type>
             <graph-location>/tmp/dendrite/dendrite-berkeleydb</graph-location>
             <graph-read-only>false</graph-read-only>
@@ -25,7 +25,7 @@
             </extensions>
         </graph>
         <graph>
-            <graph-name>dendrite-hbase</graph-name>
+            <graph-name>hbase</graph-name>
             <graph-type>com.thinkaurelius.titan.tinkerpop.rexster.TitanGraphConfiguration</graph-type>
             <graph-location></graph-location>
             <graph-read-only>false</graph-read-only>

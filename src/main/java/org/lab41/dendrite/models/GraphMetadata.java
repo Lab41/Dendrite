@@ -3,30 +3,53 @@ package org.lab41.dendrite.models;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.frames.Adjacency;
 import com.tinkerpop.frames.Property;
-import com.tinkerpop.frames.annotations.gremlin.GremlinGroovy;
-import com.tinkerpop.frames.annotations.gremlin.GremlinParam;
-import com.tinkerpop.frames.modules.typedgraph.TypeField;
-import com.tinkerpop.gremlin.groovy.Gremlin;
+import com.tinkerpop.frames.modules.typedgraph.TypeValue;
 
-public interface GraphMetadata {
-    @Property("type")
-    public String getType();
+@TypeValue("graph")
+public interface GraphMetadata extends NamedMetadata {
 
-    @Property("type")
-    public void setType(String type);
+    @Property("backend")
+    public String getBackend();
 
-    @Property("name")
-    String getName();
+    @Property("backend")
+    public void setBackend(String backent);
 
-    @Property("name")
-    void setName(String name);
+    @Property("directory")
+    public String getDirectory();
 
-    @Adjacency(label = "job", direction = Direction.OUT)
-    Iterable<Job> getJobs();
+    @Property("directory")
+    public void setDirectory(String directory);
 
-    @GremlinGroovy("it.out('job').has('name', name)")
-    Iterable<Job> getJobsNamed(@GremlinParam("name") String name);
+    @Property("hostname")
+    public String getHostname();
 
-    @Adjacency(label = "job", direction = Direction.OUT)
-    Job addJob();
+    @Property("hostname")
+    public void setHostname(String hostname);
+
+    @Property("port")
+    public Integer getPort();
+
+    @Property("port")
+    public void setPort(Integer port);
+
+    @Property("tablename")
+    public String getTablename();
+
+    @Property("tablename")
+    public void setTablename(String tablename);
+
+    @Adjacency(label = "project", direction = Direction.OUT)
+    public ProjectMetadata getProject();
+
+    @Adjacency(label = "project", direction = Direction.OUT)
+    public void setProject(ProjectMetadata projectMetadata);
+
+    /*
+    public abstract class Impl implements JavaHandlerContext<Vertex>, GraphMetadata {
+
+        @Initializer
+        public void init() {
+        }
+    }
+    */
 }

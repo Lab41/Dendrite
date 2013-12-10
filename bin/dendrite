@@ -1,0 +1,383 @@
+#!/usr/bin/env python
+
+import argparse
+import getpass
+import json
+import requests
+import sys
+
+# ----------------------------------------------------------------------------
+
+# A function that converts a multilevel dictionary into a flat dictionary.
+def flatten_dict(d):
+    out_d = {}
+    path = []
+
+    def f(d):
+        for key, value in d.iteritems():
+            path.append(key)
+            if isinstance(value, dict):
+                f(value)
+            else:
+                out_d['.'.join(path)] = value
+            path.pop()
+
+    f(d)
+
+    return out_d
+
+# A simple function to print out some rows
+def print_rows(rows, headers=None, show_headers=True):
+    if len(rows) == 0:
+        return
+
+    # Lets make the output pretty for hierarchical rows.
+    rows = [flatten_dict(row) for row in rows]
+    
+    # If we didn't have some headers passed in, extract them from the dataset.
+    if headers is None:
+        headers = set()
+        for row in rows:
+            for header in row.iterkeys():
+                headers.add(header)
+        headers = sorted(headers)
+
+    sizes = [len(header) for header in headers]
+
+    for row in rows:
+        for i, header in enumerate(headers):
+            value = row.get(header)
+            if value is not None:
+                value = str(value)
+                if sizes[i] < len(value):
+                    sizes[i] = len(value)
+
+    # Show the headers if that's what the user wants.
+    if show_headers:
+        for i, header in enumerate(headers):
+            sys.stdout.write(header.ljust(sizes[i]))
+            sys.stdout.write(' ')
+        print
+
+        for size in sizes:
+            sys.stdout.write('=' * size)
+            sys.stdout.write(' ')
+        print
+
+    for row in rows:
+        for i, header in enumerate(headers):
+            value = row.get(header)
+            if value is None:
+                sys.stdout.write(' ' * sizes[i])
+                sys.stdout.write(' ')
+            else:
+                sys.stdout.write(str(value).ljust(sizes[i]))
+                sys.stdout.write(' ')
+        print
+
+# ----------------------------------------------------------------------------
+
+def create_project(args):
+    graph = {}
+    graph['name'] = args.name
+
+    if args.backend == 'berkeleydb':
+        graph['directory'] = '/tmp/dendrite/dendrite-' + args.name
+    elif args.backend == 'hbase':
+        graph['hostname'] = 'localhost'
+        graph['port'] = 2181
+        graph['tablename'] = 'dendrite-' + args.name
+    else:
+        print >> sys.stderr, 'unknown backend', args.backend
+        return 1
+
+    if args.script == '':
+        print >> sys.stderr, 'script cannot be empty'
+        return 1
+
+    project = {
+        'name': args.name,
+        'graph': graph,
+    }
+
+    # Create the project
+    print 'Creating the project...'
+    response = requests.post(args.url + '/api/projects',
+            data=json.dumps(project),
+            headers={'content-type': 'application/json'},
+            auth=(args.user, args.password))
+    response.raise_for_status()
+
+    data = response.json()
+    
+    print_rows([data['project']],
+            headers=['_id', 'name', 'current_graph'],
+            show_headers=args.show_headers)
+    print
+
+    if args.script:
+        args.id = data['project']['current_graph']
+        create_graph_indices(args)
+
+    return 0
+
+# ----------------------------------------------------------------------------
+
+def create_graph_indices(args):
+    print 'Creating the indices...'
+
+    url = '{}/rexster-resource/graphs/{}/tp/gremlin'.format(
+            args.url,
+            args.name)
+
+    response = requests.post(url,
+            data=json.dumps({'script': args.script.read()}),
+            headers={'content-type': 'application/json'},
+            auth=(args.user, args.password))
+    response.raise_for_status()
+
+    print 'done'
+
+    return 0
+
+# ----------------------------------------------------------------------------
+
+def show(path, name, args):
+    url = '{}/{}'.format(args.url, path)
+
+    response = requests.get(url,
+            auth=(args.user, args.password))
+    response.raise_for_status()
+
+    print_rows(response.json()[name],
+            show_headers=args.show_headers)
+
+    return 0
+
+def show_projects(args):
+    return show('/api/projects', 'projects', args)
+
+def show_graphs(args):
+    return show('/api/graphs', 'graphs', args)
+
+def show_jobs(args):
+    return show('/api/jobs', 'jobs', args)
+
+# ----------------------------------------------------------------------------
+
+def delete(path, name, args):
+    url = '{}/{}/{}'.format(args.url, path, args.id)
+
+    response = requests.delete(url,
+            auth=(args.user, args.password))
+    response.raise_for_status()
+
+    print 'project deleted'
+
+    return 0
+
+def delete_project(args):
+    return delete('/api/projects', 'project', args)
+
+def delete_graph(args):
+    return delete('/api/graphs', 'graph', args)
+
+def delete_job(args):
+    return delete('/api/jobs', 'job', args)
+
+# ----------------------------------------------------------------------------
+
+def import_graph(args):
+    url = '{}/api/graphs/{}/file-import'.format(args.url, args.id)
+
+    response = requests.post(url,
+            data={'format': args.format},
+            files={'file': args.file},
+            auth=(args.user, args.password))
+    response.raise_for_status()
+
+    print 'graph imported'
+
+    return 0
+
+def export_graph(args):
+    url = '{}/api/graphs/{}/file-export'.format(args.url, args.id)
+
+    response = requests.post(url,
+            data={'format': args.format},
+            auth=(args.user, args.password))
+    response.raise_for_status()
+
+    output_file = args.output_file or sys.stdout
+    output_file.write(response.content)
+    output_file.flush()
+
+    # It looks nicer if we add a trailing null when printing out to stdout.
+    if output_file is sys.stdout:
+        print
+
+    return 0
+
+# ----------------------------------------------------------------------------
+
+def run_job(args):
+    url = '{}/api/graphs/{}/analysis/{}'.format(
+            args.url,
+            args.id,
+            args.analysis)
+
+    response = requests.post(url,
+            headers={'content-type': 'application/json'},
+            auth=(args.user, args.password))
+    response.raise_for_status()
+
+    print_rows([response.json()])
+
+    return 0
+
+
+# ----------------------------------------------------------------------------
+
+def not_empty(string):
+    if string == '':
+        raise argparse.ArgumentTypeError('cannot be empty')
+    return string
+
+def output_or_stdout(string):
+    if string == '-':
+        return sys.stdout
+    return argparse.FileType('wb')(string)
+
+# ----------------------------------------------------------------------------
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-u', '--user',
+            help='the dendrite user. May include password after a ":"')
+    parser.add_argument('--password',
+            help='the dendrite password')
+    parser.add_argument('--url',
+            help='which server to use',
+            default='http://localhost:8000/dendrite')
+    parser.add_argument('--no-headers', '--nh',
+            dest='show_headers',
+            help='do not show headers',
+            action='store_false',
+            default=True)
+
+    subparsers = parser.add_subparsers(
+            help='sub-command help')
+
+    # Options for creating a project.
+    parser_create_project = subparsers.add_parser('create-project')
+    parser_create_project.add_argument('name',
+            type=not_empty)
+    parser_create_project.add_argument('backend',
+            type=not_empty,
+            choices=['berkeleydb', 'hbase'])
+    parser_create_project.add_argument('--script',
+            type=argparse.FileType('rb'))
+    parser_create_project.set_defaults(func=create_project)
+
+    # Options for creating graph indices.
+    parser_create_graph_indices = subparsers.add_parser('create-graph-indices')
+    parser_create_graph_indices.add_argument('name',
+            type=not_empty,
+            help='the name of the graph according to rexster')
+    parser_create_graph_indices.add_argument('script',
+            type=argparse.FileType('rb'))
+    parser_create_graph_indices.set_defaults(func=create_graph_indices)
+
+    # Options for showing projects.
+    parser_show_projects = subparsers.add_parser('projects')
+    parser_show_projects.set_defaults(func=show_projects)
+
+    # Options for showing graphs.
+    parser_show_graphs = subparsers.add_parser('graphs')
+    parser_show_graphs.set_defaults(func=show_graphs)
+
+    # Options for showing jobs.
+    parser_show_jobs = subparsers.add_parser('jobs')
+    parser_show_jobs.set_defaults(func=show_jobs)
+
+    # Options for deleting a project.
+    parser_delete_project = subparsers.add_parser('delete-project')
+    parser_delete_project.add_argument('id',
+            type=int)
+    parser_delete_project.set_defaults(func=delete_project)
+
+    # Options for deleting a graph.
+    parser_delete_graph = subparsers.add_parser('delete-graph')
+    parser_delete_graph.add_argument('id',
+            type=int)
+    parser_delete_graph.set_defaults(func=delete_graph)
+
+    # Options for deleting a job.
+    parser_delete_job = subparsers.add_parser('delete-job')
+    parser_delete_job.add_argument('id',
+            type=int)
+    parser_delete_job.set_defaults(func=delete_job)
+
+    # Options for importing a graph.
+    parser_import_graph = subparsers.add_parser('import-graph')
+    parser_import_graph.add_argument('id',
+            type=int)
+    parser_import_graph.add_argument('format',
+            type=lambda s: s.lower(),
+            choices=['graphson', 'graphml', 'gml'])
+    parser_import_graph.add_argument('file',
+            type=argparse.FileType('rb'))
+    parser_import_graph.set_defaults(func=import_graph)
+
+    # Options for exporting a graph.
+    parser_export_graph = subparsers.add_parser('export-graph')
+    parser_export_graph.add_argument('-o', '--output-file',
+            help='write to this file',
+            type=output_or_stdout)
+    parser_export_graph.add_argument('id',
+            type=int)
+    parser_export_graph.add_argument('format',
+            type=lambda s: s.lower(),
+            choices=['graphson', 'graphml', 'gml'])
+    parser_export_graph.set_defaults(func=export_graph)
+
+    # Options for running a job.
+    parser_run_job = subparsers.add_parser('run-job')
+    parser_run_job.add_argument('id',
+            type=int)
+    parser_run_job.add_argument('analysis',
+            type=lambda s: s.lower(),
+            choices=['titan-degrees', 'faunus-degrees'])
+    parser_run_job.set_defaults(func=run_job)
+
+    args = parser.parse_args()
+
+    # The username and password could be embedded in the user, so split them
+    # out.
+    if args.user is not None and ':' in args.user:
+        user, password = args.user.split(':', 1)
+        args.user = user
+        args.password = password
+
+    # If we didn't get the username or password, prompt until we get it.
+    while args.user is None or args.user == '':
+        sys.stdout.write('please enter in the username: ')
+        sys.stdout.flush()
+        args.user = sys.stdin.readline()
+
+    while args.password is None or args.password == '':
+        sys.stdout.write('please enter in the password: ')
+        sys.stdout.flush()
+        args.password = getpass.getpass()
+
+    try:
+        return args.func(args)
+    except requests.HTTPError, e:
+        print e
+        print e.response.content
+        return 1
+
+# ----------------------------------------------------------------------------
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,27 +1,24 @@
 package org.lab41.dendrite.web.controller.analysis;
 
-import com.thinkaurelius.titan.core.TitanGraph;
-
-import org.codehaus.jettison.json.JSONObject;
-import org.lab41.dendrite.models.Job;
-import org.lab41.dendrite.rexster.DendriteRexsterApplication;
+import org.lab41.dendrite.models.GraphMetadata;
+import org.lab41.dendrite.models.JobMetadata;
+import org.lab41.dendrite.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.services.analysis.EdgeDegreesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 public class EdgeDegreesController {
-
-    @Autowired
-    DendriteRexsterApplication application;
 
     @Autowired
     MetadataService metadataService;
@@ -29,103 +26,77 @@ public class EdgeDegreesController {
     @Autowired
     EdgeDegreesService edgeDegreesService;
 
-    @RequestMapping(value = "/api/{graphName}/analysis/degrees", method = RequestMethod.GET)
-    public ResponseEntity<String> degrees(@PathVariable String graphName) throws Exception {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+    @RequestMapping(value = "/api/graphs/{graphId}/analysis/titan-degrees", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> startJob(@PathVariable String graphId) throws Exception {
 
-        JSONObject json = new JSONObject();
+        MetadataTx tx = metadataService.newTransaction();
 
-        TitanGraph graph = (TitanGraph) application.getGraph(graphName);
+        Map<String, Object> response = new HashMap<>();
 
-        if (graph == null) {
-            json.put("status", "error");
-            json.put("msg", "unknown graph '" + graphName + "'");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
+        if (graphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "missing graph metadata '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        if (!(graph instanceof TitanGraph)) {
-            json.put("status", "error");
-            json.put("error", "graph is not a titan graph");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        ProjectMetadata projectMetadata = graphMetadata.getProject();
+        if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "missing project metadata for graph '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        Job job = metadataService.getJob(graphName, "degrees");
-        String status = job.getStatus();
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
 
-        if (status.equals("none")) {
-            status = "queued";
-            job.setStatus(status);
-            metadataService.commit();
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId());
 
-            edgeDegreesService.countDegrees(graphName, graph, job);
+        tx.commit();
 
-            json.put("status", status);
+        // We can't pass the values directly because they'll live in a separate thread.
+        edgeDegreesService.titanCountDegrees(graphMetadata.getId(), jobMetadata.getId());
 
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
-        } else {
-            json.put("status", "error");
-            json.put("error", "job is already running with status '" + status + "'");
-
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/{graphName}/analysis/degrees/status", method = RequestMethod.GET)
-    public ResponseEntity<String> status(@PathVariable String graphName) throws Exception {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+    @RequestMapping(value = "/api/graphs/{graphId}/analysis/faunus-degrees", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> startFaunusJob(@PathVariable String graphId) throws Exception {
 
-        JSONObject json = new JSONObject();
+        MetadataTx tx = metadataService.newTransaction();
 
-        TitanGraph graph = (TitanGraph) application.getGraph(graphName);
+        Map<String, Object> response = new HashMap<>();
 
-        if (graph == null) {
-            json.put("status", "error");
-            json.put("msg", "unknown graph '" + graphName + "'");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
+        if (graphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "missing graph metadata '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        if (!(graph instanceof TitanGraph)) {
-            json.put("status", "error");
-            json.put("error", "graph is not a titan graph");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        ProjectMetadata projectMetadata = graphMetadata.getProject();
+        if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "missing project metadata for graph '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        Job job = metadataService.getJob(graphName, "degrees");
-        json.put("status", job.getStatus());
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
 
-        return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId());
+
+        tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        edgeDegreesService.faunusCountDegrees(graphMetadata.getId(), jobMetadata.getId());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/api/{graphName}/analysis/degrees/cancel", method = RequestMethod.GET)
-    public ResponseEntity<String> cancel(@PathVariable String graphName) throws Exception {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-        JSONObject json = new JSONObject();
-
-        TitanGraph graph = (TitanGraph) application.getGraph(graphName);
-
-        if (graph == null) {
-            json.put("status", "error");
-            json.put("msg", "unknown graph '" + graphName + "'");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
-        }
-
-        if (!(graph instanceof TitanGraph)) {
-            json.put("status", "error");
-            json.put("error", "graph is not a titan graph");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
-        }
-
-        Job job = metadataService.getJob(graphName, "degrees");
-        job.setStatus("none");
-        metadataService.commit();
-
-        json.put("status", "none");
-
-        return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
-    }
-
 }
