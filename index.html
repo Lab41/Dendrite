@@ -43,9 +43,14 @@ Dendrite is a Lab41 exploration of ways to analyze, manipulate, version, and sha
 </ul><h1>
 <a name="install-instructions" class="anchor" href="#install-instructions"><span class="octicon octicon-link"></span></a>Install instructions</h1>
 
-<div class="highlight highlight-bash"><pre>git clone https://github.com/Lab4/Dendrite.git
-<span class="nb">cd </span>Dendrite
-mvn tomcat:run
+<div class="highlight highlight-bash"><pre>% git clone https://github.com/Lab4/Dendrite.git
+% <span class="nb">cd </span>Dendrite
+% hadoop fs -mkdir -p dendrite/
+% hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
+% <span class="nv">MAVEN_OPTS</span><span class="o">=</span><span class="s2">"-Xmx512m -XX:MaxPermSize=128m"</span> mvn tomcat7:run -Pmaven.tomcat.port<span class="o">=</span>8000
+% pip install requests
+% ./bin/dendrite create-project hbase hbase ./data/init-graph-of-the-gods.groovy
+% ./bin/dendrite import-graph &lt;graph-id&gt; graphson ./data/graph-of-the-gods.json
 </pre></div>
 
 <h2>
@@ -54,6 +59,8 @@ mvn tomcat:run
 <ul>
 <li>Java</li>
 <li>Maven</li>
+<li>Python</li>
+<li>Python Pip</li>
 </ul><h2>
 <a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting started</h2>
 
@@ -71,8 +78,8 @@ mvn tomcat:run
 <a name="related-repositories" class="anchor" href="#related-repositories"><span class="octicon octicon-link"></span></a>Related repositories</h1>
 
 <ul>
-<li><a href="http://lab41.github.io/graph-generators/">graph-generators</a></li>
 <li><a href="https://github.com/Lab41/MRKronecker">MRKronecker</a></li>
+<li><a href="http://lab41.github.io/graph-generators/">graph-generators</a></li>
 </ul><h1>
 <a name="contributing-to-dendrite" class="anchor" href="#contributing-to-dendrite"><span class="octicon octicon-link"></span></a>Contributing to Dendrite</h1>
 
