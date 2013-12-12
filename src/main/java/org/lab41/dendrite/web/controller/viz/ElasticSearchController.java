@@ -116,7 +116,7 @@ public class ElasticSearchController {
 
         // check rexster keys
         boolean flag = false;
-        final Iterator<String> rexsterConfigurationKeys = conf.getKeys();
+        Iterator<String> rexsterConfigurationKeys = conf.getKeys();
         while (rexsterConfigurationKeys.hasNext()) {
             String key = rexsterConfigurationKeys.next();
             if (key.equals(indexHost)) {
@@ -138,6 +138,7 @@ public class ElasticSearchController {
 
         // get elasticsearch index name
         flag = false;
+        rexsterConfigurationKeys = conf.getKeys();
         while (rexsterConfigurationKeys.hasNext()) {
             String key = rexsterConfigurationKeys.next();
             if (key.equals(esIndexName)) {
