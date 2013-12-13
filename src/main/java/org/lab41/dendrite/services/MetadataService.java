@@ -1,6 +1,5 @@
 package org.lab41.dendrite.services;
 
-import com.thinkaurelius.titan.core.TitanGraph;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.frames.FramedGraphFactory;
@@ -168,8 +167,8 @@ public class MetadataService {
         tx.commit();
     }
 
-    public TitanGraph getGraph(String id) {
-        TitanGraph graph = dendriteGraphFactory.getGraph(id);
+    public DendriteGraph getGraph(String id) {
+        DendriteGraph graph = dendriteGraphFactory.getGraph(id);
         if (graph == null) {
             // Check if we have a graph metadata for this id. If so, open up the graph.
 

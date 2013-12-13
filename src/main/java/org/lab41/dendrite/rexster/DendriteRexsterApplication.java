@@ -23,6 +23,7 @@ import com.tinkerpop.rexster.protocol.EngineConfiguration;
 import com.tinkerpop.rexster.protocol.EngineController;
 import com.tinkerpop.rexster.server.RexsterApplication;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.lab41.dendrite.graph.DendriteGraph;
 import org.lab41.dendrite.graph.DendriteGraphFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +52,16 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public Graph getGraph(String id) {
-        return graphFactory.getGraph(id).getTitanGraph();
+        return graphFactory.getGraph(id);
     }
 
     @Override
     public RexsterApplicationGraph getApplicationGraph(String id) {
-        return graphFactory.getGraph(id).getRexsterGraph();
+        DendriteGraph graph = graphFactory.getGraph(id);
+        if (graph == null) {
+            return null;
+        }
+        return graph.getRexsterGraph();
     }
 
     @Override

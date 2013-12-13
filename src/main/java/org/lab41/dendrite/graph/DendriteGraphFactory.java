@@ -96,15 +96,56 @@ public class DendriteGraphFactory {
     }
 
     public Set<String> getGraphNames() {
-        return graphs.keySet();
+        return getGraphNames(false);
+    }
+
+    public Set<String> getGraphNames(boolean includeSystemGraphs) {
+        if (includeSystemGraphs) {
+            return graphs.keySet();
+        } else {
+            Set<String> values = new HashSet<>();
+
+            for (Map.Entry<String, DendriteGraph> entry: graphs.entrySet()) {
+                // Filter out the system graphs.
+                if (!entry.getValue().isSystemGraph()) {
+                    values.add(entry.getKey());
+                }
+            }
+            return values;
+        }
     }
 
     public Collection<DendriteGraph> getGraphs() {
-        return graphs.values();
+        return getGraphs(false);
     }
 
-    public DendriteGraph getGraph(String name) {
-        return graphs.get(name);
+    public Collection<DendriteGraph> getGraphs(boolean includeSystemGraphs) {
+        if (includeSystemGraphs) {
+            return graphs.values();
+        } else {
+            List<DendriteGraph> values = new ArrayList<>();
+
+            for (Map.Entry<String, DendriteGraph> entry: graphs.entrySet()) {
+                // Filter out the system graphs.
+                if (!entry.getValue().isSystemGraph()) {
+                    values.add(entry.getValue());
+                }
+            }
+
+            return values;
+        }
+    }
+
+    public DendriteGraph getGraph(String id) {
+        return getGraph(id, false);
+    }
+
+    public DendriteGraph getGraph(String id, boolean includeSystemGraphs) {
+        DendriteGraph graph = graphs.get(id);
+        if (graph == null || (!includeSystemGraphs && graph.isSystemGraph())) {
+            return null;
+        }
+        return graph;
     }
 
     public DendriteGraph openGraph(String id) {

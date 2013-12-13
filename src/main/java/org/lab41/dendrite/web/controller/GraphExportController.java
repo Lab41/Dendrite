@@ -22,6 +22,7 @@ import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 
+import org.lab41.dendrite.graph.DendriteGraph;
 import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.lab41.dendrite.services.HistoryService;
@@ -68,7 +69,7 @@ public class GraphExportController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        TitanGraph graph = metadataService.getGraph(graphId);
+        DendriteGraph graph = metadataService.getGraph(graphId);
         if (graph == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -118,7 +119,7 @@ public class GraphExportController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        TitanGraph graph = metadataService.getGraph(graphId);
+        DendriteGraph graph = metadataService.getGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphId + "'");
