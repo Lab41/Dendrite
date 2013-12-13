@@ -23,8 +23,7 @@ import com.tinkerpop.rexster.protocol.EngineConfiguration;
 import com.tinkerpop.rexster.protocol.EngineController;
 import com.tinkerpop.rexster.server.RexsterApplication;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.lab41.dendrite.services.DendriteGraphFactory;
-import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.graph.DendriteGraphFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +43,6 @@ public class DendriteRexsterApplication implements RexsterApplication {
     private DendriteGraphFactory graphFactory;
 
     @Autowired
-    private MetadataService metadataService;
-
-    @Autowired
     public DendriteRexsterApplication(DendriteGraphFactory graphFactory) {
         this.graphFactory = graphFactory;
 
@@ -55,22 +51,12 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public Graph getGraph(String id) {
-        return metadataService.getGraph(id);
+        return graphFactory.getGraph(id).getTitanGraph();
     }
 
     @Override
-    public RexsterApplicationGraph getApplicationGraph(String graphName) {
-        Graph graph = getGraph(graphName);
-        if (graph == null) {
-            return null;
-        }
-
-        List<String> allowableNamespaces = new ArrayList<>();
-        allowableNamespaces.add("tp:gremlin");
-
-        List<HierarchicalConfiguration> extensionConfigurations = new ArrayList<>();
-
-        return new RexsterApplicationGraph(graphName, graph, allowableNamespaces, extensionConfigurations);
+    public RexsterApplicationGraph getApplicationGraph(String id) {
+        return graphFactory.getGraph(id).getRexsterGraph();
     }
 
     @Override

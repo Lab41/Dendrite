@@ -7,15 +7,13 @@ import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.modules.gremlingroovy.GremlinGroovyModule;
 import com.tinkerpop.frames.modules.javahandler.JavaHandlerModule;
 import com.tinkerpop.frames.modules.typedgraph.TypedGraphModuleBuilder;
+import org.lab41.dendrite.graph.DendriteGraph;
+import org.lab41.dendrite.graph.DendriteGraphFactory;
 import org.lab41.dendrite.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 @Service
 public class MetadataService {
@@ -25,7 +23,7 @@ public class MetadataService {
     static String METADATA_GRAPH_NAME = "metadata";
 
     private DendriteGraphFactory dendriteGraphFactory;
-    private TitanGraph metadataGraph;
+    private DendriteGraph metadataGraph;
     private FramedGraphFactory metadataFrameFactory;
 
     @Autowired
@@ -33,7 +31,7 @@ public class MetadataService {
         this.dendriteGraphFactory = dendriteGraphFactory;
 
         // Get or create the metadata graph.
-        this.metadataGraph = dendriteGraphFactory.openGraph(METADATA_GRAPH_NAME);
+        this.metadataGraph = dendriteGraphFactory.openSystemGraph(METADATA_GRAPH_NAME);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
         this.metadataFrameFactory = new FramedGraphFactory(
@@ -185,10 +183,6 @@ public class MetadataService {
         }
 
         return graph;
-    }
-
-    public void createGraph(String id) {
-        dendriteGraphFactory.getGraph(id);
     }
 
     public MetadataTx newTransaction() {
