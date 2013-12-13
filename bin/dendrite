@@ -128,7 +128,7 @@ def run_groovy(args):
 
     url = '{}/rexster-resource/graphs/{}/tp/gremlin'.format(
             args.url,
-            args.name)
+            args.id)
 
     response = requests.post(url,
             data=json.dumps({'script': args.script.read()}),
