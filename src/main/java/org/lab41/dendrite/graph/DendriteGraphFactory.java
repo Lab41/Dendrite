@@ -52,48 +52,7 @@ public class DendriteGraphFactory {
     @Value("${dendrite-graph-factory.storage.index.client-only:#{null}}")
     private String indexClientOnly;
 
-    private Map<String, Configuration> configs = new HashMap<>();
     private Map<String, DendriteGraph> graphs = new HashMap<>();
-
-    public Configuration getConfiguration(String name) {
-        Configuration config = configs.get(name);
-        if (config == null) {
-            config = new BaseConfiguration();
-            configs.put(name, config);
-
-            name = namePrefix + name;
-
-            Configuration storage = config.subset("storage");
-            storage.setProperty("backend", storageBackend);
-            storage.setProperty("read-only", false);
-
-            if (storageDirectory != null) {
-                String dir = (new File(storageDirectory, name)).getPath();
-                storage.setProperty("directory", dir);
-            }
-
-            storage.setProperty("hostname", storageHostname);
-            storage.setProperty("port", storagePort);
-
-            if (storageBackend.equals("hbase")) {
-                storage.setProperty("tablename", name);
-            }
-
-            Configuration index = storage.subset("index").subset("search");
-            index.setProperty("index-name", name);
-            index.setProperty("backend", indexBackend);
-            index.setProperty("hostname", indexHostname);
-            index.setProperty("client-only", indexClientOnly);
-            index.setProperty("local-mode", indexLocalMode);
-
-            if (indexDirectory != null) {
-                String dir = (new File(indexDirectory, name)).getPath();
-                index.setProperty("directory", dir);
-            }
-        }
-
-        return config;
-    }
 
     public Set<String> getGraphNames() {
         return getGraphNames(false);
@@ -149,24 +108,18 @@ public class DendriteGraphFactory {
     }
 
     public DendriteGraph openGraph(String id) {
-        DendriteGraph graph = graphs.get(id);
-        if (graph == null) {
-            TitanGraph titanGraph = openTitanGraph(id);
-            RexsterApplicationGraph rexsterGraph = openRexsterGraph(id, titanGraph);
-            graph = new DendriteGraph(id, titanGraph, rexsterGraph);
-
-            graphs.put(id, graph);
-        }
-
-        return graph;
+        return openGraph(id, false);
     }
 
-    public DendriteGraph openSystemGraph(String id) {
+    public DendriteGraph openGraph(String id, boolean systemGraph) {
         DendriteGraph graph = graphs.get(id);
         if (graph == null) {
-            TitanGraph titanGraph = openTitanGraph(id);
+            logger.debug("opening titan graph " + id + " with backend " + storageBackend + "");
+
+            Configuration configuration = getConfiguration(id);
+            TitanGraph titanGraph = TitanFactory.open(configuration);
             RexsterApplicationGraph rexsterGraph = openRexsterGraph(id, titanGraph);
-            graph = new DendriteGraph(id, titanGraph, rexsterGraph, true);
+            graph = new DendriteGraph(id, configuration, titanGraph, rexsterGraph, systemGraph);
 
             graphs.put(id, graph);
         }
@@ -180,12 +133,41 @@ public class DendriteGraphFactory {
         }
     }
 
-    private TitanGraph openTitanGraph(String name) {
-        Configuration configuration = getConfiguration(name);
+    private Configuration getConfiguration(String name) {
+        Configuration config = new BaseConfiguration();
 
-        logger.debug("opening titan graph " + name + " with backend " + storageBackend + "");
+        // Add our prefix to the name so we can keep the databases organized.
+        name = namePrefix + name;
 
-        return TitanFactory.open(configuration);
+        Configuration storage = config.subset("storage");
+        storage.setProperty("backend", storageBackend);
+        storage.setProperty("read-only", false);
+
+        if (storageDirectory != null) {
+            String dir = (new File(storageDirectory, name)).getPath();
+            storage.setProperty("directory", dir);
+        }
+
+        storage.setProperty("hostname", storageHostname);
+        storage.setProperty("port", storagePort);
+
+        if (storageBackend.equals("hbase")) {
+            storage.setProperty("tablename", name);
+        }
+
+        Configuration index = storage.subset("index").subset("search");
+        index.setProperty("index-name", name);
+        index.setProperty("backend", indexBackend);
+        index.setProperty("hostname", indexHostname);
+        index.setProperty("client-only", indexClientOnly);
+        index.setProperty("local-mode", indexLocalMode);
+
+        if (indexDirectory != null) {
+            String dir = (new File(indexDirectory, name)).getPath();
+            index.setProperty("directory", dir);
+        }
+
+        return config;
     }
 
     /// Create a rexster graph with gremlin enabled

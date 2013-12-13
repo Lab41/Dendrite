@@ -8,6 +8,7 @@ import com.thinkaurelius.faunus.mapreduce.FaunusCompiler;
 import com.thinkaurelius.faunus.mapreduce.FaunusJobControl;
 import com.thinkaurelius.titan.core.TitanException;
 import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.TitanTransaction;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
@@ -19,6 +20,7 @@ import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.JobStatus;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.lab41.dendrite.graph.DendriteGraph;
 import org.lab41.dendrite.models.*;
 import org.lab41.dendrite.rexster.DendriteRexsterApplication;
 import org.lab41.dendrite.services.MetadataService;
@@ -38,42 +40,39 @@ public class EdgeDegreesService {
     Logger logger = LoggerFactory.getLogger(EdgeDegreesService.class);
 
     @Autowired
-    DendriteRexsterApplication application;
-
-    @Autowired
     MetadataService metadataService;
 
     @Async
-    public void titanCountDegrees(String graphId, String jobId) throws Exception {
+    public void titanCountDegrees(DendriteGraph graph, String jobId) throws Exception {
 
         logger.debug("Starting Titan degree counting analysis on "
-                + graphId
+                + graph.getId()
                 + " job " + jobId
                 + " " + Thread.currentThread().getName());
 
         setJobName(jobId, "titan-degrees");
         setJobState(jobId, JobMetadata.RUNNING);
 
-        try {
-            MetadataTx tx = metadataService.newTransaction();
-            GraphMetadata graphMetadata = tx.getGraph(graphId);
-            if (graphMetadata == null) {
-                logger.debug("titanCountDegrees: could not find graph metadata", graphId);
-                setJobState(jobId, JobMetadata.ERROR, "graph does not exist");
-                return;
+        createIndices(graph);
+
+        TitanTransaction tx = graph.newTransaction();
+        for (Vertex vertex: tx.getVertices()) {
+            int inDegrees = 0;
+            int outDegrees = 0;
+
+            for (Edge edge: vertex.getEdges(Direction.IN)) {
+                inDegrees += 1;
             }
 
-            TitanGraph titanGraph = getTitanGraph(graphMetadata.getName());
-            tx.commit();
+            for (Edge edge: vertex.getEdges(Direction.OUT)) {
+                outDegrees += 1;
+            }
 
-            TitanCounter titanCounter = new TitanCounter(titanGraph, jobId);
-            titanCounter.run();
-        } catch (Exception e) {
-            logger.debug("titanCountDegrees: error: ", e);
-            e.printStackTrace();
-            setJobState(jobId, JobMetadata.ERROR, e.getMessage());
-            throw e;
+            vertex.setProperty("in_degrees", inDegrees);
+            vertex.setProperty("out_degrees", outDegrees);
+            vertex.setProperty("degrees", inDegrees + outDegrees);
         }
+        tx.commit();
 
         setJobState(jobId, JobMetadata.DONE);
 
@@ -81,29 +80,22 @@ public class EdgeDegreesService {
     }
 
     @Async
-    public void faunusCountDegrees(String graphId, String jobId) throws Exception {
+    public void faunusCountDegrees(DendriteGraph graph, String jobId) throws Exception {
 
         logger.debug("Starting Faunus degree counting analysis on "
-                + graphId
+                + graph.getId()
                 + " job " + jobId
                 + " " + Thread.currentThread().getName());
 
         setJobName(jobId, "faunus-degrees");
         setJobState(jobId, JobMetadata.RUNNING);
 
+        // Make sure the indices exist.
+        createIndices(graph);
+
         try {
-            MetadataTx tx = metadataService.newTransaction();
-            GraphMetadata graphMetadata = tx.getGraph(graphId);
-            JobMetadata jobMetadata = tx.getJob(jobId);
-
-            // Make sure the indices exist.
-            getTitanGraph(graphMetadata.getName());
-            tx.commit();
-
-            FaunusCounter faunusCounter = new FaunusCounter(graphId, jobId);
+            FaunusCounter faunusCounter = new FaunusCounter(graph, jobId);
             faunusCounter.run();
-
-            logger.debug("faunusCountDegrees: finished running job: " + jobMetadata.getId());
         } catch (Exception e) {
             logger.debug("faunusCountDegrees: error: ", e);
             e.printStackTrace();
@@ -162,76 +154,41 @@ public class EdgeDegreesService {
         }
     }
 
-    private TitanGraph getTitanGraph(String graphName) throws Exception {
-        TitanGraph graph = (TitanGraph) application.getGraph(graphName);
-        if (graph == null) {
-            throw new Exception("graph '" + graphName + "' does not exist");
-        }
+    private void createIndices(DendriteGraph graph) {
+        TitanTransaction tx = graph.newTransaction();
 
-        if (graph.getType("in_degrees") == null) {
-            graph.makeKey("in_degrees")
+        if (tx.getType("in_degrees") == null) {
+            tx.makeKey("in_degrees")
                     .dataType(Integer.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (graph.getType("out_degrees") == null) {
-            graph.makeKey("out_degrees")
+        if (tx.getType("out_degrees") == null) {
+            tx.makeKey("out_degrees")
                     .dataType(Integer.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (graph.getType("degrees") == null) {
-            graph.makeKey("degrees")
+        if (tx.getType("degrees") == null) {
+            tx.makeKey("degrees")
                     .dataType(Integer.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        return graph;
-    }
-
-    private class TitanCounter {
-        private TitanGraph titanGraph;
-        private String jobId;
-
-        public TitanCounter(TitanGraph titanGraph, String jobId) {
-            this.titanGraph = titanGraph;
-            this.jobId = jobId;
-        }
-
-        public void run() {
-
-            for (Vertex vertex: titanGraph.getVertices()) {
-                int inDegrees = 0;
-                int outDegrees = 0;
-
-                for (Edge edge: vertex.getEdges(Direction.IN)) {
-                    inDegrees += 1;
-                }
-
-                for (Edge edge: vertex.getEdges(Direction.OUT)) {
-                    outDegrees += 1;
-                }
-
-                vertex.setProperty("in_degrees", inDegrees);
-                vertex.setProperty("out_degrees", outDegrees);
-                vertex.setProperty("degrees", inDegrees + outDegrees);
-            }
-
-            titanGraph.commit();
-        }
+        tx.commit();
     }
 
     private class FaunusCounter {
-        private String graphId;
+        private DendriteGraph graph;
         private String jobId;
         private Map<JobID, String> jobMap = new HashMap<>();
         private Set<JobID> doneJobs = new HashSet<>();
 
-        public FaunusCounter(String graphId, String jobId) throws IOException {
-            this.graphId = graphId;
+        public FaunusCounter(DendriteGraph graph, String jobId) throws IOException {
+            this.graph = graph;
             this.jobId = jobId;
         }
 
@@ -272,36 +229,43 @@ public class EdgeDegreesService {
         }
 
         private FaunusPipeline exportGraphPipeline(FaunusGraph faunusGraph, Path tmpDir) {
-            MetadataTx tx = metadataService.newTransaction();
-            GraphMetadata graphMetadata = tx.getGraph(graphId);
+            org.apache.commons.configuration.Configuration configuration = graph.getConfiguration();
+
+            String backend = configuration.getString("storage.backend");
+            String hostname = configuration.getString("storage.hostname");
+            String port = configuration.getString("storage.port");
+            String tablename = configuration.getString("storage.tablename");
 
             faunusGraph.getConf().set("mapred.jar", "../faunus/target/faunus-0.4.1-Lab41-SNAPSHOT-job.jar");
 
             faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
-            faunusGraph.getConf().set("faunus.graph.input.titan.storage.backend", graphMetadata.getBackend());
-            faunusGraph.getConf().set("faunus.graph.input.titan.storage.hostname", graphMetadata.getHostname());
-            faunusGraph.getConf().setInt("faunus.graph.input.titan.storage.port", graphMetadata.getPort());
-            faunusGraph.getConf().set("faunus.graph.input.titan.storage.tablename", graphMetadata.getTablename());
+
+            faunusGraph.getConf().set("faunus.graph.input.titan.storage.backend", backend);
+            faunusGraph.getConf().set("faunus.graph.input.titan.storage.hostname", hostname);
+            faunusGraph.getConf().set("faunus.graph.input.titan.storage.port", port);
+            faunusGraph.getConf().set("faunus.graph.input.titan.storage.tablename", tablename);
 
             faunusGraph.setGraphOutputFormat(SequenceFileOutputFormat.class);
             faunusGraph.setSideEffectOutputFormat(TextOutputFormat.class);
             faunusGraph.setOutputLocation(tmpDir);
             faunusGraph.setOutputLocationOverwrite(true);
 
-            tx.commit();
-
             return (new FaunusPipeline(faunusGraph)).V();
         }
 
         private FaunusPipeline importGraphPipeline(FaunusGraph faunusGraph) {
-            MetadataTx tx = metadataService.newTransaction();
-            GraphMetadata graphMetadata = tx.getGraph(graphId);
+            org.apache.commons.configuration.Configuration configuration = graph.getConfiguration();
+
+            String backend = configuration.getString("storage.backend");
+            String hostname = configuration.getString("storage.hostname");
+            String port = configuration.getString("storage.port");
+            String tablename = configuration.getString("storage.tablename");
 
             faunusGraph.setGraphOutputFormat(TitanHBaseOutputFormat.class);
-            faunusGraph.getConf().set("faunus.graph.output.titan.storage.backend", graphMetadata.getBackend());
-            faunusGraph.getConf().set("faunus.graph.output.titan.storage.hostname", graphMetadata.getHostname());
-            faunusGraph.getConf().setInt("faunus.graph.output.titan.storage.port", graphMetadata.getPort());
-            faunusGraph.getConf().set("faunus.graph.output.titan.storage.tablename", graphMetadata.getTablename());
+            faunusGraph.getConf().set("faunus.graph.output.titan.storage.backend", backend);
+            faunusGraph.getConf().set("faunus.graph.output.titan.storage.hostname", hostname);
+            faunusGraph.getConf().set("faunus.graph.output.titan.storage.port", port);
+            faunusGraph.getConf().set("faunus.graph.output.titan.storage.tablename", tablename);
             faunusGraph.getConf().setBoolean("faunus.graph.output.titan.storage.read-only", false);
             faunusGraph.getConf().setBoolean("faunus.graph.output.titan.storage.batch-loading", false);
             faunusGraph.getConf().setBoolean("faunus.graph.output.titan.infer-schema", false);
@@ -316,8 +280,6 @@ public class EdgeDegreesService {
                             "it.out_degrees = it.outE().count()\n" +
                             "it.degrees = it.in_degrees + it.out_degrees\n" +
                             "}";
-
-            tx.commit();
 
             return (new FaunusPipeline(faunusGraph)).V().sideEffect(sideEffect);
         }

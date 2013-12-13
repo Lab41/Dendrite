@@ -4,6 +4,7 @@ import com.thinkaurelius.titan.core.*;
 import com.tinkerpop.blueprints.*;
 import com.tinkerpop.blueprints.Parameter;
 import com.tinkerpop.rexster.RexsterApplicationGraph;
+import org.apache.commons.configuration.Configuration;
 
 import java.util.Collection;
 import java.util.Set;
@@ -12,18 +13,28 @@ public class DendriteGraph implements TitanGraph {
 
     private String id;
 
+    private Configuration configuration;
+
     private TitanGraph titanGraph;
 
     private RexsterApplicationGraph rexsterGraph;
 
     private boolean systemGraph = false;
 
-    public DendriteGraph(String id, TitanGraph titanGraph, RexsterApplicationGraph rexsterGraph) {
-        this(id, titanGraph, rexsterGraph, false);
+    public DendriteGraph(String id,
+                         Configuration configuration,
+                         TitanGraph titanGraph,
+                         RexsterApplicationGraph rexsterGraph) {
+        this(id, configuration, titanGraph, rexsterGraph, false);
     }
 
-    public DendriteGraph(String id, TitanGraph titanGraph, RexsterApplicationGraph rexsterGraph, boolean systemGraph) {
+    public DendriteGraph(String id,
+                         Configuration configuration,
+                         TitanGraph titanGraph,
+                         RexsterApplicationGraph rexsterGraph,
+                         boolean systemGraph) {
         this.id = id;
+        this.configuration = configuration;
         this.titanGraph = titanGraph;
         this.rexsterGraph = rexsterGraph;
         this.systemGraph = systemGraph;
@@ -31,6 +42,10 @@ public class DendriteGraph implements TitanGraph {
 
     public String getId() {
         return id;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
     }
 
     public boolean isSystemGraph() {

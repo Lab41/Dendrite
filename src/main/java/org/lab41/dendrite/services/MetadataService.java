@@ -30,7 +30,7 @@ public class MetadataService {
         this.dendriteGraphFactory = dendriteGraphFactory;
 
         // Get or create the metadata graph.
-        this.metadataGraph = dendriteGraphFactory.openSystemGraph(METADATA_GRAPH_NAME);
+        this.metadataGraph = dendriteGraphFactory.openGraph(METADATA_GRAPH_NAME, true);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
         this.metadataFrameFactory = new FramedGraphFactory(
