@@ -146,7 +146,7 @@ angular.module('dendrite.services', ['ngResource']).
         searchFacets: function() {
           return $http({
               method: "GET",
-              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.elasticSearch.index+'/'+appConfig.elastichSearch.name+'/facets'
+              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.elasticSearch.index+'/'+appConfig.elasticSearch.name+'/facets'
           })
         },
 
