@@ -25,6 +25,7 @@ import com.tinkerpop.rexster.server.RexsterApplication;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.lab41.dendrite.graph.DendriteGraph;
 import org.lab41.dendrite.graph.DendriteGraphFactory;
+import org.lab41.dendrite.services.MetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,22 +43,24 @@ public class DendriteRexsterApplication implements RexsterApplication {
     private final long startTime = System.currentTimeMillis();
 
     private DendriteGraphFactory graphFactory;
+    private MetadataService metadataService;
 
     @Autowired
-    public DendriteRexsterApplication(DendriteGraphFactory graphFactory) {
+    public DendriteRexsterApplication(DendriteGraphFactory graphFactory, MetadataService metadataService) {
         this.graphFactory = graphFactory;
+        this.metadataService = metadataService;
 
         configureScriptEngine();
     }
 
     @Override
     public Graph getGraph(String id) {
-        return graphFactory.getGraph(id);
+        return metadataService.getGraph(id);
     }
 
     @Override
     public RexsterApplicationGraph getApplicationGraph(String id) {
-        DendriteGraph graph = graphFactory.getGraph(id);
+        DendriteGraph graph = metadataService.getGraph(id);
         if (graph == null) {
             return null;
         }
