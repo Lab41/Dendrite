@@ -40,11 +40,9 @@ public class MetadataService {
                 new GremlinGroovyModule(),
                 new JavaHandlerModule(),
                 new TypedGraphModuleBuilder()
-                        //.withClass(NamedMetadata.class)
                         .withClass(ProjectMetadata.class)
                         .withClass(GraphMetadata.class)
                         .withClass(JobMetadata.class)
-                                //.withClass(HadoopJobMetadata.class)
                         .build()
         );
 

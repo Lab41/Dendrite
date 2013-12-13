@@ -248,13 +248,13 @@ public class EdgeDegreesService {
                 FaunusPipeline exportPipeline =  exportGraphPipeline(faunusGraph, tmpDir);
                 runPipeline(exportPipeline);
 
-                logger.debug("EdgeDegreesJobMetadata export finished");
+                logger.debug("export finished");
 
                 faunusGraph = faunusGraph.getNextGraph();
                 FaunusPipeline importPipeline = importGraphPipeline(faunusGraph);
                 runPipeline(importPipeline);
 
-                logger.debug("EdgeDegreesJobMetadata import finished");
+                logger.debug("import finished");
 
                 MetadataTx tx = metadataService.newTransaction();
                 JobMetadata jobMetadata = tx.getJob(jobId);
