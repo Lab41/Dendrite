@@ -4,49 +4,17 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!--
-    <bean id="titanFactory" class="org.lab41.dendrite.services.TitanFactory">
-        <property name="backend" value="berkeleyje"/>
-        <constructor-arg ref="titanFactoryProperties"/>
+    <bean id="dendriteGraphFactory" class="org.lab41.dendrite.services.DendriteGraphFactory">
+        <property name="storageBackend" value="${dendrite-graph-factory.storage.backend}"/>
+        <property name="storageDirectory" value="${dendrite-graph-factory.storage.directory:#{null}}"/>
+        <property name="storageHostname" value="${dendrite-graph-factory.storage.hostname:#{null}}"/>
+        <property name="storagePort" value="${dendrite-graph-factory.storage.port:#{null}}"/>
+        <property name="indexBackend" value="${dendrite-graph-factory.storage.index.backend:#{null}}"/>
+        <property name="indexDirectory" value="${dendrite-graph-factory.storage.index.directory:#{null}}"/>
+        <property name="indexHostname" value="${dendrite-graph-factory.storage.index.hostname:#{null}}"/>
+        <property name="indexClientOnly" value="${dendrite-graph-factory.storage.index.client-only:#{null}}"/>
+        <property name="indexLocalMode" value="${dendrite-graph-factory.storage.index.local-mode:#{null}}"/>
     </bean>
-
-    <beans profile="dev">
-        <util:properties id="titanFactoryProperties" location="classpath:META-INF/spring/dev/dendrite-graph-factory.properties"/>
-    </beans>
-
-    <beans profile="prod">
-        <util:properties id="titanFactoryProperties" location="classpath:META-INF/spring/prod/dendrite-graph-factory.properties"/>
-    </beans>
-    -->
-
-    <!--
-<bean id="metadataService" class="org.lab41.dendrite.services.MetadataService">
-    <property name="properties" ref="metadataServiceProperties"/>
-    </bean>
-
-    <beans profile="dev">
-        <util:properties id="metadataServiceProperties" location="classpath:META-INF/spring/dev/metadata.properties"/>
-    </beans>
-
-    <beans profile="prod">
-        <util:properties id="metadataServiceProperties" location="classpath:META-INF/spring/dev/metadata.properties"/>
-    </beans>
-    -->
-
-    <!--
-    <beans profile="dev">
-
-        <bean id="metadataService" class="org.lab41.dendrite.services.MetadataService">
-
-        </bean>
-
-        <bean id="dendriteRexsterApplication" class="org.lab41.dendrite.rexster.DendriteRexsterApplication">
-
-        </bean>
-
-        <bean id="berkeleyDBTitanFactory" class="org.lab41.dendrite.services.BerkeleyDBTitanFactory">
-            <constructor-arg ref="foo"/>
-        </bean>
-    </beans>
     -->
 
 </beans>

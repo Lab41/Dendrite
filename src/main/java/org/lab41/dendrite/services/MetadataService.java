@@ -22,7 +22,7 @@ public class MetadataService {
 
     static Logger logger = LoggerFactory.getLogger(MetadataService.class);
 
-    static String METADATA_GRAPH_NAME = "dendrite-metadata";
+    static String METADATA_GRAPH_NAME = "metadata";
 
     private DendriteGraphFactory dendriteGraphFactory;
     private TitanGraph metadataGraph;
