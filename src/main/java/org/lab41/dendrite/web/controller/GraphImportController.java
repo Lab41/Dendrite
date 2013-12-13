@@ -16,6 +16,7 @@
 
 package org.lab41.dendrite.web.controller;
 
+import com.thinkaurelius.titan.core.TitanGraph;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.util.io.gml.GMLReader;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLReader;
@@ -50,9 +51,6 @@ public class GraphImportController {
     static Logger logger = LoggerFactory.getLogger(GraphImportController.class);
 
     @Autowired
-    DendriteRexsterApplication application;
-
-    @Autowired
     MetadataService metadataService;
 
     @RequestMapping(value = "/api/graphs/{graphId}/file-import", method = RequestMethod.POST)
@@ -74,23 +72,10 @@ public class GraphImportController {
         logger.debug("receiving file:", file.getOriginalFilename());
         logger.debug("file format:", format);
 
-        MetadataTx tx = metadataService.newTransaction();
-        GraphMetadata graphMetadata = tx.getGraph(graphId);
-
-        if (graphMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "cannot find graph metadata '" + graphId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        String graphName = graphMetadata.getName();
-        tx.commit();
-
-        Graph graph = application.getGraph(graphName);
+        TitanGraph graph = metadataService.getGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
-            response.put("msg", "cannot find graph '" + graphName + "'");
+            response.put("msg", "cannot find graph '" + graphId + "'");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 

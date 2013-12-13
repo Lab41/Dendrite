@@ -16,118 +16,163 @@
 
 package org.lab41.dendrite.rexster;
 
-import com.google.common.base.Preconditions;
+import com.codahale.metrics.MetricRegistry;
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.rexster.RexsterApplicationGraph;
-import com.tinkerpop.rexster.Tokens;
-import com.tinkerpop.rexster.config.GraphConfigurationContainer;
-import com.tinkerpop.rexster.config.GraphConfigurationException;
 import com.tinkerpop.rexster.protocol.EngineConfiguration;
 import com.tinkerpop.rexster.protocol.EngineController;
-import com.tinkerpop.rexster.server.AbstractMapRexsterApplication;
-import com.tinkerpop.rexster.server.RexsterProperties;
+import com.tinkerpop.rexster.server.RexsterApplication;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.lab41.dendrite.services.DendriteGraphFactory;
+import org.lab41.dendrite.services.MetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-/**
- * Initial cut at a "dendrite" version  of  {@link com.tinkerpop.rexster.server.XmlRexsterApplication}
- * <p/>
- * Cut and pasted from an older version of the XmlRexsterApplication. Does not have the dynamic graph reloading
- * capablities.
- *
- * @author kramachandran
- */
 @Service
-public class DendriteRexsterApplication extends AbstractMapRexsterApplication {
+public class DendriteRexsterApplication implements RexsterApplication {
 
     Logger logger = LoggerFactory.getLogger(DendriteRexsterApplication.class);
 
-    private RexsterProperties properties;
-    private Map<String, HierarchicalConfiguration> configMap;
+    private MetricRegistry metricRegistry;
 
-    @Autowired(required = true)
-    public DendriteRexsterApplication(@Value("${rexster_xml}") String pathToXML, ResourceLoader resourceLoader) {
+    private final long startTime = System.currentTimeMillis();
 
-        logger.debug("Path to XML: " + pathToXML);
-        Resource resource = resourceLoader.getResource(pathToXML);
+    private DendriteGraphFactory graphFactory;
 
-        if (resource == null || !resource.exists()) {
-            throw new RuntimeException("Unable to initialize RexsterApplicaton, Rexster xml configuration file is either null or does not exist. ");
+    @Autowired
+    private MetadataService metadataService;
 
-        } else {
-            XMLConfiguration xmlConfiguration = new XMLConfiguration();
-
-            try {
-                xmlConfiguration.load(resource.getInputStream());
-            } catch (Exception e) {
-                throw new RuntimeException(String.format(
-                        "Could not load %s properties file. Message: %s", pathToXML, e.getMessage()), e);
-            }
-
-            properties = new RexsterProperties(xmlConfiguration);
-            final List<HierarchicalConfiguration> graphConfigs = properties.getGraphConfigurations();
-            final GraphConfigurationContainer container;
-
-            try {
-                container = new GraphConfigurationContainer(graphConfigs);
-            } catch (GraphConfigurationException e) {
-                logger.error("GraphMetadata initialization fialed. Check rexster.xml", e);
-
-                // Failure to initialize the graphs should result in shutting down the whole system.
-                throw new RuntimeException("GraphMetadata Initialization failed");
-            }
-
-            graphs.putAll(container.getApplicationGraphs());
-
-            // There is unfortunately no way to look up the config for a graph, which makes a connection to Faunus
-            // difficult. So instead we'll cache all the configs so we can look things up.
-            configMap = new HashMap<String, HierarchicalConfiguration>();
-
-            for(Object graphConfig: graphConfigs) {
-                HierarchicalConfiguration config = (HierarchicalConfiguration) graphConfig;
-                String name = config.getString(Tokens.REXSTER_GRAPH_NAME, "");
-                Preconditions.checkArgument(!name.isEmpty());
-
-                configMap.put(name, config);
-            }
-        }
+    @Autowired
+    public DendriteRexsterApplication(DendriteGraphFactory graphFactory) {
+        this.graphFactory = graphFactory;
 
         configureScriptEngine();
     }
 
-    private void configureScriptEngine() {
-        // the EngineController needs to be configured statically before requests start serving so that it can
-        // properly construct ScriptEngine objects with the correct reset policy. allow scriptengines to be
-        // configured so that folks can drop in different gremlin flavors.
-        final List<EngineConfiguration> configuredScriptEngines = new ArrayList<EngineConfiguration>();
-        final List<HierarchicalConfiguration> configs = this.properties.getScriptEngines();
-        for(HierarchicalConfiguration config : configs) {
-            configuredScriptEngines.add(new EngineConfiguration(config));
+    @Override
+    public Graph getGraph(String id) {
+        return metadataService.getGraph(id);
+    }
+
+    @Override
+    public RexsterApplicationGraph getApplicationGraph(String graphName) {
+        Graph graph = getGraph(graphName);
+        if (graph == null) {
+            return null;
         }
 
-        EngineController.configure(configuredScriptEngines);
+        List<String> allowableNamespaces = new ArrayList<>();
+        allowableNamespaces.add("tp:gremlin");
+
+        List<HierarchicalConfiguration> extensionConfigurations = new ArrayList<>();
+
+        return new RexsterApplicationGraph(graphName, graph, allowableNamespaces, extensionConfigurations);
     }
 
-    public HierarchicalConfiguration getConfig(String graphName) {
-        return configMap.get(graphName);
+    @Override
+    public Set<String> getGraphNames() {
+        return graphFactory.getGraphNames();
     }
 
-    public HierarchicalConfiguration getStorageConfig(String graphName) {
-        return getConfig(graphName).configurationAt(Tokens.REXSTER_GRAPH_PROPERTIES);
-        //.configurationAt(GraphDatabaseConfiguration.STORAGE_NAMESPACE);
+    @Override
+    public MetricRegistry getMetricRegistry() {
+        if (metricRegistry == null) {
+            metricRegistry = new MetricRegistry();
+        }
+
+        return metricRegistry;
     }
 
-    // Begin Cut and Paste: TODO - Refactor to extend XmlRexsterApplication -------------------------------
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
 
+    @Override
+    public void stop() {
+        graphFactory.stop();
+    }
+
+    private void configureScriptEngine() {
+        // the EngineController needs to be configured statically before requests start serving so that it can
+        // properly construct ScriptEngine objects with the correct reset policy. allow script engines to be
+        // configured so that folks can drop in different gremlin flavors.
+
+        HierarchicalConfiguration config = new HierarchicalConfiguration();
+
+        config.setProperty("name", "gremlin-groovy");
+        config.setProperty("reset-threshold", "-1");
+
+        List<String> imports = new ArrayList<>();
+        imports.add("com.tinkerpop.gremlin.*");
+        imports.add("com.tinkerpop.gremlin.java.*");
+        imports.add("com.tinkerpop.gremlin.pipes.filter.*");
+        imports.add("com.tinkerpop.gremlin.pipes.sideeffect.*");
+        imports.add("com.tinkerpop.gremlin.pipes.transform.*");
+        imports.add("com.tinkerpop.blueprints.*");
+        imports.add("com.tinkerpop.blueprints.impls.*");
+        imports.add("com.tinkerpop.blueprints.impls.tg.*");
+        imports.add("com.tinkerpop.blueprints.impls.neo4j.*");
+        imports.add("com.tinkerpop.blueprints.impls.neo4j.batch.*");
+        imports.add("com.tinkerpop.blueprints.impls.orient.*");
+        imports.add("com.tinkerpop.blueprints.impls.orient.batch.*");
+        imports.add("com.tinkerpop.blueprints.impls.dex.*");
+        imports.add("com.tinkerpop.blueprints.impls.rexster.*");
+        imports.add("com.tinkerpop.blueprints.impls.sail.*");
+        imports.add("com.tinkerpop.blueprints.impls.sail.impls.*");
+        imports.add("com.tinkerpop.blueprints.util.*");
+        imports.add("com.tinkerpop.blueprints.util.io.*");
+        imports.add("com.tinkerpop.blueprints.util.io.gml.*");
+        imports.add("com.tinkerpop.blueprints.util.io.graphml.*");
+        imports.add("com.tinkerpop.blueprints.util.io.graphson.*");
+        imports.add("com.tinkerpop.blueprints.util.wrappers.*");
+        imports.add("com.tinkerpop.blueprints.util.wrappers.batch.*");
+        imports.add("com.tinkerpop.blueprints.util.wrappers.batch.cache.*");
+        imports.add("com.tinkerpop.blueprints.util.wrappers.event.*");
+        imports.add("com.tinkerpop.blueprints.util.wrappers.event.listener.*");
+        imports.add("com.tinkerpop.blueprints.util.wrappers.id.*");
+        imports.add("com.tinkerpop.blueprints.util.wrappers.partition.*");
+        imports.add("com.tinkerpop.blueprints.util.wrappers.readonly.*");
+        imports.add("com.tinkerpop.blueprints.oupls.sail.*");
+        imports.add("com.tinkerpop.blueprints.oupls.sail.pg.*");
+        imports.add("com.tinkerpop.blueprints.oupls.jung.*");
+        imports.add("com.tinkerpop.pipes.*");
+        imports.add("com.tinkerpop.pipes.branch.*");
+        imports.add("com.tinkerpop.pipes.filter.*");
+        imports.add("com.tinkerpop.pipes.sideeffect.*");
+        imports.add("com.tinkerpop.pipes.transform.*");
+        imports.add("com.tinkerpop.pipes.util.*");
+        imports.add("com.tinkerpop.pipes.util.iterators.*");
+        imports.add("com.tinkerpop.pipes.util.structures.*");
+        imports.add("org.apache.commons.configuration.*");
+        imports.add("com.thinkaurelius.titan.core.*");
+        imports.add("com.thinkaurelius.titan.core.attribute.*");
+        imports.add("com.thinkaurelius.titan.core.util.*");
+        imports.add("com.thinkaurelius.titan.example.*");
+        imports.add("org.apache.commons.configuration.*");
+        imports.add("com.tinkerpop.gremlin.Tokens.T");
+        imports.add("com.tinkerpop.gremlin.groovy.*");
+        config.setProperty("imports", imports);
+
+        List<String> staticImports = new ArrayList<>();
+        staticImports.add("com.tinkerpop.blueprints.Direction.*");
+        staticImports.add("com.tinkerpop.blueprints.TransactionalGraph$Conclusion.*");
+        staticImports.add("com.tinkerpop.blueprints.Compare.*");
+        staticImports.add("com.thinkaurelius.titan.core.attribute.Geo.*");
+        staticImports.add("com.thinkaurelius.titan.core.attribute.Text.*");
+        staticImports.add("com.thinkaurelius.titan.core.TypeMaker$UniquenessConsistency.*");
+        staticImports.add("com.tinkerpop.blueprints.Query$Compare.*");
+        config.setProperty("static-imports", staticImports);
+
+        EngineConfiguration engineConfiguration = new EngineConfiguration(config);
+
+        List<EngineConfiguration> engineConfigurations = new ArrayList<>();
+        engineConfigurations.add(engineConfiguration);
+
+        EngineController.configure(engineConfigurations);
+    }
 }

@@ -16,6 +16,7 @@
 
 package org.lab41.dendrite.web.controller;
 
+import com.thinkaurelius.titan.core.TitanGraph;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,9 +52,6 @@ import java.util.Map;
 public class GraphExportController {
 
     static Logger logger = LoggerFactory.getLogger(GraphExportController.class);
-
-    @Autowired
-    DendriteRexsterApplication application;
 
     @Autowired
     MetadataService metadataService;
@@ -69,23 +68,12 @@ public class GraphExportController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        MetadataTx tx = metadataService.newTransaction();
-        GraphMetadata graphMetadata = tx.getGraph(graphId);
-
-        if (graphMetadata == null) {
-            tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        String graphName = graphMetadata.getName();
-        tx.commit();
-
-        logger.debug("exporting graph '" + graphName + "'");
-
-        Graph graph = application.getGraph(graphName);
+        TitanGraph graph = metadataService.getGraph(graphId);
         if (graph == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        logger.debug("exporting graph '" + graphId + "'");
 
         String format = item.getFormat();
         HttpHeaders headers = new HttpHeaders();
@@ -127,30 +115,17 @@ public class GraphExportController {
         if (result.hasErrors()) {
             response.put("status", "error");
             response.put("msg", result.toString());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        MetadataTx tx = metadataService.newTransaction();
-        GraphMetadata graphMetadata = tx.getGraph(graphId);
-
-        if (graphMetadata == null) {
+        TitanGraph graph = metadataService.getGraph(graphId);
+        if (graph == null) {
             response.put("status", "error");
-            response.put("msg", "cannot find graph metadata '" + graphId + "'");
-            tx.rollback();
+            response.put("msg", "cannot find graph '" + graphId + "'");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        String graphName = graphMetadata.getName();
-        tx.commit();
-
-        logger.debug("exporting graph '" + graphName + "'");
-
-        Graph graph = application.getGraph(graphName);
-        if (graph == null) {
-            response.put("status", "error");
-            response.put("msg", "cannot find graph '" + graphName + "'");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        logger.debug("saving graph '" + graphId + "'");
 
         // extract the storage location for the history
         String historyStorageLocation = historyService.getHistoryStorage();
@@ -158,24 +133,27 @@ public class GraphExportController {
 
         try {
             if (format.equalsIgnoreCase("GraphSON")) {
-                GraphSONWriter.outputGraph(graph, historyStorageLocation+"/"+graphName+".json");
+                String path = new File(historyStorageLocation, graphId + ".json").getPath();
+                GraphSONWriter.outputGraph(graph, path);
             } else if (format.equalsIgnoreCase("GraphML")) {
-                GraphMLWriter.outputGraph(graph, historyStorageLocation+"/"+graphName+".xml");
+                String path = new File(historyStorageLocation, graphId + ".xml").getPath();
+                GraphMLWriter.outputGraph(graph, path);
             } else if (format.equalsIgnoreCase("GML")) {
-                GMLWriter.outputGraph(graph, historyStorageLocation+"/"+graphName+".gml");
+                String path = new File(historyStorageLocation, graphId + ".gml").getPath();
+                GMLWriter.outputGraph(graph, path);
             } else {
                 response.put("status", "error");
                 response.put("msg", "unknown format '" + format + "'");
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
             response.put("status", "error");
             response.put("msg", "exception: " + e.toString());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         response.put("status", "ok");
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 }

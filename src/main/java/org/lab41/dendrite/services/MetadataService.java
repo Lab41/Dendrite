@@ -1,51 +1,42 @@
 package org.lab41.dendrite.services;
 
-import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanTransaction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.frames.FramedTransactionalGraph;
 import com.tinkerpop.frames.FramedGraphFactory;
-import com.tinkerpop.frames.VertexFrame;
 import com.tinkerpop.frames.modules.gremlingroovy.GremlinGroovyModule;
 import com.tinkerpop.frames.modules.javahandler.JavaHandlerModule;
 import com.tinkerpop.frames.modules.typedgraph.TypedGraphModuleBuilder;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.lab41.dendrite.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class MetadataService {
 
     static Logger logger = LoggerFactory.getLogger(MetadataService.class);
 
-    private TitanGraph titanGraph;
-    private FramedGraphFactory framedGraphFactory;
+    static String METADATA_GRAPH_NAME = "dendrite-metadata";
 
-    @Autowired(required = true)
-    public MetadataService(@Value("${metadata-graph.properties}") String pathToProperties, ResourceLoader resourceLoader) throws IOException, ConfigurationException {
+    private DendriteGraphFactory dendriteGraphFactory;
+    private TitanGraph metadataGraph;
+    private FramedGraphFactory metadataFrameFactory;
 
-        logger.debug("Path to Properties: " + pathToProperties);
+    @Autowired
+    public MetadataService(DendriteGraphFactory dendriteGraphFactory) {
+        this.dendriteGraphFactory = dendriteGraphFactory;
 
-        Resource resource = resourceLoader.getResource(pathToProperties);
-        Configuration configuration = new PropertiesConfiguration(resource.getFile());
-        titanGraph = TitanFactory.open(configuration);
+        // Get or create the metadata graph.
+        this.metadataGraph = dendriteGraphFactory.openGraph(METADATA_GRAPH_NAME);
 
-        initializeGraph();
-
-        framedGraphFactory = new FramedGraphFactory(
+        // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
+        this.metadataFrameFactory = new FramedGraphFactory(
                 new GremlinGroovyModule(),
                 new JavaHandlerModule(),
                 new TypedGraphModuleBuilder()
@@ -53,15 +44,19 @@ public class MetadataService {
                         .withClass(ProjectMetadata.class)
                         .withClass(GraphMetadata.class)
                         .withClass(JobMetadata.class)
-                        //.withClass(HadoopJobMetadata.class)
+                                //.withClass(HadoopJobMetadata.class)
                         .build()
         );
+
+        createMetadataGraphKeys();
+        loadGraphs();
     }
 
-    private void initializeGraph() {
+
+    private void createMetadataGraphKeys() {
         // Metadata keys
-        if (titanGraph.getType("type") == null) {
-            titanGraph.makeKey("type")
+        if (metadataGraph.getType("type") == null) {
+            metadataGraph.makeKey("type")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .indexed(Edge.class)
@@ -69,16 +64,16 @@ public class MetadataService {
         }
 
         // NamedMetadata keys
-        if (titanGraph.getType("name") == null) {
-            titanGraph.makeKey("name")
+        if (metadataGraph.getType("name") == null) {
+            metadataGraph.makeKey("name")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .indexed(Edge.class)
                     .make();
         }
 
-        if (titanGraph.getType("typeAndName") == null) {
-            titanGraph.makeKey("typeAndName")
+        if (metadataGraph.getType("typeAndName") == null) {
+            metadataGraph.makeKey("typeAndName")
                     .dataType(String.class)
                     .unique()
                     .indexed(Vertex.class)
@@ -86,88 +81,119 @@ public class MetadataService {
         }
 
         // ProjectMetadata keys
-        if (titanGraph.getType("graphHead") == null) {
-            titanGraph.makeLabel("graphHead").oneToOne().make();
+        if (metadataGraph.getType("graphHead") == null) {
+            metadataGraph.makeLabel("graphHead").oneToOne().make();
         }
 
-        if (titanGraph.getType("ownsJob") == null) {
-            titanGraph.makeLabel("ownsJob").oneToMany().make();
+        if (metadataGraph.getType("ownsJob") == null) {
+            metadataGraph.makeLabel("ownsJob").oneToMany().make();
         }
 
-        if (titanGraph.getType("ownsJob") == null) {
-            titanGraph.makeLabel("ownsJob").oneToMany().make();
+        if (metadataGraph.getType("ownsJob") == null) {
+            metadataGraph.makeLabel("ownsJob").oneToMany().make();
         }
 
         // GraphMetadata keys
-        if (titanGraph.getType("backend") == null) {
-            titanGraph.makeKey("backend")
+        if (metadataGraph.getType("backend") == null) {
+            metadataGraph.makeKey("backend")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (titanGraph.getType("directory") == null) {
-            titanGraph.makeKey("directory")
+        if (metadataGraph.getType("directory") == null) {
+            metadataGraph.makeKey("directory")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (titanGraph.getType("hostname") == null) {
-            titanGraph.makeKey("hostname")
+        if (metadataGraph.getType("hostname") == null) {
+            metadataGraph.makeKey("hostname")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (titanGraph.getType("port") == null) {
-            titanGraph.makeKey("port")
+        if (metadataGraph.getType("port") == null) {
+            metadataGraph.makeKey("port")
                     .dataType(Integer.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (titanGraph.getType("tablename") == null) {
-            titanGraph.makeKey("tablename")
+        if (metadataGraph.getType("tablename") == null) {
+            metadataGraph.makeKey("tablename")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
         // JobMetadata keys
-        if (titanGraph.getType("state") == null) {
-            titanGraph.makeKey("state")
+        if (metadataGraph.getType("state") == null) {
+            metadataGraph.makeKey("state")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (titanGraph.getType("progress") == null) {
-            titanGraph.makeKey("progress")
+        if (metadataGraph.getType("progress") == null) {
+            metadataGraph.makeKey("progress")
                     .dataType(Float.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (titanGraph.getType("mapreduceJobId") == null) {
-            titanGraph.makeKey("mapreduceJobId")
+        if (metadataGraph.getType("mapreduceJobId") == null) {
+            metadataGraph.makeKey("mapreduceJobId")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (titanGraph.getType("childJob") == null) {
-            titanGraph.makeLabel("childJob").oneToMany().make();
+        if (metadataGraph.getType("childJob") == null) {
+            metadataGraph.makeLabel("childJob").oneToMany().make();
         }
 
-        if (titanGraph.getType("parentJob") == null) {
-            titanGraph.makeLabel("parentJob").manyToOne().make();
+        if (metadataGraph.getType("parentJob") == null) {
+            metadataGraph.makeLabel("parentJob").manyToOne().make();
         }
 
-        titanGraph.commit();
+        metadataGraph.commit();
+    }
+
+    private void loadGraphs() {
+        MetadataTx tx = newTransaction();
+
+        for(GraphMetadata graphMetadata: tx.getGraphs()) {
+            dendriteGraphFactory.openGraph(graphMetadata.getId());
+        }
+
+        tx.commit();
+    }
+
+    public TitanGraph getGraph(String id) {
+        TitanGraph graph = dendriteGraphFactory.getGraph(id);
+        if (graph == null) {
+            // Check if we have a graph metadata for this id. If so, open up the graph.
+
+            MetadataTx tx = newTransaction();
+            GraphMetadata graphMetadata = tx.getGraph(id);
+            if (graphMetadata != null) {
+                graph = dendriteGraphFactory.openGraph(id);
+            }
+
+            tx.commit();
+        }
+
+        return graph;
+    }
+
+    public void createGraph(String id) {
+        dendriteGraphFactory.getGraph(id);
     }
 
     public MetadataTx newTransaction() {
-        return new MetadataTx(titanGraph, framedGraphFactory);
+        return new MetadataTx(metadataGraph, metadataFrameFactory);
     }
 }

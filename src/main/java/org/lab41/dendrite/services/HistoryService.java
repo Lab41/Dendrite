@@ -23,6 +23,7 @@ public class HistoryService {
 
     Logger logger = LoggerFactory.getLogger(HistoryService.class);
 
+    /*
     @Autowired(required = true)
     public HistoryService(@Value("${history.properties}") String pathToProperties, ResourceLoader resourceLoader) throws IOException, ConfigurationException {
 
@@ -37,6 +38,7 @@ public class HistoryService {
         File file = new File(historyStorage);
         file.mkdirs();
     }
+    */
 
     public String getHistoryStorage() {
         return historyStorage;

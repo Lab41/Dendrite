@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!--
+    <bean id="titanFactory" class="org.lab41.dendrite.services.TitanFactory">
+        <property name="backend" value="berkeleyje"/>
+        <constructor-arg ref="titanFactoryProperties"/>
+    </bean>
+
+    <beans profile="dev">
+        <util:properties id="titanFactoryProperties" location="classpath:META-INF/spring/dev/dendrite-graph-factory.properties"/>
+    </beans>
+
+    <beans profile="prod">
+        <util:properties id="titanFactoryProperties" location="classpath:META-INF/spring/prod/dendrite-graph-factory.properties"/>
+    </beans>
+    -->
+
+    <!--
+<bean id="metadataService" class="org.lab41.dendrite.services.MetadataService">
+    <property name="properties" ref="metadataServiceProperties"/>
+    </bean>
+
+    <beans profile="dev">
+        <util:properties id="metadataServiceProperties" location="classpath:META-INF/spring/dev/metadata.properties"/>
+    </beans>
+
+    <beans profile="prod">
+        <util:properties id="metadataServiceProperties" location="classpath:META-INF/spring/dev/metadata.properties"/>
+    </beans>
+    -->
+
+    <!--
+    <beans profile="dev">
+
+        <bean id="metadataService" class="org.lab41.dendrite.services.MetadataService">
+
+        </bean>
+
+        <bean id="dendriteRexsterApplication" class="org.lab41.dendrite.rexster.DendriteRexsterApplication">
+
+        </bean>
+
+        <bean id="berkeleyDBTitanFactory" class="org.lab41.dendrite.services.BerkeleyDBTitanFactory">
+            <constructor-arg ref="foo"/>
+        </bean>
+    </beans>
+    -->
+
+</beans>
