@@ -12,15 +12,41 @@ Dendrite is a Lab41 exploration of ways to analyze, manipulate, version, and sha
 Install instructions
 ====================
 
-```bash
+1. Check out the code:
+
+```
 % git clone https://github.com/Lab4/Dendrite.git
 % cd Dendrite
+```
+
+2. Start the application.
+
+Dendrite has two run profiles. The first, which is the default, is the
+development profile. This uses Titan's BerkeleyDB backend and an embedded
+Elasticsearch to service all the requests. It can be launched with:
+
+```
+% ./bin/dendrite-admin start
+```
+
+To run Dendrite in production mode with HBase and an External Elasticsearch,
+launch dendrite with:
+
+```
 % hadoop fs -mkdir -p dendrite/
 % hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
-% MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=128m" mvn tomcat7:run -Dmaven.tomcat.port=8000
-% pip install requests
-% ./bin/dendrite create-project --script ./data/init-graph-of-the-gods.groovy <project-name>
+% DENDRITE_PROFILE=prod ./bin/dendrite-admin start
 ```
+
+3. Initialize a graph-of-the-gods example graph:
+
+```bash
+% pip install requests
+% ./bin/dendrite create-project --script ./data/init-graph-of-the-gods.groovy graph-of-the-gods
+```
+
+4. After the webserver is up and running browse to http://server.fqdn:8080/dendrite
+5. Login as a user with user/password or as an admin with admin/password
 
 Required Dependencies
 ---------------------
@@ -30,15 +56,16 @@ Required Dependencies
 - Python
 - Python Pip
 
-Getting started
-----------------
+Optional Dependencies
+---------------------
 
-1. After the webserver is up and running browse to http://server.fqdn:8080/dendrite
+- Hadoop
+- HBase
+- Elasticsearch
 
-2. Login as a user with user/password or as an admin with admin/password
 
-Currently supported graph formats 
-================================
+Currently supported import and export graph formats 
+===================================================
 
 - GML
 - GraphML
