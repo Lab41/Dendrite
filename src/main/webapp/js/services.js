@@ -141,12 +141,33 @@ angular.module('dendrite.services', ['ngResource']).
           }
         };
     }).
+    factory('ElasticSearch', function($resource, $routeParams, $http, appConfig) {
+        return {
+          search: function(queryTerm) {
+
+            // build elasticSearch query
+            var inputJson = {
+                    "query" : { "query_string" : {"query" : queryTerm} }
+                };
+
+            console.log(inputJson);
+
+            // query server
+            return $http({
+                method: "POST",
+                url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.titan.indexName+'/'+appConfig.elasticSearch.indexName,
+                data: JSON.stringify(inputJson)
+            });
+
+          }
+        };
+    }).
     factory('Histogram', function($resource, $routeParams, $http, appConfig) {
       return {
         searchFacets: function() {
           return $http({
               method: "GET",
-              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.elasticSearch.index+'/'+appConfig.elasticSearch.name+'/facets'
+              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.titan.indexName+'/'+appConfig.elasticSearch.indexName+'/facets'
           })
         },
 
@@ -377,6 +398,34 @@ angular.module('dendrite.services', ['ngResource']).
           },
         };
     }).
+    factory('Project', function($resource) {
+        return $resource('api/projects/:projectId', {
+            projectId: '@projectId'
+        }, {
+            query: {
+              method: 'GET',
+              isArray: false
+            },
+            delete: {
+              method: 'DELETE'
+            },
+            index: {
+              url: 'api/projects',
+              method: 'GET',
+              isArray: false
+            },
+            graphs: {
+              url: 'api/projects/:projectId/graphs',
+              method: 'GET',
+              isArray: false
+            },
+            create: {
+              url: 'api/projects',
+              method: 'POST',
+              isArray: false
+            }
+        });
+    }).
     factory('Graph', function($resource) {
         return $resource('rexster-resource/graphs/:graphId', {
             graphId: '@name'
@@ -384,10 +433,15 @@ angular.module('dendrite.services', ['ngResource']).
             query: {
                 method: 'GET',
                 isArray: false
+            },
+            index: {
+              url: 'api/graphs',
+              method: 'GET',
+              isArray: false
             }
         });
     }).
-    factory('GraphTransform', function($resource, $rootScope, $http) {
+    factory('GraphTransform', function($resource, $rootScope, $http, $q, Vertex, Edge) {
         return {
           saveFile: function(graphId, outputFormat) {
             var payload = $.param({
@@ -397,8 +451,30 @@ angular.module('dendrite.services', ['ngResource']).
               headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
             };
 
-            return $http.post('api/'+graphId+'/file-save', payload, config);
+            return $http.post('api/graphs/'+graphId+'/file-save', payload, config);
+          },
+          reloadGraph: function(graphId) {
+            var forceDirectedGraphData = {
+              vertices: $q.defer(),
+              edges: $q.defer(),
+            };
+
+            Vertex.query({graphId: graphId}, function(vertices) {
+              forceDirectedGraphData.vertices.resolve(vertices);
+            }, function() {
+              forceDirectedGraphData.vertices.reject();
+            });
+
+            Edge.query({graphId: graphId}, function(edges) {
+              forceDirectedGraphData.edges.resolve(edges);
+            }, function() {
+              forceDirectedGraphData.edges.reject();
+            });
+
+            return forceDirectedGraphData;
           }
+
+
         };
     }).
     factory('Vertex', function($resource) {

@@ -32,7 +32,7 @@
     <div class="span12">
       <label for="format">Upload a file to add to the network:</label>
       <div ng-controller="FileUploadCtrl">
-        <form ng-upload action="api/{{ graphId }}/file-import" upload-options-enable-controls>
+        <form ng-upload action="api/graphs/{{ graphId }}/file-import" upload-options-enable-controls>
           <select name="format" id="format" class="inline form-control" style="width:25%">
               <option selected>Select Format</option>
               <option value="GraphSON">GraphSON</option>
@@ -63,7 +63,7 @@
       <div class="span12">
           <label for="format">Download this graph:</label>
           <div>
-              <form action="api/{{graphId}}/file-export" method="POST">
+              <form action="api/graphs/{{graphId}}/file-export" method="POST">
                   <select name="format" id="format" class="inline form-control" style="width:25%">
                       <option selected>Select Format</option>
                       <option value="GraphSON">GraphSON</option>
