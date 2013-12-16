@@ -17,7 +17,7 @@ Install instructions
 % cd Dendrite
 % hadoop fs -mkdir -p dendrite/
 % hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
-% MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=128m" mvn tomcat7:run -Pmaven.tomcat.port=8000
+% MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=128m" mvn tomcat7:run -Dmaven.tomcat.port=8000
 % pip install requests
 % ./bin/dendrite create-project --script ./data/init-graph-of-the-gods.groovy hbase hbase
 ```
