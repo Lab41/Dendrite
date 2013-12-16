@@ -114,10 +114,14 @@ public class DendriteGraphFactory {
     public DendriteGraph openGraph(String id, boolean systemGraph) {
         DendriteGraph graph = graphs.get(id);
         if (graph == null) {
-            logger.debug("opening titan graph " + id + " with backend " + storageBackend + "");
-
             Configuration configuration = getConfiguration(id);
+
+            logger.debug("opening titan graph " + id + " with backend " + storageBackend);
+
             TitanGraph titanGraph = TitanFactory.open(configuration);
+
+            logger.debug("finished opening titan graph " + id);
+
             RexsterApplicationGraph rexsterGraph = openRexsterGraph(id, titanGraph);
             graph = new DendriteGraph(id, configuration, titanGraph, rexsterGraph, systemGraph);
 
