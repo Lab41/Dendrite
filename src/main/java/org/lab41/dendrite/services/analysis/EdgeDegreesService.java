@@ -201,17 +201,20 @@ public class EdgeDegreesService {
             fs.deleteOnExit(tmpDir);
 
             try {
-                FaunusGraph faunusGraph = new FaunusGraph();
-                FaunusPipeline exportPipeline =  exportGraphPipeline(faunusGraph, tmpDir);
-                runPipeline(exportPipeline);
 
-                logger.debug("export finished");
+                FaunusGraph faunusGraph = new FaunusGraph();
+                FaunusPipeline exportPipeline = exportGraphPipeline(faunusGraph, tmpDir);
+
+                logger.debug("starting export of '" + graph.getId() + "'");
+                runPipeline(exportPipeline);
+                logger.debug("finished export of '" + graph.getId() + "'");
 
                 faunusGraph = faunusGraph.getNextGraph();
                 FaunusPipeline importPipeline = importGraphPipeline(faunusGraph);
-                runPipeline(importPipeline);
 
-                logger.debug("import finished");
+                logger.debug("starting import of '" + graph.getId() + "'");
+                runPipeline(importPipeline);
+                logger.debug("finished import of '" + graph.getId() + "'");
 
                 MetadataTx tx = metadataService.newTransaction();
                 JobMetadata jobMetadata = tx.getJob(jobId);
@@ -229,21 +232,31 @@ public class EdgeDegreesService {
         }
 
         private FaunusPipeline exportGraphPipeline(FaunusGraph faunusGraph, Path tmpDir) {
-            org.apache.commons.configuration.Configuration configuration = graph.getConfiguration();
-
-            String backend = configuration.getString("storage.backend");
-            String hostname = configuration.getString("storage.hostname");
-            String port = configuration.getString("storage.port");
-            String tablename = configuration.getString("storage.tablename");
-
-            faunusGraph.getConf().set("mapred.jar", "../faunus/target/faunus-0.4.1-Lab41-SNAPSHOT-job.jar");
+            org.apache.commons.configuration.Configuration config = graph.getConfiguration();
 
             faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
 
-            faunusGraph.getConf().set("faunus.graph.input.titan.storage.backend", backend);
-            faunusGraph.getConf().set("faunus.graph.input.titan.storage.hostname", hostname);
-            faunusGraph.getConf().set("faunus.graph.input.titan.storage.port", port);
-            faunusGraph.getConf().set("faunus.graph.input.titan.storage.tablename", tablename);
+            faunusGraph.getConf().set("mapred.jar", "../faunus/target/faunus-0.4.1-Lab41-SNAPSHOT-job.jar");
+
+            Configuration faunusConfig = faunusGraph.getConf();
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.backend", config.getString("storage.backend", null));
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.hostname", config.getString("storage.hostname", null));
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.port", config.getString("storage.port", null));
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.tablename", config.getString("storage.tablename", null));
+
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.backend", config.getString("storage.index.search.backend", null));
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.client-only", config.getString("storage.index.search.client-only", null));
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.cluster-name", config.getString("storage.index.search.cluster-name", null));
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.directory", config.getString("storage.index.search.directory", null));
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.hostname", config.getString("storage.index.search.hostname", null));
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.index-name", config.getString("storage.index.search.index-name", null));
+            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.local-mode", config.getString("storage.index.search.local-mode", null));
+
+            // Filter out all the edges
+            faunusGraph.getConf().set("faunus.graph.input.vertex-query-filter", "v.query().limit(0)");
+
+            //faunusGraph.getConf().set("mapred.job.tracker", "local");
+            //faunusGraph.getConf().set("fs.default.name", "local");
 
             faunusGraph.setGraphOutputFormat(SequenceFileOutputFormat.class);
             faunusGraph.setSideEffectOutputFormat(TextOutputFormat.class);
@@ -254,25 +267,28 @@ public class EdgeDegreesService {
         }
 
         private FaunusPipeline importGraphPipeline(FaunusGraph faunusGraph) {
-            org.apache.commons.configuration.Configuration configuration = graph.getConfiguration();
-
-            String backend = configuration.getString("storage.backend");
-            String hostname = configuration.getString("storage.hostname");
-            String port = configuration.getString("storage.port");
-            String tablename = configuration.getString("storage.tablename");
+            org.apache.commons.configuration.Configuration config = graph.getConfiguration();
 
             faunusGraph.setGraphOutputFormat(TitanHBaseOutputFormat.class);
-            faunusGraph.getConf().set("faunus.graph.output.titan.storage.backend", backend);
-            faunusGraph.getConf().set("faunus.graph.output.titan.storage.hostname", hostname);
-            faunusGraph.getConf().set("faunus.graph.output.titan.storage.port", port);
-            faunusGraph.getConf().set("faunus.graph.output.titan.storage.tablename", tablename);
-            faunusGraph.getConf().setBoolean("faunus.graph.output.titan.storage.read-only", false);
-            faunusGraph.getConf().setBoolean("faunus.graph.output.titan.storage.batch-loading", false);
-            faunusGraph.getConf().setBoolean("faunus.graph.output.titan.infer-schema", false);
-            faunusGraph.getConf().set("faunus.graph.output.blueprints.script-file", "dendrite/dendrite-import.groovy");
 
-            // Filter out all the edges
-            faunusGraph.getConf().set("faunus.graph.input.vertex-query-filter", "v.query().limit(0)");
+            Configuration faunusConfig = faunusGraph.getConf();
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.backend", config.getString("storage.backend", null));
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.hostname", config.getString("storage.hostname", null));
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.port", config.getString("storage.port", null));
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.tablename", config.getString("storage.tablename", null));
+            faunusConfig.setBoolean("faunus.graph.output.titan.storage.read-only", false);
+            faunusConfig.setBoolean("faunus.graph.output.titan.storage.batch-loading", false);
+            faunusConfig.setBoolean("faunus.graph.output.titan.infer-schema", false);
+
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.backend", config.getString("storage.index.search.backend", null));
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.client-only", config.getString("storage.index.search.client-only", null));
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.cluster-name", config.getString("storage.index.search.cluster-name", null));
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.directory", config.getString("storage.index.search.directory", null));
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.hostname", config.getString("storage.index.search.hostname", null));
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.index-name", config.getString("storage.index.search.index-name", null));
+            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.local-mode", config.getString("storage.index.search.local-mode", null));
+
+            faunusGraph.getConf().set("faunus.graph.output.blueprints.script-file", "dendrite/dendrite-import.groovy");
 
             String sideEffect =
                     "{ it ->\n" +
@@ -282,6 +298,12 @@ public class EdgeDegreesService {
                             "}";
 
             return (new FaunusPipeline(faunusGraph)).V().sideEffect(sideEffect);
+        }
+
+        private void setProp(Configuration config, String key, String value) {
+            if (value != null) {
+                config.set(key, value);
+            }
         }
 
         private void runPipeline(FaunusPipeline faunusPipeline) throws Exception {
