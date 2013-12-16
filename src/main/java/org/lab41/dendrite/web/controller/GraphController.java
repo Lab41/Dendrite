@@ -4,7 +4,6 @@ import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
 import org.lab41.dendrite.services.MetadataTx;
-import org.lab41.dendrite.web.beans.GraphBean;
 import org.lab41.dendrite.web.beans.UpdateCurrentGraphBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -126,19 +125,11 @@ public class GraphController {
 
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createGraph(@PathVariable String projectId,
-                                                           @Valid @RequestBody GraphBean item,
-                                                           BindingResult result,
                                                            UriComponentsBuilder builder) {
 
         MetadataTx tx = metadataService.newTransaction();
 
         Map<String, Object> response = new HashMap<>();
-
-        if (result.hasErrors()) {
-            response.put("error", result.toString());
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
 
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
@@ -156,44 +147,6 @@ public class GraphController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.PUT)
-    public ResponseEntity<Map<String, Object>> updateGraph(@PathVariable String graphId,
-                                                           @Valid @RequestBody GraphBean item,
-                                                           BindingResult result) {
-
-        MetadataTx tx = metadataService.newTransaction();
-
-        Map<String, Object> response = new HashMap<>();
-
-        if (result.hasErrors()) {
-            response.put("error", result.toString());
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-
-        GraphMetadata graphMetadata = tx.getGraph(graphId);
-
-        if (graphMetadata == null) {
-            tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        graphMetadata.setName(item.getName());
-        graphMetadata.setBackend(item.getBackend());
-        graphMetadata.setDirectory(item.getDirectory());
-        graphMetadata.setHostname(item.getHostname());
-        graphMetadata.setPort(item.getPort());
-        graphMetadata.setTablename(item.getTablename());
-
-        response.put("graph", getGraphMap(graphMetadata));
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
 
     @RequestMapping(value = "/projects/{projectId}/current-graph", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId) {

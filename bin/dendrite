@@ -78,26 +78,12 @@ def print_rows(rows, headers=None, show_headers=True):
 # ----------------------------------------------------------------------------
 
 def create_project(args):
-    graph = {}
-    graph['name'] = args.name
-
-    if args.backend == 'berkeleydb':
-        graph['directory'] = '/tmp/dendrite/dendrite-' + args.name
-    elif args.backend == 'hbase':
-        graph['hostname'] = 'localhost'
-        graph['port'] = 2181
-        graph['tablename'] = 'dendrite-' + args.name
-    else:
-        print >> sys.stderr, 'unknown backend', args.backend
-        return 1
-
     if args.script == '':
         print >> sys.stderr, 'script cannot be empty'
         return 1
 
     project = {
         'name': args.name,
-        'graph': graph,
     }
 
     # Create the project
@@ -272,9 +258,6 @@ def main():
     parser_create_project = subparsers.add_parser('create-project')
     parser_create_project.add_argument('name',
             type=not_empty)
-    parser_create_project.add_argument('backend',
-            type=not_empty,
-            choices=['berkeleydb', 'hbase'])
     parser_create_project.add_argument('--script',
             type=argparse.FileType('rb'))
     parser_create_project.set_defaults(func=create_project)
