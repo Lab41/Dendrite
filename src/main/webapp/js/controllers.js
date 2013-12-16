@@ -72,9 +72,53 @@ angular.module('dendrite.controllers', []).
           });
       };
     }).
-    controller('GraphListCtrl', function($scope, User, Graph) {
+    controller('ProjectListCtrl', function($scope, $location, User, Project) {
         $scope.User = User;
-        $scope.query = Graph.query();
+        $scope.query = Project.index();
+
+        // update list of current projects (for create/delete functions)
+        $scope.$on('event:reloadProjectNeeded', function() {
+          $scope.query = Project.index();
+        });
+
+        $scope.createProject = function() {
+          $location.path('projects/create');
+        };
+        $scope.showProject = function(id) {
+          $location.path('projects/'+id);
+        };
+    }).
+    controller('ProjectCreateCtrl', function($rootScope, $scope, $location, User, Project) {
+        $scope.User = User;
+        $scope.save = function() {
+            Project.save({}, $scope.project)
+                    .$then(function(response) {
+                      var project = response.data.project;
+                      $rootScope.$broadcast('event:reloadProjectNeeded');
+                      $location.path('projects/' + project._id);
+                    });
+        };
+    }).
+    controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $location, $q, Project) {
+        $scope.projectId = $routeParams.projectId;
+        $scope.queryProject = Project.query({projectId: $routeParams.projectId});
+        $scope.queryGraph = Project.graphs({projectId: $routeParams.projectId});
+        $scope.showGraph = function(id) {
+          $location.path('graphs/' + id);
+        };
+        $scope.editGraph = function(id) {
+          $location.path('graphs/'+id+'/edit');
+        };
+        $scope.deleteItem = function(item){
+          Project.delete({projectId: item._id}).
+            $then(function(response) {
+              var data = response.data;
+              if (data.msg === "deleted") {
+                $rootScope.$broadcast('event:reloadProjectNeeded');
+                $location.path('projects');
+              }
+            });
+        };
     }).
     controller('GraphDetailCtrl', function($scope, $routeParams, $q, User, Graph, GraphTransform) {
         $scope.User = User;

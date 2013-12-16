@@ -32,7 +32,6 @@ angular.module('dendrite', [
     $routeProvider.
         when('/home', {templateUrl: 'partials/home.html', controller: 'HomeCtrl', access: access.ROLE_ANON}).
         when('/login', {templateUrl: 'partials/login.html', controller: 'LoginCtrl', access: access.ROLE_ANON}).
-        when('/graphs', {templateUrl: 'partials/graph-list.html', controller: 'GraphListCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId', {templateUrl: 'partials/graph-detail.html', controller: 'GraphDetailCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/vertices', {
           templateUrl: 'partials/vertex-list.html',
@@ -56,6 +55,9 @@ angular.module('dendrite', [
         when('/graphs/:graphId/edges/:edgeId/edit_edge', {templateUrl: 'partials/edge-edit.html', controller: 'EdgeEditCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/analytics', {templateUrl: 'partials/analytics/index.html', controller: 'AnalyticsListCtrl', access: access.ROLE_USER}).
         when('/graphs/:graphId/analytics/:analyticsId', {templateUrl: 'partials/analytics/show.html', controller: 'AnalyticsDetailCtrl', access: access.ROLE_USER}).
+        when('/projects', {templateUrl: 'partials/project-list.html', controller: 'ProjectListCtrl', access: access.ROLE_USER}).
+        when('/projects/create', {templateUrl: 'partials/project-create.html', controller: 'ProjectCreateCtrl', access: access.ROLE_USER}).
+        when('/projects/:projectId', {templateUrl: 'partials/project-detail.html', controller: 'ProjectDetailCtrl', access: access.ROLE_USER}).
         otherwise({redirectTo: '/home'});
   }]).
   config(['$httpProvider', function($httpProvider) {
