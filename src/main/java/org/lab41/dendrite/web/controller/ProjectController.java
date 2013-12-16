@@ -1,11 +1,9 @@
 package org.lab41.dendrite.web.controller;
 
-import org.codehaus.jettison.json.JSONException;
 import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
 import org.lab41.dendrite.services.MetadataTx;
-import org.lab41.dendrite.web.beans.GraphBean;
 import org.lab41.dendrite.web.beans.ProjectBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +85,6 @@ public class ProjectController {
         }
 
         String name = item.getName();
-        GraphBean graph = item.getGraph();
 
         MetadataTx tx = metadataService.newTransaction();
 
@@ -95,12 +92,6 @@ public class ProjectController {
         projectMetadata.setName(name);
 
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
-        graphMetadata.setName(graph.getName());
-        graphMetadata.setBackend(graph.getName());
-        graphMetadata.setDirectory(graph.getDirectory());
-        graphMetadata.setHostname(graph.getHostname());
-        graphMetadata.setPort(graph.getPort());
-        graphMetadata.setTablename(graph.getTablename());
         graphMetadata.setProject(projectMetadata);
 
         HttpHeaders headers = new HttpHeaders();

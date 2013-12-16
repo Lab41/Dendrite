@@ -58,6 +58,10 @@ public class ElasticSearchController {
                                                 @PathVariable String graphName,
                                                 @PathVariable String indexName,
                                                 @PathVariable String esName) throws Exception {
+
+        throw new Exception("foo");
+
+        /*
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
@@ -198,6 +202,7 @@ public class ElasticSearchController {
         }
 
         return new ResponseEntity<String>(jsonResult.toString(), responseHeaders, HttpStatus.OK);
+        */
     }
 
     @RequestMapping(value = "/api/{graphName}/viz/{indexName}/{esName}/facets", method = RequestMethod.GET)
@@ -205,6 +210,10 @@ public class ElasticSearchController {
                                                       @PathVariable String graphName,
                                                       @PathVariable String indexName,
                                                       @PathVariable String esName) throws Exception {
+
+        throw new Exception("foo");
+
+        /*
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
@@ -337,7 +346,6 @@ public class ElasticSearchController {
 
         // return
         return new ResponseEntity<String>(jsonResult.toString(), responseHeaders, HttpStatus.OK);
+        */
     }
-
-
 }

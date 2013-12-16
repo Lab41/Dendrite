@@ -78,26 +78,12 @@ def print_rows(rows, headers=None, show_headers=True):
 # ----------------------------------------------------------------------------
 
 def create_project(args):
-    graph = {}
-    graph['name'] = args.name
-
-    if args.backend == 'berkeleydb':
-        graph['directory'] = '/tmp/dendrite/dendrite-' + args.name
-    elif args.backend == 'hbase':
-        graph['hostname'] = 'localhost'
-        graph['port'] = 2181
-        graph['tablename'] = 'dendrite-' + args.name
-    else:
-        print >> sys.stderr, 'unknown backend', args.backend
-        return 1
-
     if args.script == '':
         print >> sys.stderr, 'script cannot be empty'
         return 1
 
     project = {
         'name': args.name,
-        'graph': graph,
     }
 
     # Create the project
@@ -117,18 +103,18 @@ def create_project(args):
 
     if args.script:
         args.id = data['project']['current_graph']
-        create_graph_indices(args)
+        run_groovy(args)
 
     return 0
 
 # ----------------------------------------------------------------------------
 
-def create_graph_indices(args):
-    print 'Creating the indices...'
+def run_groovy(args):
+    print 'Running the groovy script...'
 
     url = '{}/rexster-resource/graphs/{}/tp/gremlin'.format(
             args.url,
-            args.name)
+            args.id)
 
     response = requests.post(url,
             data=json.dumps({'script': args.script.read()}),
@@ -272,21 +258,9 @@ def main():
     parser_create_project = subparsers.add_parser('create-project')
     parser_create_project.add_argument('name',
             type=not_empty)
-    parser_create_project.add_argument('backend',
-            type=not_empty,
-            choices=['berkeleydb', 'hbase'])
     parser_create_project.add_argument('--script',
             type=argparse.FileType('rb'))
     parser_create_project.set_defaults(func=create_project)
-
-    # Options for creating graph indices.
-    parser_create_graph_indices = subparsers.add_parser('create-graph-indices')
-    parser_create_graph_indices.add_argument('name',
-            type=not_empty,
-            help='the name of the graph according to rexster')
-    parser_create_graph_indices.add_argument('script',
-            type=argparse.FileType('rb'))
-    parser_create_graph_indices.set_defaults(func=create_graph_indices)
 
     # Options for showing projects.
     parser_show_projects = subparsers.add_parser('projects')
@@ -340,6 +314,15 @@ def main():
             type=lambda s: s.lower(),
             choices=['graphson', 'graphml', 'gml'])
     parser_export_graph.set_defaults(func=export_graph)
+
+    # Options for running a groovy script.
+    parser_run_groovy = subparsers.add_parser('run-groovy')
+    parser_run_groovy.add_argument('id',
+            type=not_empty,
+            help='the id of the graph according to rexster')
+    parser_run_groovy.add_argument('script',
+            type=argparse.FileType('rb'))
+    parser_run_groovy.set_defaults(func=run_groovy)
 
     # Options for running a job.
     parser_run_job = subparsers.add_parser('run-job')

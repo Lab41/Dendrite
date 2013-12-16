@@ -9,16 +9,6 @@
             http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd">
 
     <!--
-        This will automatically locate any and all property files you have
-        within your classpath, provided they fall under the META-INF/spring
-        directory. The located property files are parsed and their values can
-        then be used within application context files in the form of
-        ${propertyKey}.
-    -->
-    <!-- TODO: Figure out how to parameterize this based on the enviornment -->
-    <context:property-placeholder location="classpath:META-INF/spring/dev/*.properties"/>
-
-    <!--
         This declaration will cause Spring to locate every @Component,
         @Repository and @Service in your application. In practical terms this
         allows you to write a POJO and then simply annotate the new POJO as an
@@ -45,5 +35,20 @@
 
     <task:annotation-driven executor="executor"/>
     <task:executor id="executor" pool-size="10"/>
+
+    <!--
+        This will automatically locate any and all property files you have
+        within your classpath, provided they fall under the META-INF/spring
+        directory. The located property files are parsed and their values can
+        then be used within application context files in the form of
+        ${propertyKey}.
+    -->
+    <beans profile="dev">
+        <context:property-placeholder location="classpath:META-INF/spring/dev/*.properties"/>
+    </beans>
+
+    <beans profile="prod">
+        <context:property-placeholder location="classpath:META-INF/spring/prod/*.properties"/>
+    </beans>
 
 </beans>
