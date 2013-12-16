@@ -5,7 +5,6 @@ import com.thinkaurelius.titan.core.TitanGraph;
 import com.tinkerpop.rexster.RexsterApplicationGraph;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -115,15 +114,7 @@ public class DendriteGraphFactory {
         DendriteGraph graph = graphs.get(id);
         if (graph == null) {
             Configuration configuration = getConfiguration(id);
-
-            logger.debug("opening titan graph " + id + " with backend " + storageBackend);
-
-            TitanGraph titanGraph = TitanFactory.open(configuration);
-
-            logger.debug("finished opening titan graph " + id);
-
-            RexsterApplicationGraph rexsterGraph = openRexsterGraph(id, titanGraph);
-            graph = new DendriteGraph(id, configuration, titanGraph, rexsterGraph, systemGraph);
+            graph = new DendriteGraph(id, configuration, systemGraph);
 
             graphs.put(id, graph);
         }
@@ -172,15 +163,5 @@ public class DendriteGraphFactory {
         }
 
         return config;
-    }
-
-    /// Create a rexster graph with gremlin enabled
-    private RexsterApplicationGraph openRexsterGraph(String id,TitanGraph graph) {
-        List<String> allowableNamespaces = new ArrayList<>();
-        allowableNamespaces.add("tp:gremlin");
-
-        List<HierarchicalConfiguration> extensionConfigurations = new ArrayList<>();
-
-        return new RexsterApplicationGraph(id, graph, allowableNamespaces, extensionConfigurations);
     }
 }

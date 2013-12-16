@@ -3,13 +3,16 @@ package org.lab41.dendrite.graph;
 import com.thinkaurelius.titan.core.*;
 import com.tinkerpop.blueprints.*;
 import com.tinkerpop.blueprints.Parameter;
-import com.tinkerpop.rexster.RexsterApplicationGraph;
 import org.apache.commons.configuration.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Set;
 
 public class DendriteGraph implements TitanGraph {
+
+    private Logger logger = LoggerFactory.getLogger(DendriteGraph.class);
 
     private String id;
 
@@ -17,26 +20,15 @@ public class DendriteGraph implements TitanGraph {
 
     private TitanGraph titanGraph;
 
-    private RexsterApplicationGraph rexsterGraph;
-
     private boolean systemGraph = false;
 
-    public DendriteGraph(String id,
-                         Configuration configuration,
-                         TitanGraph titanGraph,
-                         RexsterApplicationGraph rexsterGraph) {
-        this(id, configuration, titanGraph, rexsterGraph, false);
+    public DendriteGraph(String id, Configuration configuration) {
+        this(id, configuration, false);
     }
 
-    public DendriteGraph(String id,
-                         Configuration configuration,
-                         TitanGraph titanGraph,
-                         RexsterApplicationGraph rexsterGraph,
-                         boolean systemGraph) {
+    public DendriteGraph(String id, Configuration configuration, boolean systemGraph) {
         this.id = id;
         this.configuration = configuration;
-        this.titanGraph = titanGraph;
-        this.rexsterGraph = rexsterGraph;
         this.systemGraph = systemGraph;
     }
 
@@ -53,157 +45,160 @@ public class DendriteGraph implements TitanGraph {
     }
 
     public TitanGraph getTitanGraph() {
-        return titanGraph;
-    }
+        if (titanGraph == null) {
+            logger.debug("opening titan graph '" + id + "'");
 
-    public RexsterApplicationGraph getRexsterGraph() {
-        return rexsterGraph;
+            titanGraph = TitanFactory.open(configuration);
+
+            logger.debug("finished opening titan graph '" + id + "'");
+        }
+        return titanGraph;
     }
 
     @Override
     public Features getFeatures() {
-        return titanGraph.getFeatures();
+        return getTitanGraph().getFeatures();
     }
 
     @Override
     public Vertex addVertex(Object id) {
-        return titanGraph.addVertex(id);
+        return getTitanGraph().addVertex(id);
     }
 
     @Override
     public Vertex getVertex(Object id) {
-        return titanGraph.getVertex(id);
+        return getTitanGraph().getVertex(id);
     }
 
     @Override
     public void removeVertex(Vertex vertex) {
-        titanGraph.removeVertex(vertex);
+        getTitanGraph().removeVertex(vertex);
 
     }
 
     @Override
     public Iterable<Vertex> getVertices() {
-        return titanGraph.getVertices();
+        return getTitanGraph().getVertices();
     }
 
     @Override
     public Iterable<Vertex> getVertices(String key, Object value) {
-        return titanGraph.getVertices(key, value);
+        return getTitanGraph().getVertices(key, value);
     }
 
     @Override
     public Edge addEdge(Object id, Vertex outVertex, Vertex inVertex, String label) {
-        return titanGraph.addEdge(id, outVertex, inVertex, label);
+        return getTitanGraph().addEdge(id, outVertex, inVertex, label);
     }
 
     @Override
     public Edge getEdge(Object id) {
-        return titanGraph.getEdge(id);
+        return getTitanGraph().getEdge(id);
     }
 
     @Override
     public void removeEdge(Edge edge) {
-        titanGraph.removeEdge(edge);
+        getTitanGraph().removeEdge(edge);
 
     }
 
     @Override
     public Iterable<Edge> getEdges() {
-        return titanGraph.getEdges();
+        return getTitanGraph().getEdges();
     }
 
     @Override
     public Iterable<Edge> getEdges(String key, Object value) {
-        return titanGraph.getEdges();
+        return getTitanGraph().getEdges();
     }
 
     @Override
     public <T extends Element> void dropKeyIndex(String key, Class<T> elementClass) {
-        titanGraph.dropKeyIndex(key, elementClass);
+        getTitanGraph().dropKeyIndex(key, elementClass);
     }
 
     @Override
     public <T extends Element> void createKeyIndex(String key, Class<T> elementClass, Parameter... indexParameters) {
-        titanGraph.createKeyIndex(key, elementClass, indexParameters);
+        getTitanGraph().createKeyIndex(key, elementClass, indexParameters);
     }
 
     @Override
     public <T extends Element> Set<String> getIndexedKeys(Class<T> elementClass) {
-        return titanGraph.getIndexedKeys(elementClass);
+        return getTitanGraph().getIndexedKeys(elementClass);
     }
 
     @Override
     public TitanTransaction newTransaction() {
-        return titanGraph.newTransaction();
+        return getTitanGraph().newTransaction();
     }
 
     @Override
     public TransactionBuilder buildTransaction() {
-        return titanGraph.buildTransaction();
+        return getTitanGraph().buildTransaction();
     }
 
     @Override
     public void shutdown() throws TitanException{
-        titanGraph.shutdown();
+        getTitanGraph().shutdown();
     }
 
     @Override
     public KeyMaker makeKey(String name) {
-        return titanGraph.makeKey(name);
+        return getTitanGraph().makeKey(name);
     }
 
     @Override
     public LabelMaker makeLabel(String name) {
-        return titanGraph.makeLabel(name);
+        return getTitanGraph().makeLabel(name);
     }
 
     @Override
     public <T extends TitanType> Iterable<T> getTypes(Class<T> clazz) {
-        return titanGraph.getTypes(clazz);
+        return getTitanGraph().getTypes(clazz);
     }
 
     @Override
     public TitanGraphQuery query() {
-        return titanGraph.query();
+        return getTitanGraph().query();
     }
 
     @Override
     public TitanIndexQuery indexQuery(String indexName, String query) {
-        return titanGraph.indexQuery(indexName, query);
+        return getTitanGraph().indexQuery(indexName, query);
     }
 
     @Override
     public TitanMultiVertexQuery multiQuery(TitanVertex... vertices) {
-        return titanGraph.multiQuery(vertices);
+        return getTitanGraph().multiQuery(vertices);
     }
 
     @Override
     public TitanMultiVertexQuery multiQuery(Collection<TitanVertex> vertices) {
-        return titanGraph.multiQuery(vertices);
+        return getTitanGraph().multiQuery(vertices);
     }
 
     @Override
     public TitanType getType(String name) {
-        return titanGraph.getType(name);
+        return getTitanGraph().getType(name);
     }
 
     @Override
     public boolean isOpen() {
-        return titanGraph.isOpen();
+        return getTitanGraph().isOpen();
     }
 
     @Override
     public void stopTransaction(Conclusion conclusion) {
-        titanGraph.stopTransaction(conclusion);
+        getTitanGraph().stopTransaction(conclusion);
     }
 
     @Override
     public void commit() {
-        titanGraph.commit();
+        getTitanGraph().commit();
     }
 
     @Override
     public void rollback() {
-        titanGraph.rollback();
+        getTitanGraph().rollback();
     }
 }

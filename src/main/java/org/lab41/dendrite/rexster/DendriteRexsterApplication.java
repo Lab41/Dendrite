@@ -44,6 +44,7 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     private DendriteGraphFactory graphFactory;
     private MetadataService metadataService;
+    private Map<String, RexsterApplicationGraph> graphs = new HashMap<>();
 
     @Autowired
     public DendriteRexsterApplication(DendriteGraphFactory graphFactory, MetadataService metadataService) {
@@ -60,11 +61,24 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public RexsterApplicationGraph getApplicationGraph(String id) {
-        DendriteGraph graph = metadataService.getGraph(id);
-        if (graph == null) {
-            return null;
+        RexsterApplicationGraph rexsterApplicationGraph = graphs.get(id);
+        if (rexsterApplicationGraph == null) {
+            DendriteGraph graph = metadataService.getGraph(id);
+            if (graph == null) {
+                return null;
+            }
+
+            List<String> allowableNamespaces = new ArrayList<>();
+            allowableNamespaces.add("tp:gremlin");
+            List<HierarchicalConfiguration> extensionConfigurations = new ArrayList<>();
+            rexsterApplicationGraph = new RexsterApplicationGraph(
+                    id,
+                    graph.getTitanGraph(),
+                    allowableNamespaces,
+                    extensionConfigurations);
+            graphs.put(id, rexsterApplicationGraph);
         }
-        return graph.getRexsterGraph();
+        return rexsterApplicationGraph;
     }
 
     @Override
