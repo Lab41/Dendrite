@@ -590,6 +590,74 @@
                     </additionalClasspathDirs>
                 </configuration>
             </plugin>
+
+            <!-- auto-generate REST api documentation with "mvn javadoc:javadoc" -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>2.6.1</version>
+              <configuration>
+                <doclet>org.springdoclet.SpringDoclet</doclet>
+                <docletArtifact>
+                  <groupId>org.springdoclet</groupId>
+                  <artifactId>springdoclet</artifactId>
+                  <version>0.0.1</version>
+                </docletArtifact>
+                <useStandardDocletOptions>false</useStandardDocletOptions>
+              </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <reporting>
+      <plugins>
+
+        <!-- This plugin section was added for the SpringDoclet project as an example of using the doclet from Maven. -->
+        <!-- This configuration generates the springdoclet output along with the standard doclet output. -->
+        <!-- run "mvn site" to use this plugin -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.6.1</version>
+          <reportSets>
+            <reportSet>
+              <id>springdoc</id>
+              <configuration>
+                <name>Spring Docs</name>
+                <description>Spring documentation</description>
+                <doclet>org.springdoclet.SpringDoclet</doclet>
+                <docletArtifact>
+                  <groupId>org.springdoclet</groupId>
+                  <artifactId>springdoclet</artifactId>
+                  <version>0.0.1</version>
+                </docletArtifact>
+                <useStandardDocletOptions>false</useStandardDocletOptions>
+                <destDir>springdocs</destDir>
+                <additionalparam>
+                  -f index.html
+                  -d docs
+                  -linkpath ../xref/
+                </additionalparam>
+              </configuration>
+              <reports>
+                <report>javadoc</report>
+              </reports>
+            </reportSet>
+            <reportSet>
+              <id>html</id>
+              <reports>
+                <report>javadoc</report>
+              </reports>
+            </reportSet>
+          </reportSets>
+        </plugin>
+
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jxr-plugin</artifactId>
+        </plugin>
+      </plugins>
+    </reporting>
+
 </project>
