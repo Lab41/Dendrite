@@ -18,3 +18,9 @@ cd faunus
 git checkout dendrite
 mvn install -DskipTests
 cd ..
+
+## (optional) build wsdoc for REST api documentation
+git clone https://github.com/scottfrederick/springdoclet.git
+pushd springdoclet
+mvn install -DskipTests
+popd
