@@ -29,8 +29,23 @@ Elasticsearch to service all the requests. It can be launched with:
 % ./bin/dendrite-admin start
 ```
 
-To run Dendrite in production mode with HBase and an External Elasticsearch,
-launch dendrite with:
+To run Dendrite in production mode with HBase and an External Elasticsearch first edit ``src/main/resources/META-INF/spring/prod/dendrite.properties`` to match your environment, for example:
+
+```
+dendrite-graph-factory.name-prefix=dendrite-prod-
+dendrite-graph-factory.storage.backend=hbase
+dendrite-graph-factory.storage.hostname=server.fqdn
+dendrite-graph-factory.storage.port=2181
+dendrite-graph-factory.storage.index.backend=elasticsearch
+dendrite-graph-factory.storage.index.hostname=server.fqdn
+dendrite-graph-factory.storage.index.client-only=true
+dendrite-graph-factory.storage.index.local-mode=false
+metadata-graph.properties=/WEB-INF/metadata-graph.properties
+metadata.directory=/tmp/dendrite
+history.properties=/WEB-INF/history.properties
+```
+
+Then launch dendrite with:
 
 ```
 % hadoop fs -mkdir -p dendrite/
