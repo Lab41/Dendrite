@@ -39,6 +39,11 @@ if [ "$DENDRITE_PROFILE" = "" ]; then
     DENDRITE_PROFILE=dev
 fi
 
+# We need a bit more memory to run properly.
+if [ "$MAVEN_OPTS" = "" ]; then
+    export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=128m"
+fi
+
 log=$DENDRITE_LOG_DIR/dendrite-${DENDRITE_PROFILE}.log
 pid=$DENDRITE_PID_DIR/dendrite-${DENDRITE_PROFILE}.pid
 DENDRITE_STOP_TIMEOUT=${DENDRITE_STOP_TIMEOUT:-5}
@@ -57,7 +62,6 @@ case $cmd in
 
         echo starting dendrite
 
-        export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=128m"
         nohup mvn tomcat7:run -Dmaven.tomcat.port=8000 -Dspring.profiles.active=$DENDRITE_PROFILE > "$log" 2>&1 < /dev/null &
         echo $! > $pid
         ;;
