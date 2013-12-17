@@ -255,9 +255,6 @@ public class EdgeDegreesService {
             // Filter out all the edges
             faunusGraph.getConf().set("faunus.graph.input.vertex-query-filter", "v.query().limit(0)");
 
-            //faunusGraph.getConf().set("mapred.job.tracker", "local");
-            //faunusGraph.getConf().set("fs.default.name", "local");
-
             faunusGraph.setGraphOutputFormat(SequenceFileOutputFormat.class);
             faunusGraph.setSideEffectOutputFormat(TextOutputFormat.class);
             faunusGraph.setOutputLocation(tmpDir);
