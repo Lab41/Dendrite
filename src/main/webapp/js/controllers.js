@@ -625,19 +625,20 @@ angular.module('dendrite.controllers', []).
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
 
-        $scope.uploadFile = function(content, completed) {
+        $scope.uploading = function() {
             $scope.fileUploading = true;
-            if (completed) {
-                $scope.fileUploading = false;
-                $scope.fileUploaded = true;
-                if (content.status === "ok") {
-                    $scope.uploadMessage = "file uploaded";
-                    $scope.reloadGraph();
-                } else {
-                    $scope.uploadMessage = "upload failed: " + content.msg;
-                }
+        };
+
+        $scope.uploadFile = function(content) {
+            $scope.fileUploading = false;
+            $scope.fileUploaded = true;
+            if (content.status === "ok") {
+                $scope.uploadMessage = "file uploaded";
+                $scope.reloadGraph();
+            } else {
+                $scope.uploadMessage = "upload failed: " + content.msg;
             }
-        }
+        };
     }).
     controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
       $scope.searching = false;

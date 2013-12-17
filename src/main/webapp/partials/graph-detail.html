@@ -32,15 +32,13 @@
     <div class="span12">
       <label for="format">Upload a file to add to the network:</label>
       <div ng-controller="FileUploadCtrl">
-        <form ng-upload action="api/graphs/{{ graphId }}/file-import" upload-options-enable-controls>
+        <form ng-upload="uploadFile(content)" ng-upload-loading="uploading()" action="api/graphs/{{ graphId }}/file-import" upload-options-enable-controls>
           <select name="format" id="format" class="inline form-control" style="width:25%">
               <option selected>Select Format</option>
               <option value="GraphSON">GraphSON</option>
               <option value="GraphML">GraphML</option>
               <option value="GML">GML</option>
           </select>
-
-
 
           <div class="inline fileupload fileupload-new" data-provides="fileupload">
             <span class="btn btn-file">
@@ -51,7 +49,7 @@
             <span class="inline fileupload-preview"> </span>
             <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
           </div>
-          <input type="submit" class="inline btn btn-primary" value="Submit" upload-submit="uploadFile(content, completed)" />
+          <input type="submit" class="inline btn btn-primary" value="Submit" ng-disabled="fileUploading"/>
           <div class="alert alert-info" ng-hide="!fileUploaded">{{ uploadMessage }}</div>
           <div ng-hide="!fileUploading"><img src="img/icons/ajax-loader.gif"></div>
         </form>
