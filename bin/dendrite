@@ -158,7 +158,7 @@ def delete(path, name, args):
             auth=(args.user, args.password))
     response.raise_for_status()
 
-    print 'project deleted'
+    print name, 'deleted'
 
     return 0
 
