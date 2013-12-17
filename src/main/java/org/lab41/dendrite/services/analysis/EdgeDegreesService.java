@@ -39,7 +39,6 @@ public class EdgeDegreesService extends AnalysisService {
 
     Logger logger = LoggerFactory.getLogger(EdgeDegreesService.class);
 
-
     @Async
     public void titanCountDegrees(DendriteGraph graph, String jobId) throws Exception {
 
