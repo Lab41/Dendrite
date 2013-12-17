@@ -43,6 +43,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,17 +82,20 @@ public class GraphImportController {
         }
 
         try {
+            InputStream inputStream = file.getInputStream();
             if (format.equalsIgnoreCase("GraphSON")) {
-                GraphSONReader.inputGraph(graph, file.getInputStream());
+                GraphSONReader.inputGraph(graph, inputStream);
             } else if (format.equalsIgnoreCase("GraphML")) {
-                GraphMLReader.inputGraph(graph, file.getInputStream());
+                GraphMLReader.inputGraph(graph, inputStream);
             } else if (format.equalsIgnoreCase("GML")) {
-                GMLReader.inputGraph(graph, file.getInputStream());
+                GMLReader.inputGraph(graph, inputStream);
             } else {
                 response.put("status", "error");
                 response.put("msg", "unknown format '" + format + "'");
+                inputStream.close();
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
+            inputStream.close();
         } catch(IOException e) {
             response.put("status", "error");
             response.put("msg", "exception: " + e.toString());
