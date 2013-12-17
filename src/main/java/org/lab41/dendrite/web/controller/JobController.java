@@ -49,16 +49,17 @@ public class JobController {
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getJob(@PathVariable String jobId) {
 
+        Map<String, Object> response = new HashMap<>();
         MetadataTx tx = metadataService.newTransaction();
-
         JobMetadata jobMetadata = tx.getJob(jobId);
 
         if (jobMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find job '" + jobId + "'");
             tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        Map<String, Object> response = new HashMap<>();
         response.put("job", getJobMap(jobMetadata));
 
         // Commit must come after all graph access.
@@ -70,13 +71,15 @@ public class JobController {
     @RequestMapping(value = "/projects/{projectId}/jobs", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getJobs(@PathVariable String projectId) {
 
+        Map<String, Object> response = new HashMap<>();
         MetadataTx tx = metadataService.newTransaction();
-
         ProjectMetadata project = tx.getProject(projectId);
 
         if (project == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
         List<Map<String, Object>> jobs = new ArrayList<>();
@@ -84,7 +87,6 @@ public class JobController {
             jobs.add(getJobMap(jobMetadata));
         }
 
-        Map<String, Object> response = new HashMap<>();
         response.put("jobs", jobs);
 
         // Commit must come after all graph access.
@@ -96,17 +98,19 @@ public class JobController {
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteJob(@PathVariable String jobId) {
 
+        Map<String, Object> response = new HashMap<>();
         MetadataTx tx = metadataService.newTransaction();
-
         JobMetadata jobMetadata = tx.getJob(jobId);
+
         if (jobMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find job '" + jobId + "'");
             tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
         tx.deleteJob(jobMetadata);
 
-        Map<String, Object> response = new HashMap<>();
         response.put("msg", "deleted");
 
         // Commit must come after all graph access.

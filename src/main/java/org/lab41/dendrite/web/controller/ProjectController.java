@@ -52,16 +52,17 @@ public class ProjectController {
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getProject(@PathVariable String projectId) {
 
+        Map<String, Object> response = new HashMap<>();
         MetadataTx tx = metadataService.newTransaction();
-
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        Map<String, Object> response = new HashMap<>();
         response.put("project", getProjectMap(projectMetadata));
 
         // Commit must come after all graph access.
@@ -114,8 +115,10 @@ public class ProjectController {
 
         ProjectMetadata projectMetadata = tx.getProject(projectId);
         if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
         try {
