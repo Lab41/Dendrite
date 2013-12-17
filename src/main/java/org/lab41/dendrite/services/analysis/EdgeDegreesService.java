@@ -35,12 +35,10 @@ import java.io.IOException;
 import java.util.*;
 
 @Service
-public class EdgeDegreesService {
+public class EdgeDegreesService extends AnalysisService {
 
     Logger logger = LoggerFactory.getLogger(EdgeDegreesService.class);
 
-    @Autowired
-    MetadataService metadataService;
 
     @Async
     public void titanCountDegrees(DendriteGraph graph, String jobId) throws Exception {
@@ -108,51 +106,6 @@ public class EdgeDegreesService {
         logger.debug("faunusCountDegrees: finished job: " + jobId);
     }
 
-    private void setJobName(String jobId, String name) {
-        MetadataTx tx = metadataService.newTransaction();
-        try {
-            JobMetadata jobMetadata = tx.getJob(jobId);
-            jobMetadata.setName(name);
-            tx.commit();
-        } catch (TitanException e) {
-            logger.debug("exception", e);
-            throw e;
-        }
-    }
-
-    private void setJobState(String jobId, String state) {
-        setJobState(jobId, state, null);
-    }
-
-    private void setJobState(String jobId, String state, String msg) {
-        MetadataTx tx = metadataService.newTransaction();
-        try {
-            JobMetadata jobMetadata = tx.getJob(jobId);
-            jobMetadata.setState(state);
-            jobMetadata.setMessage(msg);
-
-            if (state.equals(JobMetadata.DONE)) {
-                jobMetadata.setProgress(1.0f);
-            }
-
-            tx.commit();
-        } catch (TitanException e) {
-            logger.debug("exception", e);
-            throw e;
-        }
-    }
-
-    private void setJobProgress(String jobId, float progress) {
-        MetadataTx tx = metadataService.newTransaction();
-        try {
-            JobMetadata jobMetadata = tx.getJob(jobId);
-            jobMetadata.setProgress(progress);
-            tx.commit();
-        } catch (TitanException e) {
-            logger.debug("exception", e);
-            throw e;
-        }
-    }
 
     private void createIndices(DendriteGraph graph) {
         TitanTransaction tx = graph.newTransaction();
@@ -254,9 +207,6 @@ public class EdgeDegreesService {
 
             // Filter out all the edges
             faunusGraph.getConf().set("faunus.graph.input.vertex-query-filter", "v.query().limit(0)");
-
-            //faunusGraph.getConf().set("mapred.job.tracker", "local");
-            //faunusGraph.getConf().set("fs.default.name", "local");
 
             faunusGraph.setGraphOutputFormat(SequenceFileOutputFormat.class);
             faunusGraph.setSideEffectOutputFormat(TextOutputFormat.class);

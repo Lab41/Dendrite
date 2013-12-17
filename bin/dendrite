@@ -330,7 +330,7 @@ def main():
             type=int)
     parser_run_job.add_argument('analysis',
             type=lambda s: s.lower(),
-            choices=['titan-degrees', 'faunus-degrees'])
+            choices=['titan-degrees', 'faunus-degrees', 'jung-pagerank'])
     parser_run_job.set_defaults(func=run_job)
 
     args = parser.parse_args()

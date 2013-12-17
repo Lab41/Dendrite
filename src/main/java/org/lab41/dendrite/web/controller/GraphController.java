@@ -51,16 +51,18 @@ public class GraphController {
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getGraph(@PathVariable String graphId) {
 
+        Map<String, Object> response = new HashMap<>();
         MetadataTx tx = metadataService.newTransaction();
 
         GraphMetadata graphMetadata = tx.getGraph(graphId);
 
         if (graphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find graph '" + graphId + "'");
             tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        Map<String, Object> response = new HashMap<>();
         response.put("graph", getGraphMap(graphMetadata));
 
         // Commit must come after all graph access.
@@ -72,16 +74,16 @@ public class GraphController {
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) {
 
+        Map<String, Object> response = new HashMap<>();
         MetadataTx tx = metadataService.newTransaction();
-
         GraphMetadata graphMetadata = tx.getGraph(graphId);
 
         if (graphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find graph '" + graphId + "'");
             tx.rollback();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        Map<String, Object> response = new HashMap<>();
 
         try {
             tx.deleteGraph(graphMetadata);
@@ -101,15 +103,17 @@ public class GraphController {
     }
 
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.GET)
-    public ResponseEntity<List<Map<String, Object>>> getGraphs(@PathVariable String projectId) {
+    public ResponseEntity<Map<String, Object>> getGraphs(@PathVariable String projectId) {
 
+        Map<String, Object> response = new HashMap<>();
         MetadataTx tx = metadataService.newTransaction();
-
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
         List<Map<String, Object>> graphs = new ArrayList<>();
@@ -120,22 +124,24 @@ public class GraphController {
         // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(graphs, HttpStatus.OK);
+        response.put("graphs", graphs);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createGraph(@PathVariable String projectId,
                                                            UriComponentsBuilder builder) {
 
-        MetadataTx tx = metadataService.newTransaction();
-
         Map<String, Object> response = new HashMap<>();
-
+        MetadataTx tx = metadataService.newTransaction();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
         GraphMetadata graphMetadata = tx.createGraph(projectMetadata);
@@ -151,16 +157,16 @@ public class GraphController {
     @RequestMapping(value = "/projects/{projectId}/current-graph", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId) {
 
+        Map<String, Object> response = new HashMap<>();
         MetadataTx tx = metadataService.newTransaction();
-
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-
-        Map<String, Object> response = new HashMap<>();
 
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
         response.put("graph", getGraphMap(graphMetadata));
@@ -176,20 +182,20 @@ public class GraphController {
                                                                @Valid @RequestBody UpdateCurrentGraphBean item,
                                                                BindingResult result) {
 
-        MetadataTx tx = metadataService.newTransaction();
-
         Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
             response.put("error", result.toString());
-            tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
+
+        MetadataTx tx = metadataService.newTransaction();
 
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
-            response.put("error", "project does not exist");
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
@@ -197,13 +203,15 @@ public class GraphController {
         GraphMetadata graphMetadata = tx.getGraph(item.getGraphId());
 
         if (graphMetadata == null) {
-            response.put("error", "graph does not exist");
+            response.put("status", "error");
+            response.put("msg", "could not find graph '" + item.getGraphId() + "'");
             tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
         if (projectMetadata != graphMetadata.getProject()) {
-            response.put("error", "project does not own graph");
+            response.put("status", "error");
+            response.put("msg", "project does not own graph");
             tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }

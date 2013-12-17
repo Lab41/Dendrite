@@ -1,69 +1,86 @@
 package org.lab41.dendrite.web.controller.analysis;
 
-import com.thinkaurelius.faunus.FaunusGraph;
-import com.thinkaurelius.faunus.FaunusPipeline;
-import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseInputFormat;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.tinkerpop.blueprints.Graph;
-
-import org.codehaus.jettison.json.JSONObject;
-import org.lab41.dendrite.faunus.AdjacencyFileOutputFormat;
-import org.lab41.dendrite.rexster.DendriteRexsterApplication;
+import org.lab41.dendrite.graph.DendriteGraph;
+import org.lab41.dendrite.models.GraphMetadata;
+import org.lab41.dendrite.models.JobMetadata;
+import org.lab41.dendrite.models.ProjectMetadata;
+import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetadataTx;
+import org.lab41.dendrite.services.analysis.PageRankService;
+import org.lab41.dendrite.web.beans.PageRankBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class PageRankController {
 
     @Autowired
-    DendriteRexsterApplication application;
+    MetadataService metadataService;
 
-    @RequestMapping(value = "/api/{graphName}/algorithms/pagerank", method = RequestMethod.GET)
-    public ResponseEntity<String> pageRank(@PathVariable String graphName) throws Exception {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+    @Autowired
+    PageRankService pageRankService;
 
-        JSONObject json = new JSONObject();
+    @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung-pagerank", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> jungPageRank(@PathVariable String graphId,
+                                                            @Valid @RequestBody PageRankBean item,
+                                                            BindingResult result) throws Exception {
 
-        Graph graph = application.getGraph(graphName);
+        Map<String, Object> response = new HashMap<>();
 
+        if (result.hasErrors()) {
+            response.put("status", "error");
+            response.put("msg", result.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        DendriteGraph graph = metadataService.getGraph(graphId);
         if (graph == null) {
-            json.put("status", "error");
-            json.put("msg", "unknown graph '" + graphName + "'");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+            response.put("status", "error");
+            response.put("msg", "missing graph metadata '" + graphId + "'");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        if (!(graph instanceof TitanGraph)) {
-            json.put("status", "error");
-            json.put("error", "graph is not a titan graph");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+        MetadataTx tx = metadataService.newTransaction();
+
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
+        if (graphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "missing graph metadata '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        FaunusGraph faunusGraph = new FaunusGraph();
+        ProjectMetadata projectMetadata = graphMetadata.getProject();
+        if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "missing project metadata for graph '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
 
-        faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
-        faunusGraph.getConf().set("faunus.graph.input.titan.storage.backend", "hbase");
-        faunusGraph.getConf().set(TitanHBaseInputFormat.FAUNUS_GRAPH_INPUT_TITAN_STORAGE_HOSTNAME, "localhost");
-        faunusGraph.getConf().set(TitanHBaseInputFormat.FAUNUS_GRAPH_INPUT_TITAN_STORAGE_PORT, "2181");
-        faunusGraph.getConf().set(TitanHBaseInputFormat.FAUNUS_GRAPH_INPUT_TITAN_STORAGE_TABLENAME, graphName);
-        faunusGraph.getConf().set("mapred.jar", "../faunus/target/faunus-0.4.0-Lab41-job.jar");
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
 
-        faunusGraph.setGraphOutputFormat(AdjacencyFileOutputFormat.class);
-        faunusGraph.getConf().set(FaunusGraph.FAUNUS_SIDEEFFECT_OUTPUT_FORMAT, "org.apache.hadoop.mapreduce.lib.output.TextOutputFormat");
-        faunusGraph.setOutputLocation("output");
-        faunusGraph.setOutputLocationOverwrite(true);
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId());
 
-        FaunusPipeline faunusPipeline = (new FaunusPipeline(faunusGraph)).V().property("name").groupCount();
-        faunusPipeline.submit();
+        tx.commit();
 
-        return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.OK);
+        // We can't pass the values directly because they'll live in a separate thread.
+        pageRankService.jungPageRank(graph, jobMetadata.getId(), item.getAlpha());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }
