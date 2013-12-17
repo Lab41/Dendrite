@@ -76,39 +76,20 @@ angular.module('dendrite.controllers', []).
         $scope.User = User;
         $scope.query = Graph.query();
     }).
-    controller('GraphDetailCtrl', function($scope, $routeParams, $q, User, Graph, Vertex, Edge) {
+    controller('GraphDetailCtrl', function($scope, $routeParams, $q, User, Graph, GraphTransform) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
         $scope.graph = Graph.get({graphId: $routeParams.graphId});
-
-        $scope.forceDirectedGraphData = {};
 
         // This can be removed after we upgrade to angular 1.2.
         //$scope.forceDirectedGraphData = {
         //  vertices: Vertex.query({graphId: $scope.graphId}),
         //  edges: Edge.query({graphId: $scope.graphId})
         //};
-
-        $scope.reloadGraph = function() {
-          $scope.forceDirectedGraphData = {
-            vertices: $q.defer(),
-            edges: $q.defer(),
-          };
-
-          Vertex.query({graphId: $scope.graphId}, function(vertices) {
-            $scope.forceDirectedGraphData.vertices.resolve(vertices);
-          }, function() {
-            $scope.forceDirectedGraphData.vertices.reject();
-          });
-
-          Edge.query({graphId: $scope.graphId}, function(edges) {
-            $scope.forceDirectedGraphData.edges.resolve(edges);
-          }, function() {
-            $scope.forceDirectedGraphData.edges.reject();
-          });
-        }
-
-        $scope.reloadGraph();
+        $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+        $scope.$on('event:reloadGraph', function() {
+          $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+        });
 
     }).
     controller('GraphSaveCtrl', function ($scope, $routeParams, $http, GraphTransform) {
@@ -634,7 +615,7 @@ angular.module('dendrite.controllers', []).
             $scope.fileUploaded = true;
             if (content.status === "ok") {
                 $scope.uploadMessage = "file uploaded";
-                $scope.reloadGraph();
+                $scope.$emit('event:reloadGraph');
             } else {
                 $scope.uploadMessage = "upload failed: " + content.msg;
             }
