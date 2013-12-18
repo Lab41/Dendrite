@@ -670,7 +670,7 @@ angular.module('dendrite.controllers', []).
 
       Histogram.searchFacets()
         .success(function(data) {
-          $scope.searchFacets = Object.keys(data[appConfig.elasticSearch.index].vertex.properties);
+          $scope.searchFacets = Object.keys(data.vertex.properties);
         });
 
       $scope.visualize = function() {

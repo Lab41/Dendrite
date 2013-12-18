@@ -109,25 +109,6 @@ def create_project(args):
 
 # ----------------------------------------------------------------------------
 
-def run_groovy(args):
-    print 'Running the groovy script...'
-
-    url = '{}/rexster-resource/graphs/{}/tp/gremlin'.format(
-            args.url,
-            args.id)
-
-    response = requests.post(url,
-            data=json.dumps({'script': args.script.read()}),
-            headers={'content-type': 'application/json'},
-            auth=(args.user, args.password))
-    response.raise_for_status()
-
-    print 'done'
-
-    return 0
-
-# ----------------------------------------------------------------------------
-
 def show(path, name, args):
     url = '{}/{}'.format(args.url, path)
 
@@ -206,14 +187,32 @@ def export_graph(args):
 
 # ----------------------------------------------------------------------------
 
-def run_job(args):
+def run_groovy(args):
+    print 'Running the groovy script...'
+
+    url = '{}/rexster-resource/graphs/{}/tp/gremlin'.format(
+            args.url,
+            args.id)
+
+    response = requests.post(url,
+            data=json.dumps({'script': args.script.read()}),
+            headers={'content-type': 'application/json'},
+            auth=(args.user, args.password))
+    response.raise_for_status()
+
+    print 'done'
+
+    return 0
+
+# ----------------------------------------------------------------------------
+
+def run_degrees(args, analysis):
     url = '{}/api/graphs/{}/analysis/{}'.format(
             args.url,
             args.id,
-            args.analysis)
+            analysis)
 
     response = requests.post(url,
-            headers={'content-type': 'application/json'},
             auth=(args.user, args.password))
     response.raise_for_status()
 
@@ -221,6 +220,26 @@ def run_job(args):
 
     return 0
 
+def run_titan_degrees(args):
+    return run_degrees(args, 'titan-degrees')
+
+def run_faunus_degrees(args):
+    return run_degrees(args, 'faunus-degrees')
+
+# ----------------------------------------------------------------------------
+
+def run_jung_pagerank(args):
+    url = '{}/api/graphs/{}/analysis/jung-pagerank'.format(args.url, args.id)
+
+    response = requests.post(url,
+            headers={'content-type': 'application/json'},
+            data=json.dumps({'alpha': args.alpha}),
+            auth=(args.user, args.password))
+    response.raise_for_status()
+
+    print_rows([response.json()])
+
+    return 0
 
 # ----------------------------------------------------------------------------
 
@@ -315,7 +334,7 @@ def main():
             choices=['graphson', 'graphml', 'gml'])
     parser_export_graph.set_defaults(func=export_graph)
 
-    # Options for running a groovy script.
+    # Options for running jobs.
     parser_run_groovy = subparsers.add_parser('run-groovy')
     parser_run_groovy.add_argument('id',
             type=not_empty,
@@ -324,14 +343,23 @@ def main():
             type=argparse.FileType('rb'))
     parser_run_groovy.set_defaults(func=run_groovy)
 
-    # Options for running a job.
-    parser_run_job = subparsers.add_parser('run-job')
-    parser_run_job.add_argument('id',
+    parser_run_titan_degrees = subparsers.add_parser('run-titan-degrees')
+    parser_run_titan_degrees.add_argument('id',
             type=int)
-    parser_run_job.add_argument('analysis',
-            type=lambda s: s.lower(),
-            choices=['titan-degrees', 'faunus-degrees', 'jung-pagerank'])
-    parser_run_job.set_defaults(func=run_job)
+    parser_run_titan_degrees.set_defaults(func=run_titan_degrees)
+
+    parser_run_faunus_degrees = subparsers.add_parser('run-faunus-degrees')
+    parser_run_faunus_degrees.add_argument('id',
+            type=int)
+    parser_run_faunus_degrees.set_defaults(func=run_faunus_degrees)
+
+    parser_run_jung_pagerank = subparsers.add_parser('run-jung-pagerank')
+    parser_run_jung_pagerank.add_argument('-a', '--alpha',
+            default=0.15,
+            help='The PageRank alpha value (default 0.15)')
+    parser_run_jung_pagerank.add_argument('id',
+            type=int)
+    parser_run_jung_pagerank.set_defaults(func=run_jung_pagerank)
 
     args = parser.parse_args()
 
@@ -344,13 +372,11 @@ def main():
 
     # If we didn't get the username or password, prompt until we get it.
     while args.user is None or args.user == '':
-        sys.stdout.write('please enter in the username: ')
+        sys.stdout.write('Username: ')
         sys.stdout.flush()
-        args.user = sys.stdin.readline()
+        args.user = sys.stdin.readline().strip()
 
     while args.password is None or args.password == '':
-        sys.stdout.write('please enter in the password: ')
-        sys.stdout.flush()
         args.password = getpass.getpass()
 
     try:

@@ -14,53 +14,55 @@ Install instructions
 
 1. Check out the code:
 
-```
-% git clone https://github.com/Lab4/Dendrite.git
-% cd Dendrite
-```
+  ```
+  % git clone https://github.com/Lab4/Dendrite.git
+  % cd Dendrite
+  ```
 
 2. Start the application.
 
-Dendrite has two run profiles. The first, which is the default, is the
-development profile. This uses Titan's BerkeleyDB backend and an embedded
-Elasticsearch to service all the requests. It can be launched with:
+  Dendrite has two run profiles. The first, which is the default, is the
+  development profile. This uses Titan's BerkeleyDB backend and an embedded
+  Elasticsearch to service all the requests. It can be launched with:
 
-```
-% ./bin/dendrite-admin start
-```
+  ```
+  % ./bin/dendrite-server start
+  ```
 
-To run Dendrite in production mode with HBase and an External Elasticsearch first edit ``src/main/resources/META-INF/spring/prod/dendrite.properties`` to match your environment, for example:
+  To run Dendrite in production mode with HBase and an External Elasticsearch
+  first edit ``src/main/resources/META-INF/spring/prod/dendrite.properties`` 
+  to match your environment, for example:
 
-```
-dendrite-graph-factory.name-prefix=dendrite-prod-
-dendrite-graph-factory.storage.backend=hbase
-dendrite-graph-factory.storage.hostname=server.fqdn
-dendrite-graph-factory.storage.port=2181
-dendrite-graph-factory.storage.index.backend=elasticsearch
-dendrite-graph-factory.storage.index.hostname=server.fqdn
-dendrite-graph-factory.storage.index.client-only=true
-dendrite-graph-factory.storage.index.local-mode=false
-metadata-graph.properties=/WEB-INF/metadata-graph.properties
-metadata.directory=/tmp/dendrite
-history.properties=/WEB-INF/history.properties
-```
+  ```
+  dendrite-graph-factory.name-prefix=dendrite-prod-
+  dendrite-graph-factory.storage.backend=hbase
+  dendrite-graph-factory.storage.hostname=server.fqdn
+  dendrite-graph-factory.storage.port=2181
+  dendrite-graph-factory.storage.index.backend=elasticsearch
+  dendrite-graph-factory.storage.index.hostname=server.fqdn
+  dendrite-graph-factory.storage.index.client-only=true
+  dendrite-graph-factory.storage.index.local-mode=false
+  metadata-graph.properties=/WEB-INF/metadata-graph.properties
+  metadata.directory=/tmp/dendrite
+  history.properties=/WEB-INF/history.properties
+  ```
 
-Then launch dendrite with:
+  Then launch dendrite with:
 
-```
-% hadoop fs -mkdir -p dendrite/
-% hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
-% DENDRITE_PROFILE=prod ./bin/dendrite-admin start
-```
+  ```
+  % hadoop fs -mkdir -p dendrite/
+  % hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
+  % DENDRITE_PROFILE=prod ./bin/dendrite-server start
+  ```
 
-3. Initialize a graph-of-the-gods example graph:
+3. Once ``dendrite-server`` is running initialize a graph-of-the-gods example graph:
 
-```bash
-% pip install requests
-% ./bin/dendrite create-project --script ./data/init-graph-of-the-gods.groovy graph-of-the-gods
-```
+  ```bash
+  % pip install requests
+  % ./bin/dendrite create-project --script ./data/init-graph-of-the-gods.groovy my-project-name
+  ```
 
-4. After the webserver is up and running browse to http://server.fqdn:8080/dendrite
+4. After the webserver is up and running browse to http://server.fqdn:8000/dendrite
 5. Login as a user with user/password or as an admin with admin/password
 
 Required Dependencies

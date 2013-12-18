@@ -39,7 +39,6 @@ public class EdgeDegreesService extends AnalysisService {
 
     Logger logger = LoggerFactory.getLogger(EdgeDegreesService.class);
 
-
     @Async
     public void titanCountDegrees(DendriteGraph graph, String jobId) throws Exception {
 
@@ -156,18 +155,11 @@ public class EdgeDegreesService extends AnalysisService {
             try {
 
                 FaunusGraph faunusGraph = new FaunusGraph();
-                FaunusPipeline exportPipeline = exportGraphPipeline(faunusGraph, tmpDir);
+                FaunusPipeline exportPipeline = graphPipeline(faunusGraph, tmpDir);
 
-                logger.debug("starting export of '" + graph.getId() + "'");
+                logger.debug("starting export/import of '" + graph.getId() + "'");
                 runPipeline(exportPipeline);
-                logger.debug("finished export of '" + graph.getId() + "'");
-
-                faunusGraph = faunusGraph.getNextGraph();
-                FaunusPipeline importPipeline = importGraphPipeline(faunusGraph);
-
-                logger.debug("starting import of '" + graph.getId() + "'");
-                runPipeline(importPipeline);
-                logger.debug("finished import of '" + graph.getId() + "'");
+                logger.debug("finished export/import of '" + graph.getId() + "'");
 
                 MetadataTx tx = metadataService.newTransaction();
                 JobMetadata jobMetadata = tx.getJob(jobId);
@@ -184,7 +176,7 @@ public class EdgeDegreesService extends AnalysisService {
             }
         }
 
-        private FaunusPipeline exportGraphPipeline(FaunusGraph faunusGraph, Path tmpDir) {
+        private FaunusPipeline graphPipeline(FaunusGraph faunusGraph, Path tmpDir) {
             org.apache.commons.configuration.Configuration config = graph.getConfiguration();
 
             faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
@@ -192,6 +184,7 @@ public class EdgeDegreesService extends AnalysisService {
             faunusGraph.getConf().set("mapred.jar", "../faunus/target/faunus-0.4.1-Lab41-SNAPSHOT-job.jar");
 
             Configuration faunusConfig = faunusGraph.getConf();
+
             setProp(faunusConfig, "faunus.graph.input.titan.storage.backend", config.getString("storage.backend", null));
             setProp(faunusConfig, "faunus.graph.input.titan.storage.hostname", config.getString("storage.hostname", null));
             setProp(faunusConfig, "faunus.graph.input.titan.storage.port", config.getString("storage.port", null));
@@ -208,27 +201,21 @@ public class EdgeDegreesService extends AnalysisService {
             // Filter out all the edges
             faunusGraph.getConf().set("faunus.graph.input.vertex-query-filter", "v.query().limit(0)");
 
-            faunusGraph.setGraphOutputFormat(SequenceFileOutputFormat.class);
+            faunusGraph.setGraphOutputFormat(TitanHBaseOutputFormat.class);
             faunusGraph.setSideEffectOutputFormat(TextOutputFormat.class);
             faunusGraph.setOutputLocation(tmpDir);
             faunusGraph.setOutputLocationOverwrite(true);
 
-            return (new FaunusPipeline(faunusGraph)).V();
-        }
-
-        private FaunusPipeline importGraphPipeline(FaunusGraph faunusGraph) {
-            org.apache.commons.configuration.Configuration config = graph.getConfiguration();
-
-            faunusGraph.setGraphOutputFormat(TitanHBaseOutputFormat.class);
-
-            Configuration faunusConfig = faunusGraph.getConf();
             setProp(faunusConfig, "faunus.graph.output.titan.storage.backend", config.getString("storage.backend", null));
             setProp(faunusConfig, "faunus.graph.output.titan.storage.hostname", config.getString("storage.hostname", null));
             setProp(faunusConfig, "faunus.graph.output.titan.storage.port", config.getString("storage.port", null));
             setProp(faunusConfig, "faunus.graph.output.titan.storage.tablename", config.getString("storage.tablename", null));
             faunusConfig.setBoolean("faunus.graph.output.titan.storage.read-only", false);
             faunusConfig.setBoolean("faunus.graph.output.titan.storage.batch-loading", false);
-            faunusConfig.setBoolean("faunus.graph.output.titan.infer-schema", false);
+
+            // FIXME: https://github.com/thinkaurelius/faunus/issues/167. I would prefer to leave this off, but we end up tripping over an exception.
+            //faunusConfig.setBoolean("faunus.graph.output.titan.infer-schema", false);
+            faunusConfig.setBoolean("faunus.graph.output.titan.infer-schema", true);
 
             setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.backend", config.getString("storage.index.search.backend", null));
             setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.client-only", config.getString("storage.index.search.client-only", null));
@@ -299,6 +286,7 @@ public class EdgeDegreesService extends AnalysisService {
                         MetadataTx tx = metadataService.newTransaction();
                         JobMetadata jobMetadata = tx.getJob(jobId);
                         JobMetadata childJobMetadata = tx.createJob(jobMetadata);
+                        childJobMetadata.setName("faunus-hadoop-job");
                         childJobMetadata.setState(JobMetadata.DONE);
                         childJobMetadata.setProgress(1.0f);
                         childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
@@ -319,6 +307,7 @@ public class EdgeDegreesService extends AnalysisService {
                     MetadataTx tx = metadataService.newTransaction();
                     JobMetadata jobMetadata = tx.getJob(jobId);
                     JobMetadata childJobMetadata = tx.createJob(jobMetadata);
+                    childJobMetadata.setName("faunus-hadoop-job");
                     childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
                     childJobMetadata.setState(JobMetadata.ERROR);
                     tx.commit();
@@ -361,6 +350,7 @@ public class EdgeDegreesService extends AnalysisService {
                     MetadataTx tx = metadataService.newTransaction();
                     JobMetadata jobMetadata = tx.getJob(jobId);
                     JobMetadata childJobMetadata = tx.createJob(jobMetadata);
+                    childJobMetadata.setName("faunus-hadoop-job");
                     childJobMetadata.setProgress(progress);
                     childJobMetadata.setState(JobMetadata.RUNNING);
                     childJobMetadata.setMapreduceJobId(hadoopJobId.toString());

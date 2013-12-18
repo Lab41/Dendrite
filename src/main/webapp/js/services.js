@@ -167,7 +167,7 @@ angular.module('dendrite.services', ['ngResource']).
         searchFacets: function() {
           return $http({
               method: "GET",
-              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.titan.indexName+'/'+appConfig.elasticSearch.indexName+'/facets'
+              url: '/dendrite/api/graphs/'+$routeParams.graphId+'/search/mapping'
           })
         },
 
@@ -192,7 +192,7 @@ angular.module('dendrite.services', ['ngResource']).
           // query server
           return $http({
               method: "POST",
-              url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.elasticSearch.index+'/'+appConfig.elasticSearch.name,
+              url: '/dendrite/api/graphs/'+$routeParams.graphId+'/search',
               data: JSON.stringify(inputJson)
           })
           .success(function(json) {
@@ -473,8 +473,6 @@ angular.module('dendrite.services', ['ngResource']).
 
             return forceDirectedGraphData;
           }
-
-
         };
     }).
     factory('Vertex', function($resource) {

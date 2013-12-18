@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright 2013 In-Q-Tel/Lab41
 #
@@ -18,7 +18,7 @@
 
 set -e
 
-usage="Usage: dendrite-admin (start|stop)"
+usage="Usage: dendrite-server (start|stop)"
 
 if [ $# -ne 1 ]; then
     echo $usage
