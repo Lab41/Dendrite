@@ -26,7 +26,7 @@ development profile. This uses Titan's BerkeleyDB backend and an embedded
 Elasticsearch to service all the requests. It can be launched with:
 
 ```
-% ./bin/dendrite-admin start
+% ./bin/dendrite-server start
 ```
 
 To run Dendrite in production mode with HBase and an External Elasticsearch first edit ``src/main/resources/META-INF/spring/prod/dendrite.properties`` to match your environment, for example:
@@ -50,7 +50,7 @@ Then launch dendrite with:
 ```
 % hadoop fs -mkdir -p dendrite/
 % hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
-% DENDRITE_PROFILE=prod ./bin/dendrite-admin start
+% DENDRITE_PROFILE=prod ./bin/dendrite-server start
 ```
 
 3. Initialize a graph-of-the-gods example graph:
