@@ -43,17 +43,58 @@ Dendrite is a Lab41 exploration of ways to analyze, manipulate, version, and sha
 </ul><h1>
 <a name="install-instructions" class="anchor" href="#install-instructions"><span class="octicon octicon-link"></span></a>Install instructions</h1>
 
-<div class="highlight highlight-bash"><pre>% git clone https://github.com/Lab4/Dendrite.git
-% <span class="nb">cd </span>Dendrite
-% hadoop fs -mkdir -p dendrite/
-% hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
-% <span class="nv">MAVEN_OPTS</span><span class="o">=</span><span class="s2">"-Xmx512m -XX:MaxPermSize=128m"</span> mvn tomcat7:run -Pmaven.tomcat.port<span class="o">=</span>8000
-% pip install requests
-% ./bin/dendrite create-project hbase hbase ./data/init-graph-of-the-gods.groovy
-% ./bin/dendrite import-graph &lt;graph-id&gt; graphson ./data/graph-of-the-gods.json
-</pre></div>
+<ol>
+<li>
+<p>Check out the code:</p>
 
-<h2>
+<pre><code>% git clone https://github.com/Lab4/Dendrite.git
+% cd Dendrite
+</code></pre>
+</li>
+<li>
+<p>Start the application.</p>
+
+<p>Dendrite has two run profiles. The first, which is the default, is the
+development profile. This uses Titan's BerkeleyDB backend and an embedded
+Elasticsearch to service all the requests. It can be launched with:</p>
+
+<pre><code>% ./bin/dendrite-server start
+</code></pre>
+
+<p>To run Dendrite in production mode with HBase and an External Elasticsearch
+first edit <code>src/main/resources/META-INF/spring/prod/dendrite.properties</code> 
+to match your environment, for example:</p>
+
+<pre><code>dendrite-graph-factory.name-prefix=dendrite-prod-
+dendrite-graph-factory.storage.backend=hbase
+dendrite-graph-factory.storage.hostname=server.fqdn
+dendrite-graph-factory.storage.port=2181
+dendrite-graph-factory.storage.index.backend=elasticsearch
+dendrite-graph-factory.storage.index.hostname=server.fqdn
+dendrite-graph-factory.storage.index.client-only=true
+dendrite-graph-factory.storage.index.local-mode=false
+metadata-graph.properties=/WEB-INF/metadata-graph.properties
+metadata.directory=/tmp/dendrite
+history.properties=/WEB-INF/history.properties
+</code></pre>
+
+<p>Then launch dendrite with:</p>
+
+<pre><code>% hadoop fs -mkdir -p dendrite/
+% hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
+% DENDRITE_PROFILE=prod ./bin/dendrite-server start
+</code></pre>
+</li>
+<li>
+<p>Once <code>dendrite-server</code> is running initialize a graph-of-the-gods example graph:</p>
+
+<div class="highlight highlight-bash"><pre>% pip install requests
+% ./bin/dendrite create-project --script ./data/init-graph-of-the-gods.groovy my-project-name
+</pre></div>
+</li>
+<li><p>After the webserver is up and running browse to <a href="http://server.fqdn:8000/dendrite">http://server.fqdn:8000/dendrite</a></p></li>
+<li>Login as a user with user/password or as an admin with admin/password</li>
+</ol><h2>
 <a name="required-dependencies" class="anchor" href="#required-dependencies"><span class="octicon octicon-link"></span></a>Required Dependencies</h2>
 
 <ul>
@@ -62,13 +103,14 @@ Dendrite is a Lab41 exploration of ways to analyze, manipulate, version, and sha
 <li>Python</li>
 <li>Python Pip</li>
 </ul><h2>
-<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting started</h2>
+<a name="optional-dependencies" class="anchor" href="#optional-dependencies"><span class="octicon octicon-link"></span></a>Optional Dependencies</h2>
 
-<ol>
-<li><p>After the webserver is up and running browse to <a href="http://server.fqdn:8080/dendrite">http://server.fqdn:8080/dendrite</a></p></li>
-<li><p>Login as a user with user/password or as an admin with admin/password</p></li>
-</ol><h1>
-<a name="currently-supported-graph-formats-" class="anchor" href="#currently-supported-graph-formats-"><span class="octicon octicon-link"></span></a>Currently supported graph formats </h1>
+<ul>
+<li>Hadoop</li>
+<li>HBase</li>
+<li>Elasticsearch</li>
+</ul><h1>
+<a name="currently-supported-import-and-export-graph-formats-" class="anchor" href="#currently-supported-import-and-export-graph-formats-"><span class="octicon octicon-link"></span></a>Currently supported import and export graph formats </h1>
 
 <ul>
 <li>GML</li>
