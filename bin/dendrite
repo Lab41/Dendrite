@@ -372,13 +372,11 @@ def main():
 
     # If we didn't get the username or password, prompt until we get it.
     while args.user is None or args.user == '':
-        sys.stdout.write('please enter in the username: ')
+        sys.stdout.write('Username: ')
         sys.stdout.flush()
-        args.user = sys.stdin.readline()
+        args.user = sys.stdin.readline().strip()
 
     while args.password is None or args.password == '':
-        sys.stdout.write('please enter in the password: ')
-        sys.stdout.flush()
         args.password = getpass.getpass()
 
     try:
