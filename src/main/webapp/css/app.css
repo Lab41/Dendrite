@@ -85,6 +85,11 @@
   content: "";
   padding: 0;
 }
+[ng-click],
+[data-ng-click],
+[x-ng-click] {
+  cursor: pointer;
+}
 /**
  * Copyright 2013 In-Q-Tel/Lab41
  *

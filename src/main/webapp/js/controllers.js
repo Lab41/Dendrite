@@ -72,43 +72,68 @@ angular.module('dendrite.controllers', []).
           });
       };
     }).
-    controller('GraphListCtrl', function($scope, User, Graph) {
+    controller('ProjectListCtrl', function($scope, $location, User, Project) {
         $scope.User = User;
-        $scope.query = Graph.query();
+        $scope.query = Project.index();
+
+        // update list of current projects (for create/delete functions)
+        $scope.$on('event:reloadProjectNeeded', function() {
+          $scope.query = Project.index();
+        });
+
+        $scope.createProject = function() {
+          $location.path('projects/create');
+        };
+        $scope.showProject = function(id) {
+          $location.path('projects/'+id);
+        };
     }).
-    controller('GraphDetailCtrl', function($scope, $routeParams, $q, User, Graph, Vertex, Edge) {
+    controller('ProjectCreateCtrl', function($rootScope, $scope, $location, User, Project) {
+        $scope.User = User;
+        $scope.save = function() {
+            Project.save({}, $scope.project)
+                    .$then(function(response) {
+                      var project = response.data.project;
+                      $rootScope.$broadcast('event:reloadProjectNeeded');
+                      $location.path('projects/' + project._id);
+                    });
+        };
+    }).
+    controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $location, $q, Project) {
+        $scope.projectId = $routeParams.projectId;
+        $scope.queryProject = Project.query({projectId: $routeParams.projectId});
+        $scope.queryGraph = Project.graphs({projectId: $routeParams.projectId});
+        $scope.showGraph = function(id) {
+          $location.path('graphs/' + id);
+        };
+        $scope.editGraph = function(id) {
+          $location.path('graphs/'+id+'/edit');
+        };
+        $scope.deleteItem = function(item){
+          Project.delete({projectId: item._id}).
+            $then(function(response) {
+              var data = response.data;
+              if (data.msg === "deleted") {
+                $rootScope.$broadcast('event:reloadProjectNeeded');
+                $location.path('projects');
+              }
+            });
+        };
+    }).
+    controller('GraphDetailCtrl', function($scope, $routeParams, $q, User, Graph, GraphTransform) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
         $scope.graph = Graph.get({graphId: $routeParams.graphId});
-
-        $scope.forceDirectedGraphData = {};
 
         // This can be removed after we upgrade to angular 1.2.
         //$scope.forceDirectedGraphData = {
         //  vertices: Vertex.query({graphId: $scope.graphId}),
         //  edges: Edge.query({graphId: $scope.graphId})
         //};
-
-        $scope.reloadGraph = function() {
-          $scope.forceDirectedGraphData = {
-            vertices: $q.defer(),
-            edges: $q.defer(),
-          };
-
-          Vertex.query({graphId: $scope.graphId}, function(vertices) {
-            $scope.forceDirectedGraphData.vertices.resolve(vertices);
-          }, function() {
-            $scope.forceDirectedGraphData.vertices.reject();
-          });
-
-          Edge.query({graphId: $scope.graphId}, function(edges) {
-            $scope.forceDirectedGraphData.edges.resolve(edges);
-          }, function() {
-            $scope.forceDirectedGraphData.edges.reject();
-          });
-        }
-
-        $scope.reloadGraph();
+        $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+        $scope.$on('event:reloadGraph', function() {
+          $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+        });
 
     }).
     controller('GraphSaveCtrl', function ($scope, $routeParams, $http, GraphTransform) {
@@ -625,19 +650,20 @@ angular.module('dendrite.controllers', []).
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
 
-        $scope.uploadFile = function(content, completed) {
+        $scope.uploading = function() {
             $scope.fileUploading = true;
-            if (completed) {
-                $scope.fileUploading = false;
-                $scope.fileUploaded = true;
-                if (content.status === "ok") {
-                    $scope.uploadMessage = "file uploaded";
-                    $scope.reloadGraph();
-                } else {
-                    $scope.uploadMessage = "upload failed: " + content.msg;
-                }
+        };
+
+        $scope.uploadFile = function(content) {
+            $scope.fileUploading = false;
+            $scope.fileUploaded = true;
+            if (content.status === "ok") {
+                $scope.uploadMessage = "file uploaded";
+                $scope.$emit('event:reloadGraph');
+            } else {
+                $scope.uploadMessage = "upload failed: " + content.msg;
             }
-        }
+        };
     }).
     controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
       $scope.searching = false;

@@ -11,15 +11,15 @@
     <!-- authenticated users see account data -->
     <div ng-if='User.isLoggedIn()'>
 
-
-
       <ul class="nav navbar-nav">
         <!-- split button for graphs list -->
         <div class="btn-group navbar-btn">
-          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">Graphs <span class="caret"></span></button>
-          <ul class="dropdown-menu" ng-controller="GraphListCtrl">
-            <li ng-repeat="graph in query.graphs" >
-              <a href="#/graphs/{{ graph }}" >{{ graph }}</a>
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">Projects <span class="caret"></span></button>
+          <ul class="dropdown-menu" ng-controller="ProjectListCtrl">
+            <li><a href="#/projects">All</a></li>
+            <li class="divider"></li>
+            <li ng-repeat="project in query.projects" >
+              <a href="#/projects/{{ project._id }}" >{{ project.name }}</a>
             </li>
           </ul>
         </div>
@@ -33,7 +33,6 @@
 
     <!-- unauthenticated users see user/login form -->
     <div ng-if='!User.isLoggedIn()'>
-
       <div ng-include src="'partials/login.html'" class="nav navbar-nav navbar-login pull-right"></div>
     </div>
 
