@@ -232,8 +232,7 @@ angular.module('dendrite.controllers', []).
             columnDefs: 'columnDefs',
             showFilter: false,
             filterOptions: {
-                filterText: $routeParams.filterText || '',
-                useExternalFilter: true
+                useExternalFilter: false
             },
             enablePaging: true,
             showFooter: true,
@@ -254,14 +253,6 @@ angular.module('dendrite.controllers', []).
             //showSelectionCheckbox: true,
             //plugins: [new ngGridFlexibleHeightPlugin()]
         };
-
-        // Trigger a refresh when the filter changes.
-        $scope.$watch('gridOptions.filterOptions.filterText', function(newVal, oldVal) {
-          if (newVal !== oldVal) {
-            $location.search('filterText', newVal);
-            $scope.reloadData();
-          }
-        }, true);
 
         // Trigger a refresh when the page changes.
         $scope.$watch('gridOptions.pagingOptions', function(newVal, oldVal) {
