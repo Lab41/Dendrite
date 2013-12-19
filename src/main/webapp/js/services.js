@@ -154,7 +154,7 @@ angular.module('dendrite.services', ['ngResource']).
             // query server
             return $http({
                 method: "POST",
-                url: '/dendrite/api/'+$routeParams.graphId+'/viz/'+appConfig.titan.indexName+'/'+appConfig.elasticSearch.indexName,
+                url: '/dendrite/api/graphs/'+$routeParams.graphId+'/search',
                 data: JSON.stringify(inputJson)
             });
 
