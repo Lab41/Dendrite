@@ -201,12 +201,58 @@ angular.module('dendrite.controllers', []).
         }
         pollActive();
     }).
-    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge) {
+    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge, ElasticSearch) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
         $scope.data = [];
         $scope.selectedItems = [];
         $scope.totalServerItems = 0;
+        var columnDefs = [];
+
+        $scope.fullTextSearching = false;
+        $scope.fullTextSearch = function(query) {
+          $scope.fullTextSearching = true;
+          ElasticSearch
+            .search(query)
+              .success(function(data) {
+
+                  // build array of results
+                  var vertexResults = [];
+                  var vertexKeys = {};
+                  data.hits.hits.forEach(function(hit) {
+                    if (hit._type === "vertex") {
+                      hit._source._id = hit._source.vertexId;
+                      vertexResults.push(hit._source);
+
+                      // extract all keys (to dynamically update table columns)
+                      Object.keys(hit._source).forEach(function(k) {
+                        if (k !== "vertexId" && k !== "_id") {
+                          vertexKeys[k] = true;
+                        }
+                      });
+                    }
+                  });
+
+                  // create table columns from result index keys
+                  $scope.columnDefs = [];
+                  Object.keys(vertexKeys).forEach(function(k) {
+                    var cap = k.charAt(0).toUpperCase() + k.slice(1);
+                    $scope.columnDefs.push({field: k, displayName: cap, enableCellEdit: false});
+                  });
+
+                  // notify scope elasticsearch performed
+                  $scope.elasticSearched = true;
+                  $scope.elasticSearchNum = vertexResults.length;
+                  $scope.elasticSearchQuery = query;
+                  $scope.gridOptions.filterOptions.filterText = '';
+
+                  // reload data based on ES results
+                  reload(vertexResults, vertexResults.length);
+              })
+              .then(function() {
+                  $scope.fullTextSearching = false;
+              });
+        }
 
         if ($routeParams.mode === undefined || $routeParams.mode === "vertex") {
           var Item = Vertex;
@@ -339,7 +385,10 @@ angular.module('dendrite.controllers', []).
 
         $scope.reloadData = function() {
 
-          if (queryStyle === "vertices") {
+          if ($scope.elasticSearched) {
+            reload($scope.data, $scope.data.length);
+          }
+          else if (queryStyle === "vertices") {
             Vertex.query({graphId: $routeParams.graphId}, function(query) {
               // We are going to pretend that the server does the filtering, sorting, and paging.
               reload(query.results, query.totalSize);
