@@ -302,13 +302,6 @@ angular.module('dendrite.controllers', []).
 
         var currentId;
 
-        function queryNormal() {
-          Vertex.query({graphId: $routeParams.graphId}, function(query) {
-              // We are going to pretend that the server does the filtering, sorting, and paging.
-              reload(query.results, query.totalSize);
-          });
-        }
-
         var queryStyle = "vertices";
 
         $scope.followEdges = function(element) {
