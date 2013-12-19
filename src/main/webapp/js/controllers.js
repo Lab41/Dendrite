@@ -342,7 +342,7 @@ angular.module('dendrite.controllers', []).
           if (queryStyle === "vertices") {
             Vertex.query({graphId: $routeParams.graphId}, function(query) {
               // We are going to pretend that the server does the filtering, sorting, and paging.
-              reload(query);
+              reload(query.results, query.totalSize);
             });
           } else {
             $q.all(
@@ -376,14 +376,14 @@ angular.module('dendrite.controllers', []).
                 });
                 query.results = results;
 
-                reload(query);
+                reload(query.results, query.totalSize);
             });
           }
         }
 
-        function reload(query) {
+        function reload(results, totalSize) {
           // So first filter the data:
-          var results = $filter('filter')(query.results, $scope.gridOptions.filterOptions.filterText);
+          var results = $filter('filter')(results, $scope.gridOptions.filterOptions.filterText);
 
           // So first sort the data:
           results = $filter('orderBy')(
@@ -398,7 +398,7 @@ angular.module('dendrite.controllers', []).
             $scope.gridOptions.pagingOptions.currentPage * $scope.gridOptions.pagingOptions.pageSize
           );
 
-          $scope.totalServerItems = query.totalSize;
+          $scope.totalServerItems = totalSize;
 
           $scope.data = results;
 
