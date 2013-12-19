@@ -210,7 +210,7 @@ angular.module('dendrite.controllers', []).
 
         if ($routeParams.mode === undefined || $routeParams.mode === "vertex") {
           var Item = Vertex;
-          var columnDefs = [
+          $scope.columnDefs = [
             //{field: '_id', displayName: 'ID', enableCellEdit: false},
             {field: 'name', displayName: 'Name', enableCellEdit: true},
             //{field: 'type', displayName: 'Type', enableCellEdit: true},
@@ -219,7 +219,7 @@ angular.module('dendrite.controllers', []).
           ];
         } else if ($routeParams.mode === "edge") {
           var Item = Edge;
-          var columnDefs = [
+          $scope.columnDefs = [
             {field: '_id', displayName: 'ID', enableCellEdit: false},
             {field: '_label', displayName: 'Label', enableCellEdit: true},
             {field: '_inV', displayName: 'In Vertex', enableCellEdit: true},
@@ -229,7 +229,7 @@ angular.module('dendrite.controllers', []).
 
         $scope.gridOptions = {
             data: 'data',
-            columnDefs: columnDefs,
+            columnDefs: 'columnDefs',
             showFilter: false,
             filterOptions: {
                 filterText: $routeParams.filterText || '',
