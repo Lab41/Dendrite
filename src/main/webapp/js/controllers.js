@@ -156,35 +156,61 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
-    controller('AnalyticsDetailCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge, Analytics, Helpers, $timeout) {
+    controller('AnalyticsDetailCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // config
         $scope.activeAnalytics = [];
         $scope.colorProgressBars = Helpers.colorProgressBars;
 
-        Analytics.createDummyResults();
-
         // periodically poll for active calculations
         var pollActive = function() {
-          console.log(Analytics.analyticConfig.metadata.pollTimeout);
-          $scope.activeAnalytics = Analytics.pollActive();
-          $scope.analytic = Analytics.getAnalytic($routeParams.analyticsId);
-          $timeout(pollActive, Analytics.analyticConfig.metadata.pollTimeout);
+          Analytics.getJob({jobId: $routeParams.analyticsId})
+                      .$then(function(data) {
+                          $scope.analytic = data.data.job;
+                          if ($scope.analytic.progress < 1.0) {
+                            $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
+                          }
+                      });
         }
         pollActive();
+
+        // Delete job
+        $scope.deleteJob = function(id){
+          Analytics.deleteJob({jobId: id})
+            .$then(function(response) {
+              var data = response.data;
+              if (data.msg === "deleted") {
+                $location.path('projects');
+              }
+            });
+        };
+
+
     }).
-    controller('AnalyticsFormCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge, Analytics, Helpers, $timeout) {
+    controller('AnalyticsFormCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // placeholder default attributes
 
         $scope.$watch('analyticType', function () {
-          $scope.attr = Analytics.analyticConfig[$scope.analyticType];
+          $scope.attr = appConfig.analytics[$scope.analyticType];
         });
 
-        // submit calculation
+        // calculate analytic job
         $scope.calculate = function() {
-          Analytics.calculate($scope.analyticType, $scope.attr);
+          // PageRank
+          if ($scope.analyticType === "PageRank") {
+            Analytics.createPageRankJung({graphId: $routeParams.graphId}, {alpha: 1-$scope.attr.dampingFactor});
+          }
+          // Edge Degrees
+          else if ($scope.analyticType === "EdgeDegrees") {
+            if ($scope.attr.analyticEngine === "faunus") {
+              Analytics.createEdgeDegreesFaunus({graphId: $routeParams.graphId}, undefined);
+            }
+            else if ($scope.attr.analyticEngine === "titan") {
+              Analytics.createEdgeDegreesTitan({graphId: $routeParams.graphId}, undefined);
+            }
+          }
         };
     }).
-    controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge, Analytics, Helpers, $timeout) {
+    controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Helpers, $timeout) {
         // config
         $scope.activeAnalytics = [];
         $scope.colorProgressBars = Helpers.colorProgressBars;
@@ -196,8 +222,11 @@ angular.module('dendrite.controllers', []).
 
         // periodically poll for active calculations
         var pollActive = function() {
-          $scope.activeAnalytics = Analytics.pollActive();
-          $timeout(pollActive, Analytics.analyticConfig.metadata.pollTimeout);
+              Graph.get({graphId: $routeParams.graphId})
+                    .$then(function(dataGraph) {
+                        $scope.activeAnalytics = Project.jobs({projectId: dataGraph.data.graph.projectId});
+                    });
+              $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
         }
         pollActive();
     }).

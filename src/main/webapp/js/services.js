@@ -129,11 +129,11 @@ angular.module('dendrite.services', ['ngResource']).
         return {
           //TODO: delete once backend APIs complete - function to add class for progress bars
           colorProgressBars: function(progress) {
-            if (progress < 33) {
+            if (progress < 0.33) {
               return 'danger';
-            } else if (progress < 66) {
+            } else if (progress < 0.66) {
               return 'warning';
-            } else if (progress < 100) {
+            } else if (progress < 1.0) {
               return 'info';
             } else {
               return 'success';
@@ -313,89 +313,42 @@ angular.module('dendrite.services', ['ngResource']).
         }
       };
     }).
-    factory('Analytics', function($resource) {
-        //TODO: delete once backend APIs complete - dummy result array
-        var analyticResults = [];
+    factory('Analytics', function($resource, $routeParams, $http, Project, Graph, appConfig) {
+        return $resource('api/projects/:projectId/jobs', {
+            projectId: '@projectId'
+        }, {
 
-        return {
-          // TODO: delete once backend APIs complete - reset dummy results
-          createDummyResults: function() {
-            analyticResults = [
-              {'id': 0, 'analyticType': 'PageRank', 'percentComplete': 0},
-              {'id': 1, 'analyticType': 'Degree Centrality', 'percentComplete': 0},
-              {'id': 2, 'analyticType': 'Betweenness Centrality', 'percentComplete': 0},
-              {'id': 3, 'analyticType': 'Proximity Prestige', 'percentComplete': 0},
-            ];
+          getJob: {
+            url: 'api/jobs/:jobId',
+            method: 'GET',
+            isArray: false
           },
 
-          // configuration options for various analytics
-          analyticConfig: {
-            'metadata': {
-              'pollTimeout': 750,
-              'analyticsExecuting': false
-            },
-
-            'PageRank': {
-              saved: false,
-              dampingFactor: 0.85
-            }
-          },
-
-          // TODO: delete once backend APIs complete - retrieve dummy result
-          getAnalytic: function(id) {
-            return analyticResults[id];
+          deleteJob: {
+            url: 'api/jobs/:jobId',
+            method: 'DELETE',
+            isArray: false
           },
 
           // fire off calculation
-          calculate: function(analyticType, attr) {
-            alert("calculating " + analyticType + " with input " + attr.dampingFactor);
-            this.analyticConfig.metadata.analyticsExecuting = true;
-            this.createDummyResults();
-            /*
-            //TODO enable once backend APIs complete
-            return $resource('rexster-resource/graphs/:graphId/analytics/execute', {
-                graphId: '@name',
-                analyticParams: attr
-            }, {
-                query: {
-                    method: 'GET',
-                    isArray: false
-                }
-            });
-            */
+          createPageRankJung: {
+            url: 'api/graphs/:graphId/analysis/jung-pagerank',
+            method: 'POST',
+            isArray: false
           },
 
-          // poll server for active calculations
-          pollActive: function() {
-            console.log("polling for active analytics");
-
-            if (this.analyticConfig.metadata.analyticsExecuting) {
-              this.analyticConfig.metadata.analyticsExecuting = false;
-
-              //TODO: delete once backend APIs complete - dummy function to simulate job progress
-              for (var i = 0; i < analyticResults.length; i++) {
-                if (analyticResults[i].percentComplete < 100) {
-                  this.analyticConfig.metadata.analyticsExecuting = true;
-                  var newNum = analyticResults[i].percentComplete += Math.floor((Math.random()*15)+1);
-                  analyticResults[i].percentComplete = (newNum > 100) ? 100 : newNum;
-                }
-              }
-            }
-            return analyticResults;
-            /*
-            //TODO enable once backend APIs complete
-            return $resource('rexster-resource/graphs/:graphId/analytics/poll', {
-                graphId: '@name',
-            }, {
-                query: {
-                    method: 'GET',
-                    isArray: false
-                }
-            });
-            */
-
+          createEdgeDegreesFaunus: {
+            url: 'api/graphs/:graphId/analysis/faunus-degrees',
+            method: 'POST',
+            isArray: false
           },
-        };
+
+          createEdgeDegreesTitan: {
+            url: 'api/graphs/:graphId/analysis/titan-degrees',
+            method: 'POST',
+            isArray: false
+          }
+        });
     }).
     factory('Project', function($resource) {
         return $resource('api/projects/:projectId', {
@@ -422,6 +375,10 @@ angular.module('dendrite.services', ['ngResource']).
               url: 'api/projects',
               method: 'POST',
               isArray: false
+            },
+            jobs: {
+              url: 'api/projects/:projectId/jobs',
+              method: 'GET'
             }
         });
     }).
@@ -429,6 +386,11 @@ angular.module('dendrite.services', ['ngResource']).
         return $resource('rexster-resource/graphs/:graphId', {
             graphId: '@name'
         }, {
+            get: {
+                url: 'api/graphs/:graphId',
+                method: 'GET',
+                isArray: false
+            },
             query: {
                 method: 'GET',
                 isArray: false

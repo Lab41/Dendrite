@@ -100,7 +100,18 @@ angular.module('dendrite', [
     $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
   }]).
   constant('appConfig', {
-    elasticSearch: {fieldSize: 1000}
+    elasticSearch: {fieldSize: 1000},
+    analytics: {
+        metadata: {
+          pollTimeout: 5000
+        },
+        PageRank: {
+          dampingFactor: 0.85,
+        },
+        EdgeDegrees: {
+          analyticEngine: 'titan'
+        }
+    }
   }).
   run(['$rootScope', '$http', '$location', 'User', function(scope, $http, $location, User) {
     // store requests which failed due to 401 response.
