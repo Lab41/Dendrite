@@ -14,14 +14,29 @@
         <a class="btn btn-primary" href="#/graphs/{{ graphId }}/create_vertex">Add Person</a>
         <a href="#/graphs/{{ graphId }}/edges?mode=edge" class="btn btn-success">View Connections</a>
       </div>
-      <div class="inline">
-        <input type="text" class="form-control inline searchbar" placeholder="Search" ng-model="gridOptions.filterOptions.filterText" id="filter">
-      </div>
-      <div class="inline float-right">
-        <button class="btn" ng-click="resetItems()"><i class="icon-refresh"></i></button>
+      <!-- searchbar -->
+      <div class="inline input-append">
+        <form ng-submit="fullTextSearch(gridOptions.filterOptions.filterText)">
+          <input type="text" class="form-control inline searchbar" placeholder="Filter Results" ng-model="gridOptions.filterOptions.filterText" id="filter">
+          <button type="submit" class="btn btn-default">
+            <i class="icon-search icon-white" ng-hide="fullTextSearching"></i>
+            <img src="img/icons/ajax-spinner.gif" ng-hide="!fullTextSearching">
+            <span ng-hide="fullTextSearching">Full Search</span>
+          </button>
+        </form>
       </div>
     </div>
 
+    <div class="row">
+      <div class="span8">
+        <div class="inline float-left" ng-if="elasticSearched">
+          <strong>{{ elasticSearchNum }}</strong> results for '{{ elasticSearchQuery }}':
+        </div>
+        <div class="inline float-right">
+          <button class="btn" ng-click="resetItems()"><i class="icon-refresh"></i> Refresh</button>
+        </div>
+      </div>
+    </div>
 
     <div class="row">
       <div class="span8">

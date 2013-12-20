@@ -2,11 +2,14 @@
 
 <!-- list of active analytics jobs -->
 <ul style="margin-top:10px">
-  <li ng-repeat="analytic in activeAnalytics">
-    <div ng-if="analytic.percentComplete == 100" class="btn btn-small btn-attention"><i class="icon-white icon-zoom-in vertical-align-middle" ng-click="showAnalytic({{analytic.id}})"></i></div>
-    <strong> {{analytic.analyticType}}</strong>
-    <div class="progress-{{colorProgressBars(analytic.percentComplete)}} active progress" ng-class="(analytic.percentComplete != 100) ? 'progress-striped' : ''" >
-      <div class="bar" style="width:{{analytic.percentComplete}}%;">{{analytic.percentComplete}}%</div>
+  <li ng-repeat="analytic in activeAnalytics.jobs">
+    <div ng-if="analytic.progress == 1.0 || analytic.state == 'ERROR'" class="btn btn-small btn-attention"><i class="icon-white icon-zoom-in vertical-align-middle" ng-click="showAnalytic({{analytic._id}})"></i></div>
+    <strong> {{analytic.name}}</strong>
+    <div ng-if="analytic.state==='ERROR'">
+      Error: {{ analytic.mapreduceJobId }} {{ analytic.msg }}
+    </div>
+    <div class="progress-{{colorProgressBars(analytic.progress)}} active progress" ng-class="(analytic.progress != 1.0) ? 'progress-striped' : ''" >
+      <div class="bar" style="width:{{analytic.progress*100}}%;">{{analytic.progress * 100}}%</div>
     </div>
   </li>
   <li ng-if="activeAnalytics.length == 0">(no active calculations)</li>
