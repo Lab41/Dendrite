@@ -181,6 +181,7 @@ angular.module('dendrite.services', ['ngResource']).
 
           // build elasticSearch query
           var inputJson = {
+                    "size" : 0,
                     "query" : { "query_string" : {"query" : queryTerm} },
                     "facets" : {
                         "tags" : { "terms": {"field": queryFacet, "size": appConfig.elasticSearch.fieldSize}
