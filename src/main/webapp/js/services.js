@@ -236,15 +236,10 @@ angular.module('dendrite.services', ['ngResource']).
               .attr('width', width)
               .attr('height', height);
 
-
             // establish scales for x,y
             x = d3.scale.linear()
                .domain([0, d3.max(scores)])
                .range([0, width]);
-
-            y = d3.scale.ordinal()
-              .domain(scores)
-              .rangeBands([0, height]);
 
             // redefine y for adjusting the gap
             y = d3.scale.ordinal()
@@ -258,17 +253,6 @@ angular.module('dendrite.services', ['ngResource']).
               .attr('height', (bar_height + gap * 2) * names.length + padding_height)
               .append("g")
               .attr("transform", "translate(0, 0)");
-
-            // add scale ruler
-            chart.selectAll(".rule")
-              .data(x.ticks(d3.max(scores)))
-              .enter().append("text")
-              .attr("x", function(d) { return x(d) + left_width; })
-              .attr("y", 0)
-              .attr("dy", -6)
-              .attr("text-anchor", "middle")
-              .attr("font-size", 10)
-              .text(String);
 
             // scale ruler lines
             chart.selectAll("line")
