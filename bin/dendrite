@@ -1,12 +1,232 @@
 #!/usr/bin/env python
 
 import argparse
+import datetime
 import getpass
 import json
 import requests
 import sys
+import time
+from contextlib import closing
+
 
 # ----------------------------------------------------------------------------
+
+class Connection(object):
+    def __init__(self, args):
+        self.session = requests.Session()
+        self.session.auth = (args.user, args.password)
+        self.url = args.url
+
+    def close(self):
+        self.session.close()
+
+    def request(self, method, url, *args, **kwargs):
+        url = "{}{}".format(self.url, url)
+
+        response = self.session.request(method, url, *args, **kwargs)
+        response.raise_for_status()
+
+        return response
+
+    def get(self, *args, **kwargs):
+        return self.request('GET', *args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        return self.request('POST', *args, **kwargs)
+
+    def post_json(self, *args, **kwargs):
+        kwargs = dict(kwargs)
+        kwargs['data'] = json.dumps(kwargs.pop('data', {}))
+
+        headers = kwargs.pop('headers', {})
+        headers['content-type'] = 'application/json'
+        kwargs['headers'] = headers
+
+        return self.post(*args, **kwargs)
+
+    def put(self, *args, **kwargs):
+        return run_request('PUT', *args, **kwargs)
+
+    def put_json(self, *args, **kwargs):
+        kwargs = dict(kwargs)
+        kwargs['data'] = json.dumps(kwargs.pop('data', {}))
+
+        headers = kwargs.pop('headers', {})
+        headers['content-type'] = 'application/json'
+        kwargs['headers'] = headers
+
+        return self.put(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        return self.request('DELETE', *args, **kwargs)
+
+# ------------------------------------------------------------------------------
+
+class Table(object):
+    URL_PATH = None
+    LIST_KEY = None
+    GET_KEY = None
+
+    @classmethod
+    def list(cls, conn):
+        response = conn.get(cls.URL_PATH)
+        for row in response.json()[cls.LIST_KEY]:
+            yield cls(conn, **row)
+
+    @classmethod
+    def get(cls, conn, id):
+        data = conn.get('{}/{}'.format(cls.URL_PATH, id)).json()[cls.GET_KEY]
+        return cls(conn, **data)
+
+    def __init__(self, conn, **data):
+        self.conn = conn
+        self.update(data)
+
+    @property
+    def id(self):
+        return self.data['_id']
+
+    def refresh(self):
+        """Requeries the object with the latest database state"""
+        self.update(self.get(self.conn, self.id).data)
+
+    def update(self, data):
+        self.data = data
+
+    def delete(self):
+        response = self.conn.delete('{}/{}'.format(self.URL_PATH, self.id)).json()
+
+# ------------------------------------------------------------------------------
+
+class Project(Table):
+    URL_PATH = '/api/projects'
+    GET_KEY = 'project'
+    LIST_KEY = 'projects'
+
+    @classmethod
+    def create(cls, conn, name):
+        """Create a Dendrite project"""
+
+        data = { 'name': name }
+        response = conn.post_json(cls.URL_PATH, data=data)
+        project_data = response.json()[cls.GET_KEY]
+
+        return Project(conn, **project_data)
+
+    @property
+    def name(self):
+        return self.data['name']
+
+    @property
+    def current_graph(self):
+        """Return the current Graph instance"""
+
+        if not hasattr(self, '_current_graph') or self._current_graph is None:
+            graph_id = self.data.get('current_graph', None)
+            if graph_id is None:
+                return None
+
+            self._current_graph = Graph.get(graph_id)
+
+        return self._current_graph
+
+# ------------------------------------------------------------------------------
+
+class Graph(Table):
+    URL_PATH = '/api/graphs'
+    GET_KEY = 'graph'
+    LIST_KEY = 'graphs'
+
+    def import_graph(self, format, file):
+        response = self.conn.post('/api/graphs/{}/file-import'.format(self.id),
+                data={ 'format': format },
+                files={ 'file': file })
+
+    def export_graph(self, format):
+        response = self.conn.post('/api/graphs/{}/file-export'.format(self.id),
+                data={ 'format': format })
+
+        return response.content
+
+    def run_groovy(self, script):
+        url = '/rexster-resource/graphs/{}/tp/gremlin'.format(self.id)
+        data = { 'script': script.read() }
+        return self.conn.post_json(url, data=data).json()
+
+    def run_titan_degrees(self):
+        url = '/api/graphs/{}/analysis/titan-degrees'.format(self.id)
+        response = self.conn.post(url).json()
+
+        return Job.get(self.conn, response['jobId'])
+
+    def run_faunus_degrees(self):
+        url = '/api/graphs/{}/analysis/faunus-degrees'.format(self.id)
+        response = self.conn.post(url).json()
+
+        return Job.get(self.conn, response['jobId'])
+
+    def run_jung_pagerank(self, alpha=0.15):
+        url = '/api/graphs/{}/analysis/jung-pagerank'.format(self.id)
+        data = { 'alpha': alpha }
+        response = self.conn.post_json(url, data=data).json()
+
+        return Job.get(self.conn, response['jobId'])
+
+# ------------------------------------------------------------------------------
+
+class Job(Table):
+    URL_PATH = '/api/jobs'
+    GET_KEY = 'job'
+    LIST_KEY = 'jobs'
+
+    @property
+    def name(self):
+        return self.data['name']
+
+    @property
+    def state(self):
+        return self.data['state']
+
+    @property
+    def progress(self):
+        return self.data['progress']
+
+    def wait_until_finished(self):
+        states = ['DONE', 'ERROR']
+
+        if self.state not in states:
+            print 'waiting for job {} ({}) to finish...'.format(self.name, self.id)
+
+            starttime = datetime.datetime.now()
+            msg = ''
+
+            def print_step():
+                now = datetime.datetime.now()
+                msg = '{}    state: {}    {:.0%} completed'.format(
+                        str(now - starttime).split('.')[0],
+                        self.state,
+                        self.progress)
+                sys.stdout.write('\r')
+                sys.stdout.write(' ' * len(msg))
+                sys.stdout.write('\r')
+                sys.stdout.write(msg)
+                sys.stdout.flush()
+
+            while self.state not in ['DONE', 'ERROR']:
+                print_step()
+                time.sleep(1)
+                self.refresh()
+
+            print_step()
+            print
+
+        if self.state == 'DONE':
+            print 'job finished successfully'
+        else:
+            print 'job errored out'
+
+# ------------------------------------------------------------------------------
 
 # A function that converts a multilevel dictionary into a flat dictionary.
 def flatten_dict(d):
@@ -27,12 +247,12 @@ def flatten_dict(d):
     return out_d
 
 # A simple function to print out some rows
-def print_rows(rows, headers=None, show_headers=True):
+def print_records(rows, headers=None, show_headers=True):
+    # Lets make the output pretty for hierarchical rows.
+    rows = [flatten_dict(row.data) for row in rows]
+
     if len(rows) == 0:
         return
-
-    # Lets make the output pretty for hierarchical rows.
-    rows = [flatten_dict(row) for row in rows]
     
     # If we didn't have some headers passed in, extract them from the dataset.
     if headers is None:
@@ -78,129 +298,86 @@ def print_rows(rows, headers=None, show_headers=True):
 # ----------------------------------------------------------------------------
 
 def create_project(args):
-    if args.script == '':
-        print >> sys.stderr, 'script cannot be empty'
-        return 1
-
-    project = {
-        'name': args.name,
-    }
-
-    # Create the project
-    print 'Creating the project...'
-    response = requests.post(args.url + '/api/projects',
-            data=json.dumps(project),
-            headers={'content-type': 'application/json'},
-            auth=(args.user, args.password))
-    response.raise_for_status()
-
-    data = response.json()
-    
-    print_rows([data['project']],
-            headers=['_id', 'name', 'current_graph'],
-            show_headers=args.show_headers)
-    print
-
-    if args.script:
-        args.id = data['project']['current_graph']
-        run_groovy(args)
+    with closing(Connection(args)) as conn:
+        print 'Creating project...'
+        project = Project.create(conn, args.name)
+        print_records([project])
 
     return 0
 
 # ----------------------------------------------------------------------------
-
-def show(path, name, args):
-    url = '{}/{}'.format(args.url, path)
-
-    response = requests.get(url,
-            auth=(args.user, args.password))
-    response.raise_for_status()
-
-    print_rows(response.json()[name],
-            show_headers=args.show_headers)
-
-    return 0
 
 def show_projects(args):
-    return show('/api/projects', 'projects', args)
+    with closing(Connection(args)) as conn:
+        print_records(Project.list(conn))
 
 def show_graphs(args):
-    return show('/api/graphs', 'graphs', args)
+    with closing(Connection(args)) as conn:
+        print_records(Graph.list(conn))
 
 def show_jobs(args):
-    return show('/api/jobs', 'jobs', args)
+    with closing(Connection(args)) as conn:
+        print_records(Job.list(conn))
 
 # ----------------------------------------------------------------------------
 
-def delete(path, name, args):
-    url = '{}/{}/{}'.format(args.url, path, args.id)
-
-    response = requests.delete(url,
-            auth=(args.user, args.password))
-    response.raise_for_status()
-
-    print name, 'deleted'
-
-    return 0
-
 def delete_project(args):
-    return delete('/api/projects', 'project', args)
+    with closing(Connection(args)) as conn:
+        project = Project.get(conn, args.id)
+        project.delete()
+        print 'project deleted'
 
 def delete_graph(args):
-    return delete('/api/graphs', 'graph', args)
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
+        graph.delete()
+        print 'graph deleted'
 
 def delete_job(args):
-    return delete('/api/jobs', 'job', args)
+    with closing(Connection(args)) as conn:
+        job = Job.get(conn, args.id)
+        job.delete()
+        print 'job deleted'
 
 # ----------------------------------------------------------------------------
 
 def import_graph(args):
-    url = '{}/api/graphs/{}/file-import'.format(args.url, args.id)
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
 
-    response = requests.post(url,
-            data={'format': args.format},
-            files={'file': args.file},
-            auth=(args.user, args.password))
-    response.raise_for_status()
-
-    print 'graph imported'
+        print 'Importing graph...'
+        graph.import_graph(format, file)
+        print 'graph imported'
 
     return 0
 
 def export_graph(args):
-    url = '{}/api/graphs/{}/file-export'.format(args.url, args.id)
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
 
-    response = requests.post(url,
-            data={'format': args.format},
-            auth=(args.user, args.password))
-    response.raise_for_status()
+        print 'Importing graph...'
+        content = graph.export_graph(args.format)
+        print 'graph exported'
 
-    output_file = args.output_file or sys.stdout
-    output_file.write(response.content)
-    output_file.flush()
+        with closing(args.output_file or sys.stdout) as output_file:
+            output_file.write(content)
+            output_file.flush()
 
-    # It looks nicer if we add a trailing null when printing out to stdout.
-    if output_file is sys.stdout:
-        print
+            # It looks nicer if we add a trailing null when printing out to stdout.
+            if output_file is sys.stdout:
+                output_file.write('\n')
 
     return 0
 
 # ----------------------------------------------------------------------------
 
 def run_groovy(args):
-    print 'Running the groovy script...'
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
 
-    url = '{}/rexster-resource/graphs/{}/tp/gremlin'.format(
-            args.url,
-            args.id)
-
-    response = requests.post(url,
-            data=json.dumps({'script': args.script.read()}),
-            headers={'content-type': 'application/json'},
-            auth=(args.user, args.password))
-    response.raise_for_status()
-
-    print 'done'
+        print 'Running the groovy script...'
+        graph.run_groovy(args.script)
+        print 'done'
 
     return 0
 
@@ -216,28 +393,35 @@ def run_degrees(args, analysis):
             auth=(args.user, args.password))
     response.raise_for_status()
 
-    print_rows([response.json()])
+    print_records([response.json()])
 
     return 0
 
 def run_titan_degrees(args):
-    return run_degrees(args, 'titan-degrees')
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
+
+        print 'Running Titan edge degrees analysis...'
+        job = graph.run_titan_degrees()
+        job.wait_until_finished()
 
 def run_faunus_degrees(args):
-    return run_degrees(args, 'faunus-degrees')
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
+
+        print 'Running Faunus edge degrees analysis...'
+        job = graph.run_faunus_degrees()
+        job.wait_until_finished()
 
 # ----------------------------------------------------------------------------
 
 def run_jung_pagerank(args):
-    url = '{}/api/graphs/{}/analysis/jung-pagerank'.format(args.url, args.id)
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
 
-    response = requests.post(url,
-            headers={'content-type': 'application/json'},
-            data=json.dumps({'alpha': args.alpha}),
-            auth=(args.user, args.password))
-    response.raise_for_status()
-
-    print_rows([response.json()])
+        print 'Running Jung PageRank analysis...'
+        job = graph.run_jung_pagerank(args.alpha)
+        job.wait_until_finished()
 
     return 0
 
