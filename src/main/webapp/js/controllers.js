@@ -195,6 +195,10 @@ angular.module('dendrite.controllers', []).
 
         // calculate analytic job
         $scope.calculate = function() {
+          // BetweennessCentrality
+          if ($scope.analyticType === "BetweennessCentrality") {
+            Analytics.createBetweennessCentralityJung({graphId: $routeParams.graphId});
+          }
           // PageRank
           if ($scope.analyticType === "PageRank") {
             Analytics.createPageRankJung({graphId: $routeParams.graphId}, {alpha: 1-$scope.attr.dampingFactor});
