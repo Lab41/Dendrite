@@ -9,7 +9,6 @@ import sys
 import time
 from contextlib import closing
 
-
 # ----------------------------------------------------------------------------
 
 class Connection(object):
@@ -376,8 +375,12 @@ def run_groovy(args):
         graph = Graph.get(conn, args.id)
 
         print 'Running the groovy script...'
-        graph.run_groovy(args.script)
-        print 'done'
+        response = graph.run_groovy(args.script)
+
+        if args.pretty:
+            print json.dumps(response, indent=2)
+        else:
+            print json.dumps(response)
 
     return 0
 
@@ -520,6 +523,10 @@ def main():
 
     # Options for running jobs.
     parser_run_groovy = subparsers.add_parser('run-groovy')
+    parser_run_groovy.add_argument('--pretty',
+            default=False,
+            action='store_true',
+            help='Prettify the json response')
     parser_run_groovy.add_argument('id',
             type=not_empty,
             help='the id of the graph according to rexster')
