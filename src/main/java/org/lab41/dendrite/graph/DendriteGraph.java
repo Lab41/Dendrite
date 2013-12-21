@@ -44,7 +44,7 @@ public class DendriteGraph implements TitanGraph {
         return systemGraph;
     }
 
-    public TitanGraph getTitanGraph() {
+    synchronized public TitanGraph getTitanGraph() {
         if (titanGraph == null) {
             logger.debug("opening titan graph '" + id + "'");
 
