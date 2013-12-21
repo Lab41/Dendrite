@@ -16,7 +16,7 @@
       </div>
       <!-- searchbar -->
       <div class="inline input-append">
-        <form ng-submit="fullTextSearch(gridOptions.filterOptions.filterText)">
+        <form ng-submit="refresh('Searching')">
           <input type="text" class="form-control inline searchbar" placeholder="Filter Results" ng-model="gridOptions.filterOptions.filterText" id="filter">
           <button type="submit" class="btn btn-default">
             <i class="icon-search icon-white" ng-hide="fullTextSearching"></i>
@@ -29,11 +29,14 @@
 
     <div class="row">
       <div class="span8">
-        <div class="inline float-left" ng-if="elasticSearched">
-          <strong>{{ elasticSearchNum }}</strong> results for '{{ elasticSearchQuery }}':
+        <div class="inline float-left" ng-if="!searching">
+          <strong>{{ totalServerItems }}</strong> results for '{{ filterOptions.filterText }}':
+        </div>
+        <div class="inline float-left" ng-if="searching">
+          {{ elasticSearchAction }}... <img src="img/icons/ajax-loader.gif">
         </div>
         <div class="inline float-right">
-          <button class="btn" ng-click="resetItems()"><i class="icon-refresh"></i> Refresh</button>
+          <button class="btn" ng-click="refresh('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
         </div>
       </div>
     </div>
