@@ -38,6 +38,7 @@ public class BetweennessCentralityService extends AnalysisService {
 
         Graph<Vertex, Edge> jungGraph = new GraphJung<>(tx);
         BetweennessCentrality<Vertex, Edge> betweennessCentrality = new BetweennessCentrality<>(jungGraph);
+        betweennessCentrality.setRemoveRankScoresOnFinalize(false);
         betweennessCentrality.evaluate();
 
         for (Vertex vertex: jungGraph.getVertices()) {
