@@ -147,7 +147,7 @@ angular.module('dendrite.services', ['ngResource']).
           search: function(queryParams) {
             // build elasticSearch query
             var inputJson = {
-                    "from" : queryParams.pageSize*(queryParams.pageNumber - 1) + 1,
+                    "from" : queryParams.pageSize*(queryParams.pageNumber - 1),
                     "size" : queryParams.pageSize,
                     "query" : { "query_string" : {"query" : "*"+queryParams.queryTerm+"*"} },
                     "filter" : { "type": { "value": queryParams.resultType } },

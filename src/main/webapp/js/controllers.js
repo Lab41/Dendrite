@@ -232,6 +232,8 @@ angular.module('dendrite.controllers', []).
     }).
     controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, ElasticSearch) {
 
+      $scope.graphId = $routeParams.graphId;
+
       $scope.followEdges = function(element) {
         $routeParams.mode = "edge";
         queryStyle = "edges";
@@ -285,6 +287,7 @@ angular.module('dendrite.controllers', []).
           $scope.refresh();
         }
 
+      $scope.objectType = "vertex";
       $scope.items = [];
 
       // filter
@@ -302,18 +305,32 @@ angular.module('dendrite.controllers', []).
       };
 
       // sort
+      $scope.sortedField = {};
       $scope.sortOptions = {
-          fields: ["name", "age"],
-          directions: ["ASC", "DESC"]
+          fields: [],
+          directions: []
       };
+
+      // call elasticSearch sort when header is clicked
+      // extra function needed to be able to dynamically set
+      // sortOptions without a $scope.$watch, which would
+      // re-trigger refresh() call in an endless loop
+      $scope.externalSort = function(field, direction) {
+
+        // default the sortedField to "asc" unless already set to "asc"
+        var newSortedField = {};
+        newSortedField[field] = ($scope.sortedField && $scope.sortedField[field] === "asc") ? "desc" : "asc";
+        $scope.sortedField = newSortedField;
+
+        // update list
+        $scope.elasticSearchAction = "Sorting";
+        $scope.refresh();
+      }
 
       // grid
       $scope.gridOptions = {
           data: "items",
-          columnDefs: [
-              { field: "name", displayName: "Name"},
-              { field: "age", displayName: "Age"}
-          ],
+          columnDefs: 'columnDefs',
           enablePaging: true,
           enablePinning: true,
           pagingOptions: $scope.pagingOptions,
@@ -344,51 +361,79 @@ angular.module('dendrite.controllers', []).
                   $scope.$apply();
               }
 
-              var sb = [];
-              for (var i = 0; i < $scope.sortOptions.fields.length; i++) {
+              var elasticSortOptions = [];
+              Object.keys($scope.sortedField).forEach(function(k) {
                 var newHash = {};
-                newHash[ $scope.sortOptions.fields[i] ] = { "order" : $scope.sortOptions.directions[i] };
-                sb.push( newHash );
-              }
+                newHash[k] = { "order" : $scope.sortedField[k] };
+                elasticSortOptions.push( newHash );
+              });
 
               var p = {
                   queryTerm: $scope.filterOptions.filterText,
                   pageNumber: $scope.pagingOptions.currentPage,
                   pageSize: $scope.pagingOptions.pageSize,
-                  sortInfo: sb,
-                  resultType: "vertex"
+                  sortInfo: elasticSortOptions,
+                  resultType: $scope.objectType
               };
 
               ElasticSearch.search(p)
                 .success(function(data, status, headers, config) {
                     $scope.totalServerItems = data.hits.total;
 
+                    // update sort options
+                    var sortFields = [];
+                    var sortDirections = [];
+
                     // build array of results
-                    var vertexResults = [];
-                    var vertexKeys = {};
+                    var resultArray = [];
+                    var resultKeys = {};
+                    var sortDirections = [];
                     data.hits.hits.forEach(function(hit) {
-                      if (hit._type === "vertex") {
-                        hit._source._id = hit._source.vertexId;
-                        vertexResults.push(hit._source);
+                      if (hit._type === $scope.objectType) {
+                        hit._source._id = hit._source[$scope.objectType+'Id'];
+                        resultArray.push(hit._source);
 
                         // extract all keys (to dynamically update table columns)
                         Object.keys(hit._source).forEach(function(k) {
-                          if (k !== "vertexId" && k !== "_id") {
-                            vertexKeys[k] = true;
+                          if (k !== ($scope.objectType+'Id') && k !== "_id") {
+                            resultKeys[k] = true;
                           }
                         });
                       }
                     });
 
                     // create table columns from result index keys
+                    // headerCellTemplate adds externalSort() function
+                    // to allow dynamic setting of columns based on results
                     $scope.columnDefs = [];
-                    Object.keys(vertexKeys).forEach(function(k) {
-                      var cap = k.charAt(0).toUpperCase() + k.slice(1);
-                      $scope.columnDefs.push({field: k, displayName: cap, enableCellEdit: false});
+                    Object.keys(resultKeys).forEach(function(k) {
+                      var nameCapitalized = k.charAt(0).toUpperCase() + k.slice(1);
+                      $scope.columnDefs.push({
+                        field: k,
+                        displayName: nameCapitalized,
+                        enableCellEdit: false,
+                        headerCellTemplate: '<div ng-click="externalSort(col.field)" ng-class="\'colt\' + col.index" class="ngHeaderText"">{{col.displayName}}</div>'
+                      });
+
+                      // update the table column heads
+                      // use default sort unless set in external query
+                      sortFields.push(k);
+                      if ($scope.sortedField) {
+                        if (k in $scope.sortedField) {
+                          sortDirections.push($scope.sortedField[k]);
+                        }
+                        else {
+                          sortDirections.push(appConfig.elasticSearch.sorting.direction);
+                        }
+                      }
                     });
 
+                    // update sort options
+                    $scope.sortOptions.fields = sortFields;
+                    $scope.sortOptions.directions = sortDirections;
+
                     // store the results
-                    $scope.items = vertexResults;
+                    $scope.items = resultArray;
                     $scope.searching = false;
 
                 }).error(function(data, status, headers, config) {
@@ -412,13 +457,8 @@ angular.module('dendrite.controllers', []).
           }
       }, true);
 
-      $scope.$watch('sortOptions', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-              $scope.elasticSearchAction = "Sorting";
-              $scope.refresh();
-          }
-      }, true);
-
+      // initialize on entry
+      $scope.refresh();
     }).
     controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;

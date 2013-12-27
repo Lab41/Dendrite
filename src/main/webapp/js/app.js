@@ -101,7 +101,10 @@ angular.module('dendrite', [
   }]).
   constant('appConfig', {
     elasticSearch: {
-      fieldSize: 5
+      fieldSize: 5,
+      sorting: {
+        direction: "asc"
+      }
     },
     analytics: {
         metadata: {
