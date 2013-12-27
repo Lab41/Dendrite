@@ -412,7 +412,9 @@ angular.module('dendrite.controllers', []).
                         field: k,
                         displayName: nameCapitalized,
                         enableCellEdit: false,
-                        headerCellTemplate: '<div ng-click="externalSort(col.field)" ng-class="\'colt\' + col.index" class="ngHeaderText"">{{col.displayName}}</div>'
+                        headerCellTemplate: '<div class="ngHeaderSortColumn  ngSorted" ng-style="{\'cursor\': col.cursor}" ng-class="{ \'ngSorted\': !noSortVisible }" style="cursor: pointer;" draggable="true">\
+                          <div ng-click="externalSort(col.field)" ng-class="\'colt\' + col.index" class="ngHeaderText"">{{col.displayName}}</div>\
+                        </div>'
                       });
 
                       // update the table column heads
