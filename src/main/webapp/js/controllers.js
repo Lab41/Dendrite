@@ -230,129 +230,36 @@ angular.module('dendrite.controllers', []).
         }
         pollActive();
     }).
-    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, User, Vertex, Edge, ElasticSearch) {
-        $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
-        $scope.data = [];
-        $scope.selectedItems = [];
-        $scope.totalServerItems = 0;
-        var columnDefs = [];
+    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, ElasticSearch) {
 
-        $scope.fullTextSearching = false;
-        $scope.fullTextSearch = function(query) {
-          $scope.fullTextSearching = true;
-          ElasticSearch
-            .search(query)
-              .success(function(data) {
+      $scope.graphId = $routeParams.graphId;
 
-                  // build array of results
-                  var vertexResults = [];
-                  var vertexKeys = {};
-                  data.hits.hits.forEach(function(hit) {
-                    if (hit._type === "vertex") {
-                      hit._source._id = hit._source.vertexId;
-                      vertexResults.push(hit._source);
+      $scope.followEdges = function(element) {
+        $routeParams.mode = "edge";
+        queryStyle = "edges";
+        $scope.reloadData();
+        return false; // prevent normal link behavior
+      };
 
-                      // extract all keys (to dynamically update table columns)
-                      Object.keys(hit._source).forEach(function(k) {
-                        if (k !== "vertexId" && k !== "_id") {
-                          vertexKeys[k] = true;
-                        }
-                      });
-                    }
-                  });
+      $scope.followInEdges = function() {
+        queryStyle = "in-edges";
+        $scope.reloadData();
+        return false; // prevent normal link behavior
+      };
 
-                  // create table columns from result index keys
-                  $scope.columnDefs = [];
-                  Object.keys(vertexKeys).forEach(function(k) {
-                    var cap = k.charAt(0).toUpperCase() + k.slice(1);
-                    $scope.columnDefs.push({field: k, displayName: cap, enableCellEdit: false});
-                  });
+      $scope.followOutEdges = function() {
+        queryStyle = "out-edges";
+        $scope.reloadData();
+        return false; // prevent normal link behavior
+      };
 
-                  // notify scope elasticsearch performed
-                  $scope.elasticSearched = true;
-                  $scope.elasticSearchNum = vertexResults.length;
-                  $scope.elasticSearchQuery = query;
-                  $scope.gridOptions.filterOptions.filterText = '';
+      $scope.addVertexEdge = function() {
+        $location.path('graphs/' + $scope.graphId + '/create_edge/' + $scope.selectedItems[0]._id);
+      };
 
-                  // reload data based on ES results
-                  reload(vertexResults, vertexResults.length);
-              })
-              .then(function() {
-                  $scope.fullTextSearching = false;
-              });
-        }
-
-        if ($routeParams.mode === undefined || $routeParams.mode === "vertex") {
-          var Item = Vertex;
-          $scope.columnDefs = [
-            //{field: '_id', displayName: 'ID', enableCellEdit: false},
-            {field: 'name', displayName: 'Name', enableCellEdit: true},
-            //{field: 'type', displayName: 'Type', enableCellEdit: true},
-            {field: 'age', displayName: 'Age', enableCellEdit: true},
-            //{field: 'lang', displayName: 'Favorite Language', enableCellEdit: true}
-          ];
-        } else if ($routeParams.mode === "edge") {
-          var Item = Edge;
-          $scope.columnDefs = [
-            {field: '_id', displayName: 'ID', enableCellEdit: false},
-            {field: '_label', displayName: 'Label', enableCellEdit: true},
-            {field: '_inV', displayName: 'In Vertex', enableCellEdit: true},
-            {field: '_outV', displayName: 'Out Vertex', enableCellEdit: true}
-          ]
-        }
-
-        $scope.gridOptions = {
-            data: 'data',
-            columnDefs: 'columnDefs',
-            showFilter: false,
-            filterOptions: {
-                useExternalFilter: false
-            },
-            enablePaging: true,
-            showFooter: true,
-            pagingOptions: {
-                pageSizes: [10, 25, 50, 100],
-                pageSize: 10,
-                currentPage: 1
-            },
-            totalServerItems: 'totalServerItems',
-            useExternalSorting: true,
-            sortInfo: {
-                fields: [$routeParams.sortField || '_id'],
-                directions: [$routeParams.sortDirection || 'asc']
-            },
-            selectedItems: $scope.selectedItems,
-            multiSelect: false,
-            //selectWithCheckboxOnly: true,
-            //showSelectionCheckbox: true,
-            //plugins: [new ngGridFlexibleHeightPlugin()]
-        };
-
-        // Trigger a refresh when the page changes.
-        $scope.$watch('gridOptions.pagingOptions', function(newVal, oldVal) {
-          if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
-            $location.search('currentPage', newVal.currentPage);
-            $scope.reloadData();
-          }
-        }, true);
-
-        // Trigger a refresh when the sort order changes.
-        $scope.$watch('gridOptions.sortInfo', function(newVal, oldVal) {
-          if (newVal !== oldVal) {
-            $location.search('sortField', newVal.fields[0]);
-            $location.search('sortDirection', newVal.directions[0]);
-            $scope.reloadData();
-          }
-        }, true);
-
-        // Update the hasSelectedItems when selectedItem changes.
-        $scope.$watch('selectedItems', function(newVal, oldVal) {
-          if (newVal !== oldVal) {
-            $scope.hasSelectedItems = ($scope.selectedItems.length !== 0);
-            $scope.selectedVertex = $scope.selectedItems[0];
-          }
-        }, true);
+      $scope.editVertex = function() {
+        $location.path('graphs/' + $scope.graphId + '/vertices/' + $scope.selectedItems[0]._id + '/edit_vertex');
+      };
 
         // Delete the selected items.
         $scope.deleteSelectedItems = function() {
@@ -375,119 +282,185 @@ angular.module('dendrite.controllers', []).
           $scope.selectedItems.length = 0;
         };
 
-        var currentId;
-
-        var queryStyle = "vertices";
-
-        $scope.followEdges = function(element) {
-          $routeParams.mode = "edge";
-          queryStyle = "edges";
-          $scope.reloadData();
-          return false; // prevent normal link behavior
-        };
-
-        $scope.followInEdges = function() {
-          queryStyle = "in-edges";
-          $scope.reloadData();
-          return false; // prevent normal link behavior
-        };
-
-        $scope.followOutEdges = function() {
-          queryStyle = "out-edges";
-          $scope.reloadData();
-          return false; // prevent normal link behavior
-        };
-
-        $scope.addVertexEdge = function() {
-          $location.path('graphs/' + $scope.graphId + '/create_edge/' + $scope.selectedItems[0]._id);
-        };
-
-        $scope.editVertex = function() {
-          $location.path('graphs/' + $scope.graphId + '/vertices/' + $scope.selectedItems[0]._id + '/edit_vertex');
-        };
-
         $scope.resetItems = function() {
           $scope.selectedItems.shift();
-          queryStyle = "vertices";
-          $scope.reloadData();
+          $scope.refresh();
         }
 
-        $scope.reloadData = function() {
+      $scope.objectType = "vertex";
+      $scope.items = [];
 
-          if ($scope.elasticSearched) {
-            reload($scope.data, $scope.data.length);
-          }
-          else if (queryStyle === "vertices") {
-            Vertex.query({graphId: $routeParams.graphId}, function(query) {
-              // We are going to pretend that the server does the filtering, sorting, and paging.
-              reload(query.results, query.totalSize);
-            });
-          } else {
-            $q.all(
-              $scope.selectedItems.map(function(vertex) {
-                var deferred = $q.defer();
-                var f;
-                if (queryStyle === "edges") {
-                  f =  Vertex.queryConnectedVertices;
-                } else if (queryStyle === "in-edges") {
-                  f =  Vertex.queryConnectedInVertices;
-                } else if (queryStyle === "out-edges") {
-                  f =  Vertex.queryConnectedOutVertices;
-                }
-                f({graphId: $scope.graphId, vertexId: vertex._id}, function(vertices) {
-                  deferred.resolve(vertices);
+      // filter
+      $scope.filterOptions = {
+          filterText: "",
+          useExternalFilter: true
+      };
+
+      // paging
+      $scope.totalServerItems = 0;
+      $scope.pagingOptions = {
+          pageSizes: [5, 10, 25, 50, 100],
+          pageSize: appConfig.elasticSearch.fieldSize,
+          currentPage: 1
+      };
+
+      // sort
+      $scope.sortedField = {};
+      $scope.sortOptions = {
+          fields: [],
+          directions: []
+      };
+
+      // call elasticSearch sort when header is clicked
+      // extra function needed to be able to dynamically set
+      // sortOptions without a $scope.$watch, which would
+      // re-trigger refresh() call in an endless loop
+      $scope.externalSort = function(field, direction) {
+
+        // default the sortedField to "asc" unless already set to "asc"
+        var newSortedField = {};
+        newSortedField[field] = ($scope.sortedField && $scope.sortedField[field] === "asc") ? "desc" : "asc";
+        $scope.sortedField = newSortedField;
+
+        // update list
+        $scope.elasticSearchAction = "Sorting";
+        $scope.refresh();
+      }
+
+      // grid
+      $scope.gridOptions = {
+          data: "items",
+          columnDefs: 'columnDefs',
+          enablePaging: true,
+          enablePinning: true,
+          pagingOptions: $scope.pagingOptions,
+          filterOptions: $scope.filterOptions,
+          keepLastSelected: true,
+          multiSelect: false,
+          showColumnMenu: true,
+          showFilter: true,
+          showGroupPanel: true,
+          showFooter: true,
+          sortInfo: $scope.sortOptions,
+          totalServerItems: "totalServerItems",
+          useExternalSorting: true,
+          i18n: "en"
+      };
+
+      $scope.refresh = function(elasticSearchAction) {
+          setTimeout(function () {
+
+              if (elasticSearchAction !== undefined){
+                $scope.elasticSearchAction = elasticSearchAction;
+              }
+              $scope.searching = true;
+
+              // first clear current items to give visual indicator
+              $scope.items = [];
+              if (!$scope.$$phase) {
+                  $scope.$apply();
+              }
+
+              var elasticSortOptions = [];
+              Object.keys($scope.sortedField).forEach(function(k) {
+                var newHash = {};
+                newHash[k] = { "order" : $scope.sortedField[k] };
+                elasticSortOptions.push( newHash );
+              });
+
+              var p = {
+                  queryTerm: $scope.filterOptions.filterText,
+                  pageNumber: $scope.pagingOptions.currentPage,
+                  pageSize: $scope.pagingOptions.pageSize,
+                  sortInfo: elasticSortOptions,
+                  resultType: $scope.objectType
+              };
+
+              ElasticSearch.search(p)
+                .success(function(data, status, headers, config) {
+                    $scope.totalServerItems = data.hits.total;
+
+                    // update sort options
+                    var sortFields = [];
+                    var sortDirections = [];
+
+                    // build array of results
+                    var resultArray = [];
+                    var resultKeys = {};
+                    var sortDirections = [];
+                    data.hits.hits.forEach(function(hit) {
+                      if (hit._type === $scope.objectType) {
+                        hit._source._id = hit._source[$scope.objectType+'Id'];
+                        resultArray.push(hit._source);
+
+                        // extract all keys (to dynamically update table columns)
+                        Object.keys(hit._source).forEach(function(k) {
+                          if (k !== ($scope.objectType+'Id') && k !== "_id") {
+                            resultKeys[k] = true;
+                          }
+                        });
+                      }
+                    });
+
+                    // create table columns from result index keys
+                    // headerCellTemplate adds externalSort() function
+                    // to allow dynamic setting of columns based on results
+                    $scope.columnDefs = [];
+                    Object.keys(resultKeys).forEach(function(k) {
+                      var nameCapitalized = k.charAt(0).toUpperCase() + k.slice(1);
+                      $scope.columnDefs.push({
+                        field: k,
+                        displayName: nameCapitalized,
+                        enableCellEdit: false,
+                        headerCellTemplate: '<div class="ngHeaderSortColumn  ngSorted" ng-style="{\'cursor\': col.cursor}" ng-class="{ \'ngSorted\': !noSortVisible }" style="cursor: pointer;" draggable="true">\
+                          <div ng-click="externalSort(col.field)" ng-class="\'colt\' + col.index" class="ngHeaderText"">{{col.displayName}}</div>\
+                        </div>'
+                      });
+
+                      // update the table column heads
+                      // use default sort unless set in external query
+                      sortFields.push(k);
+                      if ($scope.sortedField) {
+                        if (k in $scope.sortedField) {
+                          sortDirections.push($scope.sortedField[k]);
+                        }
+                        else {
+                          sortDirections.push(appConfig.elasticSearch.sorting.direction);
+                        }
+                      }
+                    });
+
+                    // update sort options
+                    $scope.sortOptions.fields = sortFields;
+                    $scope.sortOptions.directions = sortDirections;
+
+                    // store the results
+                    $scope.items = resultArray;
+                    $scope.searching = false;
+
+                }).error(function(data, status, headers, config) {
+                    alert(JSON.stringify(data));
                 });
-                return deferred.promise;
-              })
-            ).then(function(queries) {
-                var query = queries[0];
+          }, 100);
+      };
 
-                // Filter out duplicates...
-                var vertexExists = {};
-                var results = [];
-                query.results.forEach(function(vertex) {
-                  if (vertexExists[vertex._id] === undefined) {
-                    vertexExists[vertex._id] = vertex._id;
-                    results.push(vertex);
-                  }
-
-                });
-                query.results = results;
-
-                reload(query.results, query.totalSize);
-            });
+      // watches
+      $scope.$watch('pagingOptions', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+              $scope.elasticSearchAction = "Paging";
+              $scope.refresh();
           }
-        }
+      }, true);
 
-        function reload(results, totalSize) {
-          // So first filter the data:
-          var results = $filter('filter')(results, $scope.gridOptions.filterOptions.filterText);
-
-          // So first sort the data:
-          results = $filter('orderBy')(
-            results,
-            $scope.gridOptions.sortInfo.fields[0],
-            $scope.gridOptions.sortInfo.directions[0] === 'asc'
-          );
-
-          // Then truncate the data to fit our "page".
-          results = results.slice(
-            ($scope.gridOptions.pagingOptions.currentPage - 1) * $scope.gridOptions.pagingOptions.pageSize,
-            $scope.gridOptions.pagingOptions.currentPage * $scope.gridOptions.pagingOptions.pageSize
-          );
-
-          $scope.totalServerItems = totalSize;
-
-          $scope.data = results;
-
-          // Finally, make sure that the scope is updated.
-          if (!$scope.$$phase) {
-            $scope.$apply();
+      $scope.$watch('filterOptions', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+              $scope.elasticSearchAction = "Searching";
+              $scope.refresh();
           }
-        }
+      }, true);
 
-        // Finally, fetch the initial list of data.
-        $scope.reloadData();
+      // initialize on entry
+      $scope.refresh();
     }).
     controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;

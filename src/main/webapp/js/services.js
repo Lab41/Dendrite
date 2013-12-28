@@ -143,12 +143,15 @@ angular.module('dendrite.services', ['ngResource']).
     }).
     factory('ElasticSearch', function($resource, $routeParams, $http, appConfig) {
         return {
-          search: function(queryTerm) {
 
+          search: function(queryParams) {
             // build elasticSearch query
             var inputJson = {
-                    "size" : appConfig.elasticSearch.fieldSize,
-                    "query" : { "query_string" : {"query" : "*"+queryTerm+"*"} }
+                    "from" : queryParams.pageSize*(queryParams.pageNumber - 1),
+                    "size" : queryParams.pageSize,
+                    "query" : { "query_string" : {"query" : "*"+queryParams.queryTerm+"*"} },
+                    "filter" : { "type": { "value": queryParams.resultType } },
+                    "sort" : queryParams.sortInfo
                 };
 
             // query server

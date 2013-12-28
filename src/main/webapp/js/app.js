@@ -100,7 +100,12 @@ angular.module('dendrite', [
     $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
   }]).
   constant('appConfig', {
-    elasticSearch: {fieldSize: 1000},
+    elasticSearch: {
+      fieldSize: 5,
+      sorting: {
+        direction: "asc"
+      }
+    },
     analytics: {
         metadata: {
           pollTimeout: 5000
