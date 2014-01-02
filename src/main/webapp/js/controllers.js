@@ -238,23 +238,24 @@ angular.module('dendrite.controllers', []).
 
       $scope.graphId = $routeParams.graphId;
       $scope.selectedItems = [];
-      var queryStyle = "vertices";
+      $scope.queryStyle = "vertices";
+      $scope.vertexFrom = "";
 
       $scope.followEdges = function(element) {
         $routeParams.mode = "edge";
-        queryStyle = "edges";
+        $scope.queryStyle = "edges";
         $scope.refresh();
         return false; // prevent normal link behavior
       };
 
       $scope.followInEdges = function() {
-        queryStyle = "in-edges";
+        $scope.queryStyle = "in-edges";
         $scope.refresh();
         return false; // prevent normal link behavior
       };
 
       $scope.followOutEdges = function() {
-        queryStyle = "out-edges";
+        $scope.queryStyle = "out-edges";
         $scope.refresh();
         return false; // prevent normal link behavior
       };

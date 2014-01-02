@@ -29,14 +29,21 @@
 
     <div class="row">
       <div class="span8">
-        <div class="inline float-left" ng-if="!searching">
-          <strong>{{ totalServerItems }}</strong> results for '{{ filterOptions.filterText }}':
+        <div class="inline float-left">
+          <strong>{{ totalServerItems }}</strong> {{ queryStyle }}
+          <span ng-if="filterOptions.filterText">
+             for '{{ filterOptions.filterText }}'
+          </span>
+          <span ng-if="vertexFrom">
+             connected to {{ vertexFrom.name | capitalize }}
+          </span>
+          :
         </div>
         <div class="inline float-left" ng-if="searching">
           {{ elasticSearchAction }}... <img src="img/icons/ajax-loader.gif">
         </div>
         <div class="inline float-right">
-          <button class="btn" ng-click="refresh('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
+          <button class="btn" ng-click="reload('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
         </div>
       </div>
     </div>
