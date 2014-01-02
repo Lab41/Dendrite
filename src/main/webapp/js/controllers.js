@@ -337,6 +337,27 @@ angular.module('dendrite.controllers', []).
         $scope.refresh();
       }
 
+      $scope.formatSelectedNames = function() {
+        var names = "";
+        if ($scope.selectedItems.length == 1) {
+          names = $filter('capitalize')($scope.selectedItems[0].name);
+        } else if ($scope.selectedItems.length > 1) {
+          names = $filter('capitalize')($scope.selectedItems[0].name) + ", " + $filter('capitalize')($scope.selectedItems[1].name);
+          if ($scope.selectedItems.length > 1) {
+            names += ", ...";
+          }
+        }
+        return names;
+      };
+
+      $scope.selectedOne = function() {
+        return $scope.selectedItems.length===1
+      };
+
+      $scope.selectedMany = function() {
+        return $scope.selectedItems.length>1
+      };
+
       // grid
       $scope.gridOptions = {
           data: "items",
