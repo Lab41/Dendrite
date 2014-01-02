@@ -411,7 +411,7 @@ angular.module('dendrite.controllers', []).
                 var sortDirections = [];
                 data.hits.hits.forEach(function(hit) {
                   if (hit._type === $scope.objectType) {
-                    hit._source._id = hit._id;
+                    hit._source._id = hit._source.vertexId;
                     resultArray.push(hit._source);
 
                     // extract all keys (to dynamically update table columns)
