@@ -126,7 +126,7 @@ class Project(Table):
             if graph_id is None:
                 return None
 
-            self._current_graph = Graph.get(graph_id)
+            self._current_graph = Graph.get(self.conn, graph_id)
 
         return self._current_graph
 
