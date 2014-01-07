@@ -170,6 +170,10 @@ class Graph(Table):
         data = { 'alpha': alpha }
         response = self.conn.post_json(url, data=data).json()
 
+    def run_jung_betweenness_centrality(self):
+        url = '/api/graphs/{}/analysis/jung-betweenness-centrality'.format(self.id)
+        response = self.conn.post_json(url).json()
+
         return Job.get(self.conn, response['jobId'])
 
 # ------------------------------------------------------------------------------
@@ -430,6 +434,18 @@ def run_jung_pagerank(args):
 
 # ----------------------------------------------------------------------------
 
+def run_jung_betweenness_centrality(args):
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
+
+        print 'Running Jung BetweennessCentrality analysis...'
+        job = graph.run_jung_betweenness_centrality()
+        job.wait_until_finished()
+
+    return 0
+
+# ----------------------------------------------------------------------------
+
 def not_empty(string):
     if string == '':
         raise argparse.ArgumentTypeError('cannot be empty')
@@ -551,6 +567,11 @@ def main():
     parser_run_jung_pagerank.add_argument('id',
             type=int)
     parser_run_jung_pagerank.set_defaults(func=run_jung_pagerank)
+
+    parser_run_jung_betweenness_centrality = subparsers.add_parser('run-jung-betweenness-centrality')
+    parser_run_jung_betweenness_centrality.add_argument('id',
+            type=int)
+    parser_run_jung_betweenness_centrality.set_defaults(func=run_jung_betweenness_centrality)
 
     args = parser.parse_args()
 

@@ -325,6 +325,12 @@ angular.module('dendrite.services', ['ngResource']).
             isArray: false
           },
 
+          createBetweennessCentralityJung: {
+            url: 'api/graphs/:graphId/analysis/jung-betweenness-centrality',
+            method: 'POST',
+            isArray: false
+          },
+
           createEdgeDegreesFaunus: {
             url: 'api/graphs/:graphId/analysis/faunus-degrees',
             method: 'POST',
