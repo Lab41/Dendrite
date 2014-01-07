@@ -27,7 +27,7 @@ public class BetweennessCentralityController {
     @Autowired
     BetweennessCentralityService betweennessCentralityService;
 
-    @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung-betweennesscentrality", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung-betweenness-centrality", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungBetweennessCentrality(@PathVariable String graphId) throws Exception {
 
         Map<String, Object> response = new HashMap<>();

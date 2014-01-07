@@ -29,7 +29,7 @@ public class BetweennessCentralityService extends AnalysisService {
                 + " job " + jobId
                 + " " + Thread.currentThread().getName());
 
-        setJobName(jobId, "jung-betweennesscentrality");
+        setJobName(jobId, "jung-betweenness-centrality");
         setJobState(jobId, JobMetadata.RUNNING);
 
         createIndices(graph);
@@ -38,12 +38,19 @@ public class BetweennessCentralityService extends AnalysisService {
 
         Graph<Vertex, Edge> jungGraph = new GraphJung<>(tx);
         BetweennessCentrality<Vertex, Edge> betweennessCentrality = new BetweennessCentrality<>(jungGraph);
+        // Instructs the ranker that it should not remove the rank scores from
+        //  the nodes (or edges) once the ranks have been computed.
         betweennessCentrality.setRemoveRankScoresOnFinalize(false);
+
+        // Performs the iterative process. Note: this method does not return
+        // anything because Java does not allow mixing double, int, or objects
+        // TODO: change this to step() so that insight into the process can be
+        // exposed
         betweennessCentrality.evaluate();
 
         for (Vertex vertex: jungGraph.getVertices()) {
             double score = betweennessCentrality.getVertexRankScore(vertex);
-            vertex.setProperty("betweennesscentrality", score);
+            vertex.setProperty("betweenness_centrality", score);
         }
         tx.commit();
 
@@ -55,8 +62,8 @@ public class BetweennessCentralityService extends AnalysisService {
     private void createIndices(DendriteGraph graph) {
         TitanTransaction tx = graph.newTransaction();
 
-        if (tx.getType("betweennesscentrality") == null) {
-            tx.makeKey("betweennesscentrality")
+        if (tx.getType("betweenness_centrality") == null) {
+            tx.makeKey("betweenness_centrality")
                     .dataType(Double.class)
                     .indexed(Vertex.class)
                     .make();

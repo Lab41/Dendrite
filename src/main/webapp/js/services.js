@@ -323,7 +323,7 @@ angular.module('dendrite.services', ['ngResource']).
           },
 
           createBetweennessCentralityJung: {
-            url: 'api/graphs/:graphId/analysis/jung-betweennesscentrality',
+            url: 'api/graphs/:graphId/analysis/jung-betweenness-centrality',
             method: 'POST',
             isArray: false
           },
