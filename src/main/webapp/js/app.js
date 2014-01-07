@@ -60,6 +60,25 @@ angular.module('dendrite', [
         when('/projects/:projectId', {templateUrl: 'partials/project-detail.html', controller: 'ProjectDetailCtrl', access: access.ROLE_USER}).
         otherwise({redirectTo: '/home'});
   }]).
+  config([
+    '$provide', function($provide) {
+      return $provide.decorator('$rootScope', [
+        '$delegate', function($delegate) {
+          $delegate.safeApply = function(fn) {
+            var phase = $delegate.$$phase;
+            if (phase === "$apply" || phase === "$digest") {
+              if (fn && typeof fn === 'function') {
+                fn();
+              }
+            } else {
+              $delegate.$apply(fn);
+            }
+          };
+          return $delegate;
+        }
+      ]);
+    }
+  ]).
   config(['$httpProvider', function($httpProvider) {
     var interceptor = ['$rootScope','$q', function(scope, $q) {
 
