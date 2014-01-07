@@ -1,10 +1,9 @@
 package org.lab41.dendrite.web.controller;
 
 import org.lab41.dendrite.metagraph.MetaGraphTx;
-import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
-import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetaGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +22,12 @@ import java.util.Map;
 public class JobController {
 
     @Autowired
-    MetadataService metadataService;
+    MetaGraphService metaGraphService;
 
     @RequestMapping(value = "/jobs", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getJobs() {
 
-        MetaGraphTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metaGraphService.newTransaction();
 
         List<Map<String, Object>> jobs = new ArrayList<>();
         for (JobMetadata jobMetadata: tx.getJobs()) {
@@ -48,7 +47,7 @@ public class JobController {
     public ResponseEntity<Map<String, Object>> getJob(@PathVariable String jobId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metaGraphService.newTransaction();
         JobMetadata jobMetadata = tx.getJob(jobId);
 
         if (jobMetadata == null) {
@@ -70,7 +69,7 @@ public class JobController {
     public ResponseEntity<Map<String, Object>> getJobs(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metaGraphService.newTransaction();
         ProjectMetadata project = tx.getProject(projectId);
 
         if (project == null) {
@@ -97,7 +96,7 @@ public class JobController {
     public ResponseEntity<Map<String, Object>> deleteJob(@PathVariable String jobId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metaGraphService.newTransaction();
         JobMetadata jobMetadata = tx.getJob(jobId);
 
         if (jobMetadata == null) {

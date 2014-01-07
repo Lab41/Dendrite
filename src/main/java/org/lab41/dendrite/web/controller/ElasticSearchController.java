@@ -26,8 +26,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.services.MetaGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -47,7 +47,7 @@ import java.lang.StringBuilder;
 public class ElasticSearchController {
 
     @Autowired
-    MetadataService metadataService;
+    MetaGraphService metaGraphService;
 
     @RequestMapping(value = "/api/graphs/{graphId}/search", method = RequestMethod.POST)
     public ResponseEntity<String> elasticSearch(@PathVariable String graphId,
@@ -58,7 +58,7 @@ public class ElasticSearchController {
 
         JSONObject json = new JSONObject();
 
-        DendriteGraph graph = metadataService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
             json.put("status", "error");
             json.put("msg", "unknown graph '" + graphId + "'");
@@ -139,7 +139,7 @@ public class ElasticSearchController {
 
         JSONObject json = new JSONObject();
 
-        DendriteGraph graph = metadataService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
             json.put("status", "error");
             json.put("msg", "unknown graph '" + graphId + "'");

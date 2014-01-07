@@ -1,4 +1,4 @@
-package org.lab41.dendrite.graph;
+package org.lab41.dendrite.metagraph;
 
 import com.thinkaurelius.titan.core.*;
 import com.tinkerpop.blueprints.*;

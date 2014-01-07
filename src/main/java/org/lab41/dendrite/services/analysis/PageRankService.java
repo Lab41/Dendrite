@@ -6,7 +6,7 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.oupls.jung.GraphJung;
 import edu.uci.ics.jung.algorithms.scoring.PageRank;
 import edu.uci.ics.jung.graph.Hypergraph;
-import org.lab41.dendrite.graph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

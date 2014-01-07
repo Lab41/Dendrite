@@ -6,30 +6,34 @@ import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.modules.gremlingroovy.GremlinGroovyModule;
 import com.tinkerpop.frames.modules.javahandler.JavaHandlerModule;
 import com.tinkerpop.frames.modules.typedgraph.TypedGraphModuleBuilder;
-import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.graph.DendriteGraphFactory;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.lab41.dendrite.metagraph.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
+import java.io.File;
+import java.util.*;
 
 public class MetaGraph {
 
     static Logger logger = LoggerFactory.getLogger(MetaGraph.class);
 
-    static String METADATA_GRAPH_NAME = "metadata";
+    static String METAGRAPH_NAME = "metadata";
+    static String GRAPH_NAME_PREFIX_DEFAULT = "dendrite-";
+
+    private Configuration config;
 
     private DendriteGraph metadataGraph;
-    private DendriteGraphFactory graphFactory;
     private FramedGraphFactory frameFactory;
 
-    public MetaGraph(DendriteGraphFactory graphFactory) {
+    private Map<String, DendriteGraph> graphs = new HashMap<>();
 
-        this.graphFactory = graphFactory;
+    public MetaGraph(Configuration config) {
+        this.config = config;
 
         // Get or create the metadata graph.
-        this.metadataGraph = graphFactory.openGraph(METADATA_GRAPH_NAME, null, true);
+        this.metadataGraph = loadGraph(METAGRAPH_NAME, null, true);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
         this.frameFactory = new FramedGraphFactory(
@@ -46,27 +50,94 @@ public class MetaGraph {
         loadGraphs();
     }
 
-    public DendriteGraph getGraph(String id) {
-        DendriteGraph graph = graphFactory.getGraph(id);
-        if (graph == null) {
-            // Check if we have a graph metadata for this id. If so, open up the graph.
+    /**
+     * Return all the known graphs.
+     *
+     * @return a collection of all the graphs.
+     */
+    public Collection<DendriteGraph> getGraphs() {
+        return getGraphs(false);
+    }
 
-            MetaGraphTx tx = newTransaction();
-            GraphMetadata graphMetadata = tx.getGraph(id);
-            if (graphMetadata != null) {
-                graph = graphFactory.openGraph(id, graphMetadata.getConfiguration());
+    /**
+     * Return all the known graphs.
+     *
+     * @param includeSystemGraphs Should we include the hidden system graphs?
+     * @return a collection of all the graphs.
+     */
+    public Collection<DendriteGraph> getGraphs(boolean includeSystemGraphs) {
+        if (includeSystemGraphs) {
+            return graphs.values();
+        } else {
+            List<DendriteGraph> values = new ArrayList<>();
+
+            for (Map.Entry<String, DendriteGraph> entry: graphs.entrySet()) {
+                // Filter out the system graphs.
+                if (!entry.getValue().isSystemGraph()) {
+                    values.add(entry.getValue());
+                }
             }
 
-            tx.commit();
+            return values;
+        }
+    }
+
+    /**
+     * Get a graph.
+     *
+     * @param id The graph id.
+     * @return The graph.
+     */
+    public DendriteGraph getGraph(String id) {
+        return getGraph(id, false);
+    }
+
+    /**
+     * Get a graph.
+     *
+     * @param id The graph id.
+     * @param includeSystemGraphs Should we include the hidden system graphs?
+     * @return The graph or null.
+     */
+    public DendriteGraph getGraph(String id, boolean includeSystemGraphs) {
+        DendriteGraph graph = graphs.get(id);
+        if (graph == null) {
+            // Perhaps another process has created this graph, so try to load it.
+            graph = loadGraph(id);
+            if (graph == null) {
+                return null;
+            }
+        }
+
+        // Optionally filter out system graphs.
+        if (!includeSystemGraphs && graph.isSystemGraph()) {
+            return null;
         }
 
         return graph;
     }
 
+    /**
+     * Open a metagraph transaction.
+     *
+     * @return The transaction.
+     */
     public MetaGraphTx newTransaction() {
         return new MetaGraphTx(metadataGraph, frameFactory);
     }
 
+    /**
+     * Shut down all the active graphs.
+     */
+    public void stop() {
+        for (DendriteGraph graph: graphs.values()) {
+            graph.shutdown();
+        }
+    }
+
+    /**
+     * Create the metagraph indices.
+     */
     private void createMetadataGraphKeys() {
         // Metadata keys
         if (metadataGraph.getType("type") == null) {
@@ -148,13 +219,126 @@ public class MetaGraph {
         metadataGraph.commit();
     }
 
+    /**
+     * Load all the known graphs.
+     */
     private void loadGraphs() {
         MetaGraphTx tx = newTransaction();
 
         for(GraphMetadata graphMetadata: tx.getGraphs()) {
-            graphFactory.openGraph(graphMetadata.getId(), graphMetadata.getConfiguration());
+            loadGraph(graphMetadata.getId(), graphMetadata.getConfiguration());
         }
 
         tx.commit();
+    }
+
+    /**
+     * Load a graph. This graph is in a closed state.
+     *
+     * @param id The graph id.
+     * @return The graph or null.
+     */
+    private DendriteGraph loadGraph(String id) {
+        DendriteGraph graph = null;
+
+        MetaGraphTx tx = newTransaction();
+
+        GraphMetadata graphMetadata = tx.getGraph(id);
+        if (graphMetadata != null) {
+            graph = loadGraph(id, graphMetadata.getConfiguration());
+        }
+
+        tx.commit();
+
+        return graph;
+    }
+
+    /**
+     * Load a graph. This graph is in a closed state.
+     *
+     * @param id The graph id.
+     * @param config If null, load the graph with the default config. Otherwise use this one.
+     * @return The graph or null.
+     */
+    private DendriteGraph loadGraph(String id, Configuration config) {
+        return loadGraph(id, config, false);
+    }
+
+    /**
+     * Load a graph. This graph is in a closed state.
+     *
+     * @param id The graph id.
+     * @param config If null, load the graph with the default config. Otherwise use this one.
+     * @param systemGraph Whether or not to consider this graph a system graph. If true, this graph be hidden.
+     * @return The graph or null.
+     */
+    synchronized private DendriteGraph loadGraph(String id, Configuration config, boolean systemGraph) {
+        // We don't want to end up with the same graph opened multiple times, so we'll sit behind a mutex.
+        // Because of this, we should check again if the graph has been opened up in another thread.
+        DendriteGraph graph = graphs.get(id);
+        if (graph == null) {
+            // Create a default config if we were passed a null config.
+            if (config == null) {
+                config = getGraphConfiguration(id);
+            }
+
+            graph = new DendriteGraph(id, config, systemGraph);
+
+            graphs.put(id, graph);
+        }
+
+        return graph;
+    }
+
+    /**
+     * Create a default configuration for a graph.
+     *
+     * @param id The graph id.
+     * @return The configuration.
+     */
+    private Configuration getGraphConfiguration(String id) {
+        Configuration graphConfig = new BaseConfiguration();
+
+        // Add our prefix to the name so we can keep the databases organized.
+        String name = config.getString("metagraph.name-prefix", GRAPH_NAME_PREFIX_DEFAULT) + id;
+
+        Configuration storage = graphConfig.subset("storage");
+
+        String storageBackend = config.getString("metagraph.storage.backend");
+        storage.setProperty("backend", storageBackend);
+        storage.setProperty("read-only", false);
+
+        String storageDirectory = config.getString("metagraph.storage.directory", null);
+        if (storageDirectory != null) {
+            String dir = (new File(storageDirectory, name)).getPath();
+            storage.setProperty("directory", dir);
+        }
+
+        storage.setProperty("hostname", config.getString("metagraph.storage.hostname", null));
+        storage.setProperty("port", config.getString("metadata.storage.port", null));
+
+        if (storageBackend.equals("hbase")) {
+            storage.setProperty("tablename", name);
+        }
+
+        String indexBackend = config.getString("metagraph.storage.index.backend", null);
+        if (indexBackend != null) {
+            Configuration index = storage.subset("index").subset("search");
+
+            index.setProperty("index-name", name);
+            index.setProperty("backend", indexBackend);
+            index.setProperty("hostname", config.getString("metagraph.storage.index.hostname", null));
+            index.setProperty("client-only", config.getString("metagraph.storage.index.client-only", null));
+            index.setProperty("local-mode", config.getString("metagraph.storage.index.local-mode", null));
+            index.setProperty("cluster-name", config.getString("metagraph.storage.index.cluster-name", null));
+
+            String indexDirectory = config.getString("metagraph.storage.index.directory", null);
+            if (indexDirectory != null) {
+                String dir = (new File(indexDirectory, name)).getPath();
+                index.setProperty("directory", dir);
+            }
+        }
+
+        return graphConfig;
     }
 }

@@ -20,9 +20,8 @@ import com.tinkerpop.blueprints.util.io.gml.GMLReader;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLReader;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
 
-import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.metagraph.models.GraphMetadata;
-import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.GraphImportBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class GraphImportController {
     static Logger logger = LoggerFactory.getLogger(GraphImportController.class);
 
     @Autowired
-    MetadataService metadataService;
+    MetaGraphService metaGraphService;
 
     @RequestMapping(value = "/api/graphs/{graphId}/file-import", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> importGraph(@PathVariable String graphId,
@@ -69,7 +68,7 @@ public class GraphImportController {
         logger.debug("receiving file:", file.getOriginalFilename());
         logger.debug("file format:", format);
 
-        DendriteGraph graph = metadataService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphId + "'");

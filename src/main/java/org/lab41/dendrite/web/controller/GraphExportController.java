@@ -20,10 +20,9 @@ import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 
-import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.metagraph.models.GraphMetadata;
+import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.services.HistoryService;
-import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.GraphExportBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ public class GraphExportController {
     static Logger logger = LoggerFactory.getLogger(GraphExportController.class);
 
     @Autowired
-    MetadataService metadataService;
+    MetaGraphService metaGraphService;
 
     @Autowired
     HistoryService historyService;
@@ -65,7 +64,7 @@ public class GraphExportController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        DendriteGraph graph = metadataService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -115,7 +114,7 @@ public class GraphExportController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        DendriteGraph graph = metadataService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphId + "'");

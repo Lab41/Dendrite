@@ -23,9 +23,8 @@ import com.tinkerpop.rexster.protocol.EngineConfiguration;
 import com.tinkerpop.rexster.protocol.EngineController;
 import com.tinkerpop.rexster.server.RexsterApplication;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.graph.DendriteGraphFactory;
-import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.services.MetaGraphService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,28 +41,26 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     private final long startTime = System.currentTimeMillis();
 
-    private DendriteGraphFactory graphFactory;
-    private MetadataService metadataService;
+    private MetaGraphService metaGraphService;
     private Map<String, RexsterApplicationGraph> graphs = new HashMap<>();
 
     @Autowired
-    public DendriteRexsterApplication(DendriteGraphFactory graphFactory, MetadataService metadataService) {
-        this.graphFactory = graphFactory;
-        this.metadataService = metadataService;
+    public DendriteRexsterApplication(MetaGraphService metaGraphService) {
+        this.metaGraphService = metaGraphService;
 
         configureScriptEngine();
     }
 
     @Override
     public Graph getGraph(String id) {
-        return metadataService.getGraph(id);
+        return metaGraphService.getGraph(id);
     }
 
     @Override
     public RexsterApplicationGraph getApplicationGraph(String id) {
         RexsterApplicationGraph rexsterApplicationGraph = graphs.get(id);
         if (rexsterApplicationGraph == null) {
-            DendriteGraph graph = metadataService.getGraph(id);
+            DendriteGraph graph = metaGraphService.getGraph(id);
             if (graph == null) {
                 return null;
             }
@@ -83,7 +80,13 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public Set<String> getGraphNames() {
-        return graphFactory.getGraphNames();
+        Set<String> graphNames = new HashSet<>();
+
+        for (DendriteGraph graph: metaGraphService.getGraphs()) {
+            graphNames.add(graph.getId());
+        }
+
+        return graphNames;
     }
 
     @Override
@@ -102,7 +105,7 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public void stop() {
-        graphFactory.stop();
+        metaGraphService.stop();
     }
 
     private void configureScriptEngine() {

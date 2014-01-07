@@ -3,7 +3,7 @@ package org.lab41.dendrite.web.controller;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
-import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.ProjectBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +28,12 @@ public class ProjectController {
     Logger logger = LoggerFactory.getLogger(ProjectController.class);
 
     @Autowired
-    MetadataService metadataService;
+    MetaGraphService metaGraphService;
 
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
     public @ResponseBody Map<String, Object> getProjects() {
 
-        MetaGraphTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metaGraphService.newTransaction();
 
         Map<String, Object> response = new HashMap<>();
         ArrayList<Object> projects = new ArrayList<>();
@@ -53,7 +53,7 @@ public class ProjectController {
     public ResponseEntity<Map<String, Object>> getProject(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metaGraphService.newTransaction();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
@@ -87,7 +87,7 @@ public class ProjectController {
 
         String name = item.getName();
 
-        MetaGraphTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metaGraphService.newTransaction();
 
         ProjectMetadata projectMetadata = tx.createProject();
         projectMetadata.setName(name);
@@ -109,7 +109,7 @@ public class ProjectController {
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) {
 
-        MetaGraphTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metaGraphService.newTransaction();
 
         Map<String, Object> response = new HashMap<>();
 

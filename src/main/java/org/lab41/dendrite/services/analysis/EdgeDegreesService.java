@@ -17,7 +17,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.JobStatus;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.lab41.dendrite.graph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.*;
 import org.slf4j.Logger;
@@ -155,7 +155,7 @@ public class EdgeDegreesService extends AnalysisService {
                 runPipeline(exportPipeline);
                 logger.debug("finished export/import of '" + graph.getId() + "'");
 
-                MetaGraphTx tx = metadataService.newTransaction();
+                MetaGraphTx tx = metaGraphService.newTransaction();
                 JobMetadata jobMetadata = tx.getJob(jobId);
                 jobMetadata.setProgress(1);
                 jobMetadata.setState(JobMetadata.DONE);
@@ -277,7 +277,7 @@ public class EdgeDegreesService extends AnalysisService {
                     if (jobMap.containsKey(hadoopJobId)) {
                         setJobState(jobMap.get(hadoopJobId), JobMetadata.DONE);
                     } else {
-                        MetaGraphTx tx = metadataService.newTransaction();
+                        MetaGraphTx tx = metaGraphService.newTransaction();
                         JobMetadata jobMetadata = tx.getJob(jobId);
                         JobMetadata childJobMetadata = tx.createJob(jobMetadata);
                         childJobMetadata.setName("faunus-hadoop-job");
@@ -298,7 +298,7 @@ public class EdgeDegreesService extends AnalysisService {
                 if (jobMap.containsKey(hadoopJobId)) {
                     setJobState(jobMap.get(hadoopJobId), JobMetadata.ERROR);
                 } else {
-                    MetaGraphTx tx = metadataService.newTransaction();
+                    MetaGraphTx tx = metaGraphService.newTransaction();
                     JobMetadata jobMetadata = tx.getJob(jobId);
                     JobMetadata childJobMetadata = tx.createJob(jobMetadata);
                     childJobMetadata.setName("faunus-hadoop-job");
@@ -341,7 +341,7 @@ public class EdgeDegreesService extends AnalysisService {
                 if (jobMap.containsKey(hadoopJobId)) {
                     setJobProgress(jobMap.get(hadoopJobId), progress);
                 } else {
-                    MetaGraphTx tx = metadataService.newTransaction();
+                    MetaGraphTx tx = metaGraphService.newTransaction();
                     JobMetadata jobMetadata = tx.getJob(jobId);
                     JobMetadata childJobMetadata = tx.createJob(jobMetadata);
                     childJobMetadata.setName("faunus-hadoop-job");

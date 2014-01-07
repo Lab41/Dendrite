@@ -1,11 +1,11 @@
 package org.lab41.dendrite.web.controller.analysis;
 
-import org.lab41.dendrite.graph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
-import org.lab41.dendrite.services.MetadataService;
+import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.services.analysis.BetweennessCentralityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ import java.util.Map;
 public class BetweennessCentralityController {
 
     @Autowired
-    MetadataService metadataService;
+    MetaGraphService metaGraphService;
 
     @Autowired
     BetweennessCentralityService betweennessCentralityService;
@@ -32,14 +32,14 @@ public class BetweennessCentralityController {
 
         Map<String, Object> response = new HashMap<>();
 
-        DendriteGraph graph = metadataService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "missing graph metadata '" + graphId + "'");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        MetaGraphTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metaGraphService.newTransaction();
 
         GraphMetadata graphMetadata = tx.getGraph(graphId);
         if (graphMetadata == null) {
