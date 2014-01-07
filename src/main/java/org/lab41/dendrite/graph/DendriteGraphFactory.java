@@ -106,15 +106,18 @@ public class DendriteGraphFactory {
         return graph;
     }
 
-    public DendriteGraph openGraph(String id) {
-        return openGraph(id, false);
+    public DendriteGraph openGraph(String id, Configuration config) {
+        return openGraph(id, config, false);
     }
 
-    public DendriteGraph openGraph(String id, boolean systemGraph) {
+    public DendriteGraph openGraph(String id, Configuration config, boolean systemGraph) {
         DendriteGraph graph = graphs.get(id);
         if (graph == null) {
-            Configuration configuration = getConfiguration(id);
-            graph = new DendriteGraph(id, configuration, systemGraph);
+            if (config == null) {
+                config = getConfiguration(id);
+            }
+
+            graph = new DendriteGraph(id, config, systemGraph);
 
             graphs.put(id, graph);
         }

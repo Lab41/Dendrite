@@ -4,6 +4,7 @@ import org.lab41.dendrite.models.GraphMetadata;
 import org.lab41.dendrite.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
 import org.lab41.dendrite.services.MetadataTx;
+import org.lab41.dendrite.web.beans.CreateGraphBean;
 import org.lab41.dendrite.web.beans.UpdateCurrentGraphBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,10 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/api")
@@ -131,9 +129,18 @@ public class GraphController {
 
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createGraph(@PathVariable String projectId,
+                                                           @Valid @RequestBody CreateGraphBean item,
+                                                           BindingResult result,
                                                            UriComponentsBuilder builder) {
 
         Map<String, Object> response = new HashMap<>();
+
+        if (result.hasErrors()) {
+            response.put("status", "error");
+            response.put("msg", result.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
         MetadataTx tx = metadataService.newTransaction();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
@@ -145,6 +152,7 @@ public class GraphController {
         }
 
         GraphMetadata graphMetadata = tx.createGraph(projectMetadata);
+        graphMetadata.setProperties(item.getProperties());
 
         response.put("graph", getGraphMap(graphMetadata));
 
@@ -230,12 +238,11 @@ public class GraphController {
         Map<String, Object> graph = new HashMap<>();
 
         graph.put("_id", graphMetadata.getId());
-        graph.put("name", graphMetadata.getName());
-        graph.put("backend", graphMetadata.getBackend());
-        graph.put("directory", graphMetadata.getDirectory());
-        graph.put("hostname", graphMetadata.getHostname());
-        graph.put("port", graphMetadata.getPort());
-        graph.put("tablename", graphMetadata.getTablename());
+
+        Properties properties = graphMetadata.getProperties();
+        if (properties != null) {
+            graph.put("properties", properties);
+        }
 
         ProjectMetadata projectMetadata = graphMetadata.getProject();
         if (projectMetadata != null) {
