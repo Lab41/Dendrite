@@ -6,6 +6,7 @@ import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.modules.gremlingroovy.GremlinGroovyModule;
 import com.tinkerpop.frames.modules.javahandler.JavaHandlerModule;
 import com.tinkerpop.frames.modules.typedgraph.TypedGraphModuleBuilder;
+import org.apache.commons.configuration.Configuration;
 import org.lab41.dendrite.graph.DendriteGraph;
 import org.lab41.dendrite.graph.DendriteGraphFactory;
 import org.lab41.dendrite.models.*;
@@ -13,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Properties;
 
 @Service
 public class MetadataService {
@@ -30,7 +33,7 @@ public class MetadataService {
         this.dendriteGraphFactory = dendriteGraphFactory;
 
         // Get or create the metadata graph.
-        this.metadataGraph = dendriteGraphFactory.openGraph(METADATA_GRAPH_NAME, true);
+        this.metadataGraph = dendriteGraphFactory.openGraph(METADATA_GRAPH_NAME, null, true);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
         this.metadataFrameFactory = new FramedGraphFactory(
@@ -89,37 +92,9 @@ public class MetadataService {
         }
 
         // GraphMetadata keys
-        if (metadataGraph.getType("backend") == null) {
-            metadataGraph.makeKey("backend")
-                    .dataType(String.class)
-                    .indexed(Vertex.class)
-                    .make();
-        }
-
-        if (metadataGraph.getType("directory") == null) {
-            metadataGraph.makeKey("directory")
-                    .dataType(String.class)
-                    .indexed(Vertex.class)
-                    .make();
-        }
-
-        if (metadataGraph.getType("hostname") == null) {
-            metadataGraph.makeKey("hostname")
-                    .dataType(String.class)
-                    .indexed(Vertex.class)
-                    .make();
-        }
-
-        if (metadataGraph.getType("port") == null) {
-            metadataGraph.makeKey("port")
-                    .dataType(Integer.class)
-                    .indexed(Vertex.class)
-                    .make();
-        }
-
-        if (metadataGraph.getType("tablename") == null) {
-            metadataGraph.makeKey("tablename")
-                    .dataType(String.class)
+        if (metadataGraph.getType("properties") == null) {
+            metadataGraph.makeKey("properties")
+                    .dataType(Properties.class)
                     .indexed(Vertex.class)
                     .make();
         }
@@ -161,7 +136,7 @@ public class MetadataService {
         MetadataTx tx = newTransaction();
 
         for(GraphMetadata graphMetadata: tx.getGraphs()) {
-            dendriteGraphFactory.openGraph(graphMetadata.getId());
+            dendriteGraphFactory.openGraph(graphMetadata.getId(), graphMetadata.getConfiguration());
         }
 
         tx.commit();
@@ -175,7 +150,7 @@ public class MetadataService {
             MetadataTx tx = newTransaction();
             GraphMetadata graphMetadata = tx.getGraph(id);
             if (graphMetadata != null) {
-                graph = dendriteGraphFactory.openGraph(id);
+                graph = dendriteGraphFactory.openGraph(id, graphMetadata.getConfiguration());
             }
 
             tx.commit();

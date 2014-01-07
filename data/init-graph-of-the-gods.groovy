@@ -34,10 +34,10 @@ Vertex sea = g.addVertex(null);
 ElementHelper.setProperties(sea, "name", "sea", "type", "location", "vertexId", sea.getId().toString());
 
 Vertex jupiter = g.addVertex(null);
-ElementHelper.setProperties(jupiter, "name", "jupiter", "age", 5000, "type", "god", "_vertexId", jupiter.getId().toString());
+ElementHelper.setProperties(jupiter, "name", "jupiter", "age", 5000, "type", "god", "vertexId", jupiter.getId().toString());
 
 Vertex neptune = g.addVertex(null);
-ElementHelper.setProperties(neptune, "name", "neptune", "age", 4500, "type", "god", "_vertexId", neptune.getId().toString());
+ElementHelper.setProperties(neptune, "name", "neptune", "age", 4500, "type", "god", "vertexId", neptune.getId().toString());
 
 Vertex hercules = g.addVertex(null);
 ElementHelper.setProperties(hercules, "name", "hercules", "age", 30, "type", "demigod", "vertexId", hercules.getId().toString());
