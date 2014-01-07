@@ -302,6 +302,9 @@ def create_project(args):
         project = Project.create(conn, args.name)
         print_records([project])
 
+        if args.script:
+            run_groovy_on_graph(project.current_graph, args)
+
     return 0
 
 # ----------------------------------------------------------------------------
@@ -370,17 +373,20 @@ def export_graph(args):
 
 # ----------------------------------------------------------------------------
 
+def run_groovy_on_graph(graph, args):
+    print 'Running the groovy script...'
+    response = graph.run_groovy(args.script)
+
+    if args.pretty:
+        print json.dumps(response, indent=2)
+    else:
+        print json.dumps(response)
+
 def run_groovy(args):
     with closing(Connection(args)) as conn:
         graph = Graph.get(conn, args.id)
 
-        print 'Running the groovy script...'
-        response = graph.run_groovy(args.script)
-
-        if args.pretty:
-            print json.dumps(response, indent=2)
-        else:
-            print json.dumps(response)
+        run_groovy_on_graph(graph, args)
 
     return 0
 
@@ -465,7 +471,12 @@ def main():
     parser_create_project.add_argument('name',
             type=not_empty)
     parser_create_project.add_argument('--script',
-            type=argparse.FileType('rb'))
+            type=argparse.FileType('rb'),
+            help="run this groovy script after creating the project")
+    parser_create_project.add_argument('--pretty',
+            default=False,
+            action='store_true',
+            help='Prettify the groovy json response')
     parser_create_project.set_defaults(func=create_project)
 
     # Options for showing projects.
@@ -526,7 +537,7 @@ def main():
     parser_run_groovy.add_argument('--pretty',
             default=False,
             action='store_true',
-            help='Prettify the json response')
+            help='Prettify the groovy json response')
     parser_run_groovy.add_argument('id',
             type=not_empty,
             help='the id of the graph according to rexster')
