@@ -57,6 +57,8 @@ angular.module('dendrite.directives', []).
         link: function(scope, element, attrs) {
 
           element.bind('change', function(evt) {
+            scope.$parent.selectedCheckboxesList = "";
+            scope.$parent.selectedCheckboxes = [];
 
             // verify fileReader API support
             if (window.File && window.FileReader && window.FileList && window.Blob) {

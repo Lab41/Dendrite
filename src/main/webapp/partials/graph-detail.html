@@ -32,7 +32,10 @@
     <div class="span12">
       <label for="format">Upload a file to add to the network:</label>
       <div ng-controller="FileUploadCtrl">
-        <form ng-upload="uploadFile(content)" ng-upload-loading="uploading()" action="api/graphs/{{ graphId }}/file-import" upload-options-enable-controls>
+        <form id="form-file-upload" ng-upload="uploadFile(content)" ng-upload-loading="uploading()" action="api/graphs/{{ graphId }}/file-import" upload-options-enable-controls>
+
+          <input type="hidden" name="searchkeys" value="{{selectedCheckboxesList}}">
+
           <select name="format" id="format" class="inline form-control" style="width:25%">
               <option selected>Select Format</option>
               <option value="GraphSON">GraphSON</option>
@@ -44,12 +47,15 @@
             <span class="btn btn-file">
               <span class="fileupload-new">Select file</span>
               <span class="fileupload-exists">Change</span>
-              <input type="file" name="file" id="file" style="display:inline">
+              <input file-parse-graph type="file" name="file" id="file" style="display:inline">
             </span>
-            <span class="inline fileupload-preview"> </span>
-            <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+            <span class="alert alert-error" ng-if="fileParseError">{{ fileParseError }}</span>
+            <span ng-hide="fileUploaded || fileParseError">
+              <span class="inline fileupload-preview"> </span>
+              <a class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+            </span>
           </div>
-          <input type="submit" class="inline btn btn-primary" value="Submit" ng-disabled="fileUploading"/>
+          <input ng-if="fileParsed && !fileUploaded" id="file-upload-submit" type="submit" class="inline btn btn-primary" value="Submit" ng-disabled="fileUploading"/>
           <div class="alert alert-info" ng-hide="!fileUploaded">{{ uploadMessage }}</div>
           <div ng-hide="!fileUploading"><img src="img/icons/ajax-loader.gif"></div>
         </form>
@@ -107,4 +113,5 @@
       </div>
     </div>
   </div>
+
 </div>

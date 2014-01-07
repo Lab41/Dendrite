@@ -134,7 +134,6 @@ angular.module('dendrite.controllers', []).
         $scope.$on('event:reloadGraph', function() {
           $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
         });
-
     }).
     controller('GraphSaveCtrl', function ($scope, $routeParams, $http, GraphTransform) {
         $scope.graphId = $routeParams.graphId;
@@ -769,7 +768,7 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
-    controller('FileUploadCtrl', function ($scope, $routeParams) {
+    controller('FileUploadCtrl', function ($scope, $routeParams, $modal) {
         $scope.graphId = $routeParams.graphId;
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
@@ -796,6 +795,45 @@ angular.module('dendrite.controllers', []).
                 $scope.uploadMessage = "upload failed: " + content.msg;
             }
         };
+
+        // push/slice checkbox from list
+        $scope.selectedCheckboxes = [];
+        $scope.selectedCheckboxesList = "";
+        $scope.checkboxTally = function(key) {
+          var idx = $scope.selectedCheckboxes.indexOf(key);
+          if (idx > -1) {
+            $scope.selectedCheckboxes.splice(idx, 1)
+          }
+          else {
+            $scope.selectedCheckboxes.push(key);
+          }
+        };
+
+        $scope.$on('event:graphFileParsed', function() {
+          $scope.fileParsed = false;
+          if ($scope.keysForGraph.length > 0) {
+            $scope.fileParsed = true;
+            $scope.fileParseError = false;
+            $scope.safeApply(function() {
+              $modal({scope: $scope, template: 'partials/graphs/form-select-keys.html'});
+            });
+          } else {
+            $scope.safeApply(function() {
+              $scope.fileParseError = "Error: Unrecognized Format!";
+            });
+          }
+        });
+
+        // auto-submit form to upload graph
+        // **note: explicitly set searchkeys value since Angular might be pending the scope's data update
+        $scope.loadGraph = function() {
+          $scope.selectedCheckboxesList = $scope.selectedCheckboxes.join(",");
+          angular.element('#form-file-upload input[name="searchkeys"]').val($scope.selectedCheckboxesList);
+          $scope.safeApply(function() {
+            angular.element('#form-file-upload').submit();
+          });
+        };
+
     }).
     controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
       $scope.searching = false;
