@@ -16,18 +16,14 @@
 
 package org.lab41.dendrite.web.controller;
 
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 
 import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.models.GraphMetadata;
-import org.lab41.dendrite.rexster.DendriteRexsterApplication;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.services.HistoryService;
 import org.lab41.dendrite.services.MetadataService;
-import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.web.beans.GraphExportBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,9 +1,9 @@
 package org.lab41.dendrite.web.controller;
 
-import org.lab41.dendrite.models.GraphMetadata;
-import org.lab41.dendrite.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
+import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
-import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.web.beans.ProjectBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class ProjectController {
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
     public @ResponseBody Map<String, Object> getProjects() {
 
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
 
         Map<String, Object> response = new HashMap<>();
         ArrayList<Object> projects = new ArrayList<>();
@@ -53,7 +53,7 @@ public class ProjectController {
     public ResponseEntity<Map<String, Object>> getProject(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
@@ -87,7 +87,7 @@ public class ProjectController {
 
         String name = item.getName();
 
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
 
         ProjectMetadata projectMetadata = tx.createProject();
         projectMetadata.setName(name);
@@ -109,7 +109,7 @@ public class ProjectController {
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) {
 
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
 
         Map<String, Object> response = new HashMap<>();
 

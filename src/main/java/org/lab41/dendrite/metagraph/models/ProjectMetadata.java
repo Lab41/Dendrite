@@ -1,12 +1,7 @@
-package org.lab41.dendrite.models;
+package org.lab41.dendrite.metagraph.models;
 
 import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.frames.Adjacency;
-import com.tinkerpop.frames.annotations.gremlin.GremlinGroovy;
-import com.tinkerpop.frames.annotations.gremlin.GremlinParam;
-import com.tinkerpop.frames.modules.javahandler.JavaHandler;
-import com.tinkerpop.frames.modules.javahandler.JavaHandlerContext;
 import com.tinkerpop.frames.modules.typedgraph.TypeValue;
 
 @TypeValue("project")

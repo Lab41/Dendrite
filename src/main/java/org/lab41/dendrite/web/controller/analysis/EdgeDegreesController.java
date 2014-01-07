@@ -1,11 +1,11 @@
 package org.lab41.dendrite.web.controller.analysis;
 
 import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.models.GraphMetadata;
-import org.lab41.dendrite.models.JobMetadata;
-import org.lab41.dendrite.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
+import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
-import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.services.analysis.EdgeDegreesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,7 @@ public class EdgeDegreesController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
 
         GraphMetadata graphMetadata = tx.getGraph(graphId);
         if (graphMetadata == null) {
@@ -83,7 +83,7 @@ public class EdgeDegreesController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
 
         GraphMetadata graphMetadata = tx.getGraph(graphId);
         if (graphMetadata == null) {

@@ -5,16 +5,13 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.oupls.jung.GraphJung;
 import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
-import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.Graph;
 import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.models.JobMetadata;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
 
 @Service
 public class BetweennessCentralityService extends AnalysisService {

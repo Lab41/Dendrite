@@ -1,4 +1,4 @@
-package org.lab41.dendrite.models;
+package org.lab41.dendrite.metagraph.models;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;

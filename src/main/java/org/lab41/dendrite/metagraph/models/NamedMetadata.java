@@ -1,7 +1,6 @@
-package org.lab41.dendrite.models;
+package org.lab41.dendrite.metagraph.models;
 
 import com.tinkerpop.frames.Property;
-import com.tinkerpop.frames.VertexFrame;
 
 public interface NamedMetadata extends Metadata {
 

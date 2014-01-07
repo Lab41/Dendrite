@@ -1,9 +1,9 @@
 package org.lab41.dendrite.services.analysis;
 
 import com.thinkaurelius.titan.core.TitanException;
-import org.lab41.dendrite.models.JobMetadata;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.services.MetadataService;
-import org.lab41.dendrite.services.MetadataTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ public abstract class AnalysisService {
     MetadataService metadataService;
 
     protected void setJobName(String jobId, String name) {
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
         try {
             JobMetadata jobMetadata = tx.getJob(jobId);
             jobMetadata.setName(name);
@@ -34,7 +34,7 @@ public abstract class AnalysisService {
     }
 
     protected void setJobState(String jobId, String state, String msg) {
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
         try {
             JobMetadata jobMetadata = tx.getJob(jobId);
             jobMetadata.setState(state);
@@ -52,7 +52,7 @@ public abstract class AnalysisService {
     }
 
     protected void setJobProgress(String jobId, float progress) {
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
         try {
             JobMetadata jobMetadata = tx.getJob(jobId);
             jobMetadata.setProgress(progress);

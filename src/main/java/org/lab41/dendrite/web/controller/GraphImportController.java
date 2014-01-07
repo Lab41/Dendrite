@@ -16,17 +16,13 @@
 
 package org.lab41.dendrite.web.controller;
 
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.util.io.gml.GMLReader;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLReader;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
 
 import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.models.GraphMetadata;
-import org.lab41.dendrite.rexster.DendriteRexsterApplication;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.services.MetadataService;
-import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.web.beans.GraphImportBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;

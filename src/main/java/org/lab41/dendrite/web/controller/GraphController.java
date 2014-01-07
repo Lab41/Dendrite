@@ -1,9 +1,9 @@
 package org.lab41.dendrite.web.controller;
 
-import org.lab41.dendrite.models.GraphMetadata;
-import org.lab41.dendrite.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
+import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetadataService;
-import org.lab41.dendrite.services.MetadataTx;
 import org.lab41.dendrite.web.beans.CreateGraphBean;
 import org.lab41.dendrite.web.beans.UpdateCurrentGraphBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class GraphController {
     @RequestMapping(value = "/graphs", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getGraphs() {
 
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
 
         List<Map<String, Object>> graphs = new ArrayList<>();
         for (GraphMetadata graphMetadata: tx.getGraphs()) {
@@ -50,7 +50,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getGraph(@PathVariable String graphId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
 
         GraphMetadata graphMetadata = tx.getGraph(graphId);
 
@@ -73,7 +73,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
         GraphMetadata graphMetadata = tx.getGraph(graphId);
 
         if (graphMetadata == null) {
@@ -104,7 +104,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getGraphs(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
@@ -141,7 +141,7 @@ public class GraphController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
@@ -166,7 +166,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
@@ -197,7 +197,7 @@ public class GraphController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        MetadataTx tx = metadataService.newTransaction();
+        MetaGraphTx tx = metadataService.newTransaction();
 
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 

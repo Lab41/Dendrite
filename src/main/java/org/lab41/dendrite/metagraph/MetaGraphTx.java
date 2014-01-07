@@ -1,19 +1,18 @@
-package org.lab41.dendrite.services;
+package org.lab41.dendrite.metagraph;
 
+import org.lab41.dendrite.metagraph.models.*;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanTransaction;
-import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.FramedTransactionalGraph;
-import org.lab41.dendrite.models.*;
 
-public class MetadataTx {
+public class MetaGraphTx {
 
     private TitanGraph titanGraph;
     private FramedGraphFactory framedGraphFactory;
     private FramedTransactionalGraph<TitanTransaction> tx = null;
 
-    public MetadataTx(TitanGraph titanGraph, FramedGraphFactory framedGraphFactory) {
+    public MetaGraphTx(TitanGraph titanGraph, FramedGraphFactory framedGraphFactory) {
         this.titanGraph = titanGraph;
         this.framedGraphFactory = framedGraphFactory;
     }
