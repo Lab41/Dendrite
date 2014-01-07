@@ -19,12 +19,12 @@ public class MetaGraph {
 
     static Logger logger = LoggerFactory.getLogger(MetaGraph.class);
 
-    static String METAGRAPH_NAME = "metadata";
+    static String SYSTEM_GRAPH_NAME = "system";
     static String GRAPH_NAME_PREFIX_DEFAULT = "dendrite-";
 
     private Configuration config;
 
-    private DendriteGraph metadataGraph;
+    private DendriteGraph systemGraph;
     private FramedGraphFactory frameFactory;
 
     private Map<String, DendriteGraph> graphs = new HashMap<>();
@@ -33,7 +33,8 @@ public class MetaGraph {
         this.config = config;
 
         // Get or create the metadata graph.
-        this.metadataGraph = loadGraph(METAGRAPH_NAME, null, true);
+        Configuration systemConfig = getGraphConfig(SYSTEM_GRAPH_NAME);
+        this.systemGraph = new DendriteGraph(SYSTEM_GRAPH_NAME, systemConfig);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
         this.frameFactory = new FramedGraphFactory(
@@ -47,7 +48,6 @@ public class MetaGraph {
         );
 
         createMetadataGraphKeys();
-        loadGraphs();
     }
 
     /**
@@ -62,24 +62,36 @@ public class MetaGraph {
     /**
      * Return all the known graphs.
      *
-     * @param includeSystemGraphs Should we include the hidden system graphs?
+     * @param includeSystemGraph Should we include the hidden system graph?
      * @return a collection of all the graphs.
      */
-    public Collection<DendriteGraph> getGraphs(boolean includeSystemGraphs) {
-        if (includeSystemGraphs) {
-            return graphs.values();
-        } else {
-            List<DendriteGraph> values = new ArrayList<>();
+    public Collection<DendriteGraph> getGraphs(boolean includeSystemGraph) {
+        List<DendriteGraph> graphs = new ArrayList<>();
 
-            for (Map.Entry<String, DendriteGraph> entry: graphs.entrySet()) {
-                // Filter out the system graphs.
-                if (!entry.getValue().isSystemGraph()) {
-                    values.add(entry.getValue());
-                }
-            }
-
-            return values;
+        if (includeSystemGraph) {
+            graphs.add(systemGraph);
         }
+
+        // We can't just return our graph cache because it's possible another process has created a graph. So to be
+        // safe we need fetch all the GraphMetadatas from the database in order to make sure they are loaded.
+        MetaGraphTx tx = newTransaction();
+
+        for (GraphMetadata graphMetadata: tx.getGraphs()) {
+            graphs.add(getGraph(graphMetadata.getId()));
+        }
+
+        tx.commit();
+
+        return graphs;
+    }
+
+    /**
+     * Get the system graph.
+     *
+     * @return The system graph.
+     */
+    public DendriteGraph getSystemGraph() {
+        return systemGraph;
     }
 
     /**
@@ -96,22 +108,21 @@ public class MetaGraph {
      * Get a graph.
      *
      * @param id The graph id.
-     * @param includeSystemGraphs Should we include the hidden system graphs?
+     * @param includeSystemGraph Should we include the hidden system graph?
      * @return The graph or null.
      */
-    public DendriteGraph getGraph(String id, boolean includeSystemGraphs) {
+    public DendriteGraph getGraph(String id, boolean includeSystemGraph) {
         DendriteGraph graph = graphs.get(id);
         if (graph == null) {
-            // Perhaps another process has created this graph, so try to load it.
-            graph = loadGraph(id);
-            if (graph == null) {
-                return null;
+            // Is it the system graph?
+            if (systemGraph.getId().equals(id)) {
+                if (includeSystemGraph) {
+                    graph = systemGraph;
+                }
+            } else {
+                // Maybe another process has created this graph, so try to load it.
+                graph = loadGraph(id);
             }
-        }
-
-        // Optionally filter out system graphs.
-        if (!includeSystemGraphs && graph.isSystemGraph()) {
-            return null;
         }
 
         return graph;
@@ -123,7 +134,7 @@ public class MetaGraph {
      * @return The transaction.
      */
     public MetaGraphTx newTransaction() {
-        return new MetaGraphTx(metadataGraph, frameFactory);
+        return new MetaGraphTx(systemGraph, frameFactory);
     }
 
     /**
@@ -140,8 +151,8 @@ public class MetaGraph {
      */
     private void createMetadataGraphKeys() {
         // Metadata keys
-        if (metadataGraph.getType("type") == null) {
-            metadataGraph.makeKey("type")
+        if (systemGraph.getType("type") == null) {
+            systemGraph.makeKey("type")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .indexed(Edge.class)
@@ -149,16 +160,16 @@ public class MetaGraph {
         }
 
         // NamedMetadata keys
-        if (metadataGraph.getType("name") == null) {
-            metadataGraph.makeKey("name")
+        if (systemGraph.getType("name") == null) {
+            systemGraph.makeKey("name")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .indexed(Edge.class)
                     .make();
         }
 
-        if (metadataGraph.getType("typeAndName") == null) {
-            metadataGraph.makeKey("typeAndName")
+        if (systemGraph.getType("typeAndName") == null) {
+            systemGraph.makeKey("typeAndName")
                     .dataType(String.class)
                     .unique()
                     .indexed(Vertex.class)
@@ -166,70 +177,57 @@ public class MetaGraph {
         }
 
         // ProjectMetadata keys
-        if (metadataGraph.getType("graphHead") == null) {
-            metadataGraph.makeLabel("graphHead").oneToOne().make();
+        if (systemGraph.getType("graphHead") == null) {
+            systemGraph.makeLabel("graphHead").oneToOne().make();
         }
 
-        if (metadataGraph.getType("ownsJob") == null) {
-            metadataGraph.makeLabel("ownsJob").oneToMany().make();
+        if (systemGraph.getType("ownsJob") == null) {
+            systemGraph.makeLabel("ownsJob").oneToMany().make();
         }
 
-        if (metadataGraph.getType("ownsJob") == null) {
-            metadataGraph.makeLabel("ownsJob").oneToMany().make();
+        if (systemGraph.getType("ownsJob") == null) {
+            systemGraph.makeLabel("ownsJob").oneToMany().make();
         }
 
         // GraphMetadata keys
-        if (metadataGraph.getType("properties") == null) {
-            metadataGraph.makeKey("properties")
+        if (systemGraph.getType("properties") == null) {
+            systemGraph.makeKey("properties")
                     .dataType(Properties.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
         // JobMetadata keys
-        if (metadataGraph.getType("state") == null) {
-            metadataGraph.makeKey("state")
+        if (systemGraph.getType("state") == null) {
+            systemGraph.makeKey("state")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (metadataGraph.getType("progress") == null) {
-            metadataGraph.makeKey("progress")
+        if (systemGraph.getType("progress") == null) {
+            systemGraph.makeKey("progress")
                     .dataType(Float.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (metadataGraph.getType("mapreduceJobId") == null) {
-            metadataGraph.makeKey("mapreduceJobId")
+        if (systemGraph.getType("mapreduceJobId") == null) {
+            systemGraph.makeKey("mapreduceJobId")
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .make();
         }
 
-        if (metadataGraph.getType("childJob") == null) {
-            metadataGraph.makeLabel("childJob").oneToMany().make();
+        if (systemGraph.getType("childJob") == null) {
+            systemGraph.makeLabel("childJob").oneToMany().make();
         }
 
-        if (metadataGraph.getType("parentJob") == null) {
-            metadataGraph.makeLabel("parentJob").manyToOne().make();
+        if (systemGraph.getType("parentJob") == null) {
+            systemGraph.makeLabel("parentJob").manyToOne().make();
         }
 
-        metadataGraph.commit();
-    }
-
-    /**
-     * Load all the known graphs.
-     */
-    private void loadGraphs() {
-        MetaGraphTx tx = newTransaction();
-
-        for(GraphMetadata graphMetadata: tx.getGraphs()) {
-            loadGraph(graphMetadata.getId(), graphMetadata.getConfiguration());
-        }
-
-        tx.commit();
+        systemGraph.commit();
     }
 
     /**
@@ -260,29 +258,17 @@ public class MetaGraph {
      * @param config If null, load the graph with the default config. Otherwise use this one.
      * @return The graph or null.
      */
-    private DendriteGraph loadGraph(String id, Configuration config) {
-        return loadGraph(id, config, false);
-    }
-
-    /**
-     * Load a graph. This graph is in a closed state.
-     *
-     * @param id The graph id.
-     * @param config If null, load the graph with the default config. Otherwise use this one.
-     * @param systemGraph Whether or not to consider this graph a system graph. If true, this graph be hidden.
-     * @return The graph or null.
-     */
-    synchronized private DendriteGraph loadGraph(String id, Configuration config, boolean systemGraph) {
+    synchronized private DendriteGraph loadGraph(String id, Configuration config) {
         // We don't want to end up with the same graph opened multiple times, so we'll sit behind a mutex.
         // Because of this, we should check again if the graph has been opened up in another thread.
         DendriteGraph graph = graphs.get(id);
         if (graph == null) {
             // Create a default config if we were passed a null config.
             if (config == null) {
-                config = getGraphConfiguration(id);
+                config = getGraphConfig(id);
             }
 
-            graph = new DendriteGraph(id, config, systemGraph);
+            graph = new DendriteGraph(id, config);
 
             graphs.put(id, graph);
         }
@@ -296,7 +282,7 @@ public class MetaGraph {
      * @param id The graph id.
      * @return The configuration.
      */
-    private Configuration getGraphConfiguration(String id) {
+    private Configuration getGraphConfig(String id) {
         Configuration graphConfig = new BaseConfiguration();
 
         // Add our prefix to the name so we can keep the databases organized.

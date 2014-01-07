@@ -20,16 +20,9 @@ public class DendriteGraph implements TitanGraph {
 
     private TitanGraph titanGraph;
 
-    private boolean systemGraph = false;
-
     public DendriteGraph(String id, Configuration configuration) {
-        this(id, configuration, false);
-    }
-
-    public DendriteGraph(String id, Configuration configuration, boolean systemGraph) {
         this.id = id;
         this.configuration = configuration;
-        this.systemGraph = systemGraph;
     }
 
     public String getId() {
@@ -38,10 +31,6 @@ public class DendriteGraph implements TitanGraph {
 
     public Configuration getConfiguration() {
         return configuration;
-    }
-
-    public boolean isSystemGraph() {
-        return systemGraph;
     }
 
     synchronized public TitanGraph getTitanGraph() {
