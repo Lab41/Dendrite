@@ -45,7 +45,7 @@ public class MetaGraphTx {
     }
 
     public ProjectMetadata getProject(String projectId) {
-        return getAutoStartTx().getVertex(projectId, ProjectMetadata.class);
+        return getVertex(projectId, "project", ProjectMetadata.class);
     }
 
     public ProjectMetadata createProject(String name) {
@@ -81,7 +81,7 @@ public class MetaGraphTx {
     }
 
     public GraphMetadata getGraph(String graphId) {
-        return getAutoStartTx().getVertex(graphId, GraphMetadata.class);
+        return getVertex(graphId, "graph", GraphMetadata.class);
     }
 
     public GraphMetadata createGraph(ProjectMetadata projectMetadata) {
@@ -116,7 +116,7 @@ public class MetaGraphTx {
     }
 
     public JobMetadata getJob(String jobId) {
-        return getAutoStartTx().getVertex(jobId, JobMetadata.class);
+        return getVertex(jobId, "job", JobMetadata.class);
     }
 
     public JobMetadata createJob(ProjectMetadata projectMetadata) {
@@ -165,6 +165,13 @@ public class MetaGraphTx {
         }
     }
     */
+
+    private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) {
+        F framedVertex = getAutoStartTx().getVertex(id, kind);
+        Preconditions.checkArgument(type.equals(framedVertex.asVertex().getProperty("type")));
+
+        return framedVertex;
+    }
 
     private <F extends Metadata> F createVertex(String type, Class<F> kind) {
         F framedVertex = getAutoStartTx().addVertex(null, kind);

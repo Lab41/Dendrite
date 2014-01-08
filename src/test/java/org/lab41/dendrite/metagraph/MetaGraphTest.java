@@ -48,4 +48,15 @@ public class MetaGraphTest extends BaseMetaGraphTest {
         Assert.assertEquals(metaGraph.getGraphs().size(), 1);
         Assert.assertEquals(metaGraph.getGraphs(true).size(), 2);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGettingInvalidVertexType() {
+        MetaGraphTx tx = metaGraph.newTransaction();
+        ProjectMetadata projectMetadata = tx.createProject("test");
+        tx.commit();
+
+        tx = metaGraph.newTransaction();
+        tx.getJob(projectMetadata.getId());
+        tx.rollback();
+    }
 }
