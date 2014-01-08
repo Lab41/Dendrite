@@ -17,38 +17,11 @@ public interface ProjectMetadata extends NamedMetadata {
     public Iterable<GraphMetadata> getGraphs();
 
     @Adjacency(label = "ownsGraph", direction = Direction.OUT)
-    public Iterable<GraphMetadata> addGraphs(GraphMetadata graph);
+    public void addGraph(GraphMetadata graph);
 
     @Adjacency(label = "ownsJob", direction = Direction.OUT)
     public Iterable<JobMetadata> getJobs();
 
-    /*
-    @GremlinGroovy("it.out('jobMetadata').has('name', name)")
-    Iterable<? extends JobMetadata> getJobsNamed(@GremlinParam("name") String name);
-    */
-
     @Adjacency(label = "ownsJob", direction = Direction.OUT)
     void addJob(JobMetadata jobMetadata);
-
-    /*
-    @JavaHandler
-    public GraphMetadata getGraph(String graphId);
-    */
-
-    /*
-    public abstract class Impl implements JavaHandlerContext<Vertex>, ProjectMetadata {
-
-        @Override
-        public GraphMetadata getGraph(String graphId) {
-            Iterable<Vertex> vertices = this.it().query().labels("ownsGraph").has("_id", graphId).vertices();
-
-            if (vertices)
-
-
-            Iterable<GraphMetadata> graphs = g().frameVertices(;
-
-            g().frame()
-        }
-    }
-    */
 }

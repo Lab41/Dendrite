@@ -181,8 +181,8 @@ public class MetaGraph {
             systemGraph.makeLabel("graphHead").oneToOne().make();
         }
 
-        if (systemGraph.getType("ownsJob") == null) {
-            systemGraph.makeLabel("ownsJob").oneToMany().make();
+        if (systemGraph.getType("ownsGraph") == null) {
+            systemGraph.makeLabel("ownsGraph").oneToMany().make();
         }
 
         if (systemGraph.getType("ownsJob") == null) {
@@ -195,6 +195,10 @@ public class MetaGraph {
                     .dataType(Properties.class)
                     .indexed(Vertex.class)
                     .make();
+        }
+
+        if (systemGraph.getType("childGraph") == null) {
+            systemGraph.makeLabel("childGraph").oneToMany().make();
         }
 
         // JobMetadata keys
@@ -221,10 +225,6 @@ public class MetaGraph {
 
         if (systemGraph.getType("childJob") == null) {
             systemGraph.makeLabel("childJob").oneToMany().make();
-        }
-
-        if (systemGraph.getType("parentJob") == null) {
-            systemGraph.makeLabel("parentJob").manyToOne().make();
         }
 
         systemGraph.commit();

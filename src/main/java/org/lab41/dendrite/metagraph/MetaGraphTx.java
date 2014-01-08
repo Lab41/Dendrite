@@ -1,5 +1,6 @@
 package org.lab41.dendrite.metagraph;
 
+import com.google.common.base.Preconditions;
 import org.lab41.dendrite.metagraph.models.*;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanTransaction;
@@ -47,8 +48,11 @@ public class MetaGraphTx {
         return getAutoStartTx().getVertex(projectId, ProjectMetadata.class);
     }
 
-    public ProjectMetadata createProject() {
+    public ProjectMetadata createProject(String name) {
+        Preconditions.checkArgument(!name.isEmpty());
+
         ProjectMetadata projectMetadata = createVertex("project", ProjectMetadata.class);
+        projectMetadata.setName(name);
 
         // Create the initial graph.
         GraphMetadata graphMetadata = createGraph(projectMetadata);
@@ -82,8 +86,14 @@ public class MetaGraphTx {
 
     public GraphMetadata createGraph(ProjectMetadata projectMetadata) {
         GraphMetadata graphMetadata = getAutoStartTx().addVertex(null, GraphMetadata.class);
-        projectMetadata.addGraphs(graphMetadata);
-        graphMetadata.setProject(projectMetadata);
+        projectMetadata.addGraph(graphMetadata);
+
+        return graphMetadata;
+    }
+
+    public GraphMetadata createGraph(GraphMetadata parentGraphMetadata) {
+        GraphMetadata graphMetadata = getAutoStartTx().addVertex(null, GraphMetadata.class);
+        parentGraphMetadata.addChildGraph(graphMetadata);
 
         return graphMetadata;
     }
@@ -118,8 +128,8 @@ public class MetaGraphTx {
 
     public JobMetadata createJob(JobMetadata parentJobMetadata) {
         JobMetadata jobMetadata = getAutoStartTx().addVertex(null, JobMetadata.class);
-        jobMetadata.setParentJob(parentJobMetadata);
         parentJobMetadata.addChildJob(jobMetadata);
+        parentJobMetadata.getProject().addJob(jobMetadata);
 
         return jobMetadata;
     }

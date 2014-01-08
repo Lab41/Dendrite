@@ -8,18 +8,7 @@ import org.junit.Test;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 
-public class MetaGraphTest {
-
-    private MetaGraph metaGraph;
-
-    @Before
-    public void setUp() {
-        Configuration config = new BaseConfiguration();
-
-        config.setProperty("metagraph.storage.backend", "inmemory");
-
-        metaGraph = new MetaGraph(config);
-    }
+public class MetaGraphTest extends BaseMetaGraphTest {
 
     @Test
     public void testGettingSystemGraph() {
@@ -36,7 +25,7 @@ public class MetaGraphTest {
     public void testGettingNormalGraph() {
         // Create a graph.
         MetaGraphTx tx = metaGraph.newTransaction();
-        ProjectMetadata projectMetadata = tx.createProject();
+        ProjectMetadata projectMetadata = tx.createProject("test");
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
         tx.commit();
 
@@ -52,7 +41,7 @@ public class MetaGraphTest {
 
         // Create a graph.
         MetaGraphTx tx = metaGraph.newTransaction();
-        tx.createProject();
+        tx.createProject("test");
         tx.commit();
 
         // Now there should now be two graphs.
