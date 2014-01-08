@@ -146,26 +146,6 @@ public class MetaGraphTx {
         return getAutoStartTx().getVertices("type", type, kind);
     }
 
-    /*
-    private <F extends NamedMetadata> F getNamedVertex(String type, String name, final Class<F> kind) {
-        / *
-        Iterable<F> vertices = getAutoStartTx().query()
-                .has("type", type)
-                .has("name", name)
-                .vertices(kind);
-        * /
-
-        Vertex vertex = titanGraph.newTransaction()
-                .getVertex("typeAndName", type + ":" + name);
-
-        if (vertex == null) {
-            return null;
-        } else {
-            return getAutoStartTx().frame(vertex, kind);
-        }
-    }
-    */
-
     private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) {
         F framedVertex = getAutoStartTx().getVertex(id, kind);
         Preconditions.checkArgument(type.equals(framedVertex.asVertex().getProperty("type")));
@@ -177,16 +157,6 @@ public class MetaGraphTx {
         F framedVertex = getAutoStartTx().addVertex(null, kind);
 
         framedVertex.asVertex().setProperty("type", type);
-
-        return framedVertex;
-    }
-
-    private <F extends NamedMetadata> F createNamedVertex(String type, String name, Class<F> kind) {
-        F framedVertex = getAutoStartTx().addVertex(null, kind);
-
-        framedVertex.asVertex().setProperty("type", type);
-        framedVertex.asVertex().setProperty("name", name);
-        framedVertex.asVertex().setProperty("typeAndName", type + ":" + name);
 
         return framedVertex;
     }
