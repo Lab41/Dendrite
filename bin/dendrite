@@ -170,6 +170,8 @@ class Graph(Table):
         data = { 'alpha': alpha }
         response = self.conn.post_json(url, data=data).json()
 
+        return Job.get(self.conn, response['jobId'])
+
     def run_jung_betweenness_centrality(self):
         url = '/api/graphs/{}/analysis/jung-betweenness-centrality'.format(self.id)
         response = self.conn.post_json(url).json()

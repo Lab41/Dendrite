@@ -1,11 +1,10 @@
-package org.lab41.dendrite.models;
+package org.lab41.dendrite.metagraph.models;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.frames.Adjacency;
 import com.tinkerpop.frames.Property;
 import com.tinkerpop.frames.modules.javahandler.Initializer;
-import com.tinkerpop.frames.modules.javahandler.JavaHandler;
 import com.tinkerpop.frames.modules.javahandler.JavaHandlerContext;
 import com.tinkerpop.frames.modules.typedgraph.TypeValue;
 
@@ -44,17 +43,17 @@ public interface JobMetadata extends NamedMetadata {
     @Property("mapreduceJobId")
     public void setMapreduceJobId(String jobId);
 
+    @Adjacency(label = "ownsJob", direction = Direction.IN)
+    public ProjectMetadata getProject();
+
     @Adjacency(label = "childJob", direction = Direction.OUT)
     public Iterable<JobMetadata> getChildJobs();
 
     @Adjacency(label = "childJob", direction = Direction.OUT)
     public void addChildJob(JobMetadata job);
 
-    @Adjacency(label = "parentJob", direction = Direction.OUT)
+    @Adjacency(label = "childJob", direction = Direction.IN)
     public JobMetadata getParentJob();
-
-    @Adjacency(label = "parentJob", direction = Direction.OUT)
-    public void setParentJob(JobMetadata job);
 
     public abstract class Impl implements JavaHandlerContext<Vertex>, JobMetadata {
 

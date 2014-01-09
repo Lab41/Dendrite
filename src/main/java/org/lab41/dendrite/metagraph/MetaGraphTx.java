@@ -1,19 +1,19 @@
-package org.lab41.dendrite.services;
+package org.lab41.dendrite.metagraph;
 
+import com.google.common.base.Preconditions;
+import org.lab41.dendrite.metagraph.models.*;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanTransaction;
-import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.FramedTransactionalGraph;
-import org.lab41.dendrite.models.*;
 
-public class MetadataTx {
+public class MetaGraphTx {
 
     private TitanGraph titanGraph;
     private FramedGraphFactory framedGraphFactory;
     private FramedTransactionalGraph<TitanTransaction> tx = null;
 
-    public MetadataTx(TitanGraph titanGraph, FramedGraphFactory framedGraphFactory) {
+    public MetaGraphTx(TitanGraph titanGraph, FramedGraphFactory framedGraphFactory) {
         this.titanGraph = titanGraph;
         this.framedGraphFactory = framedGraphFactory;
     }
@@ -45,11 +45,14 @@ public class MetadataTx {
     }
 
     public ProjectMetadata getProject(String projectId) {
-        return getAutoStartTx().getVertex(projectId, ProjectMetadata.class);
+        return getVertex(projectId, "project", ProjectMetadata.class);
     }
 
-    public ProjectMetadata createProject() {
+    public ProjectMetadata createProject(String name) {
+        Preconditions.checkArgument(!name.isEmpty());
+
         ProjectMetadata projectMetadata = createVertex("project", ProjectMetadata.class);
+        projectMetadata.setName(name);
 
         // Create the initial graph.
         GraphMetadata graphMetadata = createGraph(projectMetadata);
@@ -78,13 +81,19 @@ public class MetadataTx {
     }
 
     public GraphMetadata getGraph(String graphId) {
-        return getAutoStartTx().getVertex(graphId, GraphMetadata.class);
+        return getVertex(graphId, "graph", GraphMetadata.class);
     }
 
     public GraphMetadata createGraph(ProjectMetadata projectMetadata) {
         GraphMetadata graphMetadata = getAutoStartTx().addVertex(null, GraphMetadata.class);
-        projectMetadata.addGraphs(graphMetadata);
-        graphMetadata.setProject(projectMetadata);
+        projectMetadata.addGraph(graphMetadata);
+
+        return graphMetadata;
+    }
+
+    public GraphMetadata createGraph(GraphMetadata parentGraphMetadata) {
+        GraphMetadata graphMetadata = getAutoStartTx().addVertex(null, GraphMetadata.class);
+        parentGraphMetadata.addChildGraph(graphMetadata);
 
         return graphMetadata;
     }
@@ -107,7 +116,7 @@ public class MetadataTx {
     }
 
     public JobMetadata getJob(String jobId) {
-        return getAutoStartTx().getVertex(jobId, JobMetadata.class);
+        return getVertex(jobId, "job", JobMetadata.class);
     }
 
     public JobMetadata createJob(ProjectMetadata projectMetadata) {
@@ -119,8 +128,8 @@ public class MetadataTx {
 
     public JobMetadata createJob(JobMetadata parentJobMetadata) {
         JobMetadata jobMetadata = getAutoStartTx().addVertex(null, JobMetadata.class);
-        jobMetadata.setParentJob(parentJobMetadata);
         parentJobMetadata.addChildJob(jobMetadata);
+        parentJobMetadata.getProject().addJob(jobMetadata);
 
         return jobMetadata;
     }
@@ -137,40 +146,17 @@ public class MetadataTx {
         return getAutoStartTx().getVertices("type", type, kind);
     }
 
-    /*
-    private <F extends NamedMetadata> F getNamedVertex(String type, String name, final Class<F> kind) {
-        / *
-        Iterable<F> vertices = getAutoStartTx().query()
-                .has("type", type)
-                .has("name", name)
-                .vertices(kind);
-        * /
+    private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) {
+        F framedVertex = getAutoStartTx().getVertex(id, kind);
+        Preconditions.checkArgument(type.equals(framedVertex.asVertex().getProperty("type")));
 
-        Vertex vertex = titanGraph.newTransaction()
-                .getVertex("typeAndName", type + ":" + name);
-
-        if (vertex == null) {
-            return null;
-        } else {
-            return getAutoStartTx().frame(vertex, kind);
-        }
+        return framedVertex;
     }
-    */
 
     private <F extends Metadata> F createVertex(String type, Class<F> kind) {
         F framedVertex = getAutoStartTx().addVertex(null, kind);
 
         framedVertex.asVertex().setProperty("type", type);
-
-        return framedVertex;
-    }
-
-    private <F extends NamedMetadata> F createNamedVertex(String type, String name, Class<F> kind) {
-        F framedVertex = getAutoStartTx().addVertex(null, kind);
-
-        framedVertex.asVertex().setProperty("type", type);
-        framedVertex.asVertex().setProperty("name", name);
-        framedVertex.asVertex().setProperty("typeAndName", type + ":" + name);
 
         return framedVertex;
     }

@@ -1,4 +1,4 @@
-package org.lab41.dendrite.models;
+package org.lab41.dendrite.metagraph.models;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
@@ -10,7 +10,7 @@ import com.tinkerpop.frames.modules.typedgraph.TypeValue;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 
-import java.util.Properties;
+import java.util.*;
 
 @TypeValue("graph")
 public interface GraphMetadata extends Metadata {
@@ -24,11 +24,21 @@ public interface GraphMetadata extends Metadata {
     @JavaHandler
     public Configuration getConfiguration();
 
-    @Adjacency(label = "project", direction = Direction.OUT)
+    /// Return the project that owns this graph.
+    @Adjacency(label = "ownsGraph", direction = Direction.IN)
     public ProjectMetadata getProject();
 
-    @Adjacency(label = "project", direction = Direction.OUT)
-    public void setProject(ProjectMetadata projectMetadata);
+    /// Return all the immediate graphs that were derived from this graph.
+    @Adjacency(label = "childGraph", direction = Direction.OUT)
+    public Iterable<GraphMetadata> getChildGraphs();
+
+    /// Add a new child graph.
+    @Adjacency(label = "childGraph", direction = Direction.OUT)
+    public void addChildGraph(GraphMetadata graph);
+
+    /// Return the graph that this graph was derived from.
+    @Adjacency(label = "childGraph", direction = Direction.IN)
+    public GraphMetadata getParentGraph();
 
     public abstract class Impl implements JavaHandlerContext<Vertex>, GraphMetadata {
 

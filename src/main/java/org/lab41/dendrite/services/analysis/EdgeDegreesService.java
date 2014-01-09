@@ -6,8 +6,6 @@ import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseInputFormat;
 import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseOutputFormat;
 import com.thinkaurelius.faunus.mapreduce.FaunusCompiler;
 import com.thinkaurelius.faunus.mapreduce.FaunusJobControl;
-import com.thinkaurelius.titan.core.TitanException;
-import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanTransaction;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -18,16 +16,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.JobStatus;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.lab41.dendrite.graph.DendriteGraph;
-import org.lab41.dendrite.models.*;
-import org.lab41.dendrite.rexster.DendriteRexsterApplication;
-import org.lab41.dendrite.services.MetadataService;
-import org.lab41.dendrite.services.MetadataTx;
+import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -161,7 +155,7 @@ public class EdgeDegreesService extends AnalysisService {
                 runPipeline(exportPipeline);
                 logger.debug("finished export/import of '" + graph.getId() + "'");
 
-                MetadataTx tx = metadataService.newTransaction();
+                MetaGraphTx tx = metaGraphService.newTransaction();
                 JobMetadata jobMetadata = tx.getJob(jobId);
                 jobMetadata.setProgress(1);
                 jobMetadata.setState(JobMetadata.DONE);
@@ -283,7 +277,7 @@ public class EdgeDegreesService extends AnalysisService {
                     if (jobMap.containsKey(hadoopJobId)) {
                         setJobState(jobMap.get(hadoopJobId), JobMetadata.DONE);
                     } else {
-                        MetadataTx tx = metadataService.newTransaction();
+                        MetaGraphTx tx = metaGraphService.newTransaction();
                         JobMetadata jobMetadata = tx.getJob(jobId);
                         JobMetadata childJobMetadata = tx.createJob(jobMetadata);
                         childJobMetadata.setName("faunus-hadoop-job");
@@ -304,7 +298,7 @@ public class EdgeDegreesService extends AnalysisService {
                 if (jobMap.containsKey(hadoopJobId)) {
                     setJobState(jobMap.get(hadoopJobId), JobMetadata.ERROR);
                 } else {
-                    MetadataTx tx = metadataService.newTransaction();
+                    MetaGraphTx tx = metaGraphService.newTransaction();
                     JobMetadata jobMetadata = tx.getJob(jobId);
                     JobMetadata childJobMetadata = tx.createJob(jobMetadata);
                     childJobMetadata.setName("faunus-hadoop-job");
@@ -347,7 +341,7 @@ public class EdgeDegreesService extends AnalysisService {
                 if (jobMap.containsKey(hadoopJobId)) {
                     setJobProgress(jobMap.get(hadoopJobId), progress);
                 } else {
-                    MetadataTx tx = metadataService.newTransaction();
+                    MetaGraphTx tx = metaGraphService.newTransaction();
                     JobMetadata jobMetadata = tx.getJob(jobId);
                     JobMetadata childJobMetadata = tx.createJob(jobMetadata);
                     childJobMetadata.setName("faunus-hadoop-job");

@@ -1,4 +1,4 @@
-package org.lab41.dendrite.graph;
+package org.lab41.dendrite.metagraph;
 
 import com.thinkaurelius.titan.core.*;
 import com.tinkerpop.blueprints.*;
@@ -20,16 +20,9 @@ public class DendriteGraph implements TitanGraph {
 
     private TitanGraph titanGraph;
 
-    private boolean systemGraph = false;
-
     public DendriteGraph(String id, Configuration configuration) {
-        this(id, configuration, false);
-    }
-
-    public DendriteGraph(String id, Configuration configuration, boolean systemGraph) {
         this.id = id;
         this.configuration = configuration;
-        this.systemGraph = systemGraph;
     }
 
     public String getId() {
@@ -38,10 +31,6 @@ public class DendriteGraph implements TitanGraph {
 
     public Configuration getConfiguration() {
         return configuration;
-    }
-
-    public boolean isSystemGraph() {
-        return systemGraph;
     }
 
     synchronized public TitanGraph getTitanGraph() {
