@@ -769,7 +769,6 @@ angular.module('dendrite.controllers', []).
         };
     }).
     controller('FileUploadCtrl', function ($scope, $routeParams, $modal) {
-        $scope.graphId = $routeParams.graphId;
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
 
