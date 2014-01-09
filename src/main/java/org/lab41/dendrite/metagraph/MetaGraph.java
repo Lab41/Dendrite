@@ -19,7 +19,7 @@ public class MetaGraph {
 
     static Logger logger = LoggerFactory.getLogger(MetaGraph.class);
 
-    static String SYSTEM_GRAPH_NAME = "system";
+    static String SYSTEM_GRAPH_NAME_DEFAULT = "system";
     static String GRAPH_NAME_PREFIX_DEFAULT = "dendrite-";
 
     private Configuration config;
@@ -33,8 +33,9 @@ public class MetaGraph {
         this.config = config;
 
         // Get or create the metadata graph.
-        Configuration systemConfig = getGraphConfig(SYSTEM_GRAPH_NAME);
-        this.systemGraph = new DendriteGraph(SYSTEM_GRAPH_NAME, systemConfig);
+        String systemGraphName = config.getString("metagraph.system.name", SYSTEM_GRAPH_NAME_DEFAULT);
+        Configuration systemConfig = getGraphConfig(systemGraphName);
+        this.systemGraph = new DendriteGraph(systemGraphName, systemConfig);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
         this.frameFactory = new FramedGraphFactory(
