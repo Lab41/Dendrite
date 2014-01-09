@@ -286,39 +286,39 @@ public class MetaGraph {
         Configuration graphConfig = new BaseConfiguration();
 
         // Add our prefix to the name so we can keep the databases organized.
-        String name = config.getString("metagraph.name-prefix", GRAPH_NAME_PREFIX_DEFAULT) + id;
+        String name = config.getString("metagraph.template.name-prefix", GRAPH_NAME_PREFIX_DEFAULT) + id;
 
         Configuration storage = graphConfig.subset("storage");
 
-        String storageBackend = config.getString("metagraph.storage.backend");
+        String storageBackend = config.getString("metagraph.template.storage.backend");
         storage.setProperty("backend", storageBackend);
         storage.setProperty("read-only", false);
 
-        String storageDirectory = config.getString("metagraph.storage.directory", null);
+        String storageDirectory = config.getString("metagraph.template.storage.directory", null);
         if (storageDirectory != null) {
             String dir = (new File(storageDirectory, name)).getPath();
             storage.setProperty("directory", dir);
         }
 
-        storage.setProperty("hostname", config.getString("metagraph.storage.hostname", null));
-        storage.setProperty("port", config.getString("metadata.storage.port", null));
+        storage.setProperty("hostname", config.getString("metagraph.template.storage.hostname", null));
+        storage.setProperty("port", config.getString("metadata.template.storage.port", null));
 
         if (storageBackend.equals("hbase")) {
             storage.setProperty("tablename", name);
         }
 
-        String indexBackend = config.getString("metagraph.storage.index.backend", null);
+        String indexBackend = config.getString("metagraph.template.storage.index.backend", null);
         if (indexBackend != null) {
             Configuration index = storage.subset("index").subset("search");
 
             index.setProperty("index-name", name);
             index.setProperty("backend", indexBackend);
-            index.setProperty("hostname", config.getString("metagraph.storage.index.hostname", null));
-            index.setProperty("client-only", config.getString("metagraph.storage.index.client-only", null));
-            index.setProperty("local-mode", config.getString("metagraph.storage.index.local-mode", null));
-            index.setProperty("cluster-name", config.getString("metagraph.storage.index.cluster-name", null));
+            index.setProperty("hostname", config.getString("metagraph.template.storage.index.hostname", null));
+            index.setProperty("client-only", config.getString("metagraph.template.storage.index.client-only", null));
+            index.setProperty("local-mode", config.getString("metagraph.template.storage.index.local-mode", null));
+            index.setProperty("cluster-name", config.getString("metagraph.template.storage.index.cluster-name", null));
 
-            String indexDirectory = config.getString("metagraph.storage.index.directory", null);
+            String indexDirectory = config.getString("metagraph.template.storage.index.directory", null);
             if (indexDirectory != null) {
                 String dir = (new File(indexDirectory, name)).getPath();
                 index.setProperty("directory", dir);
