@@ -62,6 +62,8 @@ case $cmd in
 
         echo starting dendrite
 
+        # remove any old .class files that might around from an older version of dendrite
+        mvn clean
         nohup mvn tomcat7:run -Dmaven.tomcat.port=8000 -Dspring.profiles.active=$DENDRITE_PROFILE > "$log" 2>&1 < /dev/null &
         echo $! > $pid
         ;;
