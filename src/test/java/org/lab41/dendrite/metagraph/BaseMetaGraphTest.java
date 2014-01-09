@@ -21,5 +21,6 @@ public class BaseMetaGraphTest {
     @After
     public void tearDownBaseMetaGraphTest() {
         metaGraph.stop();
+        metaGraph = null;
     }
 }

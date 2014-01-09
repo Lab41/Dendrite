@@ -49,21 +49,29 @@ public class MetaGraphTx {
     }
 
     public ProjectMetadata createProject(String name) {
+        return createProject(name, true);
+    }
+
+    public ProjectMetadata createProject(String name, boolean createBranch) {
         Preconditions.checkArgument(!name.isEmpty());
 
         ProjectMetadata projectMetadata = createVertex("project", ProjectMetadata.class);
         projectMetadata.setName(name);
 
-        // Create the initial graph.
-        GraphMetadata graphMetadata = createGraph(projectMetadata);
-        projectMetadata.setCurrentGraph(graphMetadata);
+        if (createBranch) {
+            BranchMetadata branchMetadata = createBranch("master", projectMetadata);
+            projectMetadata.setCurrentBranch(branchMetadata);
+        }
 
         return projectMetadata;
     }
 
     public void deleteProject(ProjectMetadata projectMetadata) throws Exception {
+        projectMetadata.setCurrentBranch(null);
 
-        projectMetadata.setCurrentGraph(null);
+        for (BranchMetadata branchMetadata: projectMetadata.getBranches()) {
+            deleteBranch(branchMetadata);
+        }
 
         for (GraphMetadata graphMetadata: projectMetadata.getGraphs()) {
             deleteGraph(graphMetadata);
@@ -111,6 +119,61 @@ public class MetaGraphTx {
         getAutoStartTx().removeVertex(graphMetadata.asVertex());
     }
 
+    public Iterable<? extends BranchMetadata> getBranches() {
+        return getVertices("branch", BranchMetadata.class);
+    }
+
+    public BranchMetadata getBranch(String branchId) {
+        return getAutoStartTx().getVertex(branchId, BranchMetadata.class);
+    }
+
+    /**
+     * Create an empty branch in a project.
+     *
+     * @param name the branch name
+     * @param projectMetadata the project that owns the branch.
+     * @return the branch.
+     */
+    public BranchMetadata createBranch(String name, ProjectMetadata projectMetadata) {
+        return createBranch(name, projectMetadata, createGraph(projectMetadata));
+    }
+
+    /**
+     * Create a branch with the given graph in a project.
+     *
+     * @param name the branch name
+     * @param projectMetadata the project that owns the branch.
+     * @param graphMetadata the branch graph.
+     * @return the branch.
+     */
+    public BranchMetadata createBranch(String name, ProjectMetadata projectMetadata, GraphMetadata graphMetadata) {
+        BranchMetadata branchMetadata = getAutoStartTx().addVertex(null, BranchMetadata.class);
+        branchMetadata.setName(name);
+        branchMetadata.setGraph(graphMetadata);
+        projectMetadata.addBranch(branchMetadata);
+
+        return branchMetadata;
+    }
+
+    /**
+     * Delete a branch.
+     *
+     * @param branchMetadata the branch.
+     * @throws CannotDeleteCurrentBranchException
+     */
+    public void deleteBranch(BranchMetadata branchMetadata) throws CannotDeleteCurrentBranchException {
+        // We cannot delete the current branch.
+        ProjectMetadata projectMetadata = branchMetadata.getProject();
+        if (projectMetadata != null) {
+            BranchMetadata currentBranchMetadata = projectMetadata.getCurrentBranch();
+            if (currentBranchMetadata != null && branchMetadata.getId().equals(currentBranchMetadata.getId())) {
+                throw new CannotDeleteCurrentBranchException();
+            }
+        }
+
+        getAutoStartTx().removeVertex(branchMetadata.asVertex());
+    }
+
     public Iterable<? extends JobMetadata> getJobs() {
         return getVertices("job", JobMetadata.class);
     }
@@ -148,6 +211,7 @@ public class MetaGraphTx {
 
     private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) {
         F framedVertex = getAutoStartTx().getVertex(id, kind);
+
         Preconditions.checkArgument(type.equals(framedVertex.asVertex().getProperty("type")));
 
         return framedVertex;

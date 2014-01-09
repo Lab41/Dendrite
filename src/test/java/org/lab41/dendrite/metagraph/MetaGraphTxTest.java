@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 
@@ -34,8 +35,15 @@ public class MetaGraphTxTest extends BaseMetaGraphTest {
         Assert.assertNotNull(projectMetadata);
         Assert.assertEquals(projectMetadata.getName(), "test");
 
+        // Make sure the branch is linked to the project.
+        BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
+        Assert.assertNotNull(branchMetadata);
+        Assert.assertEquals(branchMetadata.getName(), "master");
+        Assert.assertEquals(branchMetadata.getProject(), projectMetadata);
+        Assert.assertThat(projectMetadata.getBranches(), hasItem(branchMetadata));
+
         // Make sure the graph is linked to the project.
-        GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
+        GraphMetadata graphMetadata = branchMetadata.getGraph();
         Assert.assertNotNull(graphMetadata);
         Assert.assertEquals(graphMetadata.getProject(), projectMetadata);
         Assert.assertThat(projectMetadata.getGraphs(), hasItem(graphMetadata));
@@ -43,5 +51,13 @@ public class MetaGraphTxTest extends BaseMetaGraphTest {
         // Make sure the graph links are empty.
         Assert.assertNull(graphMetadata.getParentGraph());
         Assert.assertEquals(graphMetadata.getChildGraphs().iterator().hasNext(), false);
+    }
+
+    @Test
+    public void createProjectShouldOptionallyNotMakeABranch() {
+        ProjectMetadata projectMetadata = tx.createProject("test", false);
+        Assert.assertNotNull(projectMetadata);
+        Assert.assertNull(projectMetadata.getCurrentBranch());
+        Assert.assertNull(projectMetadata.getCurrentGraph());
     }
 }

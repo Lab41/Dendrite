@@ -43,6 +43,7 @@ public class MetaGraph {
                 new JavaHandlerModule(),
                 new TypedGraphModuleBuilder()
                         .withClass(ProjectMetadata.class)
+                        .withClass(BranchMetadata.class)
                         .withClass(GraphMetadata.class)
                         .withClass(JobMetadata.class)
                         .build()
@@ -178,8 +179,12 @@ public class MetaGraph {
         }
 
         // ProjectMetadata keys
-        if (systemGraph.getType("graphHead") == null) {
-            systemGraph.makeLabel("graphHead").oneToOne().make();
+        if (systemGraph.getType("currentBranch") == null) {
+            systemGraph.makeLabel("currentBranch").oneToOne().make();
+        }
+
+        if (systemGraph.getType("ownsBranch") == null) {
+            systemGraph.makeLabel("ownsBranch").oneToMany().make();
         }
 
         if (systemGraph.getType("ownsGraph") == null) {
@@ -188,6 +193,11 @@ public class MetaGraph {
 
         if (systemGraph.getType("ownsJob") == null) {
             systemGraph.makeLabel("ownsJob").oneToMany().make();
+        }
+
+        // BranchMetadata keys
+        if (systemGraph.getType("branchTarget") == null) {
+            systemGraph.makeLabel("branchTarget").oneToOne().make();
         }
 
         // GraphMetadata keys

@@ -25,8 +25,13 @@ public class MetaGraphTest extends BaseMetaGraphTest {
     public void testGettingNormalGraph() {
         // Create a graph.
         MetaGraphTx tx = metaGraph.newTransaction();
+
         ProjectMetadata projectMetadata = tx.createProject("test");
+        Assert.assertNotNull(projectMetadata);
+
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
+        Assert.assertNotNull(graphMetadata);
+
         tx.commit();
 
         DendriteGraph graph = metaGraph.getGraph(graphMetadata.getId());
