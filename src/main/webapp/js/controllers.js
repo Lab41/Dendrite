@@ -710,14 +710,14 @@ angular.module('dendrite.controllers', []).
     controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
       $scope.searching = false;
 
-      Histogram.searchFacets()
+      Histogram.searchFacets($scope.graphId)
         .success(function(data) {
           $scope.searchFacets = Object.keys(data.vertex.properties);
         });
 
       $scope.visualize = function() {
         $scope.searching = true;
-        Histogram.display($scope.query, $scope.facet)
+        Histogram.display($scope.graphId, $scope.query, $scope.facet)
           .success(function() {
             $scope.searching = false;
           })
