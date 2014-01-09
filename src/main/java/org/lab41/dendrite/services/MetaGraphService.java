@@ -33,6 +33,10 @@ public class MetaGraphService {
         this.metaGraph = new MetaGraph(config);
     }
 
+    public MetaGraph getMetaGraph() {
+        return metaGraph;
+    }
+
     public Collection<DendriteGraph> getGraphs() {
         return metaGraph.getGraphs();
     }
