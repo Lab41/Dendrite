@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.UUID;
 
 @Service
 public class HistoryService {
