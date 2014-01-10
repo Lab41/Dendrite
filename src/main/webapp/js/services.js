@@ -166,14 +166,14 @@ angular.module('dendrite.services', ['ngResource']).
     }).
     factory('Histogram', function($resource, $routeParams, $http, appConfig) {
       return {
-        searchFacets: function() {
+        searchFacets: function(graphId) {
           return $http({
               method: "GET",
-              url: '/dendrite/api/graphs/'+$routeParams.graphId+'/search/mapping'
+              url: '/dendrite/api/graphs/'+graphId+'/search/mapping'
           })
         },
 
-        display: function(queryTerm, queryFacet) {
+        display: function(graphId, queryTerm, queryFacet) {
           // default inputs
           if (queryTerm === undefined || queryTerm === '') {
             queryTerm = "*";
@@ -195,7 +195,7 @@ angular.module('dendrite.services', ['ngResource']).
           // query server
           return $http({
               method: "POST",
-              url: '/dendrite/api/graphs/'+$routeParams.graphId+'/search',
+              url: '/dendrite/api/graphs/'+graphId+'/search',
               data: JSON.stringify(inputJson)
           })
           .success(function(json) {

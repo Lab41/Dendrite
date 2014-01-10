@@ -238,7 +238,7 @@ angular.module('dendrite.controllers', []).
 
       $scope.graphId = $routeParams.graphId;
 
-      $scope.followEdges = function(element) {
+      $scope.followEdges = function() {
         $routeParams.mode = "edge";
         queryStyle = "edges";
         $scope.reloadData();
@@ -483,9 +483,10 @@ angular.module('dendrite.controllers', []).
         $scope.graphId = $routeParams.graphId;
 
         $scope.save = function() {
-            Vertex.save({graphId: $scope.graphId}, $scope.vertex, function() {
-                $location.path('graphs/' + $scope.graphId + '/vertices');
-            });
+            Vertex.save({graphId: $scope.graphId}, $scope.vertex)
+                  .$then(function(data) {
+                    $location.path('graphs/' + $scope.graphId + '/vertices');
+                  });
         };
     }).
     controller('VertexEditCtrl', function($scope, $routeParams, $location, User, Vertex) {
@@ -499,9 +500,10 @@ angular.module('dendrite.controllers', []).
                 });
 
         $scope.save = function() {
-            Vertex.update({graphId: $scope.graphId, vertexId: $scope.vertexId}, $scope.vertex, function() {
-                $location.path('graphs/' + $scope.graphId + '/vertices');
-            });
+            Vertex.update({graphId: $scope.graphId, vertexId: $scope.vertexId}, $scope.vertex)
+                  .$then(function(data) {
+                    $location.path('graphs/' + $scope.graphId + '/vertices');
+                  });
         };
     }).
     controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, User, Edge, Vertex) {
@@ -659,9 +661,10 @@ angular.module('dendrite.controllers', []).
         }
 
         $scope.save = function() {
-            Edge.save({graphId: $scope.graphId, inV: $scope.edge._inV}, $scope.edge, function() {
-                $location.path('graphs/' + $scope.graphId + '/edges');
-            });
+            Edge.save({graphId: $scope.graphId, inV: $scope.edge._inV}, $scope.edge)
+                .$then(function(data) {
+                  $location.path('graphs/' + $scope.graphId + '/edges');
+                });
         };
     }).
     controller('EdgeEditCtrl', function($scope, $routeParams, $location, User, Edge, Vertex) {
@@ -707,14 +710,14 @@ angular.module('dendrite.controllers', []).
     controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
       $scope.searching = false;
 
-      Histogram.searchFacets()
+      Histogram.searchFacets($scope.graphId)
         .success(function(data) {
           $scope.searchFacets = Object.keys(data.vertex.properties);
         });
 
       $scope.visualize = function() {
         $scope.searching = true;
-        Histogram.display($scope.query, $scope.facet)
+        Histogram.display($scope.graphId, $scope.query, $scope.facet)
           .success(function() {
             $scope.searching = false;
           })
