@@ -28,6 +28,14 @@ public interface GraphMetadata extends Metadata {
     @Adjacency(label = "ownsGraph", direction = Direction.IN)
     public ProjectMetadata getProject();
 
+    /// Return all the branches that directly contain this graph.
+    @Adjacency(label = "ownsBranch", direction = Direction.IN)
+    public Iterable<BranchMetadata> getDirectBranches();
+
+    /// Return all the branches that contain this graph.
+    @JavaHandler
+    public Set<BranchMetadata> getBranches();
+
     /// Return all the immediate graphs that were derived from this graph.
     @Adjacency(label = "childGraph", direction = Direction.OUT)
     public Iterable<GraphMetadata> getChildGraphs();
@@ -51,6 +59,22 @@ public interface GraphMetadata extends Metadata {
             } else {
                 return new MapConfiguration(properties);
             }
+        }
+
+        @Override
+        @JavaHandler
+        public Set<BranchMetadata> getBranches() {
+            Set<BranchMetadata> branches = new HashSet<>();
+
+            for (BranchMetadata branch: getDirectBranches()) {
+                branches.add(branch);
+            }
+
+            for (GraphMetadata child: getChildGraphs()) {
+                branches.addAll(child.getBranches());
+            }
+
+            return branches;
         }
     }
 }

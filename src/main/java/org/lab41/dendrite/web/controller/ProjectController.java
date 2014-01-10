@@ -1,6 +1,7 @@
 package org.lab41.dendrite.web.controller;
 
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
@@ -89,7 +90,7 @@ public class ProjectController {
 
         MetaGraphTx tx = metaGraphService.newTransaction();
 
-        ProjectMetadata projectMetadata = tx.createProject(name);
+        ProjectMetadata projectMetadata = tx.createProject(name, item.createGraph());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(builder.path("/{projectId}").buildAndExpand(projectMetadata.getId()).toUri());
@@ -140,7 +141,16 @@ public class ProjectController {
         String id = projectMetadata.getId();
         project.put("_id", id);
         project.put("name", projectMetadata.getName());
-        project.put("current_graph", projectMetadata.getCurrentGraph().getId());
+
+        BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
+        if (branchMetadata != null) {
+            project.put("current_branch", branchMetadata.getId());
+
+            GraphMetadata graphMetadata = branchMetadata.getGraph();
+            if (graphMetadata != null) {
+                project.put("current_graph", graphMetadata.getId());
+            }
+        }
 
         return project;
     }

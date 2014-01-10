@@ -12,6 +12,10 @@ from contextlib import closing
 # ----------------------------------------------------------------------------
 
 class Connection(object):
+    """
+    Connect to dendrite
+    """
+
     def __init__(self, args):
         self.session = requests.Session()
         self.session.auth = (args.user, args.password)
@@ -45,7 +49,7 @@ class Connection(object):
         return self.post(*args, **kwargs)
 
     def put(self, *args, **kwargs):
-        return run_request('PUT', *args, **kwargs)
+        return self.request('PUT', *args, **kwargs)
 
     def put_json(self, *args, **kwargs):
         kwargs = dict(kwargs)
@@ -63,6 +67,10 @@ class Connection(object):
 # ------------------------------------------------------------------------------
 
 class Table(object):
+    """
+    Abstract interface that represents a graph.
+    """
+
     URL_PATH = None
     LIST_KEY = None
     GET_KEY = None
@@ -130,6 +138,48 @@ class Project(Table):
 
         return self._current_graph
 
+    def branches(self):
+        response = self.conn.get('{}/{}/branches'.format(self.URL_PATH, self.id))
+        for record in response.json()[Branch.LIST_KEY]:
+            yield Branch(self.conn, **record)
+
+    def graphs(self):
+        response = self.conn.get('{}/{}/graphs'.format(self.URL_PATH, self.id))
+        for record in response.json()[Graph.LIST_KEY]:
+            yield Graph(self.conn, **record)
+
+    def jobs(self):
+        response = self.conn.get('{}/{}/jobs'.format(self.URL_PATH, self.id))
+        for record in response.json()[Job.LIST_KEY]:
+            yield Graph(self.conn, **record)
+
+    def create_branch(self, name, graph=None):
+        if graph is None:
+            graph = self.current_graph
+
+        #data = {'graphId': graph.id}
+
+        response = self.conn.put('{}/{}/branches/{}'.format(self.URL_PATH, self.id, name))
+                #data=data)
+
+        return Branch(self.conn, **response.json()['branch'])
+
+    def checkout_branch(self, name):
+        """Create a branch"""
+
+        data = {'branchName': name}
+        response = self.conn.put_json('{}/{}/current-branch'.format(self.URL_PATH, self.id),
+            data=data)
+
+        return response.json()['msg']
+
+# ------------------------------------------------------------------------------
+
+class Branch(Table):
+    URL_PATH = '/api/branches'
+    GET_KEY = 'branch'
+    LIST_KEY = 'branches'
+
 # ------------------------------------------------------------------------------
 
 class Graph(Table):
@@ -138,7 +188,7 @@ class Graph(Table):
     LIST_KEY = 'graphs'
 
     def import_graph(self, format, file):
-        response = self.conn.post('/api/graphs/{}/file-import'.format(self.id),
+        response = self.conn.post('{}{}/file-import'.format(self.URL_PATH, self.id),
                 data={ 'format': format },
                 files={ 'file': file })
 
@@ -318,6 +368,36 @@ def create_project(args):
 def show_projects(args):
     with closing(Connection(args)) as conn:
         print_records(Project.list(conn))
+
+def show_project_branches(args):
+    with closing(Connection(args)) as conn:
+        project = Project.get(conn, args.id)
+        print_records(project.branches())
+
+def show_project_create_branch(args):
+    with closing(Connection(args)) as conn:
+        project = Project.get(conn, args.id)
+        print_records([project.create_branch(args.name)])
+
+def show_project_checkout_branch(args):
+    with closing(Connection(args)) as conn:
+        project = Project.get(conn, args.id)
+        msg = project.checkout_branch(args.name)
+        print msg
+
+def show_project_graphs(args):
+    with closing(Connection(args)) as conn:
+        project = Project.get(conn, args.id)
+        print_records(project.graphs())
+
+def show_project_jobs(args):
+    with closing(Connection(args)) as conn:
+        project = Project.get(conn, args.id)
+        print_records(project.jobs())
+
+def show_branches(args):
+    with closing(Connection(args)) as conn:
+        print_records(Branch.list(conn))
 
 def show_graphs(args):
     with closing(Connection(args)) as conn:
@@ -500,6 +580,44 @@ def main():
     # Options for showing projects.
     parser_show_projects = subparsers.add_parser('projects')
     parser_show_projects.set_defaults(func=show_projects)
+
+    # Options for showing project branches.
+    parser_show_project_branches = subparsers.add_parser('project-branches')
+    parser_show_project_branches.add_argument('id',
+            type=int)
+    parser_show_project_branches.set_defaults(func=show_project_branches)
+
+    # Options for creating a out project branch.
+    parser_create_branch = subparsers.add_parser('project-branch')
+    parser_create_branch.add_argument('id',
+            type=int)
+    parser_create_branch.add_argument('name',
+            type=not_empty)
+    parser_create_branch.set_defaults(func=show_project_create_branch)
+
+    # Options for checking out project branches.
+    parser_checkout_branch = subparsers.add_parser('project-checkout')
+    parser_checkout_branch.add_argument('id',
+            type=int)
+    parser_checkout_branch.add_argument('name',
+            type=not_empty)
+    parser_checkout_branch.set_defaults(func=show_project_checkout_branch)
+
+    # Options for showing project graphs.
+    parser_show_project_graphs = subparsers.add_parser('project-graphs')
+    parser_show_project_graphs.add_argument('id',
+            type=int)
+    parser_show_project_graphs.set_defaults(func=show_project_graphs)
+    
+    # Options for showing project jobs.
+    parser_show_project_jobs = subparsers.add_parser('project-jobs')
+    parser_show_project_jobs.add_argument('id',
+            type=int)
+    parser_show_project_jobs.set_defaults(func=show_project_jobs)
+
+    # Options for showing branches.
+    parser_show_branches = subparsers.add_parser('branches')
+    parser_show_branches.set_defaults(func=show_branches)
 
     # Options for showing graphs.
     parser_show_graphs = subparsers.add_parser('graphs')

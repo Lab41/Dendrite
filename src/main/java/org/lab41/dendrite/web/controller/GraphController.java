@@ -5,7 +5,6 @@ import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.CreateGraphBean;
-import org.lab41.dendrite.web.beans.UpdateCurrentGraphBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -185,55 +184,6 @@ public class GraphController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/projects/{projectId}/current-graph", method = RequestMethod.PUT)
-    public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId,
-                                                               @Valid @RequestBody UpdateCurrentGraphBean item,
-                                                               BindingResult result) {
-
-        Map<String, Object> response = new HashMap<>();
-
-        if (result.hasErrors()) {
-            response.put("error", result.toString());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-
-        MetaGraphTx tx = metaGraphService.newTransaction();
-
-        ProjectMetadata projectMetadata = tx.getProject(projectId);
-
-        if (projectMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        GraphMetadata graphMetadata = tx.getGraph(item.getGraphId());
-
-        if (graphMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find graph '" + item.getGraphId() + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        if (projectMetadata != graphMetadata.getProject()) {
-            response.put("status", "error");
-            response.put("msg", "project does not own graph");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-
-        projectMetadata.setCurrentGraph(graphMetadata);
-
-        response.put("msg", "current graph changed");
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     private Map<String, Object> getGraphMap(GraphMetadata graphMetadata) {
         Map<String, Object> graph = new HashMap<>();
 
@@ -247,6 +197,11 @@ public class GraphController {
         ProjectMetadata projectMetadata = graphMetadata.getProject();
         if (projectMetadata != null) {
             graph.put("projectId", graphMetadata.getProject().getId());
+        }
+
+        GraphMetadata parentGraphMetadata = graphMetadata.getParentGraph();
+        if (parentGraphMetadata != null) {
+            graph.put("parentGraphId", parentGraphMetadata.getId());
         }
 
         return graph;

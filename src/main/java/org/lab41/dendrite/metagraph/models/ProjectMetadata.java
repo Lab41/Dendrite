@@ -1,17 +1,36 @@
 package org.lab41.dendrite.metagraph.models;
 
 import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Element;
+import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.frames.Adjacency;
+import com.tinkerpop.frames.annotations.gremlin.GremlinParam;
+import com.tinkerpop.frames.modules.javahandler.JavaHandler;
+import com.tinkerpop.frames.modules.javahandler.JavaHandlerContext;
 import com.tinkerpop.frames.modules.typedgraph.TypeValue;
+
+import java.util.Iterator;
 
 @TypeValue("project")
 public interface ProjectMetadata extends NamedMetadata {
 
-    @Adjacency(label = "currentGraph", direction = Direction.OUT)
+    @Adjacency(label = "currentBranch", direction = Direction.OUT)
+    public BranchMetadata getCurrentBranch();
+
+    @Adjacency(label = "currentBranch", direction = Direction.OUT)
+    public void setCurrentBranch(BranchMetadata branchMetadata);
+
+    @JavaHandler
     public GraphMetadata getCurrentGraph();
 
-    @Adjacency(label = "currentGraph", direction = Direction.OUT)
-    public void setCurrentGraph(GraphMetadata graph);
+    @Adjacency(label = "ownsBranch", direction = Direction.OUT)
+    public Iterable<BranchMetadata> getBranches();
+
+    @JavaHandler
+    public BranchMetadata getBranchByName(String branchName);
+
+    @Adjacency(label = "ownsBranch", direction = Direction.OUT)
+    public void addBranch(BranchMetadata branchMetadata);
 
     @Adjacency(label = "ownsGraph", direction = Direction.OUT)
     public Iterable<GraphMetadata> getGraphs();
@@ -24,4 +43,34 @@ public interface ProjectMetadata extends NamedMetadata {
 
     @Adjacency(label = "ownsJob", direction = Direction.OUT)
     void addJob(JobMetadata jobMetadata);
+
+    public abstract class Impl implements JavaHandlerContext<Vertex>, ProjectMetadata {
+
+        @Override
+        @JavaHandler
+        public GraphMetadata getCurrentGraph() {
+            BranchMetadata branchMetadata = getCurrentBranch();
+
+            if (branchMetadata == null) {
+                return null;
+            }
+
+            return branchMetadata.getGraph();
+        }
+
+        @Override
+        @JavaHandler
+        public BranchMetadata getBranchByName(String branchName) {
+            Iterator<? extends Element> elements = gremlin().out("ownsBranch").has("name", branchName).iterator();
+
+            if (elements.hasNext()) {
+                Element element = elements.next();
+                assert element instanceof Vertex;
+
+                return frame((Vertex) element, BranchMetadata.class);
+            } else {
+                return null;
+            }
+        }
+    }
 }

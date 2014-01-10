@@ -27,6 +27,11 @@ public class JobMetadataTest extends BaseMetadataTest {
     }
 
     @Test
+    public void typeIsCorrect() {
+        Assert.assertEquals(jobMetadata.asVertex().getProperty("type"), "job");
+    }
+
+    @Test
     public void parentJobsShouldMakeChildJobs() {
         JobMetadata childJobMetadata = tx.createJob(jobMetadata);
         Assert.assertNotNull(childJobMetadata);
