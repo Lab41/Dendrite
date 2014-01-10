@@ -2,7 +2,7 @@
   <h3>People We Know</h3>
 </div>
 <div ng-if='hasSelectedItems'>
-  <h3>People Connected to {{ selectedVertex.name | capitalize  }}</h3>
+  <h3>People Connected to {{ formatSelectedNames()  }}</h3>
 </div>
 
 <div class="row row-padded">
@@ -29,14 +29,21 @@
 
     <div class="row">
       <div class="span8">
-        <div class="inline float-left" ng-if="!searching">
-          <strong>{{ totalServerItems }}</strong> results for '{{ filterOptions.filterText }}':
+        <div class="inline float-left">
+          <strong>{{ totalServerItems }}</strong> {{ queryStyle }}
+          <span ng-if="filterOptions.filterText">
+             for '{{ filterOptions.filterText }}'
+          </span>
+          <span ng-if="vertexFrom">
+             connected to {{ formatSelectedNames() }}
+          </span>
+          :
         </div>
         <div class="inline float-left" ng-if="searching">
           {{ elasticSearchAction }}... <img src="img/icons/ajax-loader.gif">
         </div>
         <div class="inline float-right">
-          <button class="btn" ng-click="refresh('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
+          <button class="btn" ng-click="reload('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
         </div>
       </div>
     </div>
@@ -52,9 +59,11 @@
       <!-- edit functions -->
         <div>
           <ul style="list-style:none">
-            <li ng-repeat="vertex in selectedItems">
+            <li ng-if="hasSelectedItems">
 
-              <h4 class="titlebar">{{ vertex.name | capitalize  }}</h4>
+              <h4 class="titlebar">
+                <span ng-if="hasSelectedItems">{{ formatSelectedNames()  }}</span>
+              </h4>
 
               <!-- dropdown button -->
               <div class="btn-group">
@@ -62,11 +71,11 @@
                   Links <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                  <li><a ng-click="addVertexEdge()">Add</a></li>
-                  <li class="divider"></li>
-                  <li><a ng-click="followEdges()" ng-show="hasSelectedItems">All</a></li>
-                  <li><a ng-click="followInEdges()" ng-show="hasSelectedItems">From {{ vertex.name | capitalize }}</a></li>
-                  <li><a ng-click="followOutEdges()" ng-show="hasSelectedItems">To {{ vertex.name | capitalize  }}</a></li>
+                  <li ng-if="selectedOne()"><a ng-click="addVertexEdge()">Add</a></li>
+                  <li ng-if="selectedOne()" class="divider"></li>
+                  <li><a ng-click="followEdges()" ng-show="hasSelectedItems">All To/From</a></li>
+                  <li><a ng-click="followInEdges()" ng-show="hasSelectedItems">From Selected</a></li>
+                  <li><a ng-click="followOutEdges()" ng-show="hasSelectedItems">To Selected</a></li>
                 </ul>
               </div>
 
@@ -76,16 +85,16 @@
                   Modify <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                  <li><a ng-click="editVertex()">Edit</a></li>
-                  <li class="divider"></li>
-                  <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete</a></li>
+                  <li ng-if="selectedOne()"><a ng-click="editVertex()">Edit</a></li>
+                  <li ng-if="selectedOne()" class="divider"></li>
+                  <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete<span ng-if="selectedMany()"> All</span></a></li>
                 </ul>
               </div>
 
 
-              <ul>
-                <li><strong>Name</strong>: {{ vertex.name | capitalize  }}</li>
-                <li><strong>Age</strong>: {{ vertex.age }}</li>
+              <ul ng-if="selectedOne()">
+                <li><strong>Name</strong>: {{ selectedItems[0].name | capitalize  }}</li>
+                <li><strong>Age</strong>: {{ selectedItems[0].age }}</li>
               </ul>
 
             </li>
