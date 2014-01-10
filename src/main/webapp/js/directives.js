@@ -51,6 +51,41 @@ angular.module('dendrite.directives', []).
         }
     };
   }]).
+  directive('fileParseGraph', ['$rootScope', 'appConfig', 'Helpers', function($rootScope, appConfig, Helpers) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+
+          element.bind('change', function(evt) {
+            scope.$parent.selectedCheckboxesList = "";
+            scope.$parent.selectedCheckboxes = [];
+
+            // verify fileReader API support
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+
+              var reader = new FileReader();
+              var f = evt.target.files[0];
+              var format = document.getElementById('format').value;
+
+              // capture the file information.
+              reader.onload = function(e) {
+
+                var searchKeys = Helpers.parseGraphFile(reader.result, format);
+                scope.$parent.keysForGraph = searchKeys;
+                scope.$emit('event:graphFileParsed');
+
+              }
+
+              // read in the file
+              var blob = f.slice(0, appConfig.fileUpload.maxBytesLocal);
+              reader.readAsBinaryString(blob);
+            } else {
+              console.log('The File APIs are not fully supported in this browser.');
+            }
+          });
+        }
+    };
+  }]).
   directive('forceDirectedGraph', ['$q', function($q) {
     return {
       restrict: 'A',

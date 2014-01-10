@@ -138,6 +138,58 @@ angular.module('dendrite.services', ['ngResource']).
             } else {
               return 'success';
             }
+          },
+          parseGraphFile: function(text, format) {
+            var keys = {};
+            try {
+              if (format !== "Select Format") {
+                if (format === "GraphSON") {
+
+                  // parse the graph's vertices for available keys
+                  var json = JSON.parse(text);
+                  Array().forEach.call(json.graph.vertices, function(v) {
+                      Object.keys(v).forEach(function(key) {
+                        keys[key] = true;
+                      });
+                  });
+
+                }
+                else if (format === "GraphML") {
+
+                  // parse the XML and extract the graph>node>data keys
+                  var xml = new DOMParser().parseFromString(text, "text/xml");
+                  Array().forEach.call(xml.getElementsByTagName('node'), function(node) {
+                    Array().forEach.call(node.attributes, function(attribute) {
+                      keys[attribute.nodeName] = true;
+                    });
+                    Array().forEach.call(node.getElementsByTagName('data'), function(data) {
+                      keys[data.getAttribute('key')] = true;
+                    });
+                  });
+
+                }
+                else if (format === "GML") {
+                  // TODO
+                }
+                else if (format === "FaunusGraphSON") {
+
+                  // read the file line-by-line, parse into JSON, and extract the keys
+                  text.split('\n').forEach(function(line) {
+                    if (line.length) {
+                      var json = JSON.parse(line);
+                      Object.keys(json).forEach(function(key) {
+                        keys[key] = true;
+                      });
+                    }
+                  });
+                }
+              }
+            }
+            catch (err) {
+
+            }
+
+            return Object.keys(keys);
           }
         };
     }).

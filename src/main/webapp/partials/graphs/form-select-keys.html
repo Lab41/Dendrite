@@ -1,0 +1,22 @@
+<!-- Modal (external ./partials/modal.html or inline ng-template) -->
+<div>
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>Select Keys for Search Index</h3>
+  </div>
+
+  <div class="modal-body">
+    <div class="well">
+      <p>Choose which fields, if any, should be indexed for search.</p>
+    </div>
+
+    <label class="checkbox" ng-repeat="key in keysForGraph">
+      <input type="checkbox" ng-click="checkboxTally(key)" value="graph-key-{{keysForGraph.indexOf(key)}}"> {{ key }}
+    </label>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="dismiss()">Cancel</button>
+    <button class="btn btn-primary" ng-click="loadGraph(); dismiss()">Load Graph</button>
+  </div>
+</div>

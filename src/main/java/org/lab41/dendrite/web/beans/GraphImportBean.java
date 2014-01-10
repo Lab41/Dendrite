@@ -26,6 +26,8 @@ public class GraphImportBean {
     @NotEmpty
     private String format;
 
+    private String searchkeys;
+
     @NotNull
     private CommonsMultipartFile file;
 
@@ -35,6 +37,14 @@ public class GraphImportBean {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public String getSearchkeys() {
+        return searchkeys;
+    }
+
+    public void setSearchkeys(String searchkeys) {
+        this.searchkeys = searchkeys;
     }
 
     public CommonsMultipartFile getFile() {

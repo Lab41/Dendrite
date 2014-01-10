@@ -135,6 +135,9 @@ angular.module('dendrite', [
         EdgeDegrees: {
           analyticEngine: 'titan'
         }
+    },
+    fileUpload: {
+      maxBytesLocal: Math.pow(1024,3)
     }
   }).
   run(['$rootScope', '$http', '$location', 'User', function(scope, $http, $location, User) {
