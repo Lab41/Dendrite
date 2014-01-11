@@ -16,27 +16,31 @@ import com.tinkerpop.blueprints.Vertex;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphSnapshotJob extends AbstractJob implements Runnable {
+public class BranchCommitJob extends AbstractJob implements Runnable {
 
-    Logger logger = LoggerFactory.getLogger(GraphSnapshotJob.class);
+    Logger logger = LoggerFactory.getLogger(BranchCommitJob.class);
 
+    String branchId;
     DendriteGraph srcGraph;
     DendriteGraph dstGraph;
 
-    public GraphSnapshotJob(MetaGraph metaGraph, String srcGraphId, String jobId) {
+    public BranchCommitJob(MetaGraph metaGraph, String branchId, String jobId) {
         super(metaGraph, jobId);
 
         MetaGraphTx tx = metaGraph.newTransaction();
 
-        GraphMetadata srcGraphMetadata = tx.getGraph(srcGraphId);
+        BranchMetadata branchMetadata = tx.getBranch(branchId);
+        GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
         GraphMetadata dstGraphMetadata = tx.createGraph(srcGraphMetadata);
         tx.commit();
 
+        this.branchId = branchId;
         this.srcGraph = metaGraph.getGraph(srcGraphMetadata.getId());
         this.dstGraph = metaGraph.getGraph(dstGraphMetadata.getId());
     }
@@ -51,14 +55,14 @@ public class GraphSnapshotJob extends AbstractJob implements Runnable {
 
     @Override
     public void run() {
-        logger.debug("Starting snapshot on "
+        logger.debug("Starting commit on "
                 + srcGraph.getId()
                 + " to "
                 + dstGraph.getId()
                 + " job " + jobId
                 + " " + Thread.currentThread().getName());
 
-        setJobName(jobId, "snapshot-graph");
+        setJobName(jobId, "commit-graph");
         setJobState(jobId, JobMetadata.RUNNING);
 
         createIndices(srcGraph, dstGraph);
@@ -73,6 +77,12 @@ public class GraphSnapshotJob extends AbstractJob implements Runnable {
         srcTx.commit();
 
         setJobState(jobId, JobMetadata.DONE);
+
+        // Update the branch to point the new graph.
+        MetaGraphTx tx = metaGraph.newTransaction();
+        BranchMetadata branchMetadata = tx.getBranch(branchId);
+        branchMetadata.setGraph(tx.getGraph(dstGraph.getId()));
+        tx.commit();
 
         logger.debug("snapshotGraph: finished job: " + jobId);
     }

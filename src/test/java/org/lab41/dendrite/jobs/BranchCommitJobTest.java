@@ -10,22 +10,25 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.lab41.dendrite.metagraph.BaseMetaGraphTest;
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.MetaGraph;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 
-public class GraphSnapshotJobTest extends BaseMetaGraphTest {
+public class BranchCommitJobTest extends BaseMetaGraphTest {
 
     @Test
     public void test() {
         MetaGraphTx tx = metaGraph.newTransaction();
         ProjectMetadata projectMetadata = tx.createProject("test");
-        GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
+        BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
+        GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
         JobMetadata jobMetadata = tx.createJob(projectMetadata);
         tx.commit();
 
-        DendriteGraph srcGraph = metaGraph.getGraph(graphMetadata.getId());
+        DendriteGraph srcGraph = metaGraph.getGraph(srcGraphMetadata.getId());
 
         TitanTransaction titanTx;
 
@@ -49,13 +52,22 @@ public class GraphSnapshotJobTest extends BaseMetaGraphTest {
         titanTx.commit();
 
         // Snapshot the graph.
-        GraphSnapshotJob snapshotJob = new GraphSnapshotJob(metaGraph, graphMetadata.getId(), jobMetadata.getId());
+        BranchCommitJob branchCommitJob = new BranchCommitJob(metaGraph, branchMetadata.getId(), jobMetadata.getId());
 
-        Assert.assertEquals(snapshotJob.getSrcGraph(), srcGraph);
+        Assert.assertEquals(branchCommitJob.getSrcGraph(), srcGraph);
 
-        snapshotJob.run();
+        branchCommitJob.run();
 
-        DendriteGraph dstGraph = snapshotJob.getDstGraph();
+        DendriteGraph dstGraph = branchCommitJob.getDstGraph();
+
+        // Make sure the branch pointer was changed.
+        tx = metaGraph.newTransaction();
+
+        GraphMetadata dstGraphMetadata = tx.getGraph(dstGraph.getId());
+        BranchMetadata updatedBranchMetadata = tx.getBranch(branchMetadata.getId());
+        Assert.assertEquals(updatedBranchMetadata.getGraph(), dstGraphMetadata);
+
+        tx.commit();
 
         // Make sure the indexes got copied.
         TitanType dstType = dstGraph.getType("name");
