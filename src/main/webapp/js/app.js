@@ -137,7 +137,7 @@ angular.module('dendrite', [
         }
     },
     fileUpload: {
-      maxBytesLocal: Math.pow(1024,3)
+      maxBytesLocal: Math.pow(1024,2)
     }
   }).
   run(['$rootScope', '$http', '$location', 'User', function(scope, $http, $location, User) {

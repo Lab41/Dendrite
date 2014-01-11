@@ -99,9 +99,23 @@ angular.module('dendrite.controllers', []).
                     });
         };
     }).
-    controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $location, $q, Project) {
+    controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $location, $q, Project, Graph, GraphTransform) {
         $scope.projectId = $routeParams.projectId;
-        $scope.queryProject = Project.query({projectId: $routeParams.projectId});
+        Project.query({projectId: $routeParams.projectId})
+                .$then(function(response) {
+                    $scope.project = response.data.project;
+                    $scope.graphId = $scope.project.current_graph;
+                    $scope.graph = Graph.get({graphId: $scope.graphId})
+                          .$then(function(res) {
+                            console.log(res);
+                          });
+
+                    $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+                    $scope.$on('event:reloadGraph', function() {
+                      $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+                    });
+                });
+
         $scope.queryGraph = Project.graphs({projectId: $routeParams.projectId});
         $scope.showGraph = function(id) {
           $location.path('graphs/' + id);
@@ -769,7 +783,6 @@ angular.module('dendrite.controllers', []).
         };
     }).
     controller('FileUploadCtrl', function ($scope, $routeParams, $modal) {
-        $scope.graphId = $routeParams.graphId;
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
 
