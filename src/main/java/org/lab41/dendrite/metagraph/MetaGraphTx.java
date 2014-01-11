@@ -103,6 +103,9 @@ public class MetaGraphTx {
         GraphMetadata graphMetadata = getAutoStartTx().addVertex(null, GraphMetadata.class);
         parentGraphMetadata.addChildGraph(graphMetadata);
 
+        ProjectMetadata projectMetadata = parentGraphMetadata.getProject();
+        projectMetadata.addGraph(graphMetadata);
+
         return graphMetadata;
     }
 
