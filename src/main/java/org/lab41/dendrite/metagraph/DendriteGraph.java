@@ -4,10 +4,12 @@ import com.thinkaurelius.titan.core.*;
 import com.tinkerpop.blueprints.*;
 import com.tinkerpop.blueprints.Parameter;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.MapConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Properties;
 import java.util.Set;
 
 public class DendriteGraph implements TitanGraph {
@@ -16,28 +18,32 @@ public class DendriteGraph implements TitanGraph {
 
     private String id;
 
-    private Configuration configuration;
+    private Properties properties;
 
     private TitanGraph titanGraph;
 
-    public DendriteGraph(String id, Configuration configuration) {
+    public DendriteGraph(String id, Properties properties) {
         this.id = id;
-        this.configuration = configuration;
+        this.properties = properties;
     }
 
     public String getId() {
         return id;
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+
     public Configuration getConfiguration() {
-        return configuration;
+        return new MapConfiguration(properties);
     }
 
     synchronized public TitanGraph getTitanGraph() {
         if (titanGraph == null) {
             logger.debug("opening titan graph '" + id + "'");
 
-            titanGraph = TitanFactory.open(configuration);
+            titanGraph = TitanFactory.open(getConfiguration());
 
             logger.debug("finished opening titan graph '" + id + "'");
         }

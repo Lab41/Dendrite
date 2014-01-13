@@ -6,7 +6,6 @@ import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.modules.gremlingroovy.GremlinGroovyModule;
 import com.tinkerpop.frames.modules.javahandler.JavaHandlerModule;
 import com.tinkerpop.frames.modules.typedgraph.TypedGraphModuleBuilder;
-import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.lab41.dendrite.metagraph.models.*;
 import org.slf4j.Logger;
@@ -34,8 +33,8 @@ public class MetaGraph {
 
         // Get or create the metadata graph.
         String systemGraphName = config.getString("metagraph.system.name", SYSTEM_GRAPH_NAME_DEFAULT);
-        Configuration systemConfig = getGraphConfig(systemGraphName);
-        this.systemGraph = new DendriteGraph(systemGraphName, systemConfig);
+        Properties systemProperties = getGraphProperties(systemGraphName);
+        this.systemGraph = new DendriteGraph(systemGraphName, systemProperties);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
         this.frameFactory = new FramedGraphFactory(
@@ -253,8 +252,9 @@ public class MetaGraph {
         MetaGraphTx tx = newTransaction();
 
         GraphMetadata graphMetadata = tx.getGraph(id);
+
         if (graphMetadata != null) {
-            graph = loadGraph(id, graphMetadata.getConfiguration());
+            graph = loadGraph(graphMetadata);
         }
 
         tx.commit();
@@ -265,21 +265,25 @@ public class MetaGraph {
     /**
      * Load a graph. This graph is in a closed state.
      *
-     * @param id The graph id.
-     * @param config If null, load the graph with the default config. Otherwise use this one.
+     * @param graphMetadata The graph.
      * @return The graph or null.
      */
-    synchronized private DendriteGraph loadGraph(String id, Configuration config) {
+    synchronized private DendriteGraph loadGraph(GraphMetadata graphMetadata) {
         // We don't want to end up with the same graph opened multiple times, so we'll sit behind a mutex.
         // Because of this, we should check again if the graph has been opened up in another thread.
+        String id = graphMetadata.getId();
+        Properties properties = graphMetadata.getProperties();
+
         DendriteGraph graph = graphs.get(id);
         if (graph == null) {
             // Create a default config if we were passed a null config.
-            if (config == null) {
-                config = getGraphConfig(id);
+            if (properties == null) {
+                properties = getGraphProperties(id);
+
+                graphMetadata.setProperties(properties);
             }
 
-            graph = new DendriteGraph(id, config);
+            graph = new DendriteGraph(id, properties);
 
             graphs.put(id, graph);
         }
@@ -293,49 +297,51 @@ public class MetaGraph {
      * @param id The graph id.
      * @return The configuration.
      */
-    private Configuration getGraphConfig(String id) {
-        Configuration graphConfig = new BaseConfiguration();
+    private Properties getGraphProperties(String id) {
+        Properties properties = new Properties();
 
         // Add our prefix to the name so we can keep the databases organized.
         String name = config.getString("metagraph.template.name-prefix", GRAPH_NAME_PREFIX_DEFAULT) + id;
 
-        Configuration storage = graphConfig.subset("storage");
-
         String storageBackend = config.getString("metagraph.template.storage.backend");
-        storage.setProperty("backend", storageBackend);
-        storage.setProperty("read-only", false);
+        setProperty(properties, "storage.backend", storageBackend);
+        setProperty(properties, "storage.read-only", "false");
 
         String storageDirectory = config.getString("metagraph.template.storage.directory", null);
         if (storageDirectory != null) {
             String dir = (new File(storageDirectory, name)).getPath();
-            storage.setProperty("directory", dir);
+            setProperty(properties, "storage.directory", dir);
         }
 
-        storage.setProperty("hostname", config.getString("metagraph.template.storage.hostname", null));
-        storage.setProperty("port", config.getString("metadata.template.storage.port", null));
+        setProperty(properties, "storage.hostname", config.getString("metagraph.template.storage.hostname", null));
+        setProperty(properties, "storage.port", config.getString("metadata.template.storage.port", null));
 
         if (storageBackend.equals("hbase")) {
-            storage.setProperty("tablename", name);
+            setProperty(properties, "storage.tablename", name);
         }
 
         String indexBackend = config.getString("metagraph.template.storage.index.backend", null);
         if (indexBackend != null) {
-            Configuration index = storage.subset("index").subset("search");
-
-            index.setProperty("index-name", name);
-            index.setProperty("backend", indexBackend);
-            index.setProperty("hostname", config.getString("metagraph.template.storage.index.hostname", null));
-            index.setProperty("client-only", config.getString("metagraph.template.storage.index.client-only", null));
-            index.setProperty("local-mode", config.getString("metagraph.template.storage.index.local-mode", null));
-            index.setProperty("cluster-name", config.getString("metagraph.template.storage.index.cluster-name", null));
+            setProperty(properties, "storage.index.search.index-name", name);
+            setProperty(properties, "storage.index.search.backend", indexBackend);
+            setProperty(properties, "storage.index.search.hostname", config.getString("metagraph.template.storage.index.hostname", null));
+            setProperty(properties, "storage.index.search.client-only", config.getString("metagraph.template.storage.index.client-only", null));
+            setProperty(properties, "storage.index.search.local-mode", config.getString("metagraph.template.storage.index.local-mode", null));
+            setProperty(properties, "storage.index.search.cluster-name", config.getString("metagraph.template.storage.index.cluster-name", null));
 
             String indexDirectory = config.getString("metagraph.template.storage.index.directory", null);
             if (indexDirectory != null) {
                 String dir = (new File(indexDirectory, name)).getPath();
-                index.setProperty("directory", dir);
+                setProperty(properties, "storage.index.search.directory", dir);
             }
         }
 
-        return graphConfig;
+        return properties;
+    }
+
+    private void setProperty(Properties property, String key, String value) {
+        if (value != null) {
+            property.setProperty(key, value);
+        }
     }
 }
