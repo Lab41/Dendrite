@@ -136,7 +136,12 @@ angular.module('dendrite', [
           analyticEngine: 'titan'
         }
     },
+    // **disclaimer: UI file parsing an experimental demo feature until server-side
+    //    functionality complete.  UI parsing relies on client-side file import, as well as
+    //    wildcard regex and brute force array iteration.  Disable if importing large graph
+    //    files and/or if concerned about client browser performance
     fileUpload: {
+      parseGraphFile: true,
       maxBytesLocal: Math.pow(1024,2)
     }
   }).
