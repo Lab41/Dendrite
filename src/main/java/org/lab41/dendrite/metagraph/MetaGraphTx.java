@@ -9,18 +9,18 @@ import com.tinkerpop.frames.FramedTransactionalGraph;
 
 public class MetaGraphTx {
 
-    private TitanGraph titanGraph;
+    private DendriteGraph metaGraph;
     private FramedGraphFactory framedGraphFactory;
-    private FramedTransactionalGraph<TitanTransaction> tx = null;
+    private FramedTransactionalGraph<DendriteGraphTx> tx = null;
 
-    public MetaGraphTx(TitanGraph titanGraph, FramedGraphFactory framedGraphFactory) {
-        this.titanGraph = titanGraph;
+    public MetaGraphTx(DendriteGraph metaGraph, FramedGraphFactory framedGraphFactory) {
+        this.metaGraph = metaGraph;
         this.framedGraphFactory = framedGraphFactory;
     }
 
-    private FramedTransactionalGraph<TitanTransaction> getAutoStartTx() {
+    private FramedTransactionalGraph<DendriteGraphTx> getAutoStartTx() {
         if (tx == null) {
-            tx = framedGraphFactory.create(titanGraph.newTransaction());
+            tx = framedGraphFactory.create(metaGraph.newTransaction());
         }
 
         return tx;

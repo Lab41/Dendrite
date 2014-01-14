@@ -8,10 +8,7 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.lab41.dendrite.metagraph.BaseMetaGraphTest;
-import org.lab41.dendrite.metagraph.DendriteGraph;
-import org.lab41.dendrite.metagraph.MetaGraph;
-import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.*;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
@@ -21,35 +18,40 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
 
     @Test
     public void test() {
-        MetaGraphTx tx = metaGraph.newTransaction();
-        ProjectMetadata projectMetadata = tx.createProject("test");
+        // Create the project.
+        MetaGraphTx metaGraphTx = metaGraph.newTransaction();
+
+        ProjectMetadata projectMetadata = metaGraphTx.createProject("test");
         BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
         GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
-        JobMetadata jobMetadata = tx.createJob(projectMetadata);
-        tx.commit();
+        JobMetadata jobMetadata = metaGraphTx.createJob(projectMetadata);
 
+        metaGraphTx.commit();
+
+        // Create the source graph.
         DendriteGraph srcGraph = metaGraph.getGraph(srcGraphMetadata.getId());
 
-        TitanTransaction titanTx;
+        DendriteGraphTx srcTx;
 
         // Create an index.
-        titanTx = srcGraph.newTransaction();
-        titanTx.makeKey("name").dataType(String.class).make();
-        titanTx.makeLabel("friends").make();
-        titanTx.commit();
+        srcTx = srcGraph.newTransaction();
+        srcTx.makeKey("name").dataType(String.class).make();
+        srcTx.makeLabel("friends").make();
+        srcTx.commit();
+
 
         // Create a trivial graph.
-        titanTx = srcGraph.newTransaction();
-        Vertex srcJoeVertex = titanTx.addVertex(null);
+        srcTx = srcGraph.newTransaction();
+        Vertex srcJoeVertex = srcTx.addVertex(null);
         srcJoeVertex.setProperty("name", "Joe");
         srcJoeVertex.setProperty("age", 42);
 
-        Vertex srcBobVertex = titanTx.addVertex(null);
+        Vertex srcBobVertex = srcTx.addVertex(null);
         srcBobVertex.setProperty("name", "Bob");
         srcBobVertex.setProperty("age", 50);
 
-        Edge srcEdge = titanTx.addEdge(null, srcJoeVertex, srcBobVertex, "friends");
-        titanTx.commit();
+        srcTx.addEdge(null, srcJoeVertex, srcBobVertex, "friends");
+        srcTx.commit();
 
         // Snapshot the graph.
         BranchCommitJob branchCommitJob = new BranchCommitJob(metaGraph, branchMetadata.getId(), jobMetadata.getId());
@@ -61,16 +63,16 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         DendriteGraph dstGraph = branchCommitJob.getDstGraph();
 
         // Make sure the branch pointer was changed.
-        tx = metaGraph.newTransaction();
-
-        GraphMetadata dstGraphMetadata = tx.getGraph(dstGraph.getId());
-        BranchMetadata updatedBranchMetadata = tx.getBranch(branchMetadata.getId());
+        metaGraphTx = metaGraph.newTransaction();
+        GraphMetadata dstGraphMetadata = metaGraphTx.getGraph(dstGraph.getId());
+        BranchMetadata updatedBranchMetadata = metaGraphTx.getBranch(branchMetadata.getId());
         Assert.assertEquals(updatedBranchMetadata.getGraph(), dstGraphMetadata);
-
-        tx.commit();
+        metaGraphTx.commit();
 
         // Make sure the indexes got copied.
-        TitanType dstType = dstGraph.getType("name");
+        DendriteGraphTx dstTx = dstGraph.newTransaction();
+
+        TitanType dstType = dstTx.getType("name");
         Assert.assertNotNull(dstType);
         Assert.assertTrue(dstType instanceof TitanKey);
 
@@ -79,12 +81,12 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         Assert.assertEquals(dstKey.getDataType(), String.class);
 
         // Make sure the vertices got copied.
-        Vertex dstJoeVertex = dstGraph.getVertices("name", "Joe").iterator().next();
+        Vertex dstJoeVertex = dstTx.getVertices("name", "Joe").iterator().next();
         Assert.assertNotNull(dstJoeVertex);
         Assert.assertEquals(dstJoeVertex.getProperty("name"), "Joe");
         Assert.assertEquals(dstJoeVertex.getProperty("age"), 42);
 
-        Vertex dstBobVertex = dstGraph.getVertices("name", "Bob").iterator().next();
+        Vertex dstBobVertex = dstTx.getVertices("name", "Bob").iterator().next();
         Assert.assertNotNull(dstBobVertex);
         Assert.assertEquals(dstBobVertex.getProperty("name"), "Bob");
         Assert.assertEquals(dstBobVertex.getProperty("age"), 50);
@@ -94,5 +96,7 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         Assert.assertEquals(dstEdge.getLabel(), "friends");
         Assert.assertEquals(dstEdge.getVertex(Direction.IN), dstJoeVertex);
         Assert.assertEquals(dstEdge.getVertex(Direction.OUT), dstBobVertex);
+
+       dstTx.rollback();
     }
 }

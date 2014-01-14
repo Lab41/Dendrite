@@ -16,15 +16,13 @@
 
 package org.lab41.dendrite.web.controller;
 
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.util.io.gml.GMLReader;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLReader;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.GraphImportBean;
 import org.slf4j.Logger;
@@ -43,6 +41,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 
@@ -50,6 +49,8 @@ import java.util.Arrays;
 public class GraphImportController {
 
     static Logger logger = LoggerFactory.getLogger(GraphImportController.class);
+
+    static List<String> RESERVED_KEYS = Arrays.asList("id", "_id");
 
     @Autowired
     MetaGraphService metaGraphService;
@@ -68,12 +69,12 @@ public class GraphImportController {
         }
 
         String format = item.getFormat();
-        String searchkeys = item.getSearchkeys();
+        String searchKeys = item.getSearchkeys();
         CommonsMultipartFile file = item.getFile();
 
         logger.debug("receiving file:", file.getOriginalFilename());
         logger.debug("file format:", format);
-        logger.debug("search keys: "+searchkeys);
+        logger.debug("search keys: "+searchKeys);
 
         DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
@@ -82,45 +83,51 @@ public class GraphImportController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
+        DendriteGraphTx tx = graph.newTransaction();
+
         try {
-
             // create search indices
-            TitanGraph titanGraph = graph.getTitanGraph();
             String elasticSearchIndex = "search";
-            String[] reservedKeys = {"id", "_id"};
-            if (titanGraph != null && searchkeys.indexOf(",") != -1) {
-
-              // separate "k1,k2,k3" into ["k1", "k2", "k3"] and iterate
-              String[] searchKeysArray = searchkeys.split(",");
-              for(int i = 0; i<searchKeysArray.length; i++) {
-
-                // create the search index (if it doesn't already exist and isn't a reserved key)
-                if (titanGraph.getType(searchKeysArray[i]) == null && !Arrays.asList(reservedKeys).contains(searchKeysArray[i])) {
-                  titanGraph.makeKey(searchKeysArray[i]).dataType(String.class).indexed(Vertex.class).indexed(elasticSearchIndex, Vertex.class).make();
+            if (searchKeys.contains(",")) {
+                // separate "k1,k2,k3" into ["k1", "k2", "k3"] and iterate
+                for (String key : searchKeys.split(",")) {
+                    // create the search index (if it doesn't already exist and isn't a reserved key)
+                    if (tx.getType(key) == null && !RESERVED_KEYS.contains(key)) {
+                        tx.makeKey(key)
+                                .dataType(String.class)
+                                .indexed(Vertex.class)
+                                .indexed(elasticSearchIndex, Vertex.class)
+                                .make();
+                    }
                 }
-
-              }
             }
 
             InputStream inputStream = file.getInputStream();
             if (format.equalsIgnoreCase("GraphSON")) {
-                GraphSONReader.inputGraph(graph, inputStream);
+                GraphSONReader.inputGraph(tx, inputStream);
             } else if (format.equalsIgnoreCase("GraphML")) {
-                GraphMLReader.inputGraph(graph, inputStream);
+                GraphMLReader.inputGraph(tx, inputStream);
             } else if (format.equalsIgnoreCase("GML")) {
-                GMLReader.inputGraph(graph, inputStream);
+                GMLReader.inputGraph(tx, inputStream);
             } else {
+                tx.rollback();
+
                 response.put("status", "error");
                 response.put("msg", "unknown format '" + format + "'");
                 inputStream.close();
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
             inputStream.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
+            tx.rollback();
+
             response.put("status", "error");
             response.put("msg", "exception: " + e.toString());
+
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
+
+        tx.commit();
 
         response.put("status", "ok");
 

@@ -14,6 +14,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.metagraph.MetaGraph;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
@@ -92,7 +93,7 @@ public class BranchCommitJob extends AbstractJob implements Runnable {
         // one graph to another.
 
         TitanTransaction srcTx = srcGraph.newTransaction();
-        StandardTitanTx dstTx = (StandardTitanTx) dstGraph.newTransaction();
+        DendriteGraphTx dstTx = dstGraph.newTransaction();
 
         for(TitanKey titanKey: srcTx.getTypes(TitanKey.class)) {
             if (titanKey instanceof TitanKeyVertex) {

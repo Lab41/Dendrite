@@ -15,6 +15,7 @@ public class MetaGraphTxTest extends BaseMetaGraphTest {
 
     @Before
     public void setUp() {
+        super.setUp();
         tx = metaGraph.newTransaction();
     }
 
@@ -22,6 +23,7 @@ public class MetaGraphTxTest extends BaseMetaGraphTest {
     public void tearDown() {
         tx.rollback();
         tx = null;
+        super.tearDown();
     }
 
     @Test(expected = IllegalArgumentException.class)

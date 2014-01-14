@@ -151,93 +151,100 @@ public class MetaGraph {
      * Create the metagraph indices.
      */
     private void createMetadataGraphKeys() {
-        // Metadata keys
-        if (systemGraph.getType("type") == null) {
-            systemGraph.makeKey("type")
-                    .dataType(String.class)
-                    .indexed(Vertex.class)
-                    .indexed(Edge.class)
-                    .make();
+        DendriteGraphTx tx = systemGraph.newTransaction();
+
+        try {
+            // Metadata keys
+            if (tx.getType("type") == null) {
+                tx.makeKey("type")
+                        .dataType(String.class)
+                        .indexed(Vertex.class)
+                        .indexed(Edge.class)
+                        .make();
+            }
+
+            // NamedMetadata keys
+            if (tx.getType("name") == null) {
+                tx.makeKey("name")
+                        .dataType(String.class)
+                        .indexed(Vertex.class)
+                        .indexed(Edge.class)
+                        .make();
+            }
+
+            if (tx.getType("typeAndName") == null) {
+                tx.makeKey("typeAndName")
+                        .dataType(String.class)
+                        .unique()
+                        .indexed(Vertex.class)
+                        .make();
+            }
+
+            // ProjectMetadata keys
+            if (tx.getType("currentBranch") == null) {
+                tx.makeLabel("currentBranch").oneToOne().make();
+            }
+
+            if (tx.getType("ownsBranch") == null) {
+                tx.makeLabel("ownsBranch").oneToMany().make();
+            }
+
+            if (tx.getType("ownsGraph") == null) {
+                tx.makeLabel("ownsGraph").oneToMany().make();
+            }
+
+            if (tx.getType("ownsJob") == null) {
+                tx.makeLabel("ownsJob").oneToMany().make();
+            }
+
+            // BranchMetadata keys
+            if (tx.getType("branchTarget") == null) {
+                tx.makeLabel("branchTarget").oneToOne().make();
+            }
+
+            // GraphMetadata keys
+            if (tx.getType("properties") == null) {
+                tx.makeKey("properties")
+                        .dataType(Properties.class)
+                        .indexed(Vertex.class)
+                        .make();
+            }
+
+            if (tx.getType("childGraph") == null) {
+                tx.makeLabel("childGraph").oneToMany().make();
+            }
+
+            // JobMetadata keys
+            if (tx.getType("state") == null) {
+                tx.makeKey("state")
+                        .dataType(String.class)
+                        .indexed(Vertex.class)
+                        .make();
+            }
+
+            if (tx.getType("progress") == null) {
+                tx.makeKey("progress")
+                        .dataType(Float.class)
+                        .indexed(Vertex.class)
+                        .make();
+            }
+
+            if (tx.getType("mapreduceJobId") == null) {
+                tx.makeKey("mapreduceJobId")
+                        .dataType(String.class)
+                        .indexed(Vertex.class)
+                        .make();
+            }
+
+            if (tx.getType("childJob") == null) {
+                tx.makeLabel("childJob").oneToMany().make();
+            }
+        } catch (Exception e) {
+            tx.rollback();
+            throw e;
         }
 
-        // NamedMetadata keys
-        if (systemGraph.getType("name") == null) {
-            systemGraph.makeKey("name")
-                    .dataType(String.class)
-                    .indexed(Vertex.class)
-                    .indexed(Edge.class)
-                    .make();
-        }
-
-        if (systemGraph.getType("typeAndName") == null) {
-            systemGraph.makeKey("typeAndName")
-                    .dataType(String.class)
-                    .unique()
-                    .indexed(Vertex.class)
-                    .make();
-        }
-
-        // ProjectMetadata keys
-        if (systemGraph.getType("currentBranch") == null) {
-            systemGraph.makeLabel("currentBranch").oneToOne().make();
-        }
-
-        if (systemGraph.getType("ownsBranch") == null) {
-            systemGraph.makeLabel("ownsBranch").oneToMany().make();
-        }
-
-        if (systemGraph.getType("ownsGraph") == null) {
-            systemGraph.makeLabel("ownsGraph").oneToMany().make();
-        }
-
-        if (systemGraph.getType("ownsJob") == null) {
-            systemGraph.makeLabel("ownsJob").oneToMany().make();
-        }
-
-        // BranchMetadata keys
-        if (systemGraph.getType("branchTarget") == null) {
-            systemGraph.makeLabel("branchTarget").oneToOne().make();
-        }
-
-        // GraphMetadata keys
-        if (systemGraph.getType("properties") == null) {
-            systemGraph.makeKey("properties")
-                    .dataType(Properties.class)
-                    .indexed(Vertex.class)
-                    .make();
-        }
-
-        if (systemGraph.getType("childGraph") == null) {
-            systemGraph.makeLabel("childGraph").oneToMany().make();
-        }
-
-        // JobMetadata keys
-        if (systemGraph.getType("state") == null) {
-            systemGraph.makeKey("state")
-                    .dataType(String.class)
-                    .indexed(Vertex.class)
-                    .make();
-        }
-
-        if (systemGraph.getType("progress") == null) {
-            systemGraph.makeKey("progress")
-                    .dataType(Float.class)
-                    .indexed(Vertex.class)
-                    .make();
-        }
-
-        if (systemGraph.getType("mapreduceJobId") == null) {
-            systemGraph.makeKey("mapreduceJobId")
-                    .dataType(String.class)
-                    .indexed(Vertex.class)
-                    .make();
-        }
-
-        if (systemGraph.getType("childJob") == null) {
-            systemGraph.makeLabel("childJob").oneToMany().make();
-        }
-
-        systemGraph.commit();
+        tx.commit();
     }
 
     /**

@@ -1,13 +1,10 @@
-package org.lab41.dendrite.metagraph;
+package org.lab41.dendrite.metagraph.models;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.lab41.dendrite.metagraph.models.BranchMetadata;
-import org.lab41.dendrite.metagraph.models.GraphMetadata;
-import org.lab41.dendrite.metagraph.models.JobMetadata;
-import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.*;
 
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
@@ -17,12 +14,14 @@ public class ProjectMetadataTest extends BaseMetadataTest {
 
     @Before
     public void setUp() {
+        super.setUp();
         projectMetadata = tx.createProject("test");
     }
 
     @After
     public void tearDown() {
         projectMetadata = null;
+        super.tearDown();
     }
 
     @Test

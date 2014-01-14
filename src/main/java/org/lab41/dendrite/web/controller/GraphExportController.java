@@ -21,6 +21,7 @@ import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.services.HistoryService;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.GraphExportBean;
@@ -75,28 +76,36 @@ public class GraphExportController {
         HttpHeaders headers = new HttpHeaders();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
+        DendriteGraphTx tx = graph.newTransaction();
+
         try {
             if (format.equalsIgnoreCase("GraphSON")) {
                 headers.setContentType(new MediaType("application", "vnd.rexster+json"));
                 headers.set("Content-Disposition", "attachment; filename=\"graph.json\"");
 
-                GraphSONWriter.outputGraph(graph, byteArrayOutputStream);
+                GraphSONWriter.outputGraph(tx, byteArrayOutputStream);
             } else if (format.equalsIgnoreCase("GraphML")) {
                 headers.setContentType(new MediaType("application", "vnd.rexster+xml"));
                 headers.set("Content-Disposition", "attachment; filename=\"graph.xml\"");
 
-                GraphMLWriter.outputGraph(graph, byteArrayOutputStream);
+                GraphMLWriter.outputGraph(tx, byteArrayOutputStream);
             } else if (format.equalsIgnoreCase("GML")) {
                 headers.setContentType(new MediaType("application", "vnd.rexster+gml"));
                 headers.set("Content-Disposition", "attachment; filename=\"graph.gml\"");
 
-                GMLWriter.outputGraph(graph, byteArrayOutputStream);
+                GMLWriter.outputGraph(tx, byteArrayOutputStream);
             } else {
+                tx.rollback();
+
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
+            tx.rollback();
+
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
+        tx.commit();
 
         return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), headers, HttpStatus.OK);
     }
@@ -127,26 +136,34 @@ public class GraphExportController {
         String historyStorageLocation = historyService.getHistoryStorage();
         String format = item.getFormat();
 
+        DendriteGraphTx tx = graph.newTransaction();
+
         try {
             if (format.equalsIgnoreCase("GraphSON")) {
                 String path = new File(historyStorageLocation, graphId + ".json").getPath();
-                GraphSONWriter.outputGraph(graph, path);
+                GraphSONWriter.outputGraph(tx, path);
             } else if (format.equalsIgnoreCase("GraphML")) {
                 String path = new File(historyStorageLocation, graphId + ".xml").getPath();
-                GraphMLWriter.outputGraph(graph, path);
+                GraphMLWriter.outputGraph(tx, path);
             } else if (format.equalsIgnoreCase("GML")) {
                 String path = new File(historyStorageLocation, graphId + ".gml").getPath();
-                GMLWriter.outputGraph(graph, path);
+                GMLWriter.outputGraph(tx, path);
             } else {
+                tx.rollback();
+
                 response.put("status", "error");
                 response.put("msg", "unknown format '" + format + "'");
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
+            tx.rollback();
+
             response.put("status", "error");
             response.put("msg", "exception: " + e.toString());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
+
+        tx.commit();
 
         response.put("status", "ok");
 
