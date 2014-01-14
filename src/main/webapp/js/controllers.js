@@ -782,9 +782,10 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
-    controller('FileUploadCtrl', function ($scope, $routeParams, $modal) {
+    controller('FileUploadCtrl', function ($scope, $routeParams, $modal, appConfig) {
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
+        $scope.keysForGraph = [];
 
         $scope.uploading = function() {
             $scope.fileUploading = true;
@@ -823,17 +824,24 @@ angular.module('dendrite.controllers', []).
         };
 
         $scope.$on('event:graphFileParsed', function() {
-          $scope.fileParsed = false;
-          if ($scope.keysForGraph.length > 0) {
-            $scope.fileParsed = true;
-            $scope.fileParseError = false;
+          if (!appConfig.fileUpload.parseGraphFile) {
             $scope.safeApply(function() {
-              $modal({scope: $scope, template: 'partials/graphs/form-select-keys.html'});
+              $scope.fileParsed = true;
             });
-          } else {
-            $scope.safeApply(function() {
-              $scope.fileParseError = "Error: Unrecognized Format!";
-            });
+          }
+          else {
+            $scope.fileParsed = false;
+            if ($scope.keysForGraph.length > 0) {
+              $scope.fileParsed = true;
+              $scope.fileParseError = false;
+              $scope.safeApply(function() {
+                $modal({scope: $scope, template: 'partials/graphs/form-select-keys.html'});
+              });
+            } else {
+              $scope.safeApply(function() {
+                $scope.fileParseError = "Error: Unrecognized Format!";
+              });
+            }
           }
         });
 

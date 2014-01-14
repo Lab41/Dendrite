@@ -169,7 +169,46 @@ angular.module('dendrite.services', ['ngResource']).
 
                 }
                 else if (format === "GML") {
-                  // TODO
+
+                  // parse via regex
+                  var regex_sep = ":::";
+                  var regex_nodes = /node \[(.*?)\]/g
+                  var regex_graph = /\[([.\s\S]*)\]/m
+                  var regex_quote = /\".*?\"/g
+
+                  // convert all whitespace to single spaces
+                  var formatted = text.replace(/[\s]+/g, ' ');
+
+                  // isolate the outermost 'graph [...]' block
+                  var graph = regex_graph.exec(formatted)[1];
+
+                  // loop through each of the 'node [...]' blocks
+                  var nodes, quoted;
+                  while (nodes = regex_nodes.exec(graph)) {
+                    var properties_string = nodes[1];
+
+                    // since key=val pairs are separated by spaces, first encapsulate multi-word values
+                    // to eliminate space separation from disrupting key=val separation
+                    // example using ':::' as multi-word separator:
+                    //    input:  'key1 "v a l 1" key2 val2'
+                    //    output: 'key1 "v:::a:::l:::1" key2 val2'
+                    var firstIndex, condensed, properties_string_formatted = "";
+                    while (quoted = regex_quote.exec(properties_string)) {
+                      firstIndex = regex_quote.lastIndex - quoted[0].length;
+                      condensed = quoted[0].replace(/ /g, regex_sep);
+                      properties_string_formatted += properties_string.substring(0,firstIndex) + condensed;
+                    }
+
+                    // trim leading/trailing whitespace
+                    properties_string_formatted = properties_string_formatted.trim();
+
+                    // split into 'k1 v1 k2 v2' space-separated string and save list of keys
+                    var properties = properties_string_formatted.split(/\s+/);
+                    for (var i=0; i<properties.length; i+=2) {
+                      keys[properties[i]] = true;
+                    }
+                  }
+
                 }
                 else if (format === "FaunusGraphSON") {
 
