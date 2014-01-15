@@ -144,7 +144,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
 
     @Override
     public TitanTransaction newThreadBoundTransaction() {
-        return null;
+        return newTransaction();
     }
 
     @Override
