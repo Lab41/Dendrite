@@ -138,6 +138,10 @@ public class DendriteGraph {
         }
     }
 
+    public DendriteGraphTransactionBuilder buildTransaction() {
+        return new DendriteGraphTransactionBuilder();
+    }
+
     public void shutdown() throws TitanException {
         Lock lock = tableLock.writeLock();
         lock.lock();

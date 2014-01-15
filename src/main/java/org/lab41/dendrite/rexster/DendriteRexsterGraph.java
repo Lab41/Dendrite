@@ -1,10 +1,16 @@
 package org.lab41.dendrite.rexster;
 
+import com.thinkaurelius.titan.core.*;
 import com.tinkerpop.blueprints.*;
+import com.tinkerpop.blueprints.Parameter;
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraphTransactionBuilder;
 import org.lab41.dendrite.metagraph.DendriteGraphTx;
 
-public class DendriteRexsterGraph implements TransactionalGraph {
+import java.util.Collection;
+import java.util.Set;
+
+public class DendriteRexsterGraph implements TitanGraph {
 
     private DendriteGraph graph;
     private ThreadLocal<DendriteGraphTx> txs = new ThreadLocal<DendriteGraphTx>() {
@@ -29,7 +35,16 @@ public class DendriteRexsterGraph implements TransactionalGraph {
 
     @Override
     public void stopTransaction(Conclusion conclusion) {
-        getAutoStartTx().stopTransaction(conclusion);
+        switch (conclusion) {
+            case SUCCESS:
+                commit();
+                break;
+            case FAILURE:
+                rollback();
+                break;
+            default:
+                throw new IllegalArgumentException("Unrecognized conclusion: "+ conclusion);
+        }
     }
 
     @Override
@@ -88,8 +103,43 @@ public class DendriteRexsterGraph implements TransactionalGraph {
     }
 
     @Override
-    public GraphQuery query() {
+    public TitanGraphQuery query() {
         return getAutoStartTx().query();
+    }
+
+    @Override
+    public TitanIndexQuery indexQuery(String indexName, String query) {
+        return getAutoStartTx().indexQuery(indexName, query);
+    }
+
+    @Override
+    public TitanMultiVertexQuery multiQuery(TitanVertex... vertices) {
+        return getAutoStartTx().multiQuery(vertices);
+    }
+
+    @Override
+    public TitanMultiVertexQuery multiQuery(Collection<TitanVertex> vertices) {
+        return getAutoStartTx().multiQuery(vertices);
+    }
+
+    @Override
+    public TitanType getType(String name) {
+        return getAutoStartTx().getType(name);
+    }
+
+    @Override
+    public boolean isOpen() {
+        return getAutoStartTx().isOpen();
+    }
+
+    @Override
+    public TitanTransaction newTransaction() {
+        return graph.newTransaction();
+    }
+
+    @Override
+    public DendriteGraphTransactionBuilder buildTransaction() {
+        return graph.buildTransaction();
     }
 
     @Override
@@ -98,12 +148,50 @@ public class DendriteRexsterGraph implements TransactionalGraph {
     }
 
     @Override
+    public KeyMaker makeKey(String name) {
+        return getAutoStartTx().makeKey(name);
+    }
+
+    @Override
+    public LabelMaker makeLabel(String name) {
+        return getAutoStartTx().makeLabel(name);
+    }
+
+    @Override
+    public <T extends TitanType> Iterable<T> getTypes(Class<T> clazz) {
+        return getAutoStartTx().getTypes(clazz);
+    }
+
+    @Override
     public void commit() {
-        getAutoStartTx().commit();
+        DendriteGraphTx tx = txs.get();
+        if (tx != null && tx.isOpen()) {
+            getAutoStartTx().commit();
+            txs.remove();
+        }
     }
 
     @Override
     public void rollback() {
-        getAutoStartTx().rollback();
+        DendriteGraphTx tx = txs.get();
+        if (tx != null && tx.isOpen()) {
+            getAutoStartTx().rollback();
+            txs.remove();
+        }
+    }
+
+    @Override
+    public <T extends Element> void dropKeyIndex(String key, Class<T> elementClass) {
+        getAutoStartTx().dropKeyIndex(key, elementClass);
+    }
+
+    @Override
+    public <T extends Element> void createKeyIndex(String key, Class<T> elementClass, Parameter... indexParameters) {
+        getAutoStartTx().createKeyIndex(key, elementClass, indexParameters);
+    }
+
+    @Override
+    public <T extends Element> Set<String> getIndexedKeys(Class<T> elementClass) {
+        return getAutoStartTx().getIndexedKeys(elementClass);
     }
 }

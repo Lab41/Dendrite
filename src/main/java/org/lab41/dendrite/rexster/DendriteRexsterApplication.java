@@ -70,11 +70,13 @@ public class DendriteRexsterApplication implements RexsterApplication {
         List<String> allowableNamespaces = new ArrayList<>();
         allowableNamespaces.add("tp:gremlin");
 
+        List<HierarchicalConfiguration> extensionConfigurations = new ArrayList<>();
+
         return new RexsterApplicationGraph(
                 id,
                 new DendriteRexsterGraph(graph),
                 allowableNamespaces,
-                null);
+                extensionConfigurations);
     }
 
     @Override
