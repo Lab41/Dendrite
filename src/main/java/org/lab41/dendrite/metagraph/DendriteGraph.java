@@ -1,6 +1,8 @@
 package org.lab41.dendrite.metagraph;
 
 import com.thinkaurelius.titan.core.*;
+import com.thinkaurelius.titan.graphdb.blueprints.TitanBlueprintsGraph;
+import com.tinkerpop.blueprints.Features;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.slf4j.Logger;
@@ -11,7 +13,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DendriteGraph {
+public class DendriteGraph extends TitanBlueprintsGraph {
 
     private Logger logger = LoggerFactory.getLogger(DendriteGraph.class);
 
@@ -114,34 +116,53 @@ public class DendriteGraph {
         }
     }
 
+    @Override
+    public boolean isOpen() {
+        return titanGraph.isOpen();
+    }
+
+    @Override
+    public Features getFeatures() {
+        return titanGraph.getFeatures();
+    }
+
     /**
      * Open a new thread-independent transaction.
      *
      * @return a transaction.
      */
+    @Override
     public DendriteGraphTx newTransaction() {
-        Lock lock = tableLock.readLock();
+        DendriteGraphTransactionBuilder transactionBuilder = buildTransaction();
 
+        if (readOnly) {
+            transactionBuilder.readOnly();
+        }
+
+        return transactionBuilder.start();
+    }
+
+    @Override
+    public TitanTransaction newThreadBoundTransaction() {
+        return null;
+    }
+
+    @Override
+    public DendriteGraphTransactionBuilder buildTransaction() {
+        Lock lock = tableLock.readLock();
         lock.lock();
 
         try {
             TransactionBuilder transactionBuilder = titanGraph.buildTransaction();
 
-            if (readOnly) {
-                transactionBuilder.readOnly();
-            }
-
-            return new DendriteGraphTx(lock, titanGraph, transactionBuilder.start());
+            return new DendriteGraphTransactionBuilder(lock, transactionBuilder);
         } catch (Exception e) {
             lock.unlock();
             throw e;
         }
     }
 
-    public DendriteGraphTransactionBuilder buildTransaction() {
-        return new DendriteGraphTransactionBuilder();
-    }
-
+    @Override
     public void shutdown() throws TitanException {
         Lock lock = tableLock.writeLock();
         lock.lock();

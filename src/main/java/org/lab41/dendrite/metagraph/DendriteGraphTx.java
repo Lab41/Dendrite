@@ -1,28 +1,25 @@
 package org.lab41.dendrite.metagraph;
 
 import com.thinkaurelius.titan.core.*;
+import com.thinkaurelius.titan.graphdb.blueprints.TitanBlueprintsTransaction;
 import com.thinkaurelius.titan.graphdb.transaction.StandardTitanTx;
 import com.thinkaurelius.titan.graphdb.types.TypeAttribute;
 import com.tinkerpop.blueprints.*;
-import com.tinkerpop.blueprints.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
-public class DendriteGraphTx implements TitanTransaction {
+public class DendriteGraphTx extends TitanBlueprintsTransaction {
 
     private Logger logger = LoggerFactory.getLogger(DendriteGraphTx.class);
 
     private Lock tableLock;
-    private TitanGraph titanGraph;
     private TitanTransaction tx;
 
-    public DendriteGraphTx(Lock tableLock, TitanGraph titanGraph, TitanTransaction tx) {
+    public DendriteGraphTx(Lock tableLock, TitanTransaction tx) {
         this.tableLock = tableLock;
-        this.titanGraph = titanGraph;
         this.tx = tx;
     }
 
@@ -42,17 +39,7 @@ public class DendriteGraphTx implements TitanTransaction {
     }
 
     @Override
-    public TitanEdge addEdge(TitanVertex outVertex, TitanVertex inVertex, String label) {
-        return tx.addEdge(outVertex, inVertex, label);
-    }
-
-    @Override
     public TitanProperty addProperty(TitanVertex vertex, TitanKey key, Object attribute) {
-        return tx.addProperty(vertex, key, attribute);
-    }
-
-    @Override
-    public TitanProperty addProperty(TitanVertex vertex, String key, Object attribute) {
         return tx.addProperty(vertex, key, attribute);
     }
 
@@ -127,11 +114,6 @@ public class DendriteGraphTx implements TitanTransaction {
     }
 
     @Override
-    public <T extends TitanType> Iterable<T> getTypes(Class<T> clazz) {
-        return tx.getTypes(clazz);
-    }
-
-    @Override
     public KeyMaker makeKey(String name) {
         return tx.makeKey(name);
     }
@@ -177,36 +159,13 @@ public class DendriteGraphTx implements TitanTransaction {
     }
 
     @Override
-    @Deprecated
-    public void stopTransaction(Conclusion conclusion) {
-        tx.stopTransaction(conclusion);
-        tableLock.unlock();
+    public TitanVertex addVertex(Object id) {
+        return (TitanVertex) tx.addVertex(id);
     }
 
     @Override
-    public void shutdown() {
-        tx.shutdown();
-        tableLock.unlock();
-    }
-
-    @Override
-    public Features getFeatures() {
-        return tx.getFeatures();
-    }
-
-    @Override
-    public Vertex addVertex(Object id) {
-        return tx.addVertex(id);
-    }
-
-    @Override
-    public Vertex getVertex(Object id) {
-        return tx.getVertex(id);
-    }
-
-    @Override
-    public void removeVertex(Vertex vertex) {
-        tx.removeVertex(vertex);
+    public TitanVertex getVertex(Object id) {
+        return (TitanVertex) tx.getVertex(id);
     }
 
     @Override
@@ -220,42 +179,12 @@ public class DendriteGraphTx implements TitanTransaction {
     }
 
     @Override
-    public Edge addEdge(Object id, Vertex outVertex, Vertex inVertex, String label) {
-        return tx.addEdge(id, outVertex, inVertex, label);
-    }
-
-    @Override
-    public Edge getEdge(Object id) {
-        return tx.getEdge(id);
-    }
-
-    @Override
-    public void removeEdge(Edge edge) {
-        tx.removeEdge(edge);
+    public TitanEdge getEdge(Object id) {
+        return (TitanEdge) tx.getEdge(id);
     }
 
     @Override
     public Iterable<Edge> getEdges() {
         return tx.getEdges();
-    }
-
-    @Override
-    public Iterable<Edge> getEdges(String key, Object value) {
-        return tx.getEdges(key, value);
-    }
-
-    @Override
-    public <T extends Element> void dropKeyIndex(String key, Class<T> elementClass) {
-        tx.dropKeyIndex(key, elementClass);
-    }
-
-    @Override
-    public <T extends Element> void createKeyIndex(String key, Class<T> elementClass, Parameter... indexParameters) {
-        tx.createKeyIndex(key, elementClass, indexParameters);
-    }
-
-    @Override
-    public <T extends Element> Set<String> getIndexedKeys(Class<T> elementClass) {
-        return tx.getIndexedKeys(elementClass);
     }
 }

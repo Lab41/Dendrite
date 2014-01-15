@@ -1,45 +1,53 @@
 package org.lab41.dendrite.metagraph;
 
+import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanTransaction;
 import com.thinkaurelius.titan.core.TransactionBuilder;
 
+import java.util.concurrent.locks.Lock;
+
 public class DendriteGraphTransactionBuilder implements TransactionBuilder {
-    public DendriteGraphTransactionBuilder() {
-        throw new Error("unimplemented");
+
+    Lock lock;
+    TransactionBuilder transactionBuilder;
+
+    public DendriteGraphTransactionBuilder(Lock lock, TransactionBuilder transactionBuilder) {
+        this.lock = lock;
+        this.transactionBuilder = transactionBuilder;
     }
 
     @Override
     public TransactionBuilder readOnly() {
-        return null;
+        return transactionBuilder.readOnly();
     }
 
     @Override
     public TransactionBuilder enableBatchLoading() {
-        return null;
+        return transactionBuilder.enableBatchLoading();
     }
 
     @Override
     public TransactionBuilder setCacheSize(int size) {
-        return null;
+        return transactionBuilder.setCacheSize(size);
     }
 
     @Override
     public TransactionBuilder checkInternalVertexExistence() {
-        return null;
+        return transactionBuilder.checkInternalVertexExistence();
     }
 
     @Override
     public TransactionBuilder setTimestamp(long timestamp) {
-        return null;
+        return transactionBuilder.setTimestamp(timestamp);
     }
 
     @Override
     public TransactionBuilder setMetricsPrefix(String prefix) {
-        return null;
+        return transactionBuilder.setMetricsPrefix(prefix);
     }
 
     @Override
-    public TitanTransaction start() {
-        return null;
+    public DendriteGraphTx start() {
+        return new DendriteGraphTx(lock, transactionBuilder.start());
     }
 }

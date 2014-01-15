@@ -74,7 +74,7 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
         return new RexsterApplicationGraph(
                 id,
-                new DendriteRexsterGraph(graph),
+                graph,
                 allowableNamespaces,
                 extensionConfigurations);
     }
