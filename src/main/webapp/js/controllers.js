@@ -153,7 +153,7 @@ angular.module('dendrite.controllers', []).
                 .success(function(){
                     $scope.fileSaving = false;
                     $scope.fileSaved = true;
-                    $scope.savedMessage = "Graph "+$scope.graphId+" saved";
+                    $scope.savedMessage = "Graph "+$scope.graphId+" checkpointed";
                 })
                 .error(function(response){
                     $scope.fileSaved = true;

@@ -12,13 +12,13 @@
       <div class="row-fluid">
         <div class="span12">
           <h4>Import/Export</h4>
-          <label for="format">Upload a file to add to the network:</label>
+          <label for="file-import-format">Upload a file to add to the network:</label>
           <div ng-controller="FileUploadCtrl">
             <form id="form-file-upload" ng-upload="uploadFile(content)" ng-upload-loading="uploading()" action="api/graphs/{{ graphId }}/file-import" upload-options-enable-controls>
 
               <input type="hidden" name="searchkeys" value="{{selectedCheckboxesList}}">
 
-              <select name="format" id="format" class="inline form-control">
+              <select name="format" id="file-import-format" class="inline form-control">
                   <option selected>Select Format</option>
                   <option value="GraphSON">GraphSON</option>
                   <option value="GraphML">GraphML</option>
@@ -50,10 +50,10 @@
 
       <div class="row-fluid">
           <div class="span12">
-              <label for="format">Download this graph:</label>
+              <label for="file-export-format">Download this graph:</label>
               <div>
                   <form action="api/graphs/{{graphId}}/file-export" method="POST">
-                      <select name="format" id="format" class="inline form-control">
+                      <select name="format" id="file-export-format" class="inline form-control">
                           <option selected>Select Format</option>
                           <option value="GraphSON">GraphSON</option>
                           <option value="GraphML">GraphML</option>
@@ -68,10 +68,10 @@
 
       <div class="row-fluid">
           <div class="span12">
-              <label for="format">Checkpoint this graph:</label>
+              <label for="checkpoint-format">Checkpoint this graph:</label>
               <div ng-controller="GraphSaveCtrl">
                 <form ng-submit="saveFile(content, completed)">
-                  <select ng-model="format" name="format" id="format" class="inline form-control">
+                  <select ng-model="format" name="format" id="checkpoint-format" class="inline form-control">
                     <option selected ng-selected="true">Select Format</option>
                     <option value="GraphSON">GraphSON</option>
                     <option value="GraphML">GraphML</option>

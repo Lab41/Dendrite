@@ -69,7 +69,7 @@ angular.module('dendrite.directives', []).
 
                 var reader = new FileReader();
                 var f = evt.target.files[0];
-                var format = document.getElementById('format').value;
+                var format = document.getElementById('file-import-format').value;
 
                 // capture the file information.
                 reader.onload = function(e) {
