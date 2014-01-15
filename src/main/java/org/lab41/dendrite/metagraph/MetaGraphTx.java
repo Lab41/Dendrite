@@ -222,6 +222,10 @@ public class MetaGraphTx {
 
         F framedVertex = getAutoStartTx().getVertex(id, kind);
 
+        if (framedVertex == null) {
+            return null;
+        }
+
         Preconditions.checkArgument(type.equals(framedVertex.asVertex().getProperty("type")));
 
         return framedVertex;
