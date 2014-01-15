@@ -106,21 +106,21 @@ public class EdgeDegreesService extends AnalysisService {
         if (tx.getType("in_degrees") == null) {
             tx.makeKey("in_degrees")
                     .dataType(Integer.class)
-                    .indexed(Vertex.class)
+                    .indexed("search", Vertex.class)
                     .make();
         }
 
         if (tx.getType("out_degrees") == null) {
             tx.makeKey("out_degrees")
                     .dataType(Integer.class)
-                    .indexed(Vertex.class)
+                    .indexed("search", Vertex.class)
                     .make();
         }
 
         if (tx.getType("degrees") == null) {
             tx.makeKey("degrees")
                     .dataType(Integer.class)
-                    .indexed(Vertex.class)
+                    .indexed("search", Vertex.class)
                     .make();
         }
 

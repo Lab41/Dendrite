@@ -62,7 +62,7 @@ public class BetweennessCentralityService extends AnalysisService {
         if (tx.getType("betweenness_centrality") == null) {
             tx.makeKey("betweenness_centrality")
                     .dataType(Double.class)
-                    .indexed(Vertex.class)
+                    .indexed("search", Vertex.class)
                     .make();
         }
 
