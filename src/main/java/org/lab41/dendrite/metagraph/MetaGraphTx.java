@@ -131,29 +131,38 @@ public class MetaGraphTx {
     }
 
     /**
-     * Create an empty branch in a project.
+     * Create an branch in a project. The branch's graph will be created from the project's current graph.
      *
      * @param name the branch name
      * @param projectMetadata the project that owns the branch.
      * @return the branch.
      */
     public BranchMetadata createBranch(String name, ProjectMetadata projectMetadata) {
-        return createBranch(name, projectMetadata, createGraph(projectMetadata));
+        GraphMetadata parentGraphMetadata = projectMetadata.getCurrentGraph();
+        GraphMetadata graphMetadata;
+
+        // Handle the case where we don't have a graph yet.
+        if (parentGraphMetadata == null) {
+            graphMetadata = createGraph(projectMetadata);
+        } else {
+            graphMetadata = createGraph(parentGraphMetadata);
+        }
+
+        return createBranch(name, graphMetadata);
     }
 
     /**
      * Create a branch with the given graph in a project.
      *
      * @param name the branch name
-     * @param projectMetadata the project that owns the branch.
      * @param graphMetadata the branch graph.
      * @return the branch.
      */
-    public BranchMetadata createBranch(String name, ProjectMetadata projectMetadata, GraphMetadata graphMetadata) {
+    public BranchMetadata createBranch(String name, GraphMetadata graphMetadata) {
         BranchMetadata branchMetadata = getAutoStartTx().addVertex(null, BranchMetadata.class);
         branchMetadata.setName(name);
         branchMetadata.setGraph(graphMetadata);
-        projectMetadata.addBranch(branchMetadata);
+        graphMetadata.getProject().addBranch(branchMetadata);
 
         return branchMetadata;
     }

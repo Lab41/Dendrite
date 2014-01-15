@@ -7,6 +7,8 @@ import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.services.MetaGraphService;
+import org.lab41.dendrite.web.beans.CreateBranchBean;
+import org.lab41.dendrite.web.beans.CreateGraphBean;
 import org.lab41.dendrite.web.beans.UpdateCurrentBranchBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
@@ -171,9 +173,17 @@ public class BranchController {
     @RequestMapping(value = "/projects/{projectId}/branches/{branchName}", method = RequestMethod.PUT)
     public ResponseEntity<Map<String, Object>> createBranch(@PathVariable String projectId,
                                                             @PathVariable String branchName,
-                                                            UriComponentsBuilder builder) {
+                                                            @Valid @RequestBody CreateBranchBean item,
+                                                            BindingResult result) {
 
         Map<String, Object> response = new HashMap<>();
+
+        if (result.hasErrors()) {
+            response.put("status", "error");
+            response.put("msg", result.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
         MetaGraphTx tx = metaGraphService.newTransaction();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
@@ -184,11 +194,42 @@ public class BranchController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        BranchMetadata branchMetadata = tx.createBranch(branchName, projectMetadata);
-        response.put("branch", getBranchMap(branchMetadata));
+        String graphId = item.getGraphId();
+
+        BranchMetadata branchMetadata;
+
+        if (graphId == null) {
+            branchMetadata = tx.createBranch(branchName, projectMetadata);
+        } else {
+            GraphMetadata graphMetadata = tx.getGraph(graphId);
+            if (graphMetadata == null) {
+                response.put("status", "error");
+                response.put("msg", "could not find project '" + projectId + "'");
+                tx.rollback();
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            branchMetadata = tx.createBranch(branchName, graphMetadata);
+        }
+
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
 
         // Commit must come after all branch access.
         tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        BranchCommitJob branchCommitJob = new BranchCommitJob(
+                metaGraphService.getMetaGraph(),
+                branchMetadata.getId(),
+                jobMetadata.getId());
+
+        taskExecutor.execute(branchCommitJob);
+
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId());
+        response.put("branchId", branchMetadata.getId());
+        response.put("graphId", branchCommitJob.getDstGraphId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

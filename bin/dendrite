@@ -155,14 +155,18 @@ class Project(Table):
 
     def create_branch(self, name, graph=None):
         if graph is None:
-            graph = self.current_graph
+            graph_id = None
+        else:
+            graph_id = graph.id
 
-        #data = {'graphId': graph.id}
+        data = {'graphId': graph_id}
 
-        response = self.conn.put('{}/{}/branches/{}'.format(self.URL_PATH, self.id, name))
-                #data=data)
+        response = self.conn.put_json('{}/{}/branches/{}'.format(self.URL_PATH, self.id, name),
+                data=data)
 
-        return Branch(self.conn, **response.json()['branch'])
+        response = response.json()
+
+        return Job.get(self.conn, response['jobId'])
 
     def checkout_branch(self, name):
         """Create a branch"""
@@ -387,7 +391,13 @@ def show_project_branches(args):
 def project_create_branch(args):
     with closing(Connection(args)) as conn:
         project = Project.get(conn, args.id)
-        print_records([project.create_branch(args.name)])
+        if args.graph_id:
+            graph = Graph.get(conn, args.graph_id)
+        else:
+            graph = None
+
+        job = project.create_branch(args.name, graph)
+        job.wait_until_finished()
 
 def project_checkout_branch(args):
     with closing(Connection(args)) as conn:
@@ -609,6 +619,8 @@ def main():
             type=int)
     parser_create_branch.add_argument('name',
             type=not_empty)
+    parser_create_branch.add_argument('graph_id',
+            nargs='?')
     parser_create_branch.set_defaults(func=project_create_branch)
 
     # Options for checking out project branches.
