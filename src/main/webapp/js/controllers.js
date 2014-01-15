@@ -117,12 +117,6 @@ angular.module('dendrite.controllers', []).
                 });
 
         $scope.queryGraph = Project.graphs({projectId: $routeParams.projectId});
-        $scope.showGraph = function(id) {
-          $location.path('graphs/' + id);
-        };
-        $scope.editGraph = function(id) {
-          $location.path('graphs/'+id+'/edit');
-        };
         $scope.deleteItem = function(item){
           Project.delete({projectId: item._id}).
             $then(function(response) {
@@ -150,23 +144,22 @@ angular.module('dendrite.controllers', []).
         });
     }).
     controller('GraphSaveCtrl', function ($scope, $routeParams, $http, GraphTransform) {
-        $scope.graphId = $routeParams.graphId;
         $scope.fileSaved = false;
         $scope.fileSaving = false;
 
         $scope.saveFile = function() {
-          $scope.fileSaving = true;
-          GraphTransform.saveFile($scope.graphId, this.format)
-            .success(function(){
-                $scope.fileSaving = false;
-                $scope.fileSaved = true;
-                $scope.savedMessage = "Graph "+$scope.graphId+" saved";
-            })
-            .error(function(response){
-                $scope.fileSaved = true;
-                $scope.fileSaving = false;
-                $scope.savedMessage = "upload failed!";
-            });
+            $scope.fileSaving = true;
+            GraphTransform.saveFile($scope.graphId, this.format)
+                .success(function(){
+                    $scope.fileSaving = false;
+                    $scope.fileSaved = true;
+                    $scope.savedMessage = "Graph "+$scope.graphId+" saved";
+                })
+                .error(function(response){
+                    $scope.fileSaved = true;
+                    $scope.fileSaving = false;
+                    $scope.savedMessage = "upload failed!";
+                });
         };
     }).
     controller('AnalyticsDetailCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {

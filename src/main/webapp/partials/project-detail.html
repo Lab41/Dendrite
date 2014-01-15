@@ -89,11 +89,11 @@
 
     <div class="span6">
       <h4>Graphs</h4>
-        <div><strong>Current: <a ng-click="showGraph({{ graphId }})">{{ graphId }}</a></strong></div>
+        <div><strong>Current: <a href="#/graphs/{{ graphId }}">{{ graphId }}</a></strong></div>
         <div ng-if="queryGraph.graphs.length>1">
           Additional Graphs for Project {{ project.name }}
           <ul ng-repeat="graphResult in queryGraph.graphs" >
-            <li ng-if="graphResult._id != graphId"><a ng-click="showGraph({{ graphResult._id }})"><strong>{{ graphResult._id }}</strong></a></li>
+            <li ng-if="graphResult._id != graphId"><a href="#/graphs/{{ graphResult._id }}"><strong>{{ graphResult._id }}</strong></a></li>
           </ul>
         </div>
     </div>
