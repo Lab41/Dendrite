@@ -199,7 +199,7 @@ public class MetaGraph {
 
             // BranchMetadata keys
             if (tx.getType("branchTarget") == null) {
-                tx.makeLabel("branchTarget").oneToOne().make();
+                tx.makeLabel("branchTarget").manyToOne().make();
             }
 
             // GraphMetadata keys
