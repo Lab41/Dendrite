@@ -82,13 +82,7 @@ public class ElasticSearchController {
         }
 
         // build the elasticsearch url
-        StringBuilder stringBuilderElasticSearchURL = new StringBuilder();
-        stringBuilderElasticSearchURL.append("http://");
-        stringBuilderElasticSearchURL.append(elasticSearchHost);
-        stringBuilderElasticSearchURL.append(":9200/");
-        stringBuilderElasticSearchURL.append(elasticSearchIndexName);
-        stringBuilderElasticSearchURL.append("/_search");
-        String elasticSearchURL = stringBuilderElasticSearchURL.toString();
+        String elasticSearchURL = "http://" + elasticSearchHost + ":9200/" + elasticSearchIndexName + "/_search";
 
         // decode url-encoded json response back into json
         String decodedString = java.net.URLDecoder.decode(body, "UTF-8");
@@ -143,7 +137,7 @@ public class ElasticSearchController {
         if (graph == null) {
             json.put("status", "error");
             json.put("msg", "unknown graph '" + graphId + "'");
-            return new ResponseEntity<String>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
         Configuration config = graph.getConfiguration();
@@ -163,11 +157,7 @@ public class ElasticSearchController {
         }
 
         // build the elasticsearch url
-        StringBuilder stringBuilderElasticSearchURL = new StringBuilder();
-        stringBuilderElasticSearchURL.append("http://");
-        stringBuilderElasticSearchURL.append(elasticSearchHost);
-        stringBuilderElasticSearchURL.append(":9200/" + elasticSearchIndexName + "/_mapping");
-        String elasticSearchURL = stringBuilderElasticSearchURL.toString();
+        String elasticSearchURL = "http://" + elasticSearchHost + ":9200/" + elasticSearchIndexName + "/_mapping";
 
         // object for json response back into json
         JSONObject jsonResult = null;
