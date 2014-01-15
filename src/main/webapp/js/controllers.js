@@ -859,19 +859,23 @@ angular.module('dendrite.controllers', []).
     controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
       $scope.searching = false;
 
-      Histogram.searchFacets($scope.graphId)
-        .success(function(data) {
-          $scope.searchFacets = Object.keys(data.vertex.properties);
-        });
+      $scope.$watch('graphId', function(newVal, oldVal) {
+          if (newVal !== oldVal) {
+              Histogram.searchFacets($scope.graphId)
+                  .success(function(data) {
+                      $scope.searchFacets = Object.keys(data.vertex.properties);
+                  });
 
-      $scope.visualize = function() {
-        $scope.searching = true;
-        Histogram.display($scope.graphId, $scope.query, $scope.facet)
-          .success(function() {
-            $scope.searching = false;
-          })
-          .error(function() {
-            $scope.searching = false;
-          });
-      };
+              $scope.visualize = function() {
+                  $scope.searching = true;
+                  Histogram.display($scope.graphId, $scope.query, $scope.facet)
+                      .success(function() {
+                          $scope.searching = false;
+                      })
+                      .error(function() {
+                          $scope.searching = false;
+                      });
+              };
+          }
+      });
     });
