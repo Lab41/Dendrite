@@ -203,7 +203,7 @@ angular.module('dendrite.controllers', []).
         $scope.calculate = function() {
           // BetweennessCentrality
           if ($scope.analyticType === "BetweennessCentrality") {
-            Analytics.createBetweennessCentralityJung({graphId: $routeParams.graphId});
+            Analytics.createBetweennessCentralityJung({graphId: $routeParams.graphId}, undefined);
           }
           // PageRank
           if ($scope.analyticType === "PageRank") {
