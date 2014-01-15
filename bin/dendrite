@@ -179,7 +179,9 @@ class Project(Table):
         else:
             response = self.conn.post('{}/{}/branches/{}/commit'.format(self.URL_PATH, self.id, name))
 
-        return response.json()
+        response = response.json()
+
+        return Job.get(self.conn, response['jobId'])
 
 # ------------------------------------------------------------------------------
 
@@ -396,8 +398,8 @@ def project_checkout_branch(args):
 def project_commit_branch(args):
     with closing(Connection(args)) as conn:
         project = Project.get(conn, args.id)
-        msg = project.commit_branch()
-        print msg
+        job = project.commit_branch()
+        job.wait_until_finished()
 
 def show_project_graphs(args):
     with closing(Connection(args)) as conn:
