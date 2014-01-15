@@ -28,8 +28,8 @@ public class BranchCommitJob extends AbstractJob implements Runnable {
     Logger logger = LoggerFactory.getLogger(BranchCommitJob.class);
 
     String branchId;
-    DendriteGraph srcGraph;
-    DendriteGraph dstGraph;
+    String srcGraphId;
+    String dstGraphId;
 
     public BranchCommitJob(MetaGraph metaGraph, String branchId, String jobId) {
         super(metaGraph, jobId);
@@ -42,29 +42,32 @@ public class BranchCommitJob extends AbstractJob implements Runnable {
         tx.commit();
 
         this.branchId = branchId;
-        this.srcGraph = metaGraph.getGraph(srcGraphMetadata.getId());
-        this.dstGraph = metaGraph.getGraph(dstGraphMetadata.getId());
+        this.srcGraphId = srcGraphMetadata.getId();
+        this.dstGraphId = dstGraphMetadata.getId();
     }
 
-    public DendriteGraph getSrcGraph() {
-        return srcGraph;
+    public String getSrcGraphId() {
+        return srcGraphId;
     }
 
-    public DendriteGraph getDstGraph() {
-        return dstGraph;
+    public String getDstGraphId() {
+        return dstGraphId;
     }
 
     @Override
     public void run() {
         logger.debug("Starting commit on "
-                + srcGraph.getId()
+                + srcGraphId
                 + " to "
-                + dstGraph.getId()
+                + dstGraphId
                 + " job " + jobId
                 + " " + Thread.currentThread().getName());
 
         setJobName(jobId, "commit-graph");
         setJobState(jobId, JobMetadata.RUNNING);
+
+        DendriteGraph srcGraph = metaGraph.getGraph(srcGraphId);
+        DendriteGraph dstGraph = metaGraph.getGraph(dstGraphId);
 
         createIndices(srcGraph, dstGraph);
 

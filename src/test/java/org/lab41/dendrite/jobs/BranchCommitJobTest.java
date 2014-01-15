@@ -56,15 +56,20 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         // Snapshot the graph.
         BranchCommitJob branchCommitJob = new BranchCommitJob(metaGraph, branchMetadata.getId(), jobMetadata.getId());
 
-        Assert.assertEquals(branchCommitJob.getSrcGraph(), srcGraph);
+        String srcGraphId = branchCommitJob.getSrcGraphId();
+        String dstGraphId = branchCommitJob.getDstGraphId();
+
+        Assert.assertEquals(srcGraphId, srcGraph.getId());
 
         branchCommitJob.run();
 
-        DendriteGraph dstGraph = branchCommitJob.getDstGraph();
+        DendriteGraph dstGraph = metaGraph.getGraph(dstGraphId);
+        Assert.assertNotNull(dstGraph);
 
         // Make sure the branch pointer was changed.
         metaGraphTx = metaGraph.newTransaction();
-        GraphMetadata dstGraphMetadata = metaGraphTx.getGraph(dstGraph.getId());
+
+        GraphMetadata dstGraphMetadata = metaGraphTx.getGraph(dstGraphId);
         BranchMetadata updatedBranchMetadata = metaGraphTx.getBranch(branchMetadata.getId());
         Assert.assertEquals(updatedBranchMetadata.getGraph(), dstGraphMetadata);
         metaGraphTx.commit();

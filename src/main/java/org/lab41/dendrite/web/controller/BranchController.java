@@ -302,7 +302,7 @@ public class BranchController {
         response.put("status", "ok");
         response.put("msg", "job submitted");
         response.put("jobId", jobMetadata.getId());
-        response.put("graphId", branchCommitJob.getDstGraph().getId());
+        response.put("graphId", branchCommitJob.getDstGraphId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -345,7 +345,7 @@ public class BranchController {
         response.put("status", "ok");
         response.put("msg", "job submitted");
         response.put("jobId", jobMetadata.getId());
-        response.put("graphId", branchCommitJob.getDstGraph().getId());
+        response.put("graphId", branchCommitJob.getDstGraphId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
