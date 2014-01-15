@@ -127,7 +127,7 @@ public class GraphImportController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        tx.commit();
+        // We don't need to commit the transaction as the readers already do that for us.
 
         response.put("status", "ok");
 
