@@ -853,7 +853,7 @@ angular.module('dendrite.controllers', []).
       $scope.searching = false;
 
       $scope.$watch('graphId', function(newVal, oldVal) {
-          if (newVal !== oldVal) {
+          if (newVal !== undefined) {
               Histogram.searchFacets($scope.graphId)
                   .success(function(data) {
                       $scope.searchFacets = Object.keys(data.vertex.properties);
