@@ -17,10 +17,12 @@ public class DendriteGraphTx implements TitanTransaction {
     private Logger logger = LoggerFactory.getLogger(DendriteGraphTx.class);
 
     private Lock tableLock;
+    private TitanGraph titanGraph;
     private TitanTransaction tx;
 
-    public DendriteGraphTx(Lock tableLock, TitanTransaction tx) {
+    public DendriteGraphTx(Lock tableLock, TitanGraph titanGraph, TitanTransaction tx) {
         this.tableLock = tableLock;
+        this.titanGraph = titanGraph;
         this.tx = tx;
     }
 

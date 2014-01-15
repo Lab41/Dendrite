@@ -81,6 +81,15 @@ public class DendriteGraph {
     }
 
     /**
+     * Get the wrapped titan graph.
+     *
+     * @return the wrapped titan graph.
+     */
+    public TitanGraph getTitanGraph() {
+        return titanGraph;
+    }
+
+    /**
      * Returns if the table is in read-only mode.
      *
      * @return if the table is read only.
@@ -122,7 +131,7 @@ public class DendriteGraph {
                 transactionBuilder.readOnly();
             }
 
-            return new DendriteGraphTx(lock, transactionBuilder.start());
+            return new DendriteGraphTx(lock, titanGraph, transactionBuilder.start());
         } catch (Exception e) {
             lock.unlock();
             throw e;

@@ -209,10 +209,17 @@ public class MetaGraphTx {
     }
 
     private <F> Iterable<F> getVertices(String type, final Class<F> kind) {
+        Preconditions.checkNotNull(type);
+        Preconditions.checkNotNull(kind);
+
         return getAutoStartTx().getVertices("type", type, kind);
     }
 
     private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) {
+        Preconditions.checkNotNull(id);
+        Preconditions.checkNotNull(type);
+        Preconditions.checkNotNull(kind);
+
         F framedVertex = getAutoStartTx().getVertex(id, kind);
 
         Preconditions.checkArgument(type.equals(framedVertex.asVertex().getProperty("type")));
@@ -221,6 +228,9 @@ public class MetaGraphTx {
     }
 
     private <F extends Metadata> F createVertex(String type, Class<F> kind) {
+        Preconditions.checkNotNull(type);
+        Preconditions.checkNotNull(kind);
+
         F framedVertex = getAutoStartTx().addVertex(null, kind);
 
         framedVertex.asVertex().setProperty("type", type);

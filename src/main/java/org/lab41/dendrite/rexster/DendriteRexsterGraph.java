@@ -34,7 +34,7 @@ public class DendriteRexsterGraph implements TransactionalGraph {
 
     @Override
     public Features getFeatures() {
-        return getAutoStartTx().getFeatures();
+        return graph.getTitanGraph().getFeatures();
     }
 
     @Override
