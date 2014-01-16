@@ -117,8 +117,8 @@ angular.module('dendrite.directives', []).
                 data.vertices.promise,
                 data.edges.promise
               ]).then(function(data) {
-                var vertices = data[0].results;
-                var edges = data[1].results;
+                var vertices = data[0];
+                var edges = data[1];
 
                 nodes = vertices.map(function(vertex) {
                   return {

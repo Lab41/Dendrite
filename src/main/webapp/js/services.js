@@ -518,7 +518,23 @@ angular.module('dendrite.services', ['ngResource']).
             });
 
             return forceDirectedGraphData;
-          }
+          },
+            reloadRandomGraph: function(graphId) {
+                var forceDirectedGraphData = {
+                    vertices: $q.defer(),
+                    edges: $q.defer(),
+                };
+
+                Vertex.random({graphId: graphId}, function(response) {
+                    forceDirectedGraphData.vertices.resolve(response.vertices);
+                    forceDirectedGraphData.edges.resolve(response.edges);
+                }, function() {
+                    forceDirectedGraphData.vertices.reject();
+                    forceDirectedGraphData.edges.reject();
+                });
+
+                return forceDirectedGraphData;
+            }
         };
     }).
     factory('Vertex', function($resource) {
@@ -579,6 +595,11 @@ angular.module('dendrite.services', ['ngResource']).
             },
             list: {
                 url: 'rexster-resource/graphs/:graphId/vertices',
+                method: 'GET',
+                isArray: false
+            },
+            random: {
+                url: 'api/graphs/:graphId/random',
                 method: 'GET',
                 isArray: false
             }

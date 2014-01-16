@@ -1,5 +1,10 @@
 package org.lab41.dendrite.web.controller;
 
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Vertex;
+import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
@@ -66,6 +71,81 @@ public class GraphController {
         tx.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/graphs/{graphId}/random", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> getRandom(@PathVariable String graphId) {
+
+        Map<String, Object> response = new HashMap<>();
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
+
+        if (graphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find graph '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        DendriteGraph graph = metaGraphService.getGraph(graphId);
+
+        DendriteGraphTx dendriteGraphTx = graph.newTransaction();
+
+        Map<Object, Object> verticesMap = new HashMap<>();
+        Map<Object, Object> edgesMap = new HashMap<>();
+
+        int edgeCount = 0;
+
+        for (Vertex vertex: dendriteGraphTx.query().limit(100).vertices()) {
+            addVertex(verticesMap, vertex);
+
+            for (Edge edge: vertex.getEdges(Direction.BOTH)) {
+                edgeCount += 1;
+                if (edgeCount > 100) { break; }
+                addEdge(verticesMap, edgesMap, edge);
+            }
+
+            if (edgeCount > 100) { break; }
+        }
+
+        response.put("vertices", new ArrayList<>(verticesMap.values()));
+        response.put("edges", new ArrayList<>(edgesMap.values()));
+
+        dendriteGraphTx.commit();
+
+        // Commit must come after all graph access.
+        tx.commit();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private void addVertex(Map<Object, Object> verticesMap, Vertex vertex) {
+        if (!verticesMap.containsKey(vertex.getId())) {
+            Map<String, Object> vertexMap = new HashMap<>();
+            verticesMap.put(vertex.getId(), vertexMap);
+
+            vertexMap.put("_id", vertex.getId().toString());
+            vertexMap.put("_type", "vertex");
+        }
+    }
+
+    private void addEdge(Map<Object, Object> verticesMap, Map<Object, Object> edgesMap, Edge edge) {
+        if (!edgesMap.containsKey(edge.getId())) {
+            Map<String, Object> edgeMap = new HashMap<>();
+            edgesMap.put(edge.getId(), edgeMap);
+
+            Vertex inV = edge.getVertex(Direction.IN);
+            Vertex outV = edge.getVertex(Direction.OUT);
+
+            edgeMap.put("_id", edge.getId().toString());
+            edgeMap.put("_type", "edge");
+            edgeMap.put("_inV", inV.getId().toString());
+            edgeMap.put("_outV", outV.getId().toString());
+
+            addVertex(verticesMap, inV);
+            addVertex(verticesMap, outV);
+        }
     }
 
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.DELETE)
