@@ -229,6 +229,12 @@ class Graph(Table):
 
         return Job.get(self.conn, response['jobId'])
 
+    def run_graphlab(self, algorithm):
+        url = '/api/graphs/{}/analysis/{}'.format(self.id, algorithm)
+        response = self.conn.post(url).json()
+
+        return Job.get(self.conn, response['jobId'])
+
     def run_jung_pagerank(self, alpha=0.15):
         url = '/api/graphs/{}/analysis/jung-pagerank'.format(self.id)
         data = { 'alpha': alpha }
@@ -535,6 +541,14 @@ def run_faunus_degrees(args):
         job = graph.run_faunus_degrees()
         job.wait_until_finished()
 
+def run_graphlab(args):
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
+
+        print 'Running GraphLab ' + args.algorithm + ' analysis...'
+        job = graph.run_graphlab(args.algorithm)
+        job.wait_until_finished()
+
 # ----------------------------------------------------------------------------
 
 def run_jung_pagerank(args):
@@ -732,6 +746,13 @@ def main():
     parser_run_faunus_degrees.add_argument('id',
             type=int)
     parser_run_faunus_degrees.set_defaults(func=run_faunus_degrees)
+
+    parser_run_graphlab = subparsers.add_parser('run-graphlab')
+    parser_run_graphlab.add_argument('id',
+            type=int)
+    parser_run_graphlab.add_argument('algorithm',
+            choices=['approximate_diameter', 'connected_component', 'connected_component_stats', 'directed_triangle_count', 'eigen_vector_normalization', 'graph_laplacian', 'kcore', 'pagerank', 'partitioning', 'simple_coloring', 'simple_undirected_triangle_count', 'sssp', 'TSC', 'undirected_triangle_count'])
+    parser_run_graphlab.set_defaults(func=run_graphlab)
 
     parser_run_jung_pagerank = subparsers.add_parser('run-jung-pagerank')
     parser_run_jung_pagerank.add_argument('-a', '--alpha',

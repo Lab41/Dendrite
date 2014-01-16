@@ -416,6 +416,12 @@ angular.module('dendrite.services', ['ngResource']).
             isArray: false
           },
 
+          createGraphLab: {
+            url: 'api/graphs/:graphId/analysis/:algorithm',
+            method: 'POST',
+            isArray: false
+          },
+
           createBetweennessCentralityJung: {
             url: 'api/graphs/:graphId/analysis/jung-betweenness-centrality',
             method: 'POST',
