@@ -1,193 +1,176 @@
 package org.lab41.dendrite.metagraph;
 
 import com.thinkaurelius.titan.core.*;
-import com.tinkerpop.blueprints.*;
-import com.tinkerpop.blueprints.Parameter;
+import com.thinkaurelius.titan.graphdb.blueprints.TitanBlueprintsGraph;
+import com.tinkerpop.blueprints.Features;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.MapConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DendriteGraph implements TitanGraph {
+public class DendriteGraph extends TitanBlueprintsGraph {
 
     private Logger logger = LoggerFactory.getLogger(DendriteGraph.class);
 
+    /**
+     * The graph id.
+     */
     private String id;
 
-    private Configuration configuration;
+    /**
+     * The graph properties.
+     */
+    private Properties properties;
 
+    /**
+     * Whether or not the graph is read-only.
+     */
+    private boolean readOnly;
+
+    /**
+     * The wrapped graph.
+     */
     private TitanGraph titanGraph;
 
-    public DendriteGraph(String id, Configuration configuration) {
+    /**
+     * This read-write lock is used when we need to prevent table modifications. For example, when we are doing a graph
+     * snapshot or when shutting down.
+     */
+    private ReadWriteLock tableLock = new ReentrantReadWriteLock();
+
+    /**
+     * Create an dendrite graph instance.
+     *
+     * @param id the graph id.
+     * @param properties the graph properties.
+     */
+    public DendriteGraph(String id, Properties properties) {
         this.id = id;
-        this.configuration = configuration;
+        this.properties = properties;
+        this.titanGraph = TitanFactory.open(getConfiguration());
     }
 
+    /**
+     * Get the graph id.
+     *
+     * @return graph id.
+     */
     public String getId() {
         return id;
     }
 
-    public Configuration getConfiguration() {
-        return configuration;
+    /**
+     * Get the graph properties.
+     *
+     * @return the graph properties.
+     */
+    public Properties getProperties() {
+        return new Properties(properties);
     }
 
-    synchronized public TitanGraph getTitanGraph() {
-        if (titanGraph == null) {
-            logger.debug("opening titan graph '" + id + "'");
+    /**
+     * Get the graph properties in a configuration format.
+     *
+     * @return the graph configuration.
+     */
+    public Configuration getConfiguration() {
+        return new MapConfiguration(properties);
+    }
 
-            titanGraph = TitanFactory.open(configuration);
-
-            logger.debug("finished opening titan graph '" + id + "'");
-        }
+    /**
+     * Get the wrapped titan graph.
+     *
+     * @return the wrapped titan graph.
+     */
+    public TitanGraph getTitanGraph() {
         return titanGraph;
     }
 
-    @Override
-    public Features getFeatures() {
-        return getTitanGraph().getFeatures();
+    /**
+     * Returns if the table is in read-only mode.
+     *
+     * @return if the table is read only.
+     */
+    public boolean isReadOnly() {
+        return readOnly;
     }
 
-    @Override
-    public Vertex addVertex(Object id) {
-        return getTitanGraph().addVertex(id);
-    }
+    /**
+     * Set if the table should be in read only mode or not.
+     *
+     * @param readOnly whether or not to set the table in read-only mode.
+     */
+    public void setReadOnly(boolean readOnly) {
+        Lock lock = tableLock.writeLock();
+        lock.lock();
 
-    @Override
-    public Vertex getVertex(Object id) {
-        return getTitanGraph().getVertex(id);
-    }
-
-    @Override
-    public void removeVertex(Vertex vertex) {
-        getTitanGraph().removeVertex(vertex);
-
-    }
-
-    @Override
-    public Iterable<Vertex> getVertices() {
-        return getTitanGraph().getVertices();
-    }
-
-    @Override
-    public Iterable<Vertex> getVertices(String key, Object value) {
-        return getTitanGraph().getVertices(key, value);
-    }
-
-    @Override
-    public Edge addEdge(Object id, Vertex outVertex, Vertex inVertex, String label) {
-        return getTitanGraph().addEdge(id, outVertex, inVertex, label);
-    }
-
-    @Override
-    public Edge getEdge(Object id) {
-        return getTitanGraph().getEdge(id);
-    }
-
-    @Override
-    public void removeEdge(Edge edge) {
-        getTitanGraph().removeEdge(edge);
-
-    }
-
-    @Override
-    public Iterable<Edge> getEdges() {
-        return getTitanGraph().getEdges();
-    }
-
-    @Override
-    public Iterable<Edge> getEdges(String key, Object value) {
-        return getTitanGraph().getEdges();
-    }
-
-    @Override
-    public <T extends Element> void dropKeyIndex(String key, Class<T> elementClass) {
-        getTitanGraph().dropKeyIndex(key, elementClass);
-    }
-
-    @Override
-    public <T extends Element> void createKeyIndex(String key, Class<T> elementClass, Parameter... indexParameters) {
-        getTitanGraph().createKeyIndex(key, elementClass, indexParameters);
-    }
-
-    @Override
-    public <T extends Element> Set<String> getIndexedKeys(Class<T> elementClass) {
-        return getTitanGraph().getIndexedKeys(elementClass);
-    }
-
-    @Override
-    public TitanTransaction newTransaction() {
-        return getTitanGraph().newTransaction();
-    }
-
-    @Override
-    public TransactionBuilder buildTransaction() {
-        return getTitanGraph().buildTransaction();
-    }
-
-    @Override
-    public void shutdown() throws TitanException{
-        getTitanGraph().shutdown();
-    }
-
-    @Override
-    public KeyMaker makeKey(String name) {
-        return getTitanGraph().makeKey(name);
-    }
-
-    @Override
-    public LabelMaker makeLabel(String name) {
-        return getTitanGraph().makeLabel(name);
-    }
-
-    @Override
-    public <T extends TitanType> Iterable<T> getTypes(Class<T> clazz) {
-        return getTitanGraph().getTypes(clazz);
-    }
-
-    @Override
-    public TitanGraphQuery query() {
-        return getTitanGraph().query();
-    }
-
-    @Override
-    public TitanIndexQuery indexQuery(String indexName, String query) {
-        return getTitanGraph().indexQuery(indexName, query);
-    }
-
-    @Override
-    public TitanMultiVertexQuery multiQuery(TitanVertex... vertices) {
-        return getTitanGraph().multiQuery(vertices);
-    }
-
-    @Override
-    public TitanMultiVertexQuery multiQuery(Collection<TitanVertex> vertices) {
-        return getTitanGraph().multiQuery(vertices);
-    }
-
-    @Override
-    public TitanType getType(String name) {
-        return getTitanGraph().getType(name);
+        try {
+            this.readOnly = readOnly;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public boolean isOpen() {
-        return getTitanGraph().isOpen();
+        return titanGraph.isOpen();
     }
 
     @Override
-    public void stopTransaction(Conclusion conclusion) {
-        getTitanGraph().stopTransaction(conclusion);
+    public Features getFeatures() {
+        return titanGraph.getFeatures();
+    }
+
+    /**
+     * Open a new thread-independent transaction.
+     *
+     * @return a transaction.
+     */
+    @Override
+    public DendriteGraphTx newTransaction() {
+        DendriteGraphTransactionBuilder transactionBuilder = buildTransaction();
+
+        if (readOnly) {
+            transactionBuilder.readOnly();
+        }
+
+        return transactionBuilder.start();
     }
 
     @Override
-    public void commit() {
-        getTitanGraph().commit();
+    public TitanTransaction newThreadBoundTransaction() {
+        return newTransaction();
     }
 
     @Override
-    public void rollback() {
-        getTitanGraph().rollback();
+    public DendriteGraphTransactionBuilder buildTransaction() {
+        Lock lock = tableLock.readLock();
+        lock.lock();
+
+        try {
+            TransactionBuilder transactionBuilder = titanGraph.buildTransaction();
+
+            return new DendriteGraphTransactionBuilder(lock, transactionBuilder);
+        } catch (Exception e) {
+            lock.unlock();
+            throw e;
+        }
+    }
+
+    @Override
+    public void shutdown() throws TitanException {
+        Lock lock = tableLock.writeLock();
+        lock.lock();
+
+        try {
+            titanGraph.shutdown();
+        } finally {
+            lock.unlock();
+        }
     }
 }

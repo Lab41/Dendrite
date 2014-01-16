@@ -155,14 +155,18 @@ class Project(Table):
 
     def create_branch(self, name, graph=None):
         if graph is None:
-            graph = self.current_graph
+            graph_id = None
+        else:
+            graph_id = graph.id
 
-        #data = {'graphId': graph.id}
+        data = {'graphId': graph_id}
 
-        response = self.conn.put('{}/{}/branches/{}'.format(self.URL_PATH, self.id, name))
-                #data=data)
+        response = self.conn.put_json('{}/{}/branches/{}'.format(self.URL_PATH, self.id, name),
+                data=data)
 
-        return Branch(self.conn, **response.json()['branch'])
+        response = response.json()
+
+        return Job.get(self.conn, response['jobId'])
 
     def checkout_branch(self, name):
         """Create a branch"""
@@ -172,6 +176,16 @@ class Project(Table):
             data=data)
 
         return response.json()['msg']
+
+    def commit_branch(self, name=None):
+        if name is None:
+            response = self.conn.post('{}/{}/current-branch/commit'.format(self.URL_PATH, self.id))
+        else:
+            response = self.conn.post('{}/{}/branches/{}/commit'.format(self.URL_PATH, self.id, name))
+
+        response = response.json()
+
+        return Job.get(self.conn, response['jobId'])
 
 # ------------------------------------------------------------------------------
 
@@ -374,16 +388,28 @@ def show_project_branches(args):
         project = Project.get(conn, args.id)
         print_records(project.branches())
 
-def show_project_create_branch(args):
+def project_create_branch(args):
     with closing(Connection(args)) as conn:
         project = Project.get(conn, args.id)
-        print_records([project.create_branch(args.name)])
+        if args.graph_id:
+            graph = Graph.get(conn, args.graph_id)
+        else:
+            graph = None
 
-def show_project_checkout_branch(args):
+        job = project.create_branch(args.name, graph)
+        job.wait_until_finished()
+
+def project_checkout_branch(args):
     with closing(Connection(args)) as conn:
         project = Project.get(conn, args.id)
         msg = project.checkout_branch(args.name)
         print msg
+
+def project_commit_branch(args):
+    with closing(Connection(args)) as conn:
+        project = Project.get(conn, args.id)
+        job = project.commit_branch()
+        job.wait_until_finished()
 
 def show_project_graphs(args):
     with closing(Connection(args)) as conn:
@@ -593,7 +619,9 @@ def main():
             type=int)
     parser_create_branch.add_argument('name',
             type=not_empty)
-    parser_create_branch.set_defaults(func=show_project_create_branch)
+    parser_create_branch.add_argument('graph_id',
+            nargs='?')
+    parser_create_branch.set_defaults(func=project_create_branch)
 
     # Options for checking out project branches.
     parser_checkout_branch = subparsers.add_parser('project-checkout')
@@ -601,7 +629,13 @@ def main():
             type=int)
     parser_checkout_branch.add_argument('name',
             type=not_empty)
-    parser_checkout_branch.set_defaults(func=show_project_checkout_branch)
+    parser_checkout_branch.set_defaults(func=project_checkout_branch)
+
+    # Options for checking out project branches.
+    parser_commit_branch = subparsers.add_parser('project-commit')
+    parser_commit_branch.add_argument('id',
+            type=int)
+    parser_commit_branch.set_defaults(func=project_commit_branch)
 
     # Options for showing project graphs.
     parser_show_project_graphs = subparsers.add_parser('project-graphs')

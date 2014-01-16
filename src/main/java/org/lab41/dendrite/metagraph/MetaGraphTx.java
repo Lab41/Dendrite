@@ -9,18 +9,18 @@ import com.tinkerpop.frames.FramedTransactionalGraph;
 
 public class MetaGraphTx {
 
-    private TitanGraph titanGraph;
+    private DendriteGraph metaGraph;
     private FramedGraphFactory framedGraphFactory;
-    private FramedTransactionalGraph<TitanTransaction> tx = null;
+    private FramedTransactionalGraph<DendriteGraphTx> tx = null;
 
-    public MetaGraphTx(TitanGraph titanGraph, FramedGraphFactory framedGraphFactory) {
-        this.titanGraph = titanGraph;
+    public MetaGraphTx(DendriteGraph metaGraph, FramedGraphFactory framedGraphFactory) {
+        this.metaGraph = metaGraph;
         this.framedGraphFactory = framedGraphFactory;
     }
 
-    private FramedTransactionalGraph<TitanTransaction> getAutoStartTx() {
+    private FramedTransactionalGraph<DendriteGraphTx> getAutoStartTx() {
         if (tx == null) {
-            tx = framedGraphFactory.create(titanGraph.newTransaction());
+            tx = framedGraphFactory.create(metaGraph.newTransaction());
         }
 
         return tx;
@@ -103,6 +103,9 @@ public class MetaGraphTx {
         GraphMetadata graphMetadata = getAutoStartTx().addVertex(null, GraphMetadata.class);
         parentGraphMetadata.addChildGraph(graphMetadata);
 
+        ProjectMetadata projectMetadata = parentGraphMetadata.getProject();
+        projectMetadata.addGraph(graphMetadata);
+
         return graphMetadata;
     }
 
@@ -128,29 +131,38 @@ public class MetaGraphTx {
     }
 
     /**
-     * Create an empty branch in a project.
+     * Create an branch in a project. The branch's graph will be created from the project's current graph.
      *
      * @param name the branch name
      * @param projectMetadata the project that owns the branch.
      * @return the branch.
      */
     public BranchMetadata createBranch(String name, ProjectMetadata projectMetadata) {
-        return createBranch(name, projectMetadata, createGraph(projectMetadata));
+        GraphMetadata parentGraphMetadata = projectMetadata.getCurrentGraph();
+        GraphMetadata graphMetadata;
+
+        // Handle the case where we don't have a graph yet.
+        if (parentGraphMetadata == null) {
+            graphMetadata = createGraph(projectMetadata);
+        } else {
+            graphMetadata = createGraph(parentGraphMetadata);
+        }
+
+        return createBranch(name, graphMetadata);
     }
 
     /**
      * Create a branch with the given graph in a project.
      *
      * @param name the branch name
-     * @param projectMetadata the project that owns the branch.
      * @param graphMetadata the branch graph.
      * @return the branch.
      */
-    public BranchMetadata createBranch(String name, ProjectMetadata projectMetadata, GraphMetadata graphMetadata) {
+    public BranchMetadata createBranch(String name, GraphMetadata graphMetadata) {
         BranchMetadata branchMetadata = getAutoStartTx().addVertex(null, BranchMetadata.class);
         branchMetadata.setName(name);
         branchMetadata.setGraph(graphMetadata);
-        projectMetadata.addBranch(branchMetadata);
+        graphMetadata.getProject().addBranch(branchMetadata);
 
         return branchMetadata;
     }
@@ -206,11 +218,22 @@ public class MetaGraphTx {
     }
 
     private <F> Iterable<F> getVertices(String type, final Class<F> kind) {
+        Preconditions.checkNotNull(type);
+        Preconditions.checkNotNull(kind);
+
         return getAutoStartTx().getVertices("type", type, kind);
     }
 
     private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) {
+        Preconditions.checkNotNull(id);
+        Preconditions.checkNotNull(type);
+        Preconditions.checkNotNull(kind);
+
         F framedVertex = getAutoStartTx().getVertex(id, kind);
+
+        if (framedVertex == null) {
+            return null;
+        }
 
         Preconditions.checkArgument(type.equals(framedVertex.asVertex().getProperty("type")));
 
@@ -218,8 +241,12 @@ public class MetaGraphTx {
     }
 
     private <F extends Metadata> F createVertex(String type, Class<F> kind) {
+        Preconditions.checkNotNull(type);
+        Preconditions.checkNotNull(kind);
+
         F framedVertex = getAutoStartTx().addVertex(null, kind);
 
+        framedVertex.asVertex().setProperty("vertexId", framedVertex.getId());
         framedVertex.asVertex().setProperty("type", type);
 
         return framedVertex;

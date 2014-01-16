@@ -10,7 +10,7 @@ public class BaseMetaGraphTest {
     protected MetaGraph metaGraph;
 
     @Before
-    public void setUpBaseMetaGraphTest() {
+    public void setUp() {
         Configuration config = new BaseConfiguration();
 
         config.setProperty("metagraph.template.storage.backend", "inmemory");
@@ -19,7 +19,7 @@ public class BaseMetaGraphTest {
     }
 
     @After
-    public void tearDownBaseMetaGraphTest() {
+    public void tearDown() {
         metaGraph.stop();
         metaGraph = null;
     }

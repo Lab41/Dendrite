@@ -1,12 +1,17 @@
 package org.lab41.dendrite.web.controller;
 
+import org.lab41.dendrite.jobs.BranchCommitJob;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.services.MetaGraphService;
+import org.lab41.dendrite.web.beans.CreateBranchBean;
+import org.lab41.dendrite.web.beans.CreateGraphBean;
 import org.lab41.dendrite.web.beans.UpdateCurrentBranchBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,6 +34,9 @@ public class BranchController {
 
     @Autowired
     MetaGraphService metaGraphService;
+
+    @Autowired
+    TaskExecutor taskExecutor;
 
     @RequestMapping(value = "/branches", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getBranches() {
@@ -165,9 +173,17 @@ public class BranchController {
     @RequestMapping(value = "/projects/{projectId}/branches/{branchName}", method = RequestMethod.PUT)
     public ResponseEntity<Map<String, Object>> createBranch(@PathVariable String projectId,
                                                             @PathVariable String branchName,
-                                                            UriComponentsBuilder builder) {
+                                                            @Valid @RequestBody CreateBranchBean item,
+                                                            BindingResult result) {
 
         Map<String, Object> response = new HashMap<>();
+
+        if (result.hasErrors()) {
+            response.put("status", "error");
+            response.put("msg", result.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
         MetaGraphTx tx = metaGraphService.newTransaction();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
@@ -178,11 +194,42 @@ public class BranchController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        BranchMetadata branchMetadata = tx.createBranch(branchName, projectMetadata);
-        response.put("branch", getBranchMap(branchMetadata));
+        String graphId = item.getGraphId();
+
+        BranchMetadata branchMetadata;
+
+        if (graphId == null) {
+            branchMetadata = tx.createBranch(branchName, projectMetadata);
+        } else {
+            GraphMetadata graphMetadata = tx.getGraph(graphId);
+            if (graphMetadata == null) {
+                response.put("status", "error");
+                response.put("msg", "could not find project '" + projectId + "'");
+                tx.rollback();
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            branchMetadata = tx.createBranch(branchName, graphMetadata);
+        }
+
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
 
         // Commit must come after all branch access.
         tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        BranchCommitJob branchCommitJob = new BranchCommitJob(
+                metaGraphService.getMetaGraph(),
+                branchMetadata.getId(),
+                jobMetadata.getId());
+
+        taskExecutor.execute(branchCommitJob);
+
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId());
+        response.put("branchId", branchMetadata.getId());
+        response.put("graphId", branchCommitJob.getDstGraphId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -255,6 +302,91 @@ public class BranchController {
 
         // Commit must come after all branch access.
         tx.commit();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{projectId}/current-branch/commit", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> commitBranch(@PathVariable String projectId) {
+        Map<String, Object> response = new HashMap<>();
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        ProjectMetadata projectMetadata = tx.getProject(projectId);
+        if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
+        if (branchMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find current branch");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
+
+        tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        BranchCommitJob branchCommitJob = new BranchCommitJob(
+                metaGraphService.getMetaGraph(),
+                branchMetadata.getId(),
+                jobMetadata.getId());
+
+        taskExecutor.execute(branchCommitJob);
+
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId());
+        response.put("graphId", branchCommitJob.getDstGraphId());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{projectId}/branches/{branchName}/commit", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> commitBranch(@PathVariable String projectId,
+                                                            @PathVariable String branchName) {
+        Map<String, Object> response = new HashMap<>();
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        ProjectMetadata projectMetadata = tx.getProject(projectId);
+        if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        BranchMetadata branchMetadata = projectMetadata.getBranchByName(branchName);
+        if (branchMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find branch '" + branchName + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
+
+        tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        BranchCommitJob branchCommitJob = new BranchCommitJob(
+                metaGraphService.getMetaGraph(),
+                branchMetadata.getId(),
+                jobMetadata.getId());
+
+        taskExecutor.execute(branchCommitJob);
+
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId());
+        response.put("graphId", branchCommitJob.getDstGraphId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

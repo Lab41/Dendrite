@@ -42,7 +42,6 @@ public class DendriteRexsterApplication implements RexsterApplication {
     private final long startTime = System.currentTimeMillis();
 
     private MetaGraphService metaGraphService;
-    private Map<String, RexsterApplicationGraph> graphs = new HashMap<>();
 
     @Autowired
     public DendriteRexsterApplication(MetaGraphService metaGraphService) {
@@ -53,29 +52,31 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public Graph getGraph(String id) {
-        return metaGraphService.getGraph(id);
+        RexsterApplicationGraph graph = getApplicationGraph(id);
+        if (graph == null) {
+            return null;
+        } else {
+            return graph.getGraph();
+        }
     }
 
     @Override
     public RexsterApplicationGraph getApplicationGraph(String id) {
-        RexsterApplicationGraph rexsterApplicationGraph = graphs.get(id);
-        if (rexsterApplicationGraph == null) {
-            DendriteGraph graph = metaGraphService.getGraph(id);
-            if (graph == null) {
-                return null;
-            }
-
-            List<String> allowableNamespaces = new ArrayList<>();
-            allowableNamespaces.add("tp:gremlin");
-            List<HierarchicalConfiguration> extensionConfigurations = new ArrayList<>();
-            rexsterApplicationGraph = new RexsterApplicationGraph(
-                    id,
-                    graph.getTitanGraph(),
-                    allowableNamespaces,
-                    extensionConfigurations);
-            graphs.put(id, rexsterApplicationGraph);
+        DendriteGraph graph = metaGraphService.getGraph(id);
+        if (graph == null) {
+            return null;
         }
-        return rexsterApplicationGraph;
+
+        List<String> allowableNamespaces = new ArrayList<>();
+        allowableNamespaces.add("tp:gremlin");
+
+        List<HierarchicalConfiguration> extensionConfigurations = new ArrayList<>();
+
+        return new RexsterApplicationGraph(
+                id,
+                graph,
+                allowableNamespaces,
+                extensionConfigurations);
     }
 
     @Override

@@ -14,52 +14,60 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.metagraph.MetaGraph;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphSnapshotJob extends AbstractJob implements Runnable {
+public class BranchCommitJob extends AbstractJob implements Runnable {
 
-    Logger logger = LoggerFactory.getLogger(GraphSnapshotJob.class);
+    Logger logger = LoggerFactory.getLogger(BranchCommitJob.class);
 
-    DendriteGraph srcGraph;
-    DendriteGraph dstGraph;
+    String branchId;
+    String srcGraphId;
+    String dstGraphId;
 
-    public GraphSnapshotJob(MetaGraph metaGraph, String srcGraphId, String jobId) {
+    public BranchCommitJob(MetaGraph metaGraph, String branchId, String jobId) {
         super(metaGraph, jobId);
 
         MetaGraphTx tx = metaGraph.newTransaction();
 
-        GraphMetadata srcGraphMetadata = tx.getGraph(srcGraphId);
+        BranchMetadata branchMetadata = tx.getBranch(branchId);
+        GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
         GraphMetadata dstGraphMetadata = tx.createGraph(srcGraphMetadata);
         tx.commit();
 
-        this.srcGraph = metaGraph.getGraph(srcGraphMetadata.getId());
-        this.dstGraph = metaGraph.getGraph(dstGraphMetadata.getId());
+        this.branchId = branchId;
+        this.srcGraphId = srcGraphMetadata.getId();
+        this.dstGraphId = dstGraphMetadata.getId();
     }
 
-    public DendriteGraph getSrcGraph() {
-        return srcGraph;
+    public String getSrcGraphId() {
+        return srcGraphId;
     }
 
-    public DendriteGraph getDstGraph() {
-        return dstGraph;
+    public String getDstGraphId() {
+        return dstGraphId;
     }
 
     @Override
     public void run() {
-        logger.debug("Starting snapshot on "
-                + srcGraph.getId()
+        logger.debug("Starting commit on "
+                + srcGraphId
                 + " to "
-                + dstGraph.getId()
+                + dstGraphId
                 + " job " + jobId
                 + " " + Thread.currentThread().getName());
 
-        setJobName(jobId, "snapshot-graph");
+        setJobName(jobId, "commit-graph");
         setJobState(jobId, JobMetadata.RUNNING);
+
+        DendriteGraph srcGraph = metaGraph.getGraph(srcGraphId);
+        DendriteGraph dstGraph = metaGraph.getGraph(dstGraphId);
 
         createIndices(srcGraph, dstGraph);
 
@@ -74,6 +82,12 @@ public class GraphSnapshotJob extends AbstractJob implements Runnable {
 
         setJobState(jobId, JobMetadata.DONE);
 
+        // Update the branch to point the new graph.
+        MetaGraphTx tx = metaGraph.newTransaction();
+        BranchMetadata branchMetadata = tx.getBranch(branchId);
+        branchMetadata.setGraph(tx.getGraph(dstGraph.getId()));
+        tx.commit();
+
         logger.debug("snapshotGraph: finished job: " + jobId);
     }
 
@@ -82,7 +96,7 @@ public class GraphSnapshotJob extends AbstractJob implements Runnable {
         // one graph to another.
 
         TitanTransaction srcTx = srcGraph.newTransaction();
-        StandardTitanTx dstTx = (StandardTitanTx) dstGraph.newTransaction();
+        DendriteGraphTx dstTx = dstGraph.newTransaction();
 
         for(TitanKey titanKey: srcTx.getTypes(TitanKey.class)) {
             if (titanKey instanceof TitanKeyVertex) {

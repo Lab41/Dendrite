@@ -54,7 +54,7 @@ public class PageRankService extends AnalysisService {
         if (tx.getType("pagerank") == null) {
             tx.makeKey("pagerank")
                     .dataType(Double.class)
-                    .indexed(Vertex.class)
+                    .indexed("search", Vertex.class)
                     .make();
         }
 
