@@ -132,6 +132,11 @@ angular.module('dendrite', [
         PageRank: {
           dampingFactor: 0.85,
         },
+        GraphLab: {
+          algorithm: 'pagerank',
+        },
+        BetweennessCentrality: {
+        },
         EdgeDegrees: {
           analyticEngine: 'titan'
         }

@@ -205,6 +205,10 @@ angular.module('dendrite.controllers', []).
           if ($scope.analyticType === "BetweennessCentrality") {
             Analytics.createBetweennessCentralityJung({graphId: $routeParams.graphId}, undefined);
           }
+          // GraphLab 
+          if ($scope.analyticType === "GraphLab") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
+          }
           // PageRank
           if ($scope.analyticType === "PageRank") {
             Analytics.createPageRankJung({graphId: $routeParams.graphId}, {alpha: 1-$scope.attr.dampingFactor});
