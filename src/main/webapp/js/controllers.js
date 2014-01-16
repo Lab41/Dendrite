@@ -110,9 +110,9 @@ angular.module('dendrite.controllers', []).
                             console.log(res);
                           });
 
-                    $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+                    $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
                     $scope.$on('event:reloadGraph', function() {
-                      $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+                      $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
                     });
                 });
 
@@ -138,9 +138,9 @@ angular.module('dendrite.controllers', []).
         //  vertices: Vertex.query({graphId: $scope.graphId}),
         //  edges: Edge.query({graphId: $scope.graphId})
         //};
-        $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+        $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
         $scope.$on('event:reloadGraph', function() {
-          $scope.forceDirectedGraphData = GraphTransform.reloadGraph($scope.graphId);
+          $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
         });
     }).
     controller('GraphSaveCtrl', function ($scope, $routeParams, $http, GraphTransform) {
