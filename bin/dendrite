@@ -316,7 +316,7 @@ def flatten_dict(d):
     return out_d
 
 # A simple function to print out some rows
-def print_records(rows, headers=None, show_headers=True):
+def print_records(args, rows):
     # Lets make the output pretty for hierarchical rows.
     rows = [flatten_dict(row.data) for row in rows]
 
@@ -324,6 +324,7 @@ def print_records(rows, headers=None, show_headers=True):
         return
     
     # If we didn't have some headers passed in, extract them from the dataset.
+    headers = args.headers
     if headers is None:
         headers = set()
         for row in rows:
@@ -342,7 +343,7 @@ def print_records(rows, headers=None, show_headers=True):
                     sizes[i] = len(value)
 
     # Show the headers if that's what the user wants.
-    if show_headers:
+    if args.show_headers:
         for i, header in enumerate(headers):
             sys.stdout.write(header.ljust(sizes[i]))
             sys.stdout.write(' ')
@@ -370,7 +371,7 @@ def create_project(args):
     with closing(Connection(args)) as conn:
         print 'Creating project...'
         project = Project.create(conn, args.name)
-        print_records([project])
+        print_records(args, [project])
 
         if args.script:
             run_groovy_on_graph(project.current_graph, args)
@@ -381,12 +382,12 @@ def create_project(args):
 
 def show_projects(args):
     with closing(Connection(args)) as conn:
-        print_records(Project.list(conn))
+        print_records(args, Project.list(conn))
 
 def show_project_branches(args):
     with closing(Connection(args)) as conn:
         project = Project.get(conn, args.id)
-        print_records(project.branches())
+        print_records(args, project.branches())
 
 def project_create_branch(args):
     with closing(Connection(args)) as conn:
@@ -414,24 +415,24 @@ def project_commit_branch(args):
 def show_project_graphs(args):
     with closing(Connection(args)) as conn:
         project = Project.get(conn, args.id)
-        print_records(project.graphs())
+        print_records(args, project.graphs())
 
 def show_project_jobs(args):
     with closing(Connection(args)) as conn:
         project = Project.get(conn, args.id)
-        print_records(project.jobs())
+        print_records(args, project.jobs())
 
 def show_branches(args):
     with closing(Connection(args)) as conn:
-        print_records(Branch.list(conn))
+        print_records(args, Branch.list(conn))
 
 def show_graphs(args):
     with closing(Connection(args)) as conn:
-        print_records(Graph.list(conn))
+        print_records(args, Graph.list(conn))
 
 def show_jobs(args):
     with closing(Connection(args)) as conn:
-        print_records(Job.list(conn))
+        print_records(args, Job.list(conn))
 
 # ----------------------------------------------------------------------------
 
@@ -514,7 +515,7 @@ def run_degrees(args, analysis):
             auth=(args.user, args.password))
     response.raise_for_status()
 
-    print_records([response.json()])
+    print_records(args, [response.json()])
 
     return 0
 
@@ -565,6 +566,9 @@ def not_empty(string):
         raise argparse.ArgumentTypeError('cannot be empty')
     return string
 
+def split_args(string):
+    return string.split(',')
+
 def output_or_stdout(string):
     if string == '-':
         return sys.stdout
@@ -586,6 +590,10 @@ def main():
             help='do not show headers',
             action='store_false',
             default=True)
+    parser.add_argument('--headers',
+            dest='headers',
+            help='headers to display. Default is to show all. Separate by commas',
+            type=split_args)
 
     subparsers = parser.add_subparsers(
             help='sub-command help')
