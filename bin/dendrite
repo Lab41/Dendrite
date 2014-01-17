@@ -217,14 +217,14 @@ class Graph(Table):
         data = { 'script': script.read() }
         return self.conn.post_json(url, data=data).json()
 
-    def run_titan_degrees(self):
-        url = '/api/graphs/{}/analysis/titan-degrees'.format(self.id)
+    def run_titan_degrees(self, algorithm):
+        url = '/api/graphs/{}/analysis/titan-{}'.format(self.id, algorithm)
         response = self.conn.post(url).json()
 
         return Job.get(self.conn, response['jobId'])
 
-    def run_faunus_degrees(self):
-        url = '/api/graphs/{}/analysis/faunus-degrees'.format(self.id)
+    def run_faunus(self, algorithm):
+        url = '/api/graphs/{}/analysis/faunus-{}'.format(self.id, algorithm)
         response = self.conn.post(url).json()
 
         return Job.get(self.conn, response['jobId'])
@@ -235,16 +235,12 @@ class Graph(Table):
 
         return Job.get(self.conn, response['jobId'])
 
-    def run_jung_pagerank(self, alpha=0.15):
-        url = '/api/graphs/{}/analysis/jung-pagerank'.format(self.id)
-        data = { 'alpha': alpha }
-        response = self.conn.post_json(url, data=data).json()
-
-        return Job.get(self.conn, response['jobId'])
-
-    def run_jung_betweenness_centrality(self):
-        url = '/api/graphs/{}/analysis/jung-betweenness-centrality'.format(self.id)
+    def run_jung(self, algorithm, alpha=0.15):
+        url = '/api/graphs/{}/analysis/jung-{}'.format(self.id, algorithm)
         response = self.conn.post_json(url).json()
+        if algorithm == "pagerank":
+            data = { 'alpha': alpha }
+            response = self.conn.post_json(url, data=data).json()
 
         return Job.get(self.conn, response['jobId'])
 
@@ -511,34 +507,20 @@ def run_groovy(args):
 
 # ----------------------------------------------------------------------------
 
-def run_degrees(args, analysis):
-    url = '{}/api/graphs/{}/analysis/{}'.format(
-            args.url,
-            args.id,
-            analysis)
-
-    response = requests.post(url,
-            auth=(args.user, args.password))
-    response.raise_for_status()
-
-    print_records(args, [response.json()])
-
-    return 0
-
-def run_titan_degrees(args):
+def run_titan(args):
     with closing(Connection(args)) as conn:
         graph = Graph.get(conn, args.id)
 
-        print 'Running Titan edge degrees analysis...'
-        job = graph.run_titan_degrees()
+        print 'Running Titan ' + args.algorithm + ' analysis...'
+        job = graph.run_titan(args.algorithm)
         job.wait_until_finished()
 
-def run_faunus_degrees(args):
+def run_faunus(args):
     with closing(Connection(args)) as conn:
         graph = Graph.get(conn, args.id)
 
-        print 'Running Faunus edge degrees analysis...'
-        job = graph.run_faunus_degrees()
+        print 'Running Faunus ' + args.algorithm + ' analysis...'
+        job = graph.run_faunus(args.algorithm)
         job.wait_until_finished()
 
 def run_graphlab(args):
@@ -549,26 +531,12 @@ def run_graphlab(args):
         job = graph.run_graphlab(args.algorithm)
         job.wait_until_finished()
 
-# ----------------------------------------------------------------------------
-
-def run_jung_pagerank(args):
+def run_jung(args):
     with closing(Connection(args)) as conn:
         graph = Graph.get(conn, args.id)
 
-        print 'Running Jung PageRank analysis...'
-        job = graph.run_jung_pagerank(args.alpha)
-        job.wait_until_finished()
-
-    return 0
-
-# ----------------------------------------------------------------------------
-
-def run_jung_betweenness_centrality(args):
-    with closing(Connection(args)) as conn:
-        graph = Graph.get(conn, args.id)
-
-        print 'Running Jung BetweennessCentrality analysis...'
-        job = graph.run_jung_betweenness_centrality()
+        print 'Running Jung ' + args.algorithm + ' analysis...'
+        job = graph.run_jung(algorith, args.alpha)
         job.wait_until_finished()
 
     return 0
@@ -664,7 +632,7 @@ def main():
     parser_show_project_graphs.add_argument('id',
             type=int)
     parser_show_project_graphs.set_defaults(func=show_project_graphs)
-    
+
     # Options for showing project jobs.
     parser_show_project_jobs = subparsers.add_parser('project-jobs')
     parser_show_project_jobs.add_argument('id',
@@ -725,7 +693,10 @@ def main():
     parser_export_graph.set_defaults(func=export_graph)
 
     # Options for running jobs.
-    parser_run_groovy = subparsers.add_parser('run-groovy')
+    parse_run = subparsers.add_parser('run')
+    run_subparsers = parse_run.add_subparsers(
+            help='run sub-command help')
+    parser_run_groovy = run_subparsers.add_parser('groovy')
     parser_run_groovy.add_argument('--pretty',
             default=False,
             action='store_true',
@@ -737,35 +708,36 @@ def main():
             type=argparse.FileType('rb'))
     parser_run_groovy.set_defaults(func=run_groovy)
 
-    parser_run_titan_degrees = subparsers.add_parser('run-titan-degrees')
-    parser_run_titan_degrees.add_argument('id',
+    parser_run_titan = run_subparsers.add_parser('titan')
+    parser_run_titan.add_argument('id',
             type=int)
-    parser_run_titan_degrees.set_defaults(func=run_titan_degrees)
+    parser_run_titan.add_argument('algorithm',
+            choices=['degrees'])
+    parser_run_titan.set_defaults(func=run_titan)
 
-    parser_run_faunus_degrees = subparsers.add_parser('run-faunus-degrees')
-    parser_run_faunus_degrees.add_argument('id',
+    parser_run_faunus = run_subparsers.add_parser('faunus')
+    parser_run_faunus.add_argument('id',
             type=int)
-    parser_run_faunus_degrees.set_defaults(func=run_faunus_degrees)
+    parser_run_faunus.add_argument('algorithm',
+            choices=['degrees'])
+    parser_run_faunus.set_defaults(func=run_faunus)
 
-    parser_run_graphlab = subparsers.add_parser('run-graphlab')
+    parser_run_graphlab = run_subparsers.add_parser('graphlab')
     parser_run_graphlab.add_argument('id',
             type=int)
     parser_run_graphlab.add_argument('algorithm',
             choices=['approximate_diameter', 'connected_component', 'connected_component_stats', 'directed_triangle_count', 'eigen_vector_normalization', 'graph_laplacian', 'kcore', 'pagerank', 'partitioning', 'simple_coloring', 'simple_undirected_triangle_count', 'sssp', 'TSC', 'undirected_triangle_count'])
     parser_run_graphlab.set_defaults(func=run_graphlab)
 
-    parser_run_jung_pagerank = subparsers.add_parser('run-jung-pagerank')
-    parser_run_jung_pagerank.add_argument('-a', '--alpha',
+    parser_run_jung = run_subparsers.add_parser('jung')
+    parser_run_jung.add_argument('-a', '--alpha',
             default=0.15,
             help='The PageRank alpha value (default 0.15)')
-    parser_run_jung_pagerank.add_argument('id',
+    parser_run_jung.add_argument('id',
             type=int)
-    parser_run_jung_pagerank.set_defaults(func=run_jung_pagerank)
-
-    parser_run_jung_betweenness_centrality = subparsers.add_parser('run-jung-betweenness-centrality')
-    parser_run_jung_betweenness_centrality.add_argument('id',
-            type=int)
-    parser_run_jung_betweenness_centrality.set_defaults(func=run_jung_betweenness_centrality)
+    parser_run_jung.add_argument('algorithm',
+            choices=['betweenness_centrality', 'pagerank'])
+    parser_run_jung.set_defaults(func=run_jung)
 
     args = parser.parse_args()
 
