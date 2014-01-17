@@ -47,9 +47,12 @@ Install instructions
   history.properties=/WEB-INF/history.properties
   ```
 
+  If you plan to use GraphLab with Dendrite, be sure and install ``mpiexec`` on the Dendrite server, as well as allow passwordless ssh from the Dendrite server to the GraphLab cluster.
+
   Then launch dendrite with:
 
   ```
+  % export HADOOP_CONF_DIR=/etc/hadoop/conf
   % hadoop fs -mkdir -p dendrite/
   % hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
   % DENDRITE_PROFILE=prod ./bin/dendrite-server start
