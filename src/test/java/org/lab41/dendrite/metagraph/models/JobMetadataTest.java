@@ -42,4 +42,14 @@ public class JobMetadataTest extends BaseMetadataTest {
         Assert.assertThat(projectMetadata.getJobs(), hasItem(childJobMetadata));
         Assert.assertEquals(childJobMetadata.getProject(), projectMetadata);
     }
+
+    @Test
+    public void timesAreSet() {
+        Assert.assertNotNull(jobMetadata.getCreationTime());
+        Assert.assertNull(jobMetadata.getDoneTime());
+
+        jobMetadata.setState(JobMetadata.DONE);
+
+        Assert.assertNotNull(jobMetadata.getDoneTime());
+    }
 }

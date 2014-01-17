@@ -5,6 +5,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Date;
+
 public class BranchMetadataTest extends BaseMetadataTest {
 
     ProjectMetadata projectMetadata;
@@ -27,5 +29,20 @@ public class BranchMetadataTest extends BaseMetadataTest {
     @Test
     public void typeIsCorrect() {
         Assert.assertEquals(branchMetadata.asVertex().getProperty("type"), "branch");
+    }
+
+    @Test
+    public void timesAreSet() {
+        Date creationTime = branchMetadata.getCreationTime();
+        Assert.assertNotNull(creationTime);
+
+        Date modificationTime = branchMetadata.getModificationTime();
+        Assert.assertNotNull(modificationTime);
+
+        GraphMetadata graphMetadata = tx.createGraph(projectMetadata);
+        branchMetadata.setGraph(graphMetadata);
+
+        Assert.assertEquals(creationTime, branchMetadata.getCreationTime());
+        Assert.assertNotSame(modificationTime, branchMetadata.getModificationTime());
     }
 }

@@ -23,10 +23,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @RequestMapping("/api")
@@ -396,6 +394,12 @@ public class BranchController {
 
         branch.put("_id", branchMetadata.getId());
         branch.put("name", branchMetadata.getName());
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        Date creationTime = branchMetadata.getCreationTime();
+        if (creationTime != null) { branch.put("creationTime", df.format(creationTime)); }
 
         ProjectMetadata projectMetadata = branchMetadata.getProject();
         if (projectMetadata != null) {

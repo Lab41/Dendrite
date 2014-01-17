@@ -2,8 +2,6 @@ package org.lab41.dendrite.metagraph;
 
 import com.google.common.base.Preconditions;
 import org.lab41.dendrite.metagraph.models.*;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanTransaction;
 import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.FramedTransactionalGraph;
 
@@ -100,11 +98,10 @@ public class MetaGraphTx {
     }
 
     public GraphMetadata createGraph(GraphMetadata parentGraphMetadata) {
-        GraphMetadata graphMetadata = getAutoStartTx().addVertex(null, GraphMetadata.class);
-        parentGraphMetadata.addChildGraph(graphMetadata);
-
         ProjectMetadata projectMetadata = parentGraphMetadata.getProject();
-        projectMetadata.addGraph(graphMetadata);
+        GraphMetadata graphMetadata = createGraph(projectMetadata);
+
+        parentGraphMetadata.addChildGraph(graphMetadata);
 
         return graphMetadata;
     }

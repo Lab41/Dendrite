@@ -4,15 +4,24 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.frames.Adjacency;
+import com.tinkerpop.frames.Property;
 import com.tinkerpop.frames.annotations.gremlin.GremlinParam;
+import com.tinkerpop.frames.modules.javahandler.Initializer;
 import com.tinkerpop.frames.modules.javahandler.JavaHandler;
 import com.tinkerpop.frames.modules.javahandler.JavaHandlerContext;
 import com.tinkerpop.frames.modules.typedgraph.TypeValue;
 
+import java.util.Date;
 import java.util.Iterator;
 
 @TypeValue("project")
 public interface ProjectMetadata extends NamedMetadata {
+
+    @Property("creationTime")
+    public Date getCreationTime();
+
+    @Property("creationTime")
+    public void setCreationTime(Date date);
 
     @Adjacency(label = "currentBranch", direction = Direction.OUT)
     public BranchMetadata getCurrentBranch();
@@ -45,6 +54,11 @@ public interface ProjectMetadata extends NamedMetadata {
     void addJob(JobMetadata jobMetadata);
 
     public abstract class Impl implements JavaHandlerContext<Vertex>, ProjectMetadata {
+
+        @Initializer
+        public void init() {
+            setCreationTime(new Date());
+        }
 
         @Override
         @JavaHandler
