@@ -4,6 +4,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.frames.Adjacency;
 import com.tinkerpop.frames.Property;
+import com.tinkerpop.frames.modules.javahandler.Initializer;
 import com.tinkerpop.frames.modules.javahandler.JavaHandler;
 import com.tinkerpop.frames.modules.javahandler.JavaHandlerContext;
 import com.tinkerpop.frames.modules.typedgraph.TypeValue;
@@ -14,6 +15,12 @@ import java.util.*;
 
 @TypeValue("graph")
 public interface GraphMetadata extends Metadata {
+
+    @Property("creationTime")
+    public Date getCreationTime();
+
+    @Property("creationTime")
+    public void setCreationTime(Date date);
 
     @Property("properties")
     public Properties getProperties();
@@ -49,6 +56,11 @@ public interface GraphMetadata extends Metadata {
     public GraphMetadata getParentGraph();
 
     public abstract class Impl implements JavaHandlerContext<Vertex>, GraphMetadata {
+
+        @Initializer
+        public void init() {
+            setCreationTime(new Date());
+        }
 
         @Override
         @JavaHandler

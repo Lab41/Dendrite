@@ -30,4 +30,9 @@ public class GraphMetadataTest extends BaseMetadataTest {
     public void typeIsCorrect() {
         Assert.assertEquals(graphMetadata.asVertex().getProperty("type"), "graph");
     }
+
+    @Test
+    public void timesAreSet() {
+        Assert.assertNotNull(graphMetadata.getCreationTime());
+    }
 }

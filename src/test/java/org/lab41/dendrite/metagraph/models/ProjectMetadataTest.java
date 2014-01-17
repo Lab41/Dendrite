@@ -30,6 +30,11 @@ public class ProjectMetadataTest extends BaseMetadataTest {
     }
 
     @Test
+    public void timesAreSet() {
+        Assert.assertNotNull(projectMetadata.getCreationTime());
+    }
+
+    @Test
     public void projectsShouldMakeAJob() {
         // Make sure the job is linked to the project.
         JobMetadata jobMetadata = tx.createJob(projectMetadata);

@@ -181,6 +181,13 @@ public class MetaGraph {
             }
 
             // ProjectMetadata keys
+            if (tx.getType("creationTime") == null) {
+                tx.makeKey("creationTime")
+                        .dataType(Date.class)
+                        .indexed(Vertex.class)
+                        .make();
+            }
+
             if (tx.getType("currentBranch") == null) {
                 tx.makeLabel("currentBranch").oneToOne().make();
             }
@@ -215,6 +222,13 @@ public class MetaGraph {
             }
 
             // JobMetadata keys
+            if (tx.getType("doneTime") == null) {
+                tx.makeKey("doneTime")
+                        .dataType(Date.class)
+                        .indexed(Vertex.class)
+                        .make();
+            }
+
             if (tx.getType("state") == null) {
                 tx.makeKey("state")
                         .dataType(String.class)

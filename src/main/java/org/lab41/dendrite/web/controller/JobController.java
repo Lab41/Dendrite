@@ -12,10 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @RequestMapping("/api")
@@ -121,6 +119,16 @@ public class JobController {
 
         String id = jobMetadata.getId();
         job.put("_id", id);
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        Date creationTime = jobMetadata.getCreationTime();
+        if (creationTime != null) { job.put("creationTime", df.format(creationTime)); }
+
+        Date doneTime = jobMetadata.getDoneTime();
+        if (doneTime != null) { job.put("doneTime", df.format(doneTime)); }
+
         JobMetadata parentJobMetadata = jobMetadata.getParentJob();
         if (parentJobMetadata != null) {
             job.put("parentJob", parentJobMetadata.getId());

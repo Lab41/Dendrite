@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -268,6 +269,12 @@ public class GraphController {
         Map<String, Object> graph = new HashMap<>();
 
         graph.put("_id", graphMetadata.getId());
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        Date creationTime = graphMetadata.getCreationTime();
+        if (creationTime != null) { graph.put("creationTime", df.format(creationTime)); }
 
         Properties properties = graphMetadata.getProperties();
         if (properties != null) {
