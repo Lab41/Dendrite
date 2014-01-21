@@ -8,6 +8,8 @@ import com.thinkaurelius.faunus.mapreduce.FaunusCompiler;
 import com.thinkaurelius.faunus.mapreduce.FaunusJobControl;
 import com.thinkaurelius.titan.core.TitanTransaction;
 import com.tinkerpop.blueprints.Vertex;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -24,6 +26,9 @@ import org.lab41.dendrite.services.analysis.FaunusPipelineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -34,30 +39,41 @@ import java.util.*;
 public class GraphLabService extends AnalysisService {
 
     Logger logger = LoggerFactory.getLogger(GraphLabService.class);
+    private org.apache.commons.configuration.Configuration config;
+
+    private static List<String> algorithms = Arrays.asList(
+        "approximate_diameter",
+        "connected_component",
+        "connected_component_stats",
+        "directed_triangle_count",
+        "eigen_vector_normalization",
+        "graph_laplacian",
+        "kcore",
+        "pagerank",
+        "partitioning",
+        "simple_coloring",
+        "simple_undirected_triangle_count",
+        "sssp",
+        "TSC",
+        "undirected_triangle_count"
+    );
+
+    @Autowired
+    ResourceLoader resourceLoader;
 
     @Autowired
     MetaGraphService metaGraphService;
 
-    @Async
-    public void graphLabAlgorithm(DendriteGraph graph, String algorithm, String jobId) throws Exception {
+    @Value("${graphlab.properties}")
+    String pathToProperties;
 
-        if (!algorithm.equals("approximate_diameter") &&
-           !algorithm.equals("connected_component") &&
-           !algorithm.equals("connected_component_stats") &&
-           !algorithm.equals("directed_triangle_count") &&
-           !algorithm.equals("eigen_vector_normalization") &&
-           !algorithm.equals("graph_laplacian") &&
-           !algorithm.equals("kcore") &&
-           !algorithm.equals("pagerank") &&
-           !algorithm.equals("partitioning") &&
-           !algorithm.equals("simple_coloring") &&
-           !algorithm.equals("simple_undirected_triangle_count") &&
-           !algorithm.equals("sssp") &&
-           !algorithm.equals("TSC") &&
-           !algorithm.equals("undirected_triangle_count")) {
-            logger.debug("invalid algorithm specified.");
-        }
-        else {
+    @Async
+    public void graphLabAlgorithm(DendriteGraph graph, String algorithm, String jobId) throws Exception, ConfigurationException {
+
+        if (algorithms.contains(algorithm)) {
+            Resource resource = resourceLoader.getResource(pathToProperties);
+            config = new PropertiesConfiguration(resource.getFile());
+
             logger.debug("Starting GraphLab "
                     + algorithm + " analysis on "
                     + graph.getId()
@@ -83,6 +99,9 @@ public class GraphLabService extends AnalysisService {
             setJobState(jobId, JobMetadata.DONE);
 
             logger.debug("GraphLab " + algorithm + ": finished job: " + jobId);
+        }
+        else {
+            logger.debug("invalid algorithm specified.");
         }
     }
 
@@ -143,12 +162,13 @@ public class GraphLabService extends AnalysisService {
                               "export GRAPHLAB_CLASSPATH=`cat /tmp/classpath`; "+
                               "mpiexec " +
                               "-n 1 " +
-                              "-hostfile ~/graphlab_machine.txt " +
-                              "-x CLASSPATH=$GRAPHLAB_CLASSPATH " +
-                              "~/graphlab/release/toolkits/graph_analytics/" +
+                              "-hostfile " +
+                              config.getString("metagraph.template.graphlab.hosts-file") +
+                              " -x CLASSPATH=$GRAPHLAB_CLASSPATH " +
+                              config.getString("metagraph.template.graphlab.algorithm-path") +
                               algorithm + 
-                              " --graph hdfs://" + jobDir +
-                              "--saveprefix hdfs://" + tmpDir + "/" +
+                              " --graph " + jobDir +
+                              " --saveprefix " + tmpDir + "/" +
                               analysisUUID;
                 Process p1 = Runtime.getRuntime().exec(new String[]{"bash","-c",cmd1});
                 p1.waitFor();
