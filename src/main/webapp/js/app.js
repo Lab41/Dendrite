@@ -143,10 +143,15 @@ angular.module('dendrite', [
     },
     // **disclaimer: UI file parsing an experimental demo feature until server-side
     //    functionality complete.  UI parsing relies on client-side file import, as well as
-    //    wildcard regex and brute force array iteration.  Disable if importing large graph
-    //    files and/or if concerned about client browser performance
+    //    wildcard regex and brute force array iteration.  UI parsing also uses a custom
+    //    word separator (which could confuse JSON responses if keeping formatted values)
+    //    to compensate for GML using space-separated key-value pairs
+    //
+    //    Disable if importing large graph files and/or if concerned about client browser
+    //    performance
     fileUpload: {
       parseGraphFile: true,
+      parseSeparator: ":::",
       maxBytesLocal: Math.pow(1024,2)
     }
   }).
