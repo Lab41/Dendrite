@@ -218,8 +218,8 @@ public class BranchController {
         // We can't pass the values directly because they'll live in a separate thread.
         BranchCommitJob branchCommitJob = new BranchCommitJob(
                 metaGraphService.getMetaGraph(),
-                branchMetadata.getId(),
-                jobMetadata.getId());
+                jobMetadata.getId(),
+                branchMetadata.getId());
 
         taskExecutor.execute(branchCommitJob);
 
@@ -333,8 +333,8 @@ public class BranchController {
         // We can't pass the values directly because they'll live in a separate thread.
         BranchCommitJob branchCommitJob = new BranchCommitJob(
                 metaGraphService.getMetaGraph(),
-                branchMetadata.getId(),
-                jobMetadata.getId());
+                jobMetadata.getId(),
+                branchMetadata.getId());
 
         taskExecutor.execute(branchCommitJob);
 
@@ -376,8 +376,8 @@ public class BranchController {
         // We can't pass the values directly because they'll live in a separate thread.
         BranchCommitJob branchCommitJob = new BranchCommitJob(
                 metaGraphService.getMetaGraph(),
-                branchMetadata.getId(),
-                jobMetadata.getId());
+                jobMetadata.getId(),
+                branchMetadata.getId());
 
         taskExecutor.execute(branchCommitJob);
 
