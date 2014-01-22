@@ -93,7 +93,7 @@ public class GraphLabService extends AnalysisService {
                 logger.debug("graphlab" + algorithm + ": error: ", e);
                 e.printStackTrace();
                 setJobState(jobId, JobMetadata.ERROR, e.getMessage());
-               throw e;
+                throw e;
             } 
 
             setJobState(jobId, JobMetadata.DONE);
@@ -154,15 +154,19 @@ public class GraphLabService extends AnalysisService {
                 logger.debug("starting graphlab analysis of '" + graph.getId() + "'");
                 runPipeline(exportPipeline);
 
+                File tmpFile = File.createTempFile("temp", "");
                 // feed output to graphlab as input
                 // !! NOTE requires the mpiexec client be on the dendrite server
                 String cmd1 = "for i in `hadoop classpath | sed \"s/:/ /g\"` ;" +
                               " do echo $i;" +
-                              " done | xargs | sed \"s/ /:/g\" > /tmp/classpath; " +
-                              "export GRAPHLAB_CLASSPATH=`cat /tmp/classpath`; "+
+                              " done | xargs | sed \"s/ /:/g\" > " +
+                              tmpFile + "; " +
+                              "export GRAPHLAB_CLASSPATH=`cat " +
+                              tmpFile + "`; "+
                               "mpiexec " +
-                              "-n 1 " +
-                              "-hostfile " +
+                              "-n " +
+                              config.getString("metagraph.template.graphlab.cluster-size") +
+                              " -hostfile " +
                               config.getString("metagraph.template.graphlab.hosts-file") +
                               " -x CLASSPATH=$GRAPHLAB_CLASSPATH " +
                               config.getString("metagraph.template.graphlab.algorithm-path") +
@@ -211,6 +215,7 @@ public class GraphLabService extends AnalysisService {
                 throw e;
             } finally {
                 // Clean up after ourselves.
+                tmpFile.delete();
                 fs.delete(tmpDir, true);
             }
         }
