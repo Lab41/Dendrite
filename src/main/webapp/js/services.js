@@ -305,7 +305,7 @@ angular.module('dendrite.services', ['ngResource']).
             var names,scores,
                 x,y,height,
                 chart,
-                width = 450,
+                width = $("#viz-histogram-wrapper").parent().width()*0.90,
                 bar_height = 20,
                 padding_width = 40,
                 padding_height = 30,
@@ -347,15 +347,6 @@ angular.module('dendrite.services', ['ngResource']).
               .attr('height', (bar_height + gap * 2) * names.length + padding_height)
               .append("g")
               .attr("transform", "translate(0, 0)");
-
-            // scale ruler lines
-            chart.selectAll("line")
-              .data(x.ticks(d3.max(scores)))
-              .enter().append("line")
-              .attr("x1", function(d) { return x(d) + left_width; })
-              .attr("x2", function(d) { return x(d) + left_width; })
-              .attr("y1", 0)
-              .attr("y2", (bar_height + gap * 2) * names.length);
 
             // color bars
             chart.selectAll("rect")
