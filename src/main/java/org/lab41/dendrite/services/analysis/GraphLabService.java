@@ -8,6 +8,8 @@ import com.thinkaurelius.faunus.mapreduce.FaunusCompiler;
 import com.thinkaurelius.faunus.mapreduce.FaunusJobControl;
 import com.thinkaurelius.titan.core.TitanTransaction;
 import com.tinkerpop.blueprints.Vertex;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -20,9 +22,13 @@ import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
+import org.lab41.dendrite.services.analysis.FaunusPipelineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -33,38 +39,70 @@ import java.util.*;
 public class GraphLabService extends AnalysisService {
 
     Logger logger = LoggerFactory.getLogger(GraphLabService.class);
+    private org.apache.commons.configuration.Configuration config;
+
+    private static List<String> algorithms = Arrays.asList(
+        "approximate_diameter",
+        "connected_component",
+        "connected_component_stats",
+        "directed_triangle_count",
+        "eigen_vector_normalization",
+        "graph_laplacian",
+        "kcore",
+        "pagerank",
+        "partitioning",
+        "simple_coloring",
+        "simple_undirected_triangle_count",
+        "sssp",
+        "TSC",
+        "undirected_triangle_count"
+    );
+
+    @Autowired
+    ResourceLoader resourceLoader;
 
     @Autowired
     MetaGraphService metaGraphService;
 
+    @Value("${graphlab.properties}")
+    String pathToProperties;
+
     @Async
-    public void graphLabAlgorithm(DendriteGraph graph, String algorithm, String jobId) throws Exception {
+    public void graphLabAlgorithm(DendriteGraph graph, String algorithm, String jobId) throws Exception, ConfigurationException {
 
-        logger.debug("Starting GraphLab "
-                + algorithm + " analysis on "
-                + graph.getId()
-                + " job " + jobId
-                + " " + Thread.currentThread().getName());
+        if (algorithms.contains(algorithm)) {
+            Resource resource = resourceLoader.getResource(pathToProperties);
+            config = new PropertiesConfiguration(resource.getFile());
 
-        setJobName(jobId, "graphlab_"+algorithm);
-        setJobState(jobId, JobMetadata.RUNNING);
+            logger.debug("Starting GraphLab "
+                    + algorithm + " analysis on "
+                    + graph.getId()
+                    + " job " + jobId
+                    + " " + Thread.currentThread().getName());
 
-        // Make sure the indices exist.
-        createIndices(graph, algorithm);
+            setJobName(jobId, "graphlab_"+algorithm);
+            setJobState(jobId, JobMetadata.RUNNING);
 
-        try {
-            FaunusCounter faunusCounter = new FaunusCounter(graph, jobId, algorithm);
-            faunusCounter.run();
-        } catch (Exception e) {
-            logger.debug("graphlab" + algorithm + ": error: ", e);
-            e.printStackTrace();
-            setJobState(jobId, JobMetadata.ERROR, e.getMessage());
-            throw e;
+            // Make sure the indices exist.
+            createIndices(graph, algorithm);
+
+            try {
+                FaunusCounter faunusCounter = new FaunusCounter(graph, jobId, algorithm);
+                faunusCounter.run();
+            } catch (Exception e) {
+                logger.debug("graphlab" + algorithm + ": error: ", e);
+                e.printStackTrace();
+                setJobState(jobId, JobMetadata.ERROR, e.getMessage());
+                throw e;
+            } 
+
+            setJobState(jobId, JobMetadata.DONE);
+
+            logger.debug("GraphLab " + algorithm + ": finished job: " + jobId);
         }
-
-        setJobState(jobId, JobMetadata.DONE);
-
-        logger.debug("GraphLab " + algorithm + ": finished job: " + jobId);
+        else {
+            logger.debug("invalid algorithm specified.");
+        }
     }
 
     private void createIndices(DendriteGraph graph, String algorithm) {
@@ -99,37 +137,51 @@ public class GraphLabService extends AnalysisService {
             // Create the temporary directories.
             UUID tmpDirUUID = UUID.randomUUID();
             UUID analysisUUID = UUID.randomUUID();
-            Path tmpDir = new Path("/tmp/dendrite/" + tmpDirUUID + "/");
-            Path jobDir = new Path("/tmp/dendrite/" + tmpDirUUID + "/job-0/");
+            Path tmpDir = new Path(fs.getHomeDirectory()+"/dendrite/tmp/" + tmpDirUUID + "/");
+            Path jobDir = new Path(fs.getHomeDirectory()+"/dendrite/tmp/" + tmpDirUUID + "/job-0/");
             fs.mkdirs(tmpDir);
-            //fs.deleteOnExit(tmpDir);
+            fs.deleteOnExit(tmpDir);
             try {
 
                 FaunusGraph faunusGraph = new FaunusGraph();
-                FaunusPipeline exportPipeline = graphPipeline(faunusGraph, tmpDir);
+                faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
+                faunusGraph.setGraphOutputFormat(AdjacencyFileOutputFormat.class);
+
+                FaunusPipelineService faunusPipelineService = new FaunusPipelineService();
+                FaunusPipeline exportPipeline = faunusPipelineService.graphPipeline(faunusGraph, tmpDir, graph);
+                exportPipeline._();
 
                 logger.debug("starting graphlab analysis of '" + graph.getId() + "'");
                 runPipeline(exportPipeline);
 
+                File tmpFile = File.createTempFile("temp", "");
                 // feed output to graphlab as input
                 // !! NOTE requires the mpiexec client be on the dendrite server
-                String cmd3 = "for i in `hadoop classpath | sed \"s/:/ /g\"` ; do echo $i;" +
-                              " done | xargs | sed \"s/ /:/g\" > /tmp/classpath; " +
-                              "export CLASSPATH=`cat /tmp/classpath`; "+
+                String cmd1 = "for i in `hadoop classpath | sed \"s/:/ /g\"` ;" +
+                              " do echo $i;" +
+                              " done | xargs | sed \"s/ /:/g\" > " +
+                              tmpFile + "; " +
+                              "export GRAPHLAB_CLASSPATH=`cat " +
+                              tmpFile + "`; "+
                               "mpiexec " +
-                              "-n 1 " +
-                              "-hostfile ~/graphlab_machine.txt " +
-                              "-x CLASSPATH=$CLASSPATH " +
-                              "~/graphlab/release/toolkits/graph_analytics/" +
+                              "-n " +
+                              config.getString("metagraph.template.graphlab.cluster-size") +
+                              " -hostfile " +
+                              config.getString("metagraph.template.graphlab.hosts-file") +
+                              " -x CLASSPATH=$GRAPHLAB_CLASSPATH " +
+                              config.getString("metagraph.template.graphlab.algorithm-path") +
                               algorithm + 
-                              " --graph hdfs:///tmp/dendrite/" +
-                              tmpDirUUID + "/job-0/ " + 
-                              "--saveprefix hdfs:///tmp/dendrite/" + 
-                              tmpDirUUID + "/" + analysisUUID;
-                Process p3 = Runtime.getRuntime().exec(new String[]{"bash","-c",cmd3});
-                p3.waitFor();
+                              " --graph " + jobDir +
+                              " --saveprefix " + tmpDir + "/" +
+                              analysisUUID;
+                Process p1 = Runtime.getRuntime().exec(new String[]{"bash","-c",cmd1});
+                p1.waitFor();
+                String cmd2 = "unset GRAPHLAB_CLASSPATH";
+                Process p2 = Runtime.getRuntime().exec(new String[]{"bash","-c",cmd2});
+                p2.waitFor();
                     
-                fs.delete(jobDir);
+                fs.delete(jobDir, true);
+
                 // FIXME this is due to the AdjacencyFileInputFormat not properly creating edges
                 FileStatus[] status = fs.listStatus(tmpDir);
                 TitanTransaction ttx = graph.newTransaction();
@@ -163,63 +215,8 @@ public class GraphLabService extends AnalysisService {
                 throw e;
             } finally {
                 // Clean up after ourselves.
-                //fs.delete(tmpDir, true);
-            }
-        }
-
-        private FaunusPipeline graphPipeline(FaunusGraph faunusGraph, Path tmpDir) {
-            org.apache.commons.configuration.Configuration config = graph.getConfiguration();
-
-            faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
-
-            faunusGraph.getConf().set("mapred.jar", "../faunus/target/faunus-0.4.1-Lab41-SNAPSHOT-job.jar");
-
-            Configuration faunusConfig = faunusGraph.getConf();
-
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.backend", config.getString("storage.backend", null));
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.hostname", config.getString("storage.hostname", null));
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.port", config.getString("storage.port", null));
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.tablename", config.getString("storage.tablename", null));
-
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.backend", config.getString("storage.index.search.backend", null));
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.client-only", config.getString("storage.index.search.client-only", null));
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.cluster-name", config.getString("storage.index.search.cluster-name", null));
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.directory", config.getString("storage.index.search.directory", null));
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.hostname", config.getString("storage.index.search.hostname", null));
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.index-name", config.getString("storage.index.search.index-name", null));
-            setProp(faunusConfig, "faunus.graph.input.titan.storage.index.search.local-mode", config.getString("storage.index.search.local-mode", null));
-            faunusGraph.setSideEffectOutputFormat(TextOutputFormat.class);
-            faunusGraph.setGraphOutputFormat(AdjacencyFileOutputFormat.class);
-            faunusGraph.setOutputLocation(tmpDir);
-            faunusGraph.setOutputLocationOverwrite(true);
-
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.backend", config.getString("storage.backend", null));
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.hostname", config.getString("storage.hostname", null));
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.port", config.getString("storage.port", null));
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.tablename", config.getString("storage.tablename", null));
-            faunusConfig.setBoolean("faunus.graph.output.titan.storage.read-only", false);
-            faunusConfig.setBoolean("faunus.graph.output.titan.storage.batch-loading", false);
-
-            // FIXME: https://github.com/thinkaurelius/faunus/issues/167. I would prefer to leave this off, but we end up tripping over an exception.
-            //faunusConfig.setBoolean("faunus.graph.output.titan.infer-schema", false);
-            faunusConfig.setBoolean("faunus.graph.output.titan.infer-schema", true);
-
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.backend", config.getString("storage.index.search.backend", null));
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.client-only", config.getString("storage.index.search.client-only", null));
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.cluster-name", config.getString("storage.index.search.cluster-name", null));
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.directory", config.getString("storage.index.search.directory", null));
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.hostname", config.getString("storage.index.search.hostname", null));
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.index-name", config.getString("storage.index.search.index-name", null));
-            setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.local-mode", config.getString("storage.index.search.local-mode", null));
-
-            faunusGraph.getConf().set("faunus.graph.output.blueprints.script-file", "dendrite/dendrite-import.groovy");
-
-            return (new FaunusPipeline(faunusGraph))._();
-        }
-
-        private void setProp(Configuration config, String key, String value) {
-            if (value != null) {
-                config.set(key, value);
+                tmpFile.delete();
+                fs.delete(tmpDir, true);
             }
         }
 
