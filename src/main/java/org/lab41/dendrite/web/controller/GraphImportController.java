@@ -19,8 +19,9 @@ package org.lab41.dendrite.web.controller;
 import com.tinkerpop.blueprints.util.io.gml.GMLReader;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLReader;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
-import com.tinkerpop.blueprints.Vertex;
+import org.lab41.dendrite.util.io.faunusgraphson.FaunusGraphSONReader;
 
+import com.tinkerpop.blueprints.Vertex;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.services.MetaGraphService;
@@ -40,6 +41,8 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +54,8 @@ public class GraphImportController {
     static Logger logger = LoggerFactory.getLogger(GraphImportController.class);
 
     static List<String> RESERVED_KEYS = Arrays.asList("id", "_id");
+    private final String searchIndexId = "vertexId";
+    private final String elasticSearchIndex = "search";
 
     @Autowired
     MetaGraphService metaGraphService;
@@ -102,6 +107,15 @@ public class GraphImportController {
                 }
             }
 
+            // elasticsearch uses a unique id separate from the titan id
+            // in order to link elasticsearch results to titan results,
+            // create a new index for the frontend vertexId
+            tx.makeKey(searchIndexId)
+                    .dataType(String.class)
+                    .indexed(Vertex.class)
+                    .indexed(elasticSearchIndex, Vertex.class)
+                    .make();
+
             InputStream inputStream = file.getInputStream();
             if (format.equalsIgnoreCase("GraphSON")) {
                 GraphSONReader.inputGraph(tx, inputStream);
@@ -109,6 +123,8 @@ public class GraphImportController {
                 GraphMLReader.inputGraph(tx, inputStream);
             } else if (format.equalsIgnoreCase("GML")) {
                 GMLReader.inputGraph(tx, inputStream);
+            } else if (format.equalsIgnoreCase("FaunusGraphSON")) {
+                FaunusGraphSONReader.inputGraph(tx, inputStream);
             } else {
                 tx.rollback();
 
