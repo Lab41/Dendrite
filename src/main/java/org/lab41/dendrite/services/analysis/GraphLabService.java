@@ -139,6 +139,7 @@ public class GraphLabService extends AnalysisService {
             UUID analysisUUID = UUID.randomUUID();
             Path tmpDir = new Path(fs.getHomeDirectory()+"/dendrite/tmp/" + tmpDirUUID + "/");
             Path jobDir = new Path(fs.getHomeDirectory()+"/dendrite/tmp/" + tmpDirUUID + "/job-0/");
+            File tmpFile = File.createTempFile("temp", "");
             fs.mkdirs(tmpDir);
             fs.deleteOnExit(tmpDir);
             try {
@@ -154,7 +155,6 @@ public class GraphLabService extends AnalysisService {
                 logger.debug("starting graphlab analysis of '" + graph.getId() + "'");
                 runPipeline(exportPipeline);
 
-                File tmpFile = File.createTempFile("temp", "");
                 // feed output to graphlab as input
                 // !! NOTE requires the mpiexec client be on the dendrite server
                 String cmd1 = "for i in `hadoop classpath | sed \"s/:/ /g\"` ;" +
