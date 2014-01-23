@@ -105,10 +105,7 @@ angular.module('dendrite.controllers', []).
                 .$then(function(response) {
                     $scope.project = response.data.project;
                     $scope.graphId = $scope.project.current_graph;
-                    $scope.graph = Graph.get({graphId: $scope.graphId})
-                          .$then(function(res) {
-                            console.log(res);
-                          });
+                    $scope.graph = Graph.get({graphId: $scope.graphId});
 
                     $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
                     $scope.$on('event:reloadGraph', function() {
@@ -238,7 +235,9 @@ angular.module('dendrite.controllers', []).
         var pollActive = function() {
               Graph.get({graphId: $routeParams.graphId})
                     .$then(function(dataGraph) {
-                        $scope.activeAnalytics = Project.jobs({projectId: dataGraph.data.graph.projectId});
+                        if (dataGraph.data.graph !== undefined) {
+                          $scope.activeAnalytics = Project.jobs({projectId: dataGraph.data.graph.projectId});
+                        }
                     });
               $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
         }
@@ -868,7 +867,9 @@ angular.module('dendrite.controllers', []).
           if (newVal !== undefined) {
               Histogram.searchFacets($scope.graphId)
                   .success(function(data) {
-                      $scope.searchFacets = Object.keys(data.vertex.properties);
+                      if (data.vertex !== undefined && data.vertex.properties !== undefined) {
+                        $scope.searchFacets = Object.keys(data.vertex.properties);
+                      }
                   });
 
               $scope.visualize = function() {
