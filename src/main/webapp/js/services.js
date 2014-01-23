@@ -383,6 +383,140 @@ angular.module('dendrite.services', ['ngResource']).
         }
       };
     }).
+    factory('Scatterplot', function($resource, $routeParams, $http, appConfig) {
+      return {
+        searchFacets: function(graphId) {
+          return $http({
+              method: "GET",
+              url: '/dendrite/api/graphs/'+graphId+'/search/mapping'
+          })
+        },
+
+        display: function(graphId, queryTerm, queryFacet, queryTerm2, queryFacet2) {
+          // default inputs
+          if (queryTerm === undefined || queryTerm === '') {
+            queryTerm = "*";
+          }
+          if (queryFacet === undefined || queryFacet === '') {
+            queryFacet = "reason";
+          }
+          if (queryTerm2 === undefined || queryTerm2 === '') {
+            queryTerm2 = "*";
+          }
+          if (queryFacet2 === undefined || queryFacet2 === '') {
+            queryFacet2 = "reason";
+          }
+
+          // build elasticSearch query
+          var inputJson = {
+                    "size" : 0,
+                    "query" : { "query_string" : {"query" : queryTerm} },
+                    "facets" : {
+                        "tags" : { "terms": {"field": queryFacet, "size": appConfig.elasticSearch.fieldSize}
+                        }
+                    }
+                  };
+
+          // query server
+          return $http({
+              method: "POST",
+              url: '/dendrite/api/graphs/'+graphId+'/search',
+              data: JSON.stringify(inputJson)
+          })
+          .success(function(json) {
+            var facets = json.facets.tags.terms;
+
+            // helper functions to extract properties of object array
+            var getCount, getTerm;
+            getCount = function(d) {
+              return d.count;
+            };
+            getTerm = function(d) {
+              return d.term;
+            };
+
+            // viz properties
+            var names,scores,
+                x,y,height,
+                chart,
+                width = $("#viz-scatterplot-wrapper").parent().width()*0.90,
+                bar_height = 20,
+                padding_width = 40,
+                padding_height = 30,
+                left_width = 100,
+                gap = 2;
+
+            // extract names and scores
+            names = facets.map(getTerm);
+            scores = facets.map(getCount);
+            height = bar_height * names.length;
+
+            // remove existing svg on refresh
+            $("#viz-scatterplot-wrapper svg").remove();
+
+            // add titlebar
+            $('#viz-scatterplot-title').html('Results for facet "'+queryFacet+'" in query "' + queryTerm+'":');
+
+            // add canvas
+            chart = d3.select("#viz-scatterplot-wrapper")
+              .append('svg')
+              .attr('class', 'chart')
+              .attr('width', width)
+              .attr('height', height);
+
+            // establish scales for x,y
+            x = d3.scale.linear()
+               .domain([0, d3.max(scores)])
+               .range([0, width]);
+
+            // redefine y for adjusting the gap
+            y = d3.scale.ordinal()
+              .domain(names)
+              .rangeBands([0, (bar_height + 2 * gap) * names.length]);
+
+            chart = d3.select("#viz-scatterplot-wrapper")
+              .append('svg')
+              .attr('class', 'chart')
+              .attr('width', left_width + width + padding_width)
+              .attr('height', (bar_height + gap * 2) * names.length + padding_height)
+              .append("g")
+              .attr("transform", "translate(0, 0)");
+
+            // color bars
+            chart.selectAll("rect")
+              .data(facets)
+              .enter().append("rect")
+              .attr("x", left_width)
+              .attr("y", function(d) { return y(d.term) + gap; })
+              .attr("width", function(d) { return x(d.count) })
+              .attr("height", bar_height);
+
+            // display count
+            chart.selectAll("text.score")
+              .data(facets)
+              .enter().append("text")
+              .attr("x", function(d) { return x(d.count) + left_width; })
+              .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
+              .attr("dx", -5)
+              .attr("dy", ".36em")
+              .attr("text-anchor", "end")
+              .attr('class', 'score')
+              .text(function(d) { return d.count });
+
+            // category label
+            chart.selectAll("text.name")
+              .data(facets)
+              .enter().append("text")
+              .attr("x", left_width / 2)
+              .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
+              .attr("dy", ".36em")
+              .attr("text-anchor", "middle")
+              .attr('class', 'name')
+              .text(function(d) { return d.term });
+            });
+        }
+      };
+    }).
     factory('Analytics', function($resource, $routeParams, $http, Project, Graph, appConfig) {
         return $resource('api/projects/:projectId/jobs', {
             projectId: '@projectId'

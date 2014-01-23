@@ -875,4 +875,36 @@ angular.module('dendrite.controllers', []).
               };
           }
       });
+    }).
+    controller('VizScatterplotCtrl', function($scope, $location, Scatterplot, appConfig) {
+      $scope.searching = false;
+
+      $scope.$watch('graphId', function(newVal, oldVal) {
+          if (newVal !== undefined) {
+              Scatterplot.searchFacets($scope.graphId)
+                  .success(function(data) {
+                      var elasticValueFields = [];
+                      Object.keys(data.vertex.properties).forEach(function(k) {
+                          var val = data["vertex"]["properties"][k]["type"]; 
+                          if (val === "integer" ||
+                              val === "double" ||
+                              val === "float") {
+                              elasticValueFields.push(k);
+                          };
+                      });
+                      $scope.searchFacets = elasticValueFields;
+                  });
+
+              $scope.visualize = function() {
+                  $scope.searching = true;
+                  Scatterplot.display($scope.graphId, $scope.query, $scope.facet, $scope.query2, $scope.facet2)
+                      .success(function() {
+                          $scope.searching = false;
+                      })
+                      .error(function() {
+                          $scope.searching = false;
+                      });
+              };
+          }
+      });
     });
