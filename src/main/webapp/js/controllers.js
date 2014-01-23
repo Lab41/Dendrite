@@ -820,6 +820,11 @@ angular.module('dendrite.controllers', []).
           }
         };
 
+        $scope.checkboxHasKey = function(key) {
+          var idx = $scope.selectedCheckboxes.indexOf(key);
+          return (idx > -1);
+        };
+
         $scope.$on('event:graphFileParsed', function() {
           if (!appConfig.fileUpload.parseGraphFile) {
             $scope.safeApply(function() {
@@ -831,6 +836,9 @@ angular.module('dendrite.controllers', []).
             if ($scope.keysForGraph.length > 0) {
               $scope.fileParsed = true;
               $scope.fileParseError = false;
+              Array().forEach.call($scope.keysForGraph, function(k) {
+                $scope.checkboxTally(k);
+              });
               $scope.safeApply(function() {
                 $modal({scope: $scope, template: 'partials/graphs/form-select-keys.html'});
               });
