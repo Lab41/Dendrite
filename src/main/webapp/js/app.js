@@ -127,7 +127,7 @@ angular.module('dendrite', [
     },
     analytics: {
         metadata: {
-          pollTimeout: 5000
+          pollTimeout: 500
         },
         PageRank: {
           dampingFactor: 0.85,
