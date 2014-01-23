@@ -176,8 +176,14 @@ public class GraphLabService extends AnalysisService {
                     " -x CLASSPATH=$GRAPHLAB_CLASSPATH " +
                     new Path(config.getString("metagraph.template.graphlab.algorithm-path"), algorithm) +
                     " --format adj" +
-                    " --graph " + new Path(exportDir, "job-0") +
-                    " --output " + new Path(importDir, "import");
+                    " --graph " + new Path(exportDir, "job-0");
+
+            // simple coloring uses a different cli syntax to declare the output.
+            if (algorithm.equals("simple_coloring")) {
+                cmd += " --output " + new Path(importDir, "import");
+            } else {
+                cmd += " --saveprefix " + new Path(importDir, "import");
+            }
 
             logger.debug("running: " + cmd);
 
