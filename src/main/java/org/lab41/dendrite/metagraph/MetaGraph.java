@@ -1,5 +1,8 @@
 package org.lab41.dendrite.metagraph;
 
+import com.thinkaurelius.titan.core.Order;
+import com.thinkaurelius.titan.core.TitanKey;
+import com.thinkaurelius.titan.core.TitanType;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.frames.FramedGraphFactory;
@@ -164,8 +167,9 @@ public class MetaGraph {
             }
 
             // NamedMetadata keys
-            if (tx.getType("name") == null) {
-                tx.makeKey("name")
+            TitanType name = tx.getType("name");
+            if (name == null) {
+                name = tx.makeKey("name")
                         .dataType(String.class)
                         .indexed(Vertex.class)
                         .indexed(Edge.class)
@@ -181,32 +185,48 @@ public class MetaGraph {
             }
 
             // ProjectMetadata keys
-            if (tx.getType("creationTime") == null) {
-                tx.makeKey("creationTime")
+            TitanType creationTime = tx.getType("creationTime");
+            if (creationTime == null) {
+                creationTime = tx.makeKey("creationTime")
                         .dataType(Date.class)
                         .indexed(Vertex.class)
                         .make();
             }
 
             if (tx.getType("currentBranch") == null) {
-                tx.makeLabel("currentBranch").oneToOne().make();
+                tx.makeLabel("currentBranch")
+                        .oneToOne()
+                        .make();
             }
 
             if (tx.getType("ownsBranch") == null) {
-                tx.makeLabel("ownsBranch").oneToMany().make();
+                tx.makeLabel("ownsBranch")
+                        .oneToMany()
+                        .sortKey(name)
+                        .make();
             }
 
             if (tx.getType("ownsGraph") == null) {
-                tx.makeLabel("ownsGraph").oneToMany().make();
+                tx.makeLabel("ownsGraph")
+                        .oneToMany()
+                        .sortKey(creationTime)
+                        .sortOrder(Order.DESC)
+                        .make();
             }
 
             if (tx.getType("ownsJob") == null) {
-                tx.makeLabel("ownsJob").oneToMany().make();
+                tx.makeLabel("ownsJob")
+                        .oneToMany()
+                        .sortKey(creationTime)
+                        .sortOrder(Order.DESC)
+                        .make();
             }
 
             // BranchMetadata keys
             if (tx.getType("branchTarget") == null) {
-                tx.makeLabel("branchTarget").manyToOne().make();
+                tx.makeLabel("branchTarget")
+                        .manyToOne()
+                        .make();
             }
 
             // GraphMetadata keys
@@ -218,7 +238,11 @@ public class MetaGraph {
             }
 
             if (tx.getType("childGraph") == null) {
-                tx.makeLabel("childGraph").oneToMany().make();
+                tx.makeLabel("childGraph")
+                        .oneToMany()
+                        .sortKey(creationTime)
+                        .sortOrder(Order.DESC)
+                        .make();
             }
 
             // JobMetadata keys
@@ -251,7 +275,11 @@ public class MetaGraph {
             }
 
             if (tx.getType("childJob") == null) {
-                tx.makeLabel("childJob").oneToMany().make();
+                tx.makeLabel("childJob")
+                        .oneToMany()
+                        .sortKey(creationTime)
+                        .sortOrder(Order.DESC)
+                        .make();
             }
         } catch (Exception e) {
             tx.rollback();
