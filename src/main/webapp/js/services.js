@@ -122,7 +122,7 @@ angular.module('dendrite.services', ['ngResource']).
         user: currentUser
       };
     }).
-    factory('Helpers', function($resource) {
+    factory('Helpers', function($resource, appConfig) {
         //TODO: delete once backend APIs complete - dummy result array
         var analyticResults = [];
 
@@ -171,7 +171,6 @@ angular.module('dendrite.services', ['ngResource']).
                 else if (format === "GML") {
 
                   // parse via regex
-                  var regex_sep = ":::";
                   var regex_nodes = /node \[(.*?)\]/g
                   var regex_graph = /\[([.\s\S]*)\]/m
                   var regex_quote = /\".*?\"/g
@@ -195,7 +194,7 @@ angular.module('dendrite.services', ['ngResource']).
                     var firstIndex, condensed, properties_string_formatted = "";
                     while (quoted = regex_quote.exec(properties_string)) {
                       firstIndex = regex_quote.lastIndex - quoted[0].length;
-                      condensed = quoted[0].replace(/ /g, regex_sep);
+                      condensed = quoted[0].replace(/ /g, appConfig.fileUpload.parseSeparator);
                       properties_string_formatted += properties_string.substring(0,firstIndex) + condensed;
                     }
 

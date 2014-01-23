@@ -17,6 +17,7 @@ public class DendriteGraphTx extends TitanBlueprintsTransaction {
 
     private Lock tableLock;
     private TitanTransaction tx;
+    private final String searchIndexId = "vertexId";
 
     public DendriteGraphTx(Lock tableLock, TitanTransaction tx) {
         this.tableLock = tableLock;
@@ -25,12 +26,16 @@ public class DendriteGraphTx extends TitanBlueprintsTransaction {
 
     @Override
     public TitanVertex addVertex() {
-        return tx.addVertex();
+        TitanVertex vertex = tx.addVertex();
+        vertex.setProperty(searchIndexId, vertex.getId());
+        return vertex;
     }
 
     @Override
     public TitanVertex addVertex(Long id) {
-        return tx.addVertex(id);
+        TitanVertex vertex = tx.addVertex(id);
+        vertex.setProperty(searchIndexId, vertex.getId());
+        return vertex;
     }
 
     @Override
@@ -160,7 +165,9 @@ public class DendriteGraphTx extends TitanBlueprintsTransaction {
 
     @Override
     public TitanVertex addVertex(Object id) {
-        return (TitanVertex) tx.addVertex(id);
+        TitanVertex vertex = (TitanVertex) tx.addVertex(id);
+        vertex.setProperty(searchIndexId, vertex.getId());
+        return vertex;
     }
 
     @Override
