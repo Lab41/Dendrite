@@ -185,7 +185,7 @@ angular.module('dendrite.controllers', []).
             .$then(function(response) {
               var data = response.data;
               if (data.msg === "deleted") {
-                $location.path('projects');
+                window.history.back();
               }
             });
         };
