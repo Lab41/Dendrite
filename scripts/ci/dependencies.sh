@@ -24,3 +24,7 @@ git clone https://github.com/scottfrederick/springdoclet.git
 pushd springdoclet
 mvn install -DskipTests
 popd
+
+## (optional) setup LESS compilation for CSS styling
+sudo apt-get install --assume-yes nodejs npm
+npm install less
