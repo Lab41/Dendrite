@@ -886,6 +886,18 @@ body {
   margin: 0 0 18px 0;
 }
 /*************************************************/
+/* general styles */
+/*************************************************/
+.list-style-type-none {
+  list-style-type: none;
+}
+.padding-none {
+  padding: 0;
+}
+.margin-none {
+  margin: 0;
+}
+/*************************************************/
 /* forms */
 /*************************************************/
 input:focus:invalid:focus,

@@ -1,7 +1,7 @@
 <h4 class="titlebar" style="padding-top:20px">Progress</h4>
 
 <!-- list of active analytics jobs -->
-<ul style="margin-top:10px">
+<ul style="margin-top:10px" class="list-style-type-none padding-none margin-none">
   <li ng-repeat="analytic in activeAnalytics.jobs">
     <div ng-if="analytic.progress == 1.0 || analytic.state == 'ERROR'" class="btn btn-small btn-attention"><i class="icon-white icon-zoom-in vertical-align-middle" ng-click="showAnalytic({{analytic._id}})"></i></div>
     <strong> {{analytic.name}}</strong>
