@@ -71,6 +71,19 @@ name and email address match your git configuration. The AUTHORS file is
 regenerated occasionally from the git commit history, so a mismatch may result
 in your changes being overwritten.
 
+
+### Note on modifying CSS styles
+
+The web frontend uses LESS for CSS styling, but currently is not complex enough to require
+an asset pipeline or build tool such as Grunt.  To modify CSS styles, choose one of:
+
+1. CSS
+    - modify `src/main/webapp/css/app.css` directly (standard CSS)
+2. LESS
+    - ensure LESS compiler installed (instructions: `scripts/ci/dependencies.sh`)
+    - update LESS files in `src/main/webapp/css/less` folder
+    - compile with `src/main/webapp/css/less/ui-compile.sh`
+
 ## Decision process
 
 ### How are decisions made?

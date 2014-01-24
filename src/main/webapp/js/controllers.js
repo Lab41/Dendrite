@@ -105,7 +105,10 @@ angular.module('dendrite.controllers', []).
                 .$then(function(response) {
                     $scope.project = response.data.project;
                     $scope.graphId = $scope.project.current_graph;
-                    $scope.graph = Graph.get({graphId: $scope.graphId});
+                    $scope.graph = Graph.get({graphId: $scope.graphId})
+                          .$then(function(res) {
+                            console.log(res);
+                          });
 
                     $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
                     $scope.$on('event:reloadGraph', function() {
@@ -182,7 +185,7 @@ angular.module('dendrite.controllers', []).
             .$then(function(response) {
               var data = response.data;
               if (data.msg === "deleted") {
-                $location.path('projects');
+                window.history.back();
               }
             });
         };
@@ -219,6 +222,8 @@ angular.module('dendrite.controllers', []).
               Analytics.createEdgeDegreesTitan({graphId: $routeParams.graphId}, undefined);
             }
           }
+
+          $scope.$emit("event:pollActiveAnalytics");
         };
     }).
     controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Helpers, $timeout) {
@@ -232,15 +237,36 @@ angular.module('dendrite.controllers', []).
         };
 
         // periodically poll for active calculations
+        // use $then syntax to avoid full list refresh each time
         var pollActive = function() {
-              Graph.get({graphId: $routeParams.graphId})
-                    .$then(function(dataGraph) {
-                        if (dataGraph.data.graph !== undefined) {
-                          $scope.activeAnalytics = Project.jobs({projectId: dataGraph.data.graph.projectId});
-                        }
-                    });
-              $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
+          Graph.get({graphId: $routeParams.graphId})
+                .$then(function(dataGraph) {
+                    Project.jobs({projectId: dataGraph.data.graph.projectId})
+                            .$then(function(dataJobs) {
+
+                                // set list of active jobs
+                                $scope.activeAnalytics = dataJobs.data;
+
+                                // determine if client should continue polling
+                                // if not, will poll on next event:pollActiveAnalytics
+                                var pollAgain = false;
+                                Array().forEach.call(dataJobs.data.jobs, function(job) {
+                                  if (job.progress < 1.0) { pollAgain = true; }
+                                });
+                                if (pollAgain) {
+                                  $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
+                                }
+                            });
+                });
+
         }
+
+        // enable other controllers to call poll function
+        $scope.$on("event:pollActiveAnalytics", function() {
+          pollActive();
+        });
+
+        // poll on page entry
         pollActive();
     }).
     controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, ElasticSearch) {
