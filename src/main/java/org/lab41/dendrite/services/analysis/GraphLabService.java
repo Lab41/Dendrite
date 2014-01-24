@@ -9,6 +9,7 @@ import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -35,20 +36,20 @@ public class GraphLabService extends AnalysisService {
     private org.apache.commons.configuration.Configuration config;
 
     private static List<String> algorithms = Arrays.asList(
-        "approximate_diameter",
+        //"approximate_diameter",
         "connected_component",
         "connected_component_stats",
-        "directed_triangle_count",
-        "eigen_vector_normalization",
-        "graph_laplacian",
-        "kcore",
+        //"directed_triangle_count",
+        //"eigen_vector_normalization",
+        //"graph_laplacian",
+        //"kcore",
         "pagerank",
         "partitioning",
         "simple_coloring",
-        "simple_undirected_triangle_count",
+        //"simple_undirected_triangle_count",
         "sssp",
-        "TSC",
-        "undirected_triangle_count"
+        "TSC"
+        //"undirected_triangle_count"
     );
 
     @Autowired
@@ -131,7 +132,7 @@ public class GraphLabService extends AnalysisService {
             fs.mkdirs(importDir);
 
             runExport(graph, jobId, exportDir);
-            runGraphLab(exportDir, importDir, algorithm);
+            runGraphLab(fs, exportDir, importDir, algorithm);
 
             // We don't need the export directory at this point.
             //fs.delete(exportDir, true);
@@ -158,8 +159,11 @@ public class GraphLabService extends AnalysisService {
         faunusJob.call();
     }
 
-    private void runGraphLab(Path exportDir, Path importDir, String algorithm) throws Exception {
+    private void runGraphLab(FileSystem fs, Path exportDir, Path importDir, String algorithm) throws Exception {
         File tmpFile = File.createTempFile("temp", "");
+
+        exportDir = new Path(exportDir, "job-0");
+        importDir = new Path(importDir, "output");
 
         try {
             // feed output to graphlab as input
@@ -176,23 +180,40 @@ public class GraphLabService extends AnalysisService {
                     " -x CLASSPATH=$GRAPHLAB_CLASSPATH " +
                     new Path(config.getString("metagraph.template.graphlab.algorithm-path"), algorithm) +
                     " --format adj" +
-                    " --graph " + new Path(exportDir, "job-0");
+                    " --graph " + exportDir;
 
             // simple coloring uses a different cli syntax to declare the output.
             if (algorithm.equals("simple_coloring")) {
-                cmd += " --output " + new Path(importDir, "import");
+                cmd += " --output " + importDir;
+            } else if (algorithm.equals("TSC")) {
+                // do nothing.
             } else {
-                cmd += " --saveprefix " + new Path(importDir, "import");
+                cmd += " --saveprefix " + importDir;
             }
 
             logger.debug("running: " + cmd);
 
             Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", cmd});
+
+            // TSC outputs the results to stdout, so copy the results back into hdfs.
+            if (algorithm.equals("TSC")) {
+                FSDataOutputStream os = fs.create(exportDir);
+                try {
+                    IOUtils.copy(p.getInputStream(), os);
+                } finally {
+                    os.close();
+                }
+            }
+
             int exitStatus = p.waitFor();
 
             logger.debug("graphlab finished with ", exitStatus);
 
-            if (exitStatus != 0) {
+            if (exitStatus == 0) {
+                if (algorithm.equals("TSC")) {
+
+                }
+            } else {
                 String stdout = IOUtils.toString(p.getInputStream());
                 String stderr = IOUtils.toString(p.getErrorStream());
 
@@ -213,10 +234,15 @@ public class GraphLabService extends AnalysisService {
                 String line;
                 line = br.readLine();
                 while (line != null) {
-                    String[] algorithmArray = line.split("\t");
+                    String[] parts;
+                    if (algorithm.equals("connected_component") || algorithm.equals("connected_component_stats")) {
+                        parts = line.split(",");
+                    } else {
+                        parts = line.split("\t");
+                    }
 
-                    String id = algorithmArray[0];
-                    double value = Double.valueOf(algorithmArray[1]);
+                    String id = parts[0];
+                    double value = Double.valueOf(parts[1]);
 
                     // feed graphlab output as input for updating each vertex
                     Vertex vertex = tx.getVertex(id);
