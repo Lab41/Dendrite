@@ -881,6 +881,10 @@ angular.module('dendrite.controllers', []).
 
       $scope.$watch('graphId', function(newVal, oldVal) {
           if (newVal !== undefined) {
+              Scatterplot.searchUniqueField($scope.graphId)
+                  .success(function(data) {
+                      $scope.searchUniqueField = Object.keys(data.vertex.properties);
+                  });
               Scatterplot.searchFacets($scope.graphId)
                   .success(function(data) {
                       var elasticValueFields = [];
@@ -897,7 +901,7 @@ angular.module('dendrite.controllers', []).
 
               $scope.visualize = function() {
                   $scope.searching = true;
-                  Scatterplot.display($scope.graphId, $scope.query, $scope.facet, $scope.query2, $scope.facet2)
+                  Scatterplot.display($scope.graphId, $scope.filter, $scope.size, $scope.range, $scope.facet, $scope.range2, $scope.facet2)
                       .success(function() {
                           $scope.searching = false;
                       })

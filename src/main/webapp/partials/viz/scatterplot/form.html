@@ -1,14 +1,19 @@
 <div ng-controller="VizScatterplotCtrl">
   <form class="form-inline">
+    <p style="display:inline"> Filter: </p>
+    <input ng-model="filter" type="text" class="input-small" placeholder="Query">
+    <p style="display:inline"> Number of results: </p>
+    <input ng-model="size" type="number" class="input-small" placeholder="1000">
+    <br />
     <p style="display:inline"> X-Axis: </p>
-    <input ng-model="query" type="text" class="input-small" placeholder="Query">
+    <input ng-model="range" type="text" class="input-small" placeholder="Range">
     <select class="inline form-control" style="width:45%" ng-model="facet">
       <option ng-selected="true">Search Field</option>
       <option ng-repeat="facet in searchFacets" value="{{ facet }}">{{ facet }}</option>
     </select>
     <br />
     <p style="display:inline"> Y-Axis: </p>
-    <input ng-model="query2" type="text" class="input-small" placeholder="Query">
+    <input ng-model="range2" type="text" class="input-small" placeholder="Range">
     <select class="inline form-control" style="width:45%" ng-model="facet2">
       <option ng-selected="true">Search Field</option>
       <option ng-repeat="facet in searchFacets" value="{{ facet }}">{{ facet }}</option>
@@ -18,5 +23,5 @@
 
   <h4 id="viz-scatterplot-title"></h4>
   <div ng-hide="!searching"><img src="img/icons/ajax-loader.gif"></div>
-  <svg id="viz-scatterplot-wrapper"></svg>
+  <div id="viz-scatterplot-wrapper"></div>
 </div>
