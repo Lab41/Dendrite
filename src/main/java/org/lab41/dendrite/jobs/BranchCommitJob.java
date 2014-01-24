@@ -39,6 +39,7 @@ public class BranchCommitJob extends AbstractJob implements Runnable {
         BranchMetadata branchMetadata = tx.getBranch(branchId);
         GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
         GraphMetadata dstGraphMetadata = tx.createGraph(srcGraphMetadata);
+
         tx.commit();
 
         this.branchId = branchId;

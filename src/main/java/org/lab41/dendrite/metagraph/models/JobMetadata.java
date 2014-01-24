@@ -15,9 +15,9 @@ import java.util.Date;
 public interface JobMetadata extends NamedMetadata {
 
     // frames doesn't seem to like enums...
-    //public enum State { WAITING, RUNNING, DONE, ERROR };
+    //public enum State { PENDING, RUNNING, DONE, ERROR };
 
-    public static String WAITING = "WAITING";
+    public static String PENDING = "PENDING";
     public static String RUNNING = "RUNNING";
     public static String DONE = "DONE";
     public static String ERROR = "ERROR";
@@ -75,7 +75,7 @@ public interface JobMetadata extends NamedMetadata {
         @Initializer
         public void init() {
             setCreationTime(new Date());
-            setState(WAITING);
+            setState(PENDING );
             setProgress(0);
         }
 
