@@ -287,96 +287,98 @@ angular.module('dendrite.services', ['ngResource']).
               data: JSON.stringify(inputJson)
           })
           .success(function(json) {
-            var facets = json.facets.tags.terms;
+            if (json.status === 200) {
+              var facets = json.facets.tags.terms;
 
-            // helper functions to extract properties of object array
-            var getCount, getTerm;
-            getCount = function(d) {
-              return d.count;
-            };
-            getTerm = function(d) {
-              return d.term;
-            };
+              // helper functions to extract properties of object array
+              var getCount, getTerm;
+              getCount = function(d) {
+                return d.count;
+              };
+              getTerm = function(d) {
+                return d.term;
+              };
 
-            // viz properties
-            var names,scores,
-                x,y,height,
-                chart,
-                width = $("#viz-histogram-wrapper").parent().width()*0.90,
-                bar_height = 20,
-                padding_width = 40,
-                padding_height = 30,
-                left_width = 100,
-                gap = 2;
+              // viz properties
+              var names,scores,
+                  x,y,height,
+                  chart,
+                  width = $("#viz-histogram-wrapper").parent().width()*0.90,
+                  bar_height = 20,
+                  padding_width = 40,
+                  padding_height = 30,
+                  left_width = 100,
+                  gap = 2;
 
-            // extract names and scores
-            names = facets.map(getTerm);
-            scores = facets.map(getCount);
-            height = bar_height;
+              // extract names and scores
+              names = facets.map(getTerm);
+              scores = facets.map(getCount);
+              height = bar_height;
 
-            // remove existing svg on refresh
-            $("#viz-histogram-wrapper svg").remove();
+              // remove existing svg on refresh
+              $("#viz-histogram-wrapper svg").remove();
 
-            // add titlebar
-            $('#viz-histogram-title').html('Results for facet "'+queryFacet+'" in query "' + queryTerm+'":');
+              // add titlebar
+              $('#viz-histogram-title').html('Results for facet "'+queryFacet+'" in query "' + queryTerm+'":');
 
-            // add canvas
-            chart = d3.select("#viz-histogram-wrapper")
-              .append('svg')
-              .attr('class', 'chart')
-              .attr('width', width)
-              .attr('height', height);
+              // add canvas
+              chart = d3.select("#viz-histogram-wrapper")
+                .append('svg')
+                .attr('class', 'chart')
+                .attr('width', width)
+                .attr('height', height);
 
-            // establish scales for x,y
-            x = d3.scale.linear()
-               .domain([0, d3.max(scores)])
-               .range([0, width]);
+              // establish scales for x,y
+              x = d3.scale.linear()
+                 .domain([0, d3.max(scores)])
+                 .range([0, width]);
 
-            // redefine y for adjusting the gap
-            y = d3.scale.ordinal()
-              .domain(names)
-              .rangeBands([0, (bar_height + 2 * gap) * names.length]);
+              // redefine y for adjusting the gap
+              y = d3.scale.ordinal()
+                .domain(names)
+                .rangeBands([0, (bar_height + 2 * gap) * names.length]);
 
-            chart = d3.select("#viz-histogram-wrapper")
-              .append('svg')
-              .attr('class', 'chart')
-              .attr('width', left_width + width + padding_width)
-              .attr('height', (bar_height + gap * 2) * names.length + padding_height)
-              .append("g")
-              .attr("transform", "translate(0, 0)");
+              chart = d3.select("#viz-histogram-wrapper")
+                .append('svg')
+                .attr('class', 'chart')
+                .attr('width', left_width + width + padding_width)
+                .attr('height', (bar_height + gap * 2) * names.length + padding_height)
+                .append("g")
+                .attr("transform", "translate(0, 0)");
 
-            // color bars
-            chart.selectAll("rect")
-              .data(facets)
-              .enter().append("rect")
-              .attr("x", left_width)
-              .attr("y", function(d) { return y(d.term) + gap; })
-              .attr("width", function(d) { return x(d.count) })
-              .attr("height", bar_height);
+              // color bars
+              chart.selectAll("rect")
+                .data(facets)
+                .enter().append("rect")
+                .attr("x", left_width)
+                .attr("y", function(d) { return y(d.term) + gap; })
+                .attr("width", function(d) { return x(d.count) })
+                .attr("height", bar_height);
 
-            // display count
-            chart.selectAll("text.score")
-              .data(facets)
-              .enter().append("text")
-              .attr("x", function(d) { return x(d.count) + left_width; })
-              .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
-              .attr("dx", -5)
-              .attr("dy", ".36em")
-              .attr("text-anchor", "end")
-              .attr('class', 'score')
-              .text(function(d) { return d.count });
+              // display count
+              chart.selectAll("text.score")
+                .data(facets)
+                .enter().append("text")
+                .attr("x", function(d) { return x(d.count) + left_width; })
+                .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
+                .attr("dx", -5)
+                .attr("dy", ".36em")
+                .attr("text-anchor", "end")
+                .attr('class', 'score')
+                .text(function(d) { return d.count });
 
-            // category label
-            chart.selectAll("text.name")
-              .data(facets)
-              .enter().append("text")
-              .attr("x", left_width / 2)
-              .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
-              .attr("dy", ".36em")
-              .attr("text-anchor", "middle")
-              .attr('class', 'name')
-              .text(function(d) { return d.term });
-            });
+              // category label
+              chart.selectAll("text.name")
+                .data(facets)
+                .enter().append("text")
+                .attr("x", left_width / 2)
+                .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
+                .attr("dy", ".36em")
+                .attr("text-anchor", "middle")
+                .attr('class', 'name')
+                .text(function(d) { return d.term });
+              }
+           });
         }
       };
     }).
@@ -436,91 +438,93 @@ angular.module('dendrite.services', ['ngResource']).
               data: JSON.stringify(inputJson)
           })
           .success(function(json) {
-            var results = json.hits.hits;
+            if (json.status === 200) {
+              var results = json.hits.hits;
 
-            // helper functions to extract properties of object array
-            var getX = function(d) {
-              if (d["_source"][queryFacet] !== undefined || d["_source"][queryFacet2] !== undefined) {
-                  return ((d["_source"][queryFacet] === undefined) ? -1 : d["_source"][queryFacet]);
-              } 
-            };
-            var getY = function(d) {
-              if (d["_source"][queryFacet] !== undefined || d["_source"][queryFacet2] !== undefined) {
-                  return ((d["_source"][queryFacet2] === undefined) ? -1 : d["_source"][queryFacet2]);
-              } 
-            };
+              // helper functions to extract properties of object array
+              var getX = function(d) {
+                if (d["_source"][queryFacet] !== undefined || d["_source"][queryFacet2] !== undefined) {
+                    return ((d["_source"][queryFacet] === undefined) ? -1 : d["_source"][queryFacet]);
+                } 
+              };
+              var getY = function(d) {
+                if (d["_source"][queryFacet] !== undefined || d["_source"][queryFacet2] !== undefined) {
+                    return ((d["_source"][queryFacet2] === undefined) ? -1 : d["_source"][queryFacet2]);
+                } 
+              };
 
-            var chart,
-                height = 400,
-                width = $("#viz-scatterplot-wrapper").parent().width()*0.90;
+              var chart,
+                  height = 400,
+                  width = $("#viz-scatterplot-wrapper").parent().width()*0.90;
 
-            var randomData = function(groups, points, xval, yval) {
-              var data = [],
-                  shapes = ['circle', 'cross', 'triangle-up', 'triangle-down', 'diamond', 'square'],
-                  random = d3.random.normal();
+              var randomData = function(groups, points, xval, yval) {
+                var data = [],
+                    shapes = ['circle', 'cross', 'triangle-up', 'triangle-down', 'diamond', 'square'],
+                    random = d3.random.normal();
 
-              for (var i = 0; i < groups; i++) {
-                data.push({
-                  key: 'Group ' + i,
-                  values: []
-                });
+                for (var i = 0; i < groups; i++) {
+                  data.push({
+                    key: 'Group ' + i,
+                    values: []
+                  });
 
-                for (var j = 0; j < points; j++) {
-                  var x, y;
-                  if (xval[j] || yval[j]) {
-                    data[i].values.push({
-                      x: xval[j],
-                      y: yval[j],
-                      size: Math.random(),
-                      shape: shapes[j % 6]
-                    });
+                  for (var j = 0; j < points; j++) {
+                    var x, y;
+                    if (xval[j] || yval[j]) {
+                      data[i].values.push({
+                        x: xval[j],
+                        y: yval[j],
+                        size: Math.random(),
+                        shape: shapes[j % 6]
+                      });
+                    }
                   }
                 }
-              }
-              return data;
-            };
+                return data;
+              };
 
-            var xval = results.map(getX);
-            var yval = results.map(getY);
+              var xval = results.map(getX);
+              var yval = results.map(getY);
             
-            // remove existing svg on refresh
-            $("#viz-scatterplot-wrapper svg").remove();
+              // remove existing svg on refresh
+              $("#viz-scatterplot-wrapper svg").remove();
 
-            // add titlebar
-            $('#viz-scatterplot-title').html('Results for "'+queryString+'":');
+              // add titlebar
+              $('#viz-scatterplot-title').html('Results for "'+queryString+'":');
 
-            nv.addGraph(function() {
-              chart = nv.models.scatterChart()
-                            .showDistX(true)
-                            .showDistY(true)
-                            .useVoronoi(true)
-                            .color(d3.scale.category10().range())
-                            .transitionDuration(300)
-                            ;
+              nv.addGraph(function() {
+                chart = nv.models.scatterChart()
+                              .showDistX(true)
+                              .showDistY(true)
+                              .useVoronoi(true)
+                              .color(d3.scale.category10().range())
+                              .transitionDuration(300)
+                              ;
 
-              chart.xAxis.tickFormat(d3.format('.02f'));
-              chart.yAxis.tickFormat(d3.format('.02f'));
-              chart.tooltipContent(function(key) {
-                  return '<h2>' + key + '</h2>';
+                chart.xAxis.tickFormat(d3.format('.02f'));
+                chart.yAxis.tickFormat(d3.format('.02f'));
+                chart.tooltipContent(function(key) {
+                    return '<h2>' + key + '</h2>';
+                });
+
+
+                // add canvas
+                chart = d3.select("#viz-scatterplot-wrapper")
+                  .attr('width', width)
+                  .attr('height', height)
+                  .append('svg')
+                  .attr('class', 'chart')
+                  .attr('width', width)
+                  .attr('height', height)
+                  .datum(randomData(1,querySize, xval, yval))
+                  .call(chart);
+ 
+                nv.utils.windowResize(chart.update);
+
+                //chart.dispatch.on('stateChange', function(e) { ('New State:', JSON.stringify(e)); });
+                return chart;
               });
-
-
-              // add canvas
-              chart = d3.select("#viz-scatterplot-wrapper")
-                .attr('width', width)
-                .attr('height', height)
-                .append('svg')
-                .attr('class', 'chart')
-                .attr('width', width)
-                .attr('height', height)
-                .datum(randomData(1,querySize, xval, yval))
-                .call(chart);
-
-              nv.utils.windowResize(chart.update);
-
-              //chart.dispatch.on('stateChange', function(e) { ('New State:', JSON.stringify(e)); });
-              return chart;
-            });
+            }
           });
         }
       };
