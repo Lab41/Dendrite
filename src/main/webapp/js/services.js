@@ -252,18 +252,17 @@ angular.module('dendrite.services', ['ngResource']).
                 data: JSON.stringify(inputJson)
             });
 
+          },
+          mapping: function(graphId) {
+            return $http({
+                method: "GET",
+                url: '/dendrite/api/graphs/'+graphId+'/search/mapping'
+            })
           }
         };
     }).
     factory('Histogram', function($resource, $routeParams, $http, appConfig) {
       return {
-        searchFacets: function(graphId) {
-          return $http({
-              method: "GET",
-              url: '/dendrite/api/graphs/'+graphId+'/search/mapping'
-          })
-        },
-
         display: function(graphId, queryTerm, queryFacet) {
           // default inputs
           if (queryTerm === undefined || queryTerm === '') {
@@ -286,8 +285,8 @@ angular.module('dendrite.services', ['ngResource']).
               url: '/dendrite/api/graphs/'+graphId+'/search',
               data: JSON.stringify(inputJson)
           })
-          .success(function(json) {
-            if (json.status === 200) {
+          .success(function(json, response) {
+            if (response === 200) {
               var facets = json.facets.tags.terms;
 
               // helper functions to extract properties of object array
@@ -384,19 +383,6 @@ angular.module('dendrite.services', ['ngResource']).
     }).
     factory('Scatterplot', function($resource, $routeParams, $http, appConfig) {
       return {
-        searchUniqueField: function(graphId) {
-          return $http({
-              method: "GET",
-              url: '/dendrite/api/graphs/'+graphId+'/search/mapping'
-          })
-        },
-        searchFacets: function(graphId) {
-          return $http({
-              method: "GET",
-              url: '/dendrite/api/graphs/'+graphId+'/search/mapping'
-          })
-        },
-
         display: function(graphId, queryFilter, querySize, queryRange, queryFacet, queryRange2, queryFacet2) {
           // default inputs
           if (queryFilter === undefined || queryFilter === '') {
@@ -437,8 +423,8 @@ angular.module('dendrite.services', ['ngResource']).
               url: '/dendrite/api/graphs/'+graphId+'/search',
               data: JSON.stringify(inputJson)
           })
-          .success(function(json) {
-            if (json.status === 200) {
+          .success(function(json, response) {
+            if (response === 200) {
               var results = json.hits.hits;
 
               // helper functions to extract properties of object array

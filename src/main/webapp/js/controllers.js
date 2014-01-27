@@ -853,12 +853,12 @@ angular.module('dendrite.controllers', []).
         };
 
     }).
-    controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
+    controller('VizHistogramCtrl', function($scope, $location, Histogram, ElasticSearch, appConfig) {
       $scope.searching = false;
 
       $scope.$watch('graphId', function(newVal, oldVal) {
           if (newVal !== undefined) {
-              Histogram.searchFacets($scope.graphId)
+              ElasticSearch.mapping($scope.graphId)
                   .success(function(data) {
                       $scope.searchFacets = Object.keys(data.vertex.properties);
                   });
@@ -876,16 +876,16 @@ angular.module('dendrite.controllers', []).
           }
       });
     }).
-    controller('VizScatterplotCtrl', function($scope, $location, Scatterplot, appConfig) {
+    controller('VizScatterplotCtrl', function($scope, $location, Scatterplot, ElasticSearch, appConfig) {
       $scope.searching = false;
 
       $scope.$watch('graphId', function(newVal, oldVal) {
           if (newVal !== undefined) {
-              Scatterplot.searchUniqueField($scope.graphId)
+              ElasticSearch.mapping($scope.graphId)
                   .success(function(data) {
                       $scope.searchUniqueField = Object.keys(data.vertex.properties);
                   });
-              Scatterplot.searchFacets($scope.graphId)
+              ElasticSearch.mapping($scope.graphId)
                   .success(function(data) {
                       var elasticValueFields = [];
                       Object.keys(data.vertex.properties).forEach(function(k) {
