@@ -4,7 +4,6 @@ import com.tinkerpop.blueprints.Edge
 import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.blueprints.util.ElementHelper
 
-g.makeKey("vertexId").dataType(String.class).indexed(Vertex.class).indexed("search", Vertex.class).unique().make();
 g.makeKey("name").dataType(String.class).indexed(Vertex.class).indexed("search", Vertex.class).unique().make();
 g.makeKey("age").dataType(Integer.class).indexed("search", Vertex.class).make();
 g.makeKey("type").dataType(String.class).make();
@@ -28,37 +27,37 @@ saturn.setProperty("age", 10000);
 saturn.setProperty("type", "titan");
 
 Vertex sky = g.addVertex(null);
-ElementHelper.setProperties(sky, "name", "sky", "type", "location", "vertexId", sky.getId().toString());
+ElementHelper.setProperties(sky, "name", "sky", "type", "location");
 
 Vertex sea = g.addVertex(null);
-ElementHelper.setProperties(sea, "name", "sea", "type", "location", "vertexId", sea.getId().toString());
+ElementHelper.setProperties(sea, "name", "sea", "type", "location");
 
 Vertex jupiter = g.addVertex(null);
-ElementHelper.setProperties(jupiter, "name", "jupiter", "age", 5000, "type", "god", "vertexId", jupiter.getId().toString());
+ElementHelper.setProperties(jupiter, "name", "jupiter", "age", 5000, "type", "god");
 
 Vertex neptune = g.addVertex(null);
-ElementHelper.setProperties(neptune, "name", "neptune", "age", 4500, "type", "god", "vertexId", neptune.getId().toString());
+ElementHelper.setProperties(neptune, "name", "neptune", "age", 4500, "type", "god");
 
 Vertex hercules = g.addVertex(null);
-ElementHelper.setProperties(hercules, "name", "hercules", "age", 30, "type", "demigod", "vertexId", hercules.getId().toString());
+ElementHelper.setProperties(hercules, "name", "hercules", "age", 30, "type", "demigod");
 
 Vertex alcmene = g.addVertex(null);
-ElementHelper.setProperties(alcmene, "name", "alcmene", "age", 45, "type", "human", "vertexId", alcmene.getId().toString());
+ElementHelper.setProperties(alcmene, "name", "alcmene", "age", 45, "type", "human");
 
 Vertex pluto = g.addVertex(null);
-ElementHelper.setProperties(pluto, "name", "pluto", "age", 4000, "type", "god", "vertexId", pluto.getId().toString());
+ElementHelper.setProperties(pluto, "name", "pluto", "age", 4000, "type", "god");
 
 Vertex nemean = g.addVertex(null);
-ElementHelper.setProperties(nemean, "name", "nemean", "type", "monster", "vertexId", nemean.getId().toString());
+ElementHelper.setProperties(nemean, "name", "nemean", "type", "monster");
 
 Vertex hydra = g.addVertex(null);
-ElementHelper.setProperties(hydra, "name", "hydra", "type", "monster", "vertexId", hydra.getId().toString());
+ElementHelper.setProperties(hydra, "name", "hydra", "type", "monster");
 
 Vertex cerberus = g.addVertex(null);
-ElementHelper.setProperties(cerberus, "name", "cerberus", "type", "monster", "vertexId", cerberus.getId().toString());
+ElementHelper.setProperties(cerberus, "name", "cerberus", "type", "monster");
 
 Vertex tartarus = g.addVertex(null);
-ElementHelper.setProperties(tartarus, "name", "tartarus", "type", "location", "vertexId", tartarus.getId().toString());
+ElementHelper.setProperties(tartarus, "name", "tartarus", "type", "location");
 
 // edges
 

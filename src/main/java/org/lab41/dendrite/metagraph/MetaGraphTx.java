@@ -243,7 +243,6 @@ public class MetaGraphTx {
 
         F framedVertex = getAutoStartTx().addVertex(null, kind);
 
-        framedVertex.asVertex().setProperty("vertexId", framedVertex.getId());
         framedVertex.asVertex().setProperty("type", type);
 
         return framedVertex;

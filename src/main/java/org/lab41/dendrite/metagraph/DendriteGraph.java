@@ -3,6 +3,7 @@ package org.lab41.dendrite.metagraph;
 import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.graphdb.blueprints.TitanBlueprintsGraph;
 import com.tinkerpop.blueprints.Features;
+import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.slf4j.Logger;
@@ -53,6 +54,19 @@ public class DendriteGraph extends TitanBlueprintsGraph {
         this.id = id;
         this.properties = properties;
         this.titanGraph = TitanFactory.open(getConfiguration());
+
+        // Make sure the vertexId is indexed
+        String backend = properties.getProperty("storage.index.search.backend", null);
+        if (backend != null && backend.equals("true")) {
+            TitanTransaction tx = titanGraph.newTransaction();
+            if (tx.getType(DendriteGraphTx.VERTEX_ID_KEY) == null) {
+                tx.makeKey(DendriteGraphTx.VERTEX_ID_KEY)
+                        .dataType(Object.class)
+                        .indexed("search", Vertex.class)
+                        .make();
+            }
+            tx.commit();
+        }
     }
 
     /**
