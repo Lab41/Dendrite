@@ -78,7 +78,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
             TitanTransaction tx = titanGraph.newTransaction();
             if (tx.getType(DendriteGraphTx.VERTEX_ID_KEY) == null) {
                 tx.makeKey(DendriteGraphTx.VERTEX_ID_KEY)
-                        .dataType(Object.class)
+                        .dataType(String.class)
                         .indexed("search", Vertex.class)
                         .make();
             }
