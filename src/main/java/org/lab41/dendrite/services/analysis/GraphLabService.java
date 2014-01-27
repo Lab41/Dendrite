@@ -171,9 +171,9 @@ public class GraphLabService extends AnalysisService {
             String cmd = "for i in `hadoop classpath | sed \"s/:/ /g\"` ;" +
                     " do echo $i;" +
                     " done | xargs | sed \"s/ /:/g\" > " +
-                    tmpFile + "; " +
+                    tmpFile + " && " +
                     "export GRAPHLAB_CLASSPATH=`cat " +
-                    tmpFile + "`; "+
+                    tmpFile + "` && "+
                     "mpiexec " +
                     "-n " + config.getString("metagraph.template.graphlab.cluster-size") +
                     " -hostfile " + config.getString("metagraph.template.graphlab.hosts-file") +
