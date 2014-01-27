@@ -26,6 +26,13 @@ import org.apache.http.HttpEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.MetaData;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.StringBuilder;
@@ -65,68 +73,23 @@ public class ElasticSearchController {
             return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        Configuration config = graph.getConfiguration();
-
-        String elasticSearchHost = config.getString("storage.index.search.hostname", null);
-        String elasticSearchIndexName = config.getString("storage.index.search.index-name", null);
-
-        if (config.getBoolean("storage.index.search.local-mode", false)) {
-            elasticSearchHost = "localhost";
-        }
-
-        // if it didn't find either index hostname or local-mode for the specified index
-        if (elasticSearchHost == null || elasticSearchIndexName == null) {
+        Client client = graph.getElasticSearchClient();
+        if (client == null) {
             json.put("status", "error");
-            json.put("msg", "could not find ElasticSearch index for '" + graphId + "'");
+            json.put("msg", "graph does not have graph elasticsearch index");
             return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        // build the elasticsearch url
-        String elasticSearchURL = "http://" + elasticSearchHost + ":9200/" + elasticSearchIndexName + "/_search";
+        SearchResponse response = client.prepareSearch(graph.getIndexName())
+                .setSource(body)
+                .execute()
+                .actionGet();
 
-        // decode url-encoded json response back into json
-        String decodedString = java.net.URLDecoder.decode(body, "UTF-8");
-        JSONObject jsonQuery = new JSONObject(decodedString);
-        JSONObject jsonResult = null;
-
-        // pass the query directly to elasticsearch and return that result
-        HttpClient httpClient = new DefaultHttpClient();
-
-        try {
-            HttpPost request = new HttpPost(elasticSearchURL);
-            StringEntity params = new StringEntity(jsonQuery.toString());
-            request.addHeader("content-type", "application/json");
-            request.setEntity(params);
-            HttpResponse response = httpClient.execute(request);
-
-            HttpEntity entity  = response.getEntity();
-            InputStream is = entity.getContent();
-
-            StringBuilder stringBuilderContent = new StringBuilder();
-            int i;
-            char c;
-            // reads till the end of the stream
-            while((i=is.read())!=-1)
-            {
-                // converts integer to character
-                c=(char)i;
-                stringBuilderContent.append(c);
-            }
-            String content = stringBuilderContent.toString();
-            jsonResult = new JSONObject(content);
-        }catch (Exception ex) {
-            json.put("status", "error");
-            json.put("msg", "error retrieving query from ElasticSearch");
-            return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
-        } finally {
-            httpClient.getConnectionManager().shutdown();
-        }
-
-        return new ResponseEntity<>(jsonResult.toString(), responseHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(response.toString(), responseHeaders, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/graphs/{graphId}/search/mapping", method = RequestMethod.GET)
-    public ResponseEntity<String> elasticSearchMapping(@PathVariable String graphId) throws JSONException {
+    public ResponseEntity<String> elasticSearchMapping(@PathVariable String graphId) throws JSONException, IOException {
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -140,61 +103,26 @@ public class ElasticSearchController {
             return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        Configuration config = graph.getConfiguration();
-
-        String elasticSearchHost = config.getString("storage.index.search.hostname", null);
-        String elasticSearchIndexName = config.getString("storage.index.search.index-name", null);
-
-        if (config.getBoolean("storage.index.search.local-mode", false)) {
-            elasticSearchHost = "localhost";
-        }
-
-        // if it didn't find either index hostname or local-mode for the specified index
-        if (elasticSearchHost == null || elasticSearchIndexName == null) {
+        Client client = graph.getElasticSearchClient();
+        if (client == null) {
             json.put("status", "error");
-            json.put("msg", "could not find ElasticSearch index for '" + graphId + "'");
+            json.put("msg", "graph does not have graph elasticsearch index");
             return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        // build the elasticsearch url
-        String elasticSearchURL = "http://" + elasticSearchHost + ":9200/" + elasticSearchIndexName + "/_mapping";
+        MetaData metaData = client.admin().cluster().prepareState()
+                .setFilterIndices(graph.getIndexName())
+                .execute()
+                .actionGet()
+                .getState()
+                .getMetaData();
 
-        // object for json response back into json
-        JSONObject jsonResult = null;
-
-        // pass the query directly to elasticsearch and return that result
-        HttpClient httpClient = new DefaultHttpClient();
-
-        try {
-            HttpGet request = new HttpGet(elasticSearchURL);
-            HttpResponse response = httpClient.execute(request);
-
-            HttpEntity entity  = response.getEntity();
-            InputStream is = entity.getContent();
-
-            StringBuilder stringBuilderContent = new StringBuilder();
-            int i;
-            char c;
-            // reads till the end of the stream
-            while((i=is.read())!=-1)
-            {
-                // converts integer to character
-                c=(char)i;
-                stringBuilderContent.append(c);
+        for (IndexMetaData indexMetaData: metaData) {
+            for (MappingMetaData mappingMetaData: indexMetaData.mappings().values()) {
+                json.put(mappingMetaData.type(), mappingMetaData.sourceAsMap());
             }
-            String content = stringBuilderContent.toString();
-            jsonResult = new JSONObject(content);
-        }catch (Exception ex) {
-            json.put("status", "error");
-            json.put("msg", "error retrieving query from ElasticSearch");
-            return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
-        } finally {
-            httpClient.getConnectionManager().shutdown();
         }
-
-        jsonResult = jsonResult.getJSONObject(elasticSearchIndexName);
-
         // return
-        return new ResponseEntity<>(jsonResult.toString(), responseHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.OK);
     }
 }
