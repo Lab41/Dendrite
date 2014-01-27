@@ -269,9 +269,6 @@ angular.module('dendrite.services', ['ngResource']).
           if (queryTerm === undefined || queryTerm === '') {
             queryTerm = "*";
           }
-          if (queryFacet === undefined || queryFacet === '') {
-            queryFacet = "reason";
-          }
 
           // build elasticSearch query
           var inputJson = {
@@ -409,14 +406,8 @@ angular.module('dendrite.services', ['ngResource']).
           if (queryRange === undefined || queryRange === '') {
             queryRange = '';
           }
-          if (queryFacet === undefined || queryFacet === '') {
-            queryFacet = "age";
-          }
           if (queryRange2 === undefined || queryRange2 === '') {
             queryRange2 = '';
-          }
-          if (queryFacet2 === undefined || queryFacet2 === '') {
-            queryFacet2 = "age";
           }
 
           querySize = parseInt(querySize);
