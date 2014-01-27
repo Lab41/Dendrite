@@ -57,7 +57,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
 
         // Make sure the vertexId is indexed
         String backend = properties.getProperty("storage.index.search.backend", null);
-        if (backend != null && backend.equals("true")) {
+        if (backend != null && backend.equals("elasticsearch")) {
             TitanTransaction tx = titanGraph.newTransaction();
             if (tx.getType(DendriteGraphTx.VERTEX_ID_KEY) == null) {
                 tx.makeKey(DendriteGraphTx.VERTEX_ID_KEY)
