@@ -13,11 +13,12 @@ import java.util.concurrent.locks.Lock;
 
 public class DendriteGraphTx extends TitanBlueprintsTransaction {
 
+    public static final String VERTEX_ID_KEY = "_vertexId";
+
     private Logger logger = LoggerFactory.getLogger(DendriteGraphTx.class);
 
     private Lock tableLock;
     private TitanTransaction tx;
-    private final String searchIndexId = "vertexId";
 
     public DendriteGraphTx(Lock tableLock, TitanTransaction tx) {
         this.tableLock = tableLock;
@@ -27,14 +28,14 @@ public class DendriteGraphTx extends TitanBlueprintsTransaction {
     @Override
     public TitanVertex addVertex() {
         TitanVertex vertex = tx.addVertex();
-        vertex.setProperty(searchIndexId, vertex.getId());
+        vertex.setProperty(VERTEX_ID_KEY, vertex.getId());
         return vertex;
     }
 
     @Override
     public TitanVertex addVertex(Long id) {
         TitanVertex vertex = tx.addVertex(id);
-        vertex.setProperty(searchIndexId, vertex.getId());
+        vertex.setProperty(VERTEX_ID_KEY, vertex.getId());
         return vertex;
     }
 
@@ -166,7 +167,7 @@ public class DendriteGraphTx extends TitanBlueprintsTransaction {
     @Override
     public TitanVertex addVertex(Object id) {
         TitanVertex vertex = (TitanVertex) tx.addVertex(id);
-        vertex.setProperty(searchIndexId, vertex.getId());
+        vertex.setProperty(VERTEX_ID_KEY, vertex.getId());
         return vertex;
     }
 
