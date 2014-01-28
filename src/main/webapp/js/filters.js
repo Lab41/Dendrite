@@ -23,4 +23,14 @@ angular.module('dendrite.filters', [])
     return function(input, scope) {
         return input.substring(0,1).toUpperCase()+input.substring(1);
     }
+  })
+  .filter('truncate', function() {
+    return function(input, scope) {
+      var maxLen = 7;
+      var retVal = input;
+      if (input.length > maxLen) {
+        retVal = input.substring(0,maxLen)+"...";
+      }
+      return retVal;
+    }
   });
