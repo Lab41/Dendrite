@@ -105,11 +105,7 @@ angular.module('dendrite.controllers', []).
                 .$then(function(response) {
                     $scope.project = response.data.project;
                     $scope.graphId = $scope.project.current_graph;
-                    $scope.graph = Graph.get({graphId: $scope.graphId})
-                          .$then(function(res) {
-                            console.log(res);
-                          });
-
+                    $scope.graph = Graph.get({graphId: $scope.graphId});
                     $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
                     $scope.$on('event:reloadGraph', function() {
                       $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
