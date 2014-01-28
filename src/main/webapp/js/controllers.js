@@ -886,12 +886,12 @@ angular.module('dendrite.controllers', []).
         };
 
     }).
-    controller('VizHistogramCtrl', function($scope, $location, Histogram, appConfig) {
+    controller('VizHistogramCtrl', function($scope, $location, Histogram, ElasticSearch, appConfig) {
       $scope.searching = false;
 
       $scope.$watch('graphId', function(newVal, oldVal) {
           if (newVal !== undefined) {
-              Histogram.searchFacets($scope.graphId)
+              ElasticSearch.mapping($scope.graphId)
                   .success(function(data) {
                       if (data.vertex !== undefined && data.vertex.properties !== undefined) {
                         $scope.searchFacets = Object.keys(data.vertex.properties);
@@ -901,6 +901,42 @@ angular.module('dendrite.controllers', []).
               $scope.visualize = function() {
                   $scope.searching = true;
                   Histogram.display($scope.graphId, $scope.query, $scope.facet)
+                      .success(function() {
+                          $scope.searching = false;
+                      })
+                      .error(function() {
+                          $scope.searching = false;
+                      });
+              };
+          }
+      });
+    }).
+    controller('VizScatterplotCtrl', function($scope, $location, Scatterplot, ElasticSearch, appConfig) {
+      $scope.searching = false;
+
+      $scope.$watch('graphId', function(newVal, oldVal) {
+          if (newVal !== undefined) {
+              ElasticSearch.mapping($scope.graphId)
+                  .success(function(data) {
+                      $scope.searchUniqueField = Object.keys(data.vertex.properties);
+                  });
+              ElasticSearch.mapping($scope.graphId)
+                  .success(function(data) {
+                      var elasticValueFields = [];
+                      Object.keys(data.vertex.properties).forEach(function(k) {
+                          var val = data["vertex"]["properties"][k]["type"]; 
+                          if (val === "integer" ||
+                              val === "double" ||
+                              val === "float") {
+                              elasticValueFields.push(k);
+                          };
+                      });
+                      $scope.searchFacets = elasticValueFields;
+                  });
+
+              $scope.visualize = function() {
+                  $scope.searching = true;
+                  Scatterplot.display($scope.graphId, $scope.filter, $scope.size, $scope.range, $scope.facet, $scope.range2, $scope.facet2)
                       .success(function() {
                           $scope.searching = false;
                       })

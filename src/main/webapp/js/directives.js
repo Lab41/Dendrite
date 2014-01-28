@@ -94,7 +94,7 @@ angular.module('dendrite.directives', []).
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
-        var width = 500,
+        var width = $('#forceDirectedGraph').parent().width()*0.90,
           height = 500;
 
         var color = d3.scale.category20();
