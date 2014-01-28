@@ -263,7 +263,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
             TransportClient client = new TransportClient(settings);
             elasticSearchClient = client;
 
-            for (String hostname: properties.getProperty("storage.index.search.hostname", "localhost:9300").split(",")) {
+            for (String hostname: properties.getProperty("storage.index.search.hostname", "localhost").split(",")) {
                 String[] parts = hostname.split(":");
                 int port = 9300;
                 if (parts.length == 2) {
