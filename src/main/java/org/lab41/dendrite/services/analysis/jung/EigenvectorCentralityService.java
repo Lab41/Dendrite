@@ -1,6 +1,7 @@
 package org.lab41.dendrite.services.analysis.jung;
 
 import com.thinkaurelius.titan.core.TitanTransaction;
+import com.thinkaurelius.titan.core.attribute.FullDouble;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.oupls.jung.GraphJung;
@@ -67,7 +68,7 @@ public class EigenvectorCentralityService extends AnalysisService {
 
         if (tx.getType("jungEigenvectorCentrality") == null) {
             tx.makeKey("jungEigenvectorCentrality")
-                    .dataType(Double.class)
+                    .dataType(FullDouble.class)
                     .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                     .make();
         }

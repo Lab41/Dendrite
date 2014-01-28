@@ -5,6 +5,7 @@ import com.thinkaurelius.faunus.FaunusPipeline;
 import com.thinkaurelius.faunus.formats.adjacency.AdjacencyFileOutputFormat;
 import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseInputFormat;
 import com.thinkaurelius.titan.core.TitanTransaction;
+import com.thinkaurelius.titan.core.attribute.FullDouble;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -104,7 +105,7 @@ public class GraphLabService extends AnalysisService {
 
         if (tx.getType("graphlab_"+algorithm) == null) {
             tx.makeKey("graphlab_"+algorithm)
-                    .dataType(Double.class)
+                    .dataType(FullDouble.class)
                     .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                     .make();
         }
