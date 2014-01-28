@@ -140,7 +140,7 @@ public class GraphLabService extends AnalysisService {
             runImport(graph, fs, importDir, algorithm);
         } finally {
             // Clean up after ourselves.
-            //fs.delete(tmpDir, true);
+            fs.delete(tmpDir, true);
 
             logger.debug("finished graphlab analysis of '" + graph.getId() + "'");
         }

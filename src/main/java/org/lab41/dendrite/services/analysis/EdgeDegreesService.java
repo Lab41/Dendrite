@@ -194,7 +194,7 @@ public class EdgeDegreesService extends AnalysisService {
 
         } finally {
             // Clean up after ourselves.
-            //fs.delete(tmpDir, true);
+            fs.delete(tmpDir, true);
         }
     }
 }
