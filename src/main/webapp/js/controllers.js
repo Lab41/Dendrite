@@ -106,22 +106,27 @@ angular.module('dendrite.controllers', []).
                     $scope.project = response.data.project;
                     $scope.graphId = $scope.project.current_graph;
                     $scope.graph = Graph.get({graphId: $scope.graphId});
-                    $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
-                    $scope.$on('event:reloadGraph', function() {
-                      $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
-                    });
+                    $scope.$broadcast('event:reloadGraph');
                 });
 
+        // tripwire to reload current graph
+        $scope.$on('event:reloadGraph', function() {
+          $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
+        });
 
+        // get project's branches
         $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
         $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
 
-
         // get the projects branches
         $scope.$on('event:reloadProjectNeeded', function() {
-          $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
+          Project.currentBranch({projectId: $routeParams.projectId})
+                  .$then(function(response) {
+                    $scope.queryCurrentBranch = response.data;
+                    $scope.graphId = $scope.queryCurrentBranch.branch.graphId;
+                    $scope.$broadcast('event:reloadGraph');
+                  });
           $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
-          $scope.safeApply();
         });
 
         $scope.deleteItem = function(item){
