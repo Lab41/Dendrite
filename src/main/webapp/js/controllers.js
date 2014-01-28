@@ -627,7 +627,7 @@ angular.module('dendrite.controllers', []).
                 $scope.searching = false;
 
             }).error(function(data, status, headers, config) {
-                alert(JSON.stringify(data));
+                //alert(JSON.stringify(data));
           });
         }
         else {
