@@ -201,7 +201,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
     }
 
     @Override
-    public TitanTransaction newThreadBoundTransaction() {
+    public DendriteGraphTx newThreadBoundTransaction() {
         return newTransaction();
     }
 
