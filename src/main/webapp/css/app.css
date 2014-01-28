@@ -894,6 +894,18 @@ body {
 .padding-none {
   padding: 0;
 }
+.align-center {
+  text-align: center;
+}
+.margin-bottom {
+  margin-bottom: 10px;
+}
+.margin-right-large {
+  margin-right: 30px;
+}
+.margin-bottom-large {
+  margin-bottom: 30px;
+}
 .margin-none {
   margin: 0;
 }

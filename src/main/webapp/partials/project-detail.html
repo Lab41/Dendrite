@@ -33,14 +33,20 @@
                   <input file-parse-graph type="file" name="file" id="file" style="display:inline">
                 </span>
                 <div>
-                  <span class="alert alert-error" ng-if="fileParseError">{{ fileParseError }}</span>
+                  <div class="alert alert-info" ng-hide="!fileParseError">
+                      <button type="button" class="close" data-dismiss="alert">×</button>
+                      {{ fileParseError }}
+                  </div>
                   <span ng-hide="fileUploaded || fileParseError">
                     <span class="inline fileupload-preview"> </span>
                     <a class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
                   </span>
 
                   <input ng-if="fileParsed && !fileUploaded" id="file-upload-submit" type="submit" class="inline btn btn-primary" value="Submit" ng-disabled="fileUploading"/>
-                  <div class="alert alert-info" ng-hide="!fileUploaded">{{ uploadMessage }}</div>
+                  <div class="alert alert-info" ng-hide="!fileUploaded">
+                      <button type="button" class="close" data-dismiss="alert">×</button>
+                      {{ uploadMessage }}
+                  </div>
                   <div ng-hide="!fileUploading"><img src="img/icons/ajax-loader.gif"></div>
                 </div>
               </div>
@@ -81,7 +87,10 @@
 
                   <input type="submit" class="inline btn btn-primary" value="Checkpoint" ng-click="saveFile"/>
                   <div ng-hide="!fileSaving"><img src="img/icons/ajax-loader.gif"></div>
-                  <div class="alert alert-info" ng-hide="!fileSaved">{{ savedMessage }}</div>
+                  <div class="alert alert-info" ng-hide="!fileSaved">
+                      <button type="button" class="close" data-dismiss="alert">×</button>
+                      {{ savedMessage }}
+                  </div>
                 </form>
               </div>
           </div>
