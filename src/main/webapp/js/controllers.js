@@ -464,7 +464,6 @@ angular.module('dendrite.controllers', []).
                 // build array of results
                 var resultArray = [];
                 var resultKeys = {};
-                var sortDirections = [];
                 data.hits.hits.forEach(function(hit) {
                   if (hit._type === $scope.objectType) {
                     hit._source._id = hit._source._vertexId;
@@ -505,6 +504,16 @@ angular.module('dendrite.controllers', []).
                       sortDirections.push(appConfig.elasticSearch.sorting.direction);
                     }
                   }
+                });
+
+                $scope.columnDefs.sort(function(a, b) {
+                    if (a.field < b.field) {
+                        return -1;
+                    } else if (a.field > b.field) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
                 });
 
                 // update sort options

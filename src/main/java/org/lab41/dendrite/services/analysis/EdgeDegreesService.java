@@ -2,6 +2,7 @@ package org.lab41.dendrite.services.analysis;
 
 import com.thinkaurelius.faunus.FaunusGraph;
 import com.thinkaurelius.faunus.FaunusPipeline;
+import com.thinkaurelius.faunus.formats.graphson.GraphSONOutputFormat;
 import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseInputFormat;
 import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseOutputFormat;
 import com.thinkaurelius.faunus.mapreduce.FaunusCompiler;
@@ -16,6 +17,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.JobStatus;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.lab41.dendrite.jobs.FaunusJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
@@ -24,6 +26,7 @@ import org.lab41.dendrite.metagraph.models.*;
 import org.lab41.dendrite.services.analysis.FaunusPipelineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,9 @@ import java.util.*;
 public class EdgeDegreesService extends AnalysisService {
 
     Logger logger = LoggerFactory.getLogger(EdgeDegreesService.class);
+
+    @Autowired
+    FaunusPipelineService faunusPipelineService;
 
     @Async
     public void titanCountDegrees(DendriteGraph graph, String jobId) throws Exception {
@@ -129,6 +135,10 @@ public class EdgeDegreesService extends AnalysisService {
     }
 
     private void runFaunus(DendriteGraph graph, String jobId) throws Exception {
+        // We do the edge counting in two passes. First, we count all the edges and write the graph to a sequence file.
+        // Second, we load the graph back in filtering out all the edges. We do this because I haven't figured out a
+        // way to count edges and filter them out at the same time.
+
         FileSystem fs = FileSystem.get(new Configuration());
 
         // Create the temporary directory.
@@ -137,31 +147,51 @@ public class EdgeDegreesService extends AnalysisService {
         fs.deleteOnExit(tmpDir);
 
         try {
-            FaunusGraph faunusGraph = new FaunusGraph();
+            FaunusGraph faunusExportGraph = new FaunusGraph();
+            faunusPipelineService.configureGraph(faunusExportGraph, new Path(tmpDir, "export"), graph);
 
-            faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
-            faunusGraph.setGraphOutputFormat(TitanHBaseOutputFormat.class);
+            faunusExportGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
 
-            // Filter out all the edges
-            faunusGraph.getConf().set("faunus.graph.input.vertex-query-filter", "v.query().limit(0)");
+            // FIXME: https://github.com/thinkaurelius/faunus/issues/170. The sequence file would be more efficient,
+            // but it doesn't seem to support vertex query filters.
+            //faunusExportGraph.setGraphOutputFormat(SequenceFileOutputFormat.class);
+            faunusExportGraph.setGraphOutputFormat(GraphSONOutputFormat.class);
 
-            String sideEffect =
-                    "{ it ->\n" +
-                            "it.in_degrees = it.inE().count()\n" +
-                            "it.out_degrees = it.outE().count()\n" +
-                            "it.degrees = it.in_degrees + it.out_degrees\n" +
-                            "}";
-            FaunusPipelineService faunusPipelineService = new FaunusPipelineService();
-            FaunusPipeline exportPipeline = faunusPipelineService.graphPipeline(faunusGraph, tmpDir, graph);
-            exportPipeline.V().sideEffect(sideEffect);
-            exportPipeline.done();
+            String sideEffect = "{ it ->\n" +
+                    "it.in_degrees = it.inE().count()\n" +
+                    "it.out_degrees = it.outE().count()\n" +
+                    "it.degrees = it.in_degrees + it.out_degrees\n" +
+                    "}";
 
-            logger.debug("starting export/import of '" + graph.getId() + "'");
+            FaunusPipeline pipeline = new FaunusPipeline(faunusExportGraph);
+            pipeline.V().sideEffect(sideEffect);
+            pipeline.done();
 
-            FaunusJob faunusJob = new FaunusJob(metaGraphService.getMetaGraph(), jobId, exportPipeline);
+            logger.debug("starting export of '" + graph.getId() + "'");
+
+            FaunusJob faunusJob = new FaunusJob(metaGraphService.getMetaGraph(), jobId, pipeline);
             faunusJob.call();
 
-            logger.debug("finished export/import of '" + graph.getId() + "'");
+            logger.debug("finished export of '" + graph.getId() + "'");
+
+            // Filter out all the edges
+            FaunusGraph faunusImportGraph = faunusExportGraph.getNextGraph();
+            faunusPipelineService.configureGraph(faunusImportGraph, new Path(tmpDir, "import"), graph);
+
+            faunusImportGraph.setGraphOutputFormat(TitanHBaseOutputFormat.class);
+            faunusImportGraph.getConf().set("faunus.graph.input.vertex-query-filter", "v.query().limit(0)");
+
+            pipeline = new FaunusPipeline(faunusImportGraph);
+            pipeline.V();
+            pipeline.done();
+
+            logger.debug("starting import of '" + graph.getId() + "'");
+
+            faunusJob = new FaunusJob(metaGraphService.getMetaGraph(), jobId, pipeline);
+            faunusJob.call();
+
+            logger.debug("finished import of '" + graph.getId() + "'");
+
         } finally {
             // Clean up after ourselves.
             fs.delete(tmpDir, true);

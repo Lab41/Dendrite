@@ -17,9 +17,9 @@ import java.util.*;
 @Service
 public class FaunusPipelineService extends AnalysisService {
 
-    Logger logger = LoggerFactory.getLogger(FaunusPipelineService.class);
+    static Logger logger = LoggerFactory.getLogger(FaunusPipelineService.class);
 
-    public FaunusPipeline graphPipeline(FaunusGraph faunusGraph, Path tmpDir, DendriteGraph graph) {
+    public void configureGraph(FaunusGraph faunusGraph, Path tmpDir, DendriteGraph graph) {
         org.apache.commons.configuration.Configuration config = graph.getConfiguration();
 
         faunusGraph.getConf().set("mapred.jar", "../faunus/target/faunus-0.4.1-Lab41-SNAPSHOT-job.jar");
@@ -62,8 +62,6 @@ public class FaunusPipelineService extends AnalysisService {
         setProp(faunusConfig, "faunus.graph.output.titan.storage.index.search.local-mode", config.getString("storage.index.search.local-mode", null));
 
         faunusGraph.getConf().set("faunus.graph.output.blueprints.script-file", "dendrite/dendrite-import.groovy");
-
-        return new FaunusPipeline(faunusGraph);
     }
 
     private void setProp(Configuration config, String key, String value) {

@@ -93,7 +93,7 @@ public class FaunusGraphSONReader {
       final BatchGraph graph = BatchGraph.wrap(inputGraph, bufferSize);
 
       // load list of vertices
-      List<FaunusVertex> faunusVertexList = new FaunusGraphSONUtility().fromJSON(inputStream);
+      List<FaunusVertex> faunusVertexList = FaunusGraphSONUtility.fromJSON(inputStream);
 
       // add vertices w/ properties to graph, also saving id->id mapping for edge creation
       Vertex blueprintsVertex;

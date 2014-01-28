@@ -140,7 +140,7 @@ public class GraphLabService extends AnalysisService {
             runImport(graph, fs, importDir, algorithm);
         } finally {
             // Clean up after ourselves.
-            //fs.delete(tmpDir, true);
+            fs.delete(tmpDir, true);
 
             logger.debug("finished graphlab analysis of '" + graph.getId() + "'");
         }
@@ -151,7 +151,8 @@ public class GraphLabService extends AnalysisService {
         faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
         faunusGraph.setGraphOutputFormat(AdjacencyFileOutputFormat.class);
 
-        FaunusPipeline exportPipeline = faunusPipelineService.graphPipeline(faunusGraph, exportDir, graph);
+        faunusPipelineService.configureGraph(faunusGraph, exportDir, graph);
+        FaunusPipeline exportPipeline = new FaunusPipeline(faunusGraph);
         exportPipeline._();
 
         exportPipeline.done();
@@ -171,9 +172,9 @@ public class GraphLabService extends AnalysisService {
             String cmd = "for i in `hadoop classpath | sed \"s/:/ /g\"` ;" +
                     " do echo $i;" +
                     " done | xargs | sed \"s/ /:/g\" > " +
-                    tmpFile + "; " +
+                    tmpFile + " && " +
                     "export GRAPHLAB_CLASSPATH=`cat " +
-                    tmpFile + "`; "+
+                    tmpFile + "` && "+
                     "mpiexec " +
                     "-n " + config.getString("metagraph.template.graphlab.cluster-size") +
                     " -hostfile " + config.getString("metagraph.template.graphlab.hosts-file") +

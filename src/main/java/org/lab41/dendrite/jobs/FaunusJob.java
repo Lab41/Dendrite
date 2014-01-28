@@ -83,7 +83,7 @@ public class FaunusJob extends AbstractJob implements Callable<Object> {
                     MetaGraphTx tx = metaGraph.newTransaction();
                     JobMetadata jobMetadata = tx.getJob(jobId);
                     JobMetadata childJobMetadata = tx.createJob(jobMetadata);
-                    childJobMetadata.setName("faunus-hadoop-job");
+                    childJobMetadata.setName("faunusHadoopJob");
                     childJobMetadata.setState(JobMetadata.DONE);
                     childJobMetadata.setProgress(1.0f);
                     childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
@@ -104,7 +104,7 @@ public class FaunusJob extends AbstractJob implements Callable<Object> {
                 MetaGraphTx tx = metaGraph.newTransaction();
                 JobMetadata jobMetadata = tx.getJob(jobId);
                 JobMetadata childJobMetadata = tx.createJob(jobMetadata);
-                childJobMetadata.setName("faunus-hadoop-job");
+                childJobMetadata.setName("faunusHadoopJob");
                 childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
                 childJobMetadata.setState(JobMetadata.ERROR);
                 tx.commit();
@@ -147,7 +147,7 @@ public class FaunusJob extends AbstractJob implements Callable<Object> {
                 MetaGraphTx tx = metaGraph.newTransaction();
                 JobMetadata jobMetadata = tx.getJob(jobId);
                 JobMetadata childJobMetadata = tx.createJob(jobMetadata);
-                childJobMetadata.setName("faunus-hadoop-job");
+                childJobMetadata.setName("faunusHadoopJob");
                 childJobMetadata.setProgress(progress);
                 childJobMetadata.setState(JobMetadata.RUNNING);
                 childJobMetadata.setMapreduceJobId(hadoopJobId.toString());
