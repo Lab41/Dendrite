@@ -151,7 +151,8 @@ public class GraphLabService extends AnalysisService {
         faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
         faunusGraph.setGraphOutputFormat(AdjacencyFileOutputFormat.class);
 
-        FaunusPipeline exportPipeline = faunusPipelineService.graphPipeline(faunusGraph, exportDir, graph);
+        faunusPipelineService.configureGraph(faunusGraph, exportDir, graph);
+        FaunusPipeline exportPipeline = new FaunusPipeline(faunusGraph);
         exportPipeline._();
 
         exportPipeline.done();
