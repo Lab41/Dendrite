@@ -269,12 +269,16 @@ angular.module('dendrite.controllers', []).
         // poll on page entry
         pollActive();
     }).
-    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, ElasticSearch) {
+    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
       $scope.graphId = $routeParams.graphId;
       $scope.selectedItems = [];
       $scope.queryStyle = "vertices";
       $scope.vertexFrom = "";
+      Graph.get({graphId: $routeParams.graphId})
+            .$then(function(dataGraph) {
+                $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
+            });
 
       $scope.followEdges = function() {
         $routeParams.mode = "edge";
@@ -623,13 +627,18 @@ angular.module('dendrite.controllers', []).
                   });
         };
     }).
-    controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, User, Edge, Vertex) {
+    controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, User, Project, Graph, Edge, Vertex) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
 
         $scope.edgeDetail = function(id) {
           $location.path('graphs/' + $scope.graphId + '/edges/' + id);
         };
+
+        Graph.get({graphId: $routeParams.graphId})
+              .$then(function(dataGraph) {
+                  $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
+              });
 
         //TODO refactor for more efficient on-demand Vertex retrieval
         $scope.getVertex = function(id) {

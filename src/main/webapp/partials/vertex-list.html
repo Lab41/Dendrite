@@ -1,8 +1,13 @@
-<div ng-if='!hasSelectedItems'>
-  <h3>People We Know</h3>
-</div>
-<div ng-if='hasSelectedItems'>
-  <h3>People Connected to {{ formatSelectedNames()  }}</h3>
+<div class="row-fluid">
+  <div class="span12">
+    <div class="titlebar margin-bottom margin-right-large">
+      <h3 class="margin-none">
+        <span ng-if='!hasSelectedItems'>People We Know</span>
+        <span ng-if='hasSelectedItems'>People Connected to {{ formatSelectedNames()  }}</span>
+      </h3>
+      <div>Project: <a href="#/projects/{{ queryProject.project._id }}">{{ queryProject.project.name }}</a></div>
+    </div>
+  </div>
 </div>
 
 <div class="row row-padded">
