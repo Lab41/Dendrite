@@ -25,7 +25,7 @@ public class JobController {
     @RequestMapping(value = "/jobs", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getJobs() {
 
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         List<Map<String, Object>> jobs = new ArrayList<>();
         for (JobMetadata jobMetadata: tx.getJobs()) {
@@ -45,7 +45,8 @@ public class JobController {
     public ResponseEntity<Map<String, Object>> getJob(@PathVariable String jobId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
         JobMetadata jobMetadata = tx.getJob(jobId);
 
         if (jobMetadata == null) {
@@ -67,7 +68,8 @@ public class JobController {
     public ResponseEntity<Map<String, Object>> getJobs(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
         ProjectMetadata project = tx.getProject(projectId);
 
         if (project == null) {

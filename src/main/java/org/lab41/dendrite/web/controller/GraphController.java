@@ -35,7 +35,7 @@ public class GraphController {
     @RequestMapping(value = "/graphs", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getGraphs() {
 
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         List<Map<String, Object>> graphs = new ArrayList<>();
         for (GraphMetadata graphMetadata: tx.getGraphs()) {
@@ -55,7 +55,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getGraph(@PathVariable String graphId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         GraphMetadata graphMetadata = tx.getGraph(graphId);
 
@@ -78,7 +78,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getRandom(@PathVariable String graphId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         GraphMetadata graphMetadata = tx.getGraph(graphId);
 
@@ -91,7 +91,7 @@ public class GraphController {
 
         DendriteGraph graph = metaGraphService.getGraph(graphId);
 
-        DendriteGraphTx dendriteGraphTx = graph.newTransaction();
+        DendriteGraphTx dendriteGraphTx = graph.buildTransaction().readOnly().start();
 
         Map<Object, Object> verticesMap = new HashMap<>();
         Map<Object, Object> edgesMap = new HashMap<>();
@@ -184,7 +184,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getGraphs(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
@@ -246,7 +246,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {

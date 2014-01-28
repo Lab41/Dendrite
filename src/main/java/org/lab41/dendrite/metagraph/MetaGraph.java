@@ -138,7 +138,11 @@ public class MetaGraph {
      * @return The transaction.
      */
     public MetaGraphTx newTransaction() {
-        return new MetaGraphTx(systemGraph, frameFactory);
+        return new MetaGraphTx(systemGraph.newTransaction(), frameFactory);
+    }
+
+    public MetaGraphTransactionBuilder buildTransaction() {
+        return new MetaGraphTransactionBuilder(systemGraph.buildTransaction(), frameFactory);
     }
 
     /**

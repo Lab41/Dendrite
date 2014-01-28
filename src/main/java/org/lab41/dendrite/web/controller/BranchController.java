@@ -39,7 +39,7 @@ public class BranchController {
     @RequestMapping(value = "/branches", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getBranches() {
 
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         List<Map<String, Object>> branches = new ArrayList<>();
         for (BranchMetadata branchMetadata: tx.getBranches()) {
@@ -59,7 +59,7 @@ public class BranchController {
     public ResponseEntity<Map<String, Object>> getBranch(@PathVariable String branchId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         BranchMetadata branchMetadata = tx.getBranch(branchId);
 
@@ -113,7 +113,7 @@ public class BranchController {
     public ResponseEntity<Map<String, Object>> getBranches(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
@@ -141,7 +141,7 @@ public class BranchController {
                                                          @PathVariable String branchName) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         ProjectMetadata projectMetadata = tx.getProject(projectId);
         if (projectMetadata == null) {
@@ -236,7 +236,7 @@ public class BranchController {
     public ResponseEntity<Map<String, Object>> getCurrentBranch(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         ProjectMetadata projectMetadata = tx.getProject(projectId);
         if (projectMetadata == null) {

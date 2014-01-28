@@ -76,7 +76,7 @@ public class GraphExportController {
         HttpHeaders headers = new HttpHeaders();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-        DendriteGraphTx tx = graph.newTransaction();
+        DendriteGraphTx tx = graph.buildTransaction().readOnly().start();
 
         try {
             if (format.equalsIgnoreCase("GraphSON")) {
@@ -136,7 +136,7 @@ public class GraphExportController {
         String historyStorageLocation = historyService.getHistoryStorage();
         String format = item.getFormat();
 
-        DendriteGraphTx tx = graph.newTransaction();
+        DendriteGraphTx tx = graph.buildTransaction().readOnly().start();
 
         try {
             if (format.equalsIgnoreCase("GraphSON")) {

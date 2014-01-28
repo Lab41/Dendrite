@@ -33,7 +33,7 @@ public class ProjectController {
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
     public @ResponseBody Map<String, Object> getProjects() {
 
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         Map<String, Object> response = new HashMap<>();
         ArrayList<Object> projects = new ArrayList<>();
@@ -53,7 +53,7 @@ public class ProjectController {
     public ResponseEntity<Map<String, Object>> getProject(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {

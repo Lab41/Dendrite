@@ -7,35 +7,18 @@ import com.tinkerpop.frames.FramedTransactionalGraph;
 
 public class MetaGraphTx {
 
-    private DendriteGraph metaGraph;
-    private FramedGraphFactory framedGraphFactory;
     private FramedTransactionalGraph<DendriteGraphTx> tx = null;
 
-    public MetaGraphTx(DendriteGraph metaGraph, FramedGraphFactory framedGraphFactory) {
-        this.metaGraph = metaGraph;
-        this.framedGraphFactory = framedGraphFactory;
-    }
-
-    private FramedTransactionalGraph<DendriteGraphTx> getAutoStartTx() {
-        if (tx == null) {
-            tx = framedGraphFactory.create(metaGraph.newTransaction());
-        }
-
-        return tx;
+    public MetaGraphTx(DendriteGraphTx tx, FramedGraphFactory framedGraphFactory) {
+        this.tx = framedGraphFactory.create(tx);
     }
 
     public void rollback() {
-        if (tx != null) {
-            tx.rollback();
-            tx = null;
-        }
+        tx.rollback();
     }
 
     public void commit() {
-        if (tx != null) {
-            tx.commit();
-            tx = null;
-        }
+        tx.commit();
     }
 
     public Iterable<ProjectMetadata> getProjects() {
@@ -79,7 +62,7 @@ public class MetaGraphTx {
             deleteJob(jobMetadata);
         }
 
-        getAutoStartTx().removeVertex(projectMetadata.asVertex());
+        tx.removeVertex(projectMetadata.asVertex());
     }
 
     public Iterable<? extends GraphMetadata> getGraphs() {
@@ -91,7 +74,7 @@ public class MetaGraphTx {
     }
 
     public GraphMetadata createGraph(ProjectMetadata projectMetadata) {
-        GraphMetadata graphMetadata = getAutoStartTx().addVertex(null, GraphMetadata.class);
+        GraphMetadata graphMetadata = tx.addVertex(null, GraphMetadata.class);
         projectMetadata.addGraph(graphMetadata);
 
         return graphMetadata;
@@ -116,7 +99,7 @@ public class MetaGraphTx {
             }
         }
 
-        getAutoStartTx().removeVertex(graphMetadata.asVertex());
+        tx.removeVertex(graphMetadata.asVertex());
     }
 
     public Iterable<? extends BranchMetadata> getBranches() {
@@ -124,7 +107,7 @@ public class MetaGraphTx {
     }
 
     public BranchMetadata getBranch(String branchId) {
-        return getAutoStartTx().getVertex(branchId, BranchMetadata.class);
+        return tx.getVertex(branchId, BranchMetadata.class);
     }
 
     /**
@@ -156,7 +139,7 @@ public class MetaGraphTx {
      * @return the branch.
      */
     public BranchMetadata createBranch(String name, GraphMetadata graphMetadata) {
-        BranchMetadata branchMetadata = getAutoStartTx().addVertex(null, BranchMetadata.class);
+        BranchMetadata branchMetadata = tx.addVertex(null, BranchMetadata.class);
         branchMetadata.setName(name);
         branchMetadata.setGraph(graphMetadata);
         graphMetadata.getProject().addBranch(branchMetadata);
@@ -180,7 +163,7 @@ public class MetaGraphTx {
             }
         }
 
-        getAutoStartTx().removeVertex(branchMetadata.asVertex());
+        tx.removeVertex(branchMetadata.asVertex());
     }
 
     public Iterable<? extends JobMetadata> getJobs() {
@@ -192,14 +175,14 @@ public class MetaGraphTx {
     }
 
     public JobMetadata createJob(ProjectMetadata projectMetadata) {
-        JobMetadata jobMetadata = getAutoStartTx().addVertex(null, JobMetadata.class);
+        JobMetadata jobMetadata = tx.addVertex(null, JobMetadata.class);
         projectMetadata.addJob(jobMetadata);
 
         return jobMetadata;
     }
 
     public JobMetadata createJob(JobMetadata parentJobMetadata) {
-        JobMetadata jobMetadata = getAutoStartTx().addVertex(null, JobMetadata.class);
+        JobMetadata jobMetadata = tx.addVertex(null, JobMetadata.class);
         parentJobMetadata.addChildJob(jobMetadata);
         parentJobMetadata.getProject().addJob(jobMetadata);
 
@@ -211,14 +194,14 @@ public class MetaGraphTx {
             deleteJob(childJobMetadata);
         }
 
-        getAutoStartTx().removeVertex(jobMetadata.asVertex());
+        tx.removeVertex(jobMetadata.asVertex());
     }
 
     private <F> Iterable<F> getVertices(String type, final Class<F> kind) {
         Preconditions.checkNotNull(type);
         Preconditions.checkNotNull(kind);
 
-        return getAutoStartTx().getVertices("type", type, kind);
+        return tx.getVertices("type", type, kind);
     }
 
     private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) {
@@ -226,7 +209,7 @@ public class MetaGraphTx {
         Preconditions.checkNotNull(type);
         Preconditions.checkNotNull(kind);
 
-        F framedVertex = getAutoStartTx().getVertex(id, kind);
+        F framedVertex = tx.getVertex(id, kind);
 
         if (framedVertex == null) {
             return null;
@@ -241,7 +224,7 @@ public class MetaGraphTx {
         Preconditions.checkNotNull(type);
         Preconditions.checkNotNull(kind);
 
-        F framedVertex = getAutoStartTx().addVertex(null, kind);
+        F framedVertex = tx.addVertex(null, kind);
 
         framedVertex.asVertex().setProperty("type", type);
 
