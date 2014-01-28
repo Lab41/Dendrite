@@ -99,7 +99,7 @@ angular.module('dendrite.controllers', []).
                     });
         };
     }).
-    controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $location, $q, Project, Graph, GraphTransform) {
+    controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $route, $location, $q, Project, Graph, GraphTransform) {
         $scope.projectId = $routeParams.projectId;
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
@@ -112,7 +112,18 @@ angular.module('dendrite.controllers', []).
                     });
                 });
 
-        $scope.queryGraph = Project.graphs({projectId: $routeParams.projectId});
+
+        $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
+        $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
+
+
+        // get the projects branches
+        $scope.$on('event:reloadProjectNeeded', function() {
+          $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
+          $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
+          $scope.safeApply();
+        });
+
         $scope.deleteItem = function(item){
           Project.delete({projectId: item._id}).
             $then(function(response) {
@@ -188,6 +199,79 @@ angular.module('dendrite.controllers', []).
 
 
     }).
+    controller('BranchEditCtrl', function($scope, $location, $modal, $routeParams, Branch, Project) {
+
+        // modals
+        $scope.branchSwitch = true;
+        $scope.showModalCreate = function(branch) {
+          $scope.pivotBranch = branch;
+          $modal({scope: $scope, template: 'partials/branches/create.html'});
+        };
+
+        // create a new branch
+        $scope.createBranch = function() {
+          $scope.branchMessage = undefined;
+          $scope.branchError = undefined;
+
+          // check for name conflict
+          Project.getBranch({projectId: $routeParams.projectId, branchName: $scope.branchName},
+
+            // notify on name conflict
+            function(data) {
+              $scope.branchError = "A branch already exists with name: "+$scope.branchName;
+            },
+
+            // create new branch
+            function(error) {
+              Project.createBranch({projectId: $routeParams.projectId, branchName: $scope.branchName}, {graphId: $scope.pivotBranch.graphId})
+                      .$then(function(response) {
+
+                          // notify
+                          $scope.branchMessage = "Created branch: "+$scope.branchName;
+                          $scope.safeApply();
+                          if ($scope.branchSwitch) {
+                            Project.switchBranch({projectId: $routeParams.projectId}, {branchName: $scope.branchName})
+                                    .$then(function(response) {
+                                      $scope.$emit('event:reloadProjectNeeded');
+                                    });
+                          }
+                          else {
+                            $scope.$emit('event:reloadProjectNeeded');
+                          }
+
+                      });
+            });
+
+        };
+
+        // delete a branch
+        $scope.deleteBranch = function(branch) {
+          Branch.delete({branchId: branch._id})
+                  .$then(function(data) {
+                      $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
+                      $scope.branchMessage = "Deleted branch "+branch.name;
+                      $scope.safeApply();
+                  });
+        };
+
+        // switch to a different branch
+        $scope.switchBranch = function(branch) {
+          Project.switchBranch({projectId: $routeParams.projectId}, {branchName: branch.name})
+                  .$then(function(response) {
+                    $scope.branchMessage = "Now using branch: "+branch.name;
+                    $scope.$emit('event:reloadProjectNeeded');
+                  });
+        };
+
+        // commit the branch
+        $scope.commitBranch = function(branch) {
+          Project.commitBranch({projectId: $routeParams.projectId}, undefined)
+                  .$then(function(response) {
+                    $scope.branchMessage = "Committed branch: "+branch.name;
+                    $scope.$emit('event:reloadProjectNeeded');
+                  });
+        };
+    }).
     controller('AnalyticsFormCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // placeholder default attributes
 
@@ -201,7 +285,7 @@ angular.module('dendrite.controllers', []).
           if ($scope.analyticType === "BetweennessCentrality") {
             Analytics.createBetweennessCentralityJung({graphId: $routeParams.graphId}, undefined);
           }
-          // GraphLab 
+          // GraphLab
           if ($scope.analyticType === "GraphLab") {
             Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
           }

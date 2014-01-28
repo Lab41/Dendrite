@@ -1,0 +1,24 @@
+<!-- Modal (external ./partials/modal.html or inline ng-template) -->
+<form ng-submit="dismiss(); createBranch()">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>Create New Branch</h3>
+  </div>
+
+  <div class="modal-body">
+    <div class="well">
+      <p><strong>Note: </strong>Creating a branch enables easy experimentation without affecting the current version of the graph.  Keep in mind, however, that creating branches of large graphs effectively duplicates the graph in both the database and search engine.</p>
+    </div>
+
+    <p>
+      <label>Branch Name</label>
+      <input type="text" ng-model="branchName">
+      <label for="branchSwitch"><input type="checkbox" id="branchSwitch" ng-model="branchSwitch" ng-checked="branchSwitch"> Switch to this branch after created</label>
+    </p>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="dismiss()">Cancel</button>
+    <button class="btn btn-primary" type="submit">Create Branch</button>
+  </div>
+</div>

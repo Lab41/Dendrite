@@ -1062,6 +1062,10 @@ div.span6 div.span6 div.dataTables_length label {
 .btn-small i {
   vertical-align: bottom;
 }
+.btn-branch,
+.btn-branch button {
+  width: 100px;
+}
 .btn {
   background-color: #edf1f2 !important;
   background-repeat: repeat-x;
