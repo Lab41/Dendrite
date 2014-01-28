@@ -469,6 +469,47 @@ angular.module('dendrite.services', ['ngResource']).
             jobs: {
               url: 'api/projects/:projectId/jobs',
               method: 'GET'
+            },
+            currentBranch: {
+              url: 'api/projects/:projectId/current-branch',
+              method: 'GET',
+              isArray: false
+            },
+            branches: {
+              url: 'api/projects/:projectId/branches',
+              method: 'GET',
+              isArray: false
+            },
+            createBranch: {
+              url: 'api/projects/:projectId/branches/:branchName',
+              method: 'PUT',
+              isArray: false
+            },
+            switchBranch: {
+              url: 'api/projects/:projectId/current-branch',
+              method: 'PUT',
+              isArray: false
+            },
+            getBranch: {
+              url: 'api/projects/:projectId/branches/:branchName',
+              method: 'GET',
+              isArray: false
+            },
+            commitBranch: {
+              url: 'api/projects/:projectId/current-branch/commit',
+              method: 'POST',
+              isArray: false
+            }
+        });
+    }).
+    factory('Branch', function($resource) {
+        return $resource('api/branches/:branchId', {
+            branchId: '@id'
+        }, {
+            delete: {
+                url: 'api/branches/:branchId',
+                method: 'DELETE',
+                isArray: false
             }
         });
     }).
