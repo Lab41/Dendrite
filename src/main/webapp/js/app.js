@@ -129,13 +129,15 @@ angular.module('dendrite', [
         metadata: {
           pollTimeout: 500
         },
+        BarycenterScore: { },
+        BetweennessCentrality: { },
+        ClosenessCentrality: { },
+        EigenvectorCentrality: { },
         PageRank: {
-          dampingFactor: 0.85,
+          dampingFactor: 0.85
         },
         GraphLab: {
-          algorithm: 'pagerank',
-        },
-        BetweennessCentrality: {
+          algorithm: 'pagerank'
         },
         EdgeDegrees: {
           analyticEngine: 'titan'

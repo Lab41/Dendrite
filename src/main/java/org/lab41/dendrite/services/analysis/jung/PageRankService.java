@@ -1,4 +1,4 @@
-package org.lab41.dendrite.services.analysis;
+package org.lab41.dendrite.services.analysis.jung;
 
 import com.thinkaurelius.titan.core.TitanTransaction;
 import com.tinkerpop.blueprints.Edge;
@@ -8,6 +8,7 @@ import edu.uci.ics.jung.algorithms.scoring.PageRank;
 import edu.uci.ics.jung.graph.Hypergraph;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
+import org.lab41.dendrite.services.analysis.AnalysisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -21,38 +22,49 @@ public class PageRankService extends AnalysisService {
     @Async
     public void jungPageRank(DendriteGraph graph, String jobId, double alpha) {
 
-        logger.debug("Starting Titan degree counting analysis on "
+        logger.debug("Starting analysis on "
                 + graph.getId()
                 + " job " + jobId
                 + " " + Thread.currentThread().getName());
 
-        setJobName(jobId, "jung-pagerank");
+        setJobName(jobId, "jungPageRank");
         setJobState(jobId, JobMetadata.RUNNING);
 
-        createIndices(graph);
+        try {
+            createIndices(graph);
 
-        TitanTransaction tx = graph.newTransaction();
+            TitanTransaction tx = graph.newTransaction();
+            try {
+                Hypergraph<Vertex, Edge> jungGraph = new GraphJung<>(tx);
+                PageRank<Vertex, Edge> pageRank = new PageRank<>(jungGraph, alpha);
+                pageRank.evaluate();
 
-        Hypergraph<Vertex, Edge> jungGraph = new GraphJung<>(tx);
-        PageRank<Vertex, Edge> pageRank = new PageRank<>(jungGraph, alpha);
-        pageRank.evaluate();
+                for (Vertex vertex: jungGraph.getVertices()) {
+                    Double score = pageRank.getVertexScore(vertex);
+                    vertex.setProperty("jungPageRank", score);
+                }
+            } catch (Throwable t) {
+                tx.rollback();
+                throw t;
+            }
 
-        for (Vertex vertex: jungGraph.getVertices()) {
-            double score = pageRank.getVertexScore(vertex);
-            vertex.setProperty("pagerank", score);
+            tx.commit();
+        } catch (Throwable t) {
+            logger.error("failed", t);
+            setJobState(jobId, JobMetadata.ERROR, t.getMessage());
+            throw t;
         }
-        tx.commit();
 
         setJobState(jobId, JobMetadata.DONE);
 
-        logger.debug("titanCountDegrees: finished job: " + jobId);
+        logger.debug("finished job: " + jobId);
     }
 
     private void createIndices(DendriteGraph graph) {
         TitanTransaction tx = graph.newTransaction();
 
-        if (tx.getType("pagerank") == null) {
-            tx.makeKey("pagerank")
+        if (tx.getType("jungPageRank") == null) {
+            tx.makeKey("jungPageRank")
                     .dataType(Double.class)
                     .indexed("search", Vertex.class)
                     .make();

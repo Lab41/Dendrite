@@ -286,17 +286,30 @@ angular.module('dendrite.controllers', []).
 
         // calculate analytic job
         $scope.calculate = function() {
-          // BetweennessCentrality
-          if ($scope.analyticType === "BetweennessCentrality") {
-            Analytics.createBetweennessCentralityJung({graphId: $routeParams.graphId}, undefined);
+
+          // Barycenter
+          if ($scope.analyticType === "BarycenterDistance") {
+            Analytics.createJungBarycenterDistance({graphId: $routeParams.graphId}, undefined);
           }
-          // GraphLab
-          if ($scope.analyticType === "GraphLab") {
-            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
+          // BetweennessCentrality
+          else if ($scope.analyticType === "BetweennessCentrality") {
+            Analytics.createJungBetweennessCentrality({graphId: $routeParams.graphId}, undefined);
+          }
+          // ClosenessCentrality
+          else if ($scope.analyticType === "ClosenessCentrality") {
+              Analytics.createJungClosenessCentrality({graphId: $routeParams.graphId}, undefined);
+          }
+          // Eigenvector
+          else if ($scope.analyticType === "EigenvectorCentrality") {
+              Analytics.createJungEigenvectorCentrality({graphId: $routeParams.graphId}, undefined);
           }
           // PageRank
-          if ($scope.analyticType === "PageRank") {
-            Analytics.createPageRankJung({graphId: $routeParams.graphId}, {alpha: 1-$scope.attr.dampingFactor});
+          else if ($scope.analyticType === "PageRank") {
+              Analytics.createJungPageRank({graphId: $routeParams.graphId}, {alpha: 1-$scope.attr.dampingFactor});
+          }
+          // GraphLab
+          else if ($scope.analyticType === "GraphLab") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
           }
           // Edge Degrees
           else if ($scope.analyticType === "EdgeDegrees") {
