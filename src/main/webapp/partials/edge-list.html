@@ -1,4 +1,16 @@
-<h3>Things We Know About People</h3>
+<div class="row-fluid">
+  <div class="span12">
+    <div class="titlebar margin-bottom margin-right-large">
+      <div>
+        <h3 class="margin-none">Things We Know About People</h3>
+        <div>Project: <a href="#/projects/{{ queryProject.project._id }}">{{ queryProject.project.name }}</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <div class="row row-padded">
   <div class="inline float-left">
     <a class="btn btn-primary" href="#/graphs/{{ graphId }}/create_edge">Add Connection</a>

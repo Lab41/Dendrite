@@ -65,6 +65,9 @@
 
 @font-size:                       12px;
 @margin-left:                     120px;
+@spacing-small:                 5px;
+@spacing-default:                 10px;
+@spacing-large:                   30px;
 
 @image-logo-project:              url("logo_project.png");
 
@@ -384,6 +387,22 @@ body {
   padding: 0;
 }
 
+.align-center {
+  text-align: center;
+}
+
+.margin-bottom {
+  margin-bottom: @spacing-default;
+}
+
+.margin-right-large {
+  margin-right: @spacing-large;
+}
+
+.margin-bottom-large {
+  margin-bottom: @spacing-large;
+}
+
 .margin-none {
   margin: 0;
 }
@@ -549,6 +568,11 @@ div.span6 div.span6 div.dataTables_length label {
 
 .btn-small i {
   vertical-align:bottom;
+}
+
+.btn-branch,
+.btn-branch button {
+  width: 100px;
 }
 
 .btn {

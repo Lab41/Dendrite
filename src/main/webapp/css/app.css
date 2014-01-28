@@ -894,6 +894,18 @@ body {
 .padding-none {
   padding: 0;
 }
+.align-center {
+  text-align: center;
+}
+.margin-bottom {
+  margin-bottom: 10px;
+}
+.margin-right-large {
+  margin-right: 30px;
+}
+.margin-bottom-large {
+  margin-bottom: 30px;
+}
 .margin-none {
   margin: 0;
 }
@@ -1049,6 +1061,10 @@ div.span6 div.span6 div.dataTables_length label {
 }
 .btn-small i {
   vertical-align: bottom;
+}
+.btn-branch,
+.btn-branch button {
+  width: 100px;
 }
 .btn {
   background-color: #edf1f2 !important;

@@ -99,24 +99,36 @@ angular.module('dendrite.controllers', []).
                     });
         };
     }).
-    controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $location, $q, Project, Graph, GraphTransform) {
+    controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $route, $location, $q, Project, Graph, GraphTransform) {
         $scope.projectId = $routeParams.projectId;
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
                     $scope.project = response.data.project;
                     $scope.graphId = $scope.project.current_graph;
-                    $scope.graph = Graph.get({graphId: $scope.graphId})
-                          .$then(function(res) {
-                            console.log(res);
-                          });
-
-                    $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
-                    $scope.$on('event:reloadGraph', function() {
-                      $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
-                    });
+                    $scope.graph = Graph.get({graphId: $scope.graphId});
+                    $scope.$broadcast('event:reloadGraph');
                 });
 
-        $scope.queryGraph = Project.graphs({projectId: $routeParams.projectId});
+        // tripwire to reload current graph
+        $scope.$on('event:reloadGraph', function() {
+          $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
+        });
+
+        // get project's branches
+        $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
+        $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
+
+        // get the projects branches
+        $scope.$on('event:reloadProjectNeeded', function() {
+          Project.currentBranch({projectId: $routeParams.projectId})
+                  .$then(function(response) {
+                    $scope.queryCurrentBranch = response.data;
+                    $scope.graphId = $scope.queryCurrentBranch.branch.graphId;
+                    $scope.$broadcast('event:reloadGraph');
+                  });
+          $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
+        });
+
         $scope.deleteItem = function(item){
           Project.delete({projectId: item._id}).
             $then(function(response) {
@@ -191,6 +203,79 @@ angular.module('dendrite.controllers', []).
         };
 
 
+    }).
+    controller('BranchEditCtrl', function($scope, $location, $modal, $routeParams, Branch, Project) {
+
+        // modals
+        $scope.branchSwitch = true;
+        $scope.showModalCreate = function(branch) {
+          $scope.pivotBranch = branch;
+          $modal({scope: $scope, template: 'partials/branches/create.html'});
+        };
+
+        // create a new branch
+        $scope.createBranch = function() {
+          $scope.branchMessage = undefined;
+          $scope.branchError = undefined;
+
+          // check for name conflict
+          Project.getBranch({projectId: $routeParams.projectId, branchName: $scope.branchName},
+
+            // notify on name conflict
+            function(data) {
+              $scope.branchError = "A branch already exists with name: "+$scope.branchName;
+            },
+
+            // create new branch
+            function(error) {
+              Project.createBranch({projectId: $routeParams.projectId, branchName: $scope.branchName}, {graphId: $scope.pivotBranch.graphId})
+                      .$then(function(response) {
+
+                          // notify
+                          $scope.branchMessage = "Created branch: "+$scope.branchName;
+                          $scope.safeApply();
+                          if ($scope.branchSwitch) {
+                            Project.switchBranch({projectId: $routeParams.projectId}, {branchName: $scope.branchName})
+                                    .$then(function(response) {
+                                      $scope.$emit('event:reloadProjectNeeded');
+                                    });
+                          }
+                          else {
+                            $scope.$emit('event:reloadProjectNeeded');
+                          }
+
+                      });
+            });
+
+        };
+
+        // delete a branch
+        $scope.deleteBranch = function(branch) {
+          Branch.delete({branchId: branch._id})
+                  .$then(function(data) {
+                      $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
+                      $scope.branchMessage = "Deleted branch "+branch.name;
+                      $scope.safeApply();
+                  });
+        };
+
+        // switch to a different branch
+        $scope.switchBranch = function(branch) {
+          Project.switchBranch({projectId: $routeParams.projectId}, {branchName: branch.name})
+                  .$then(function(response) {
+                    $scope.branchMessage = "Now using branch: "+branch.name;
+                    $scope.$emit('event:reloadProjectNeeded');
+                  });
+        };
+
+        // commit the branch
+        $scope.commitBranch = function(branch) {
+          Project.commitBranch({projectId: $routeParams.projectId}, undefined)
+                  .$then(function(response) {
+                    $scope.branchMessage = "Committed branch: "+branch.name;
+                    $scope.$emit('event:reloadProjectNeeded');
+                  });
+        };
     }).
     controller('AnalyticsFormCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // placeholder default attributes
@@ -269,12 +354,16 @@ angular.module('dendrite.controllers', []).
         // poll on page entry
         pollActive();
     }).
-    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, ElasticSearch) {
+    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
       $scope.graphId = $routeParams.graphId;
       $scope.selectedItems = [];
       $scope.queryStyle = "vertices";
       $scope.vertexFrom = "";
+      Graph.get({graphId: $routeParams.graphId})
+            .$then(function(dataGraph) {
+                $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
+            });
 
       $scope.followEdges = function() {
         $routeParams.mode = "edge";
@@ -632,13 +721,18 @@ angular.module('dendrite.controllers', []).
                   });
         };
     }).
-    controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, User, Edge, Vertex) {
+    controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, User, Project, Graph, Edge, Vertex) {
         $scope.User = User;
         $scope.graphId = $routeParams.graphId;
 
         $scope.edgeDetail = function(id) {
           $location.path('graphs/' + $scope.graphId + '/edges/' + id);
         };
+
+        Graph.get({graphId: $routeParams.graphId})
+              .$then(function(dataGraph) {
+                  $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
+              });
 
         //TODO refactor for more efficient on-demand Vertex retrieval
         $scope.getVertex = function(id) {
