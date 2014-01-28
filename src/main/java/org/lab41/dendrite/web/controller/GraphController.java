@@ -98,10 +98,16 @@ public class GraphController {
 
         int edgeCount = 0;
 
-        for (Vertex vertex: dendriteGraphTx.query().limit(100).vertices()) {
-            addVertex(verticesMap, vertex);
+        for (Edge edge: dendriteGraphTx.query().limit(100).edges()) {
+            addEdge(verticesMap, edgesMap, edge);
 
-            for (Edge edge: vertex.getEdges(Direction.BOTH)) {
+            for (Edge inEdge: edge.getVertex(Direction.IN).getEdges(Direction.BOTH)) {
+                edgeCount += 1;
+                if (edgeCount > 100) { break; }
+                addEdge(verticesMap, edgesMap, edge);
+            }
+
+            for (Edge outEdge: edge.getVertex(Direction.OUT).getEdges(Direction.BOTH)) {
                 edgeCount += 1;
                 if (edgeCount > 100) { break; }
                 addEdge(verticesMap, edgesMap, edge);
