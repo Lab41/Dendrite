@@ -235,11 +235,24 @@ angular.module('dendrite.services', ['ngResource']).
         return {
 
           search: function(queryParams) {
+            var query;
+
+            if (queryParams.queryTerm === "") {
+                query = { "match_all": {}}
+            } else {
+                query = {
+                    "query_string": {
+                        "query": queryParams.queryTerm,
+                        "lenient": true
+                    }
+                };
+            }
+
             // build elasticSearch query
             var inputJson = {
                     "from" : queryParams.pageSize*(queryParams.pageNumber - 1),
                     "size" : queryParams.pageSize,
-                    "query" : { "query_string" : {"query" : "*"+queryParams.queryTerm+"*"} },
+                    "query" : query,
                     "filter" : { "type": { "value": queryParams.resultType } },
                     "sort" : queryParams.sortInfo
                 };
