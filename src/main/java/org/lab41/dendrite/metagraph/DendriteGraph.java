@@ -83,8 +83,6 @@ public class DendriteGraph extends TitanBlueprintsGraph {
                         .make();
             }
             tx.commit();
-
-            connectToElasticSearch();
         }
     }
 
@@ -130,6 +128,15 @@ public class DendriteGraph extends TitanBlueprintsGraph {
      * @return the ElasticSearch client.
      */
     public Client getElasticSearchClient() {
+        if (elasticSearchClient != null) {
+            return elasticSearchClient;
+        }
+
+        String backend = properties.getProperty("storage.index.search.backend", null);
+        if (backend != null && backend.equals("elasticsearch")) {
+            connectToElasticSearch();
+        }
+
         return elasticSearchClient;
     }
 
