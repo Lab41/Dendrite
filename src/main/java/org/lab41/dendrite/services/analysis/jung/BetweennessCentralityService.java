@@ -75,7 +75,7 @@ public class BetweennessCentralityService extends AnalysisService {
         if (tx.getType("jungBetweennessCentrality") == null) {
             tx.makeKey("jungBetweennessCentrality")
                     .dataType(Double.class)
-                    .indexed("search", Vertex.class)
+                    .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                     .make();
         }
 

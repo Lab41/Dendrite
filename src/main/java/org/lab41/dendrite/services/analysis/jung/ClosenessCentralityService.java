@@ -67,7 +67,7 @@ public class ClosenessCentralityService extends AnalysisService {
         if (tx.getType("jungClosenessCentrality") == null) {
             tx.makeKey("jungClosenessCentrality")
                     .dataType(FullDouble.class)
-                    .indexed("search", Vertex.class)
+                    .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                     .make();
         }
 

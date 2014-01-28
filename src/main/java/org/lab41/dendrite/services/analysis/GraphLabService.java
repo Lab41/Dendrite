@@ -105,7 +105,7 @@ public class GraphLabService extends AnalysisService {
         if (tx.getType("graphlab_"+algorithm) == null) {
             tx.makeKey("graphlab_"+algorithm)
                     .dataType(Double.class)
-                    .indexed("search", Vertex.class)
+                    .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                     .make();
         }
 

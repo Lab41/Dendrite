@@ -67,7 +67,7 @@ public class BarycenterDistanceService extends AnalysisService {
         if (tx.getType("jungBarycenterDistance") == null) {
             tx.makeKey("jungBarycenterDistance")
                     .dataType(FullDouble.class)
-                    .indexed("search", Vertex.class)
+                    .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                     .make();
         }
 

@@ -66,7 +66,7 @@ public class PageRankService extends AnalysisService {
         if (tx.getType("jungPageRank") == null) {
             tx.makeKey("jungPageRank")
                     .dataType(Double.class)
-                    .indexed("search", Vertex.class)
+                    .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                     .make();
         }
 

@@ -68,7 +68,7 @@ public class EigenvectorCentralityService extends AnalysisService {
         if (tx.getType("jungEigenvectorCentrality") == null) {
             tx.makeKey("jungEigenvectorCentrality")
                     .dataType(Double.class)
-                    .indexed("search", Vertex.class)
+                    .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                     .make();
         }
 

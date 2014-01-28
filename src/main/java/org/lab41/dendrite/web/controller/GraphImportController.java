@@ -54,8 +54,6 @@ public class GraphImportController {
     static Logger logger = LoggerFactory.getLogger(GraphImportController.class);
 
     static List<String> RESERVED_KEYS = Arrays.asList("id", "_id");
-    private final String searchIndexId = "_vertexId";
-    private final String elasticSearchIndex = "search";
 
     @Autowired
     MetaGraphService metaGraphService;
@@ -92,7 +90,6 @@ public class GraphImportController {
 
         try {
             // create search indices
-            String elasticSearchIndex = "search";
             if (searchKeys.contains(",")) {
                 // separate "k1,k2,k3" into ["k1", "k2", "k3"] and iterate
                 for (String key : searchKeys.split(",")) {
@@ -101,20 +98,11 @@ public class GraphImportController {
                         tx.makeKey(key)
                                 .dataType(String.class)
                                 .indexed(Vertex.class)
-                                .indexed(elasticSearchIndex, Vertex.class)
+                                .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                                 .make();
                     }
                 }
             }
-
-            // elasticsearch uses a unique id separate from the titan id
-            // in order to link elasticsearch results to titan results,
-            // create a new index for the frontend vertexId
-            tx.makeKey(searchIndexId)
-                    .dataType(String.class)
-                    .indexed(Vertex.class)
-                    .indexed(elasticSearchIndex, Vertex.class)
-                    .make();
 
             InputStream inputStream = file.getInputStream();
             if (format.equalsIgnoreCase("GraphSON")) {
