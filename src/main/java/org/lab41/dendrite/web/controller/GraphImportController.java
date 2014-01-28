@@ -54,7 +54,7 @@ public class GraphImportController {
     static Logger logger = LoggerFactory.getLogger(GraphImportController.class);
 
     static List<String> RESERVED_KEYS = Arrays.asList("id", "_id");
-    private final String searchIndexId = "vertexId";
+    private final String searchIndexId = "_vertexId";
     private final String elasticSearchIndex = "search";
 
     @Autowired

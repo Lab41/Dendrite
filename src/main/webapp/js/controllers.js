@@ -205,7 +205,7 @@ angular.module('dendrite.controllers', []).
           if ($scope.analyticType === "BetweennessCentrality") {
             Analytics.createBetweennessCentralityJung({graphId: $routeParams.graphId}, undefined);
           }
-          // GraphLab 
+          // GraphLab
           if ($scope.analyticType === "GraphLab") {
             Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
           }
@@ -467,12 +467,12 @@ angular.module('dendrite.controllers', []).
                 var sortDirections = [];
                 data.hits.hits.forEach(function(hit) {
                   if (hit._type === $scope.objectType) {
-                    hit._source._id = hit._source.vertexId;
+                    hit._source._id = hit._source._vertexId;
                     resultArray.push(hit._source);
 
                     // extract all keys (to dynamically update table columns)
                     Object.keys(hit._source).forEach(function(k) {
-                      if (k !== ($scope.objectType+'Id') && k !== "_id") {
+                      if (k !== ($scope.objectType+'Id') && k !== "_id" && k !== "_vertexId") {
                         resultKeys[k] = true;
                       }
                     });
