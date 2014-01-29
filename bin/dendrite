@@ -179,11 +179,22 @@ class Project(Table):
 
     def commit_branch(self, name=None):
         if name is None:
-            response = self.conn.post('{}/{}/current-branch/commit'.format(self.URL_PATH, self.id))
+            url = '{}/{}/current-branch/commit'.format(self.URL_PATH, self.id)
         else:
-            response = self.conn.post('{}/{}/branches/{}/commit'.format(self.URL_PATH, self.id, name))
+            url = '{}/{}/branches/{}/commit'.format(self.URL_PATH, self.id, name)
 
-        response = response.json()
+        response = self.conn.post(url).json()
+
+        return Job.get(self.conn, response['jobId'])
+
+    def commit_subset_branch(self, query, steps name=None):
+        if name is None:
+            url = '{}/{}/current-branch/commit-subset'.format(self.URL_PATH, self.id)
+        else:
+            url = '{}/{}/branches/{}/commit-subset'.format(self.URL_PATH, self.id, name)
+
+        data = {'query': query, 'steps': steps}
+        response = response.post_json(url, data=data).json()
 
         return Job.get(self.conn, response['jobId'])
 

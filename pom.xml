@@ -15,6 +15,7 @@
         <commons-lang3.version>3.1</commons-lang3.version>
         <commons-logging.version>1.1.1</commons-logging.version>
         <commons-net.version>3.3</commons-net.version>
+        <elasticsearch.version>0.90.5</elasticsearch.version>
         <faunus.version>0.4.1-Lab41-SNAPSHOT</faunus.version>
         <hbase.version>0.94.6-cdh4.4.0</hbase.version>
         <hadoop-core.version>2.0.0-mr1-cdh4.4.0</hadoop-core.version>
@@ -411,6 +412,11 @@
         </dependency>
 
         <!-- Titan Dependencies -->
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>${elasticsearch.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
             <artifactId>titan-core</artifactId>

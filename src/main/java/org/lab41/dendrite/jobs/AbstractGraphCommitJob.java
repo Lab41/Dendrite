@@ -94,14 +94,18 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
             if (titanKey instanceof TitanKeyVertex) {
                 TitanKeyVertex keyVertex = (TitanKeyVertex) titanKey;
                 TypeAttribute.Map definition = getDefinition(keyVertex);
-                dstTx.makePropertyKey(keyVertex.getName(), definition);
+                if (dstTx.getType(keyVertex.getName()) == null) {
+                    dstTx.makePropertyKey(keyVertex.getName(), definition);
+                }
             }
         }
 
         for(TitanLabel titanLabel: srcTx.getTypes(TitanLabel.class)) {
             TitanLabelVertex keyVertex = (TitanLabelVertex) titanLabel;
             TypeAttribute.Map definition = getDefinition(keyVertex);
-            dstTx.makeEdgeLabel(keyVertex.getName(), definition);
+            if (dstTx.getType(keyVertex.getName()) == null) {
+                dstTx.makeEdgeLabel(keyVertex.getName(), definition);
+            }
         }
 
         dstTx.commit();

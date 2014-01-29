@@ -1,6 +1,7 @@
 package org.lab41.dendrite.web.controller;
 
 import org.lab41.dendrite.jobs.BranchCommitJob;
+import org.lab41.dendrite.jobs.BranchCommitSubsetJob;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
@@ -8,7 +9,7 @@ import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.CreateBranchBean;
-import org.lab41.dendrite.web.beans.CreateGraphBean;
+import org.lab41.dendrite.web.beans.CreateGraphSubsetNSteps;
 import org.lab41.dendrite.web.beans.UpdateCurrentBranchBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.text.SimpleDateFormat;
@@ -385,6 +385,60 @@ public class BranchController {
         response.put("msg", "job submitted");
         response.put("jobId", jobMetadata.getId());
         response.put("graphId", branchCommitJob.getDstGraphId());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{projectId}/current-branch/commit-subset", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> commitSubsetBranch(@PathVariable String projectId,
+                                                                  @Valid @RequestBody CreateGraphSubsetNSteps item,
+                                                                  BindingResult result) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (result.hasErrors()) {
+            response.put("error", result.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        String query = item.getQuery();
+        int steps = item.getSteps();
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        ProjectMetadata projectMetadata = tx.getProject(projectId);
+        if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
+        if (branchMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find current branch");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
+
+        tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
+                metaGraphService.getMetaGraph(),
+                jobMetadata.getId(),
+                branchMetadata.getId(),
+                query,
+                steps);
+
+        taskExecutor.execute(branchCommitSubsetJob);
+
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId());
+        response.put("graphId", branchCommitSubsetJob.getDstGraphId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
