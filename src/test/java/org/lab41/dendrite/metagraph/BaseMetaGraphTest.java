@@ -13,6 +13,7 @@ public class BaseMetaGraphTest {
     public void setUp() {
         Configuration config = new BaseConfiguration();
 
+        config.setProperty("metagraph.system.storage.backend", "inmemory");
         config.setProperty("metagraph.template.storage.backend", "inmemory");
 
         metaGraph = new MetaGraph(config);
