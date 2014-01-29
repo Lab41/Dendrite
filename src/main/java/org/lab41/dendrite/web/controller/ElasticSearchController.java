@@ -16,18 +16,8 @@
 
 package org.lab41.dendrite.web.controller;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.HttpEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
@@ -35,6 +25,8 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.metadata.MetaData;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.services.MetaGraphService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -47,12 +39,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.StringBuilder;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class ElasticSearchController {
+
+    static Logger logger = LoggerFactory.getLogger(ElasticSearchController.class);
 
     @Autowired
     MetaGraphService metaGraphService;
@@ -89,25 +83,25 @@ public class ElasticSearchController {
     }
 
     @RequestMapping(value = "/api/graphs/{graphId}/search/mapping", method = RequestMethod.GET)
-    public ResponseEntity<String> elasticSearchMapping(@PathVariable String graphId) throws JSONException, IOException {
+    public ResponseEntity<Map<String, Object>> elasticSearchMapping(@PathVariable String graphId) throws JSONException, IOException {
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        JSONObject json = new JSONObject();
+        Map<String, Object> json = new HashMap<>();
 
         DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
             json.put("status", "error");
             json.put("msg", "unknown graph '" + graphId + "'");
-            return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(json, responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
         Client client = graph.getElasticSearchClient();
         if (client == null) {
             json.put("status", "error");
             json.put("msg", "graph does not have graph elasticsearch index");
-            return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(json, responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
         MetaData metaData = client.admin().cluster().prepareState()
@@ -122,7 +116,7 @@ public class ElasticSearchController {
                 json.put(mappingMetaData.type(), mappingMetaData.sourceAsMap());
             }
         }
-        // return
-        return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.OK);
+
+        return new ResponseEntity<>(json, responseHeaders, HttpStatus.OK);
     }
 }
