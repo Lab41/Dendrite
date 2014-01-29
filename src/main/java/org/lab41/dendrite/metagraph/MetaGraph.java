@@ -36,7 +36,11 @@ public class MetaGraph {
 
         // Get or create the metadata graph.
         String systemGraphName = config.getString("metagraph.system.name", SYSTEM_GRAPH_NAME_DEFAULT);
-        Properties systemProperties = getGraphProperties(systemGraphName);
+
+        // Allow the system to overload the properties.
+        Properties systemProperties = new Properties();
+        loadGraphProperties(systemGraphName, config.subset("metagraph.system"), systemProperties);
+
         this.systemGraph = new DendriteGraph(systemGraphName, systemProperties);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
@@ -352,44 +356,46 @@ public class MetaGraph {
      */
     private Properties getGraphProperties(String id) {
         Properties properties = new Properties();
+        loadGraphProperties(id, config.subset("metagraph.template"), properties);
+        return properties;
+    }
 
+    private void loadGraphProperties(String id, Configuration config, Properties properties) {
         // Add our prefix to the name so we can keep the databases organized.
-        String name = config.getString("metagraph.template.name-prefix", GRAPH_NAME_PREFIX_DEFAULT) + id;
+        String name = config.getString("name-prefix", GRAPH_NAME_PREFIX_DEFAULT) + id;
 
-        String storageBackend = config.getString("metagraph.template.storage.backend");
+        String storageBackend = config.getString("storage.backend");
         setProperty(properties, "storage.backend", storageBackend);
         setProperty(properties, "storage.read-only", "false");
 
-        String storageDirectory = config.getString("metagraph.template.storage.directory", null);
+        String storageDirectory = config.getString("storage.directory", null);
         if (storageDirectory != null) {
             String dir = (new File(storageDirectory, name)).getPath();
             setProperty(properties, "storage.directory", dir);
         }
 
-        setProperty(properties, "storage.hostname", config.getString("metagraph.template.storage.hostname", null));
-        setProperty(properties, "storage.port", config.getString("metadata.template.storage.port", null));
+        setProperty(properties, "storage.hostname", config.getString("storage.hostname", null));
+        setProperty(properties, "storage.port", config.getString("storage.port", null));
 
-        if (storageBackend.equals("hbase")) {
+        if (storageBackend != null && storageBackend.equals("hbase")) {
             setProperty(properties, "storage.tablename", name);
         }
 
-        String indexBackend = config.getString("metagraph.template.storage.index.backend", null);
+        String indexBackend = config.getString("storage.index.backend", null);
         if (indexBackend != null) {
             setProperty(properties, "storage.index.search.index-name", name);
             setProperty(properties, "storage.index.search.backend", indexBackend);
-            setProperty(properties, "storage.index.search.hostname", config.getString("metagraph.template.storage.index.hostname", null));
-            setProperty(properties, "storage.index.search.client-only", config.getString("metagraph.template.storage.index.client-only", null));
-            setProperty(properties, "storage.index.search.local-mode", config.getString("metagraph.template.storage.index.local-mode", null));
-            setProperty(properties, "storage.index.search.cluster-name", config.getString("metagraph.template.storage.index.cluster-name", null));
+            setProperty(properties, "storage.index.search.hostname", config.getString("storage.index.hostname", null));
+            setProperty(properties, "storage.index.search.client-only", config.getString("storage.index.client-only", null));
+            setProperty(properties, "storage.index.search.local-mode", config.getString("storage.index.local-mode", null));
+            setProperty(properties, "storage.index.search.cluster-name", config.getString("storage.index.cluster-name", null));
 
-            String indexDirectory = config.getString("metagraph.template.storage.index.directory", null);
+            String indexDirectory = config.getString("storage.index.directory", null);
             if (indexDirectory != null) {
                 String dir = (new File(indexDirectory, name)).getPath();
                 setProperty(properties, "storage.index.search.directory", dir);
             }
         }
-
-        return properties;
     }
 
     private void setProperty(Properties property, String key, String value) {
