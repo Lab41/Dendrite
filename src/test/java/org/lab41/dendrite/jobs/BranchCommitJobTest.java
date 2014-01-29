@@ -54,7 +54,10 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         srcTx.commit();
 
         // Snapshot the graph.
-        BranchCommitJob branchCommitJob = new BranchCommitJob(metaGraph, branchMetadata.getId(), jobMetadata.getId());
+        BranchCommitJob branchCommitJob = new BranchCommitJob(
+                metaGraph,
+                jobMetadata.getId(),
+                branchMetadata.getId());
 
         String srcGraphId = branchCommitJob.getSrcGraphId();
         String dstGraphId = branchCommitJob.getDstGraphId();

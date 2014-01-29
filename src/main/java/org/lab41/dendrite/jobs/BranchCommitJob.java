@@ -1,77 +1,25 @@
 package org.lab41.dendrite.jobs;
 
-import com.thinkaurelius.titan.core.TitanKey;
-import com.thinkaurelius.titan.core.TitanLabel;
-import com.thinkaurelius.titan.core.TitanProperty;
 import com.thinkaurelius.titan.core.TitanTransaction;
-import com.thinkaurelius.titan.graphdb.transaction.StandardTitanTx;
-import com.thinkaurelius.titan.graphdb.types.TypeAttribute;
-import com.thinkaurelius.titan.graphdb.types.system.SystemKey;
-import com.thinkaurelius.titan.graphdb.types.vertices.TitanKeyVertex;
-import com.thinkaurelius.titan.graphdb.types.vertices.TitanLabelVertex;
-import com.thinkaurelius.titan.graphdb.types.vertices.TitanTypeVertex;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.lab41.dendrite.metagraph.DendriteGraph;
-import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.metagraph.MetaGraph;
-import org.lab41.dendrite.metagraph.MetaGraphTx;
-import org.lab41.dendrite.metagraph.models.BranchMetadata;
-import org.lab41.dendrite.metagraph.models.GraphMetadata;
-import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BranchCommitJob extends AbstractJob implements Runnable {
+public class BranchCommitJob extends AbstractGraphCommitJob {
 
     Logger logger = LoggerFactory.getLogger(BranchCommitJob.class);
 
-    String branchId;
-    String srcGraphId;
-    String dstGraphId;
-
-    public BranchCommitJob(MetaGraph metaGraph, String branchId, String jobId) {
-        super(metaGraph, jobId);
-
-        MetaGraphTx tx = metaGraph.newTransaction();
-
-        BranchMetadata branchMetadata = tx.getBranch(branchId);
-        GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
-        GraphMetadata dstGraphMetadata = tx.createGraph(srcGraphMetadata);
-
-        tx.commit();
-
-        this.branchId = branchId;
-        this.srcGraphId = srcGraphMetadata.getId();
-        this.dstGraphId = dstGraphMetadata.getId();
-    }
-
-    public String getSrcGraphId() {
-        return srcGraphId;
-    }
-
-    public String getDstGraphId() {
-        return dstGraphId;
+    public BranchCommitJob(MetaGraph metaGraph, String jobId, String branchId) {
+        super(metaGraph, jobId, branchId);
+        setJobName(jobId, "commit-graph");
     }
 
     @Override
-    public void run() {
-        logger.debug("Starting commit on "
-                + srcGraphId
-                + " to "
-                + dstGraphId
-                + " job " + jobId
-                + " " + Thread.currentThread().getName());
-
-        setJobName(jobId, "commit-graph");
-        setJobState(jobId, JobMetadata.RUNNING);
-
-        DendriteGraph srcGraph = metaGraph.getGraph(srcGraphId);
-        DendriteGraph dstGraph = metaGraph.getGraph(dstGraphId);
-
-        createIndices(srcGraph, dstGraph);
-
+    public void copyGraph(DendriteGraph srcGraph, DendriteGraph dstGraph) {
         TitanTransaction srcTx = srcGraph.newTransaction();
         TitanTransaction dstTx = dstGraph.newTransaction();
 
@@ -80,60 +28,6 @@ public class BranchCommitJob extends AbstractJob implements Runnable {
 
         dstTx.commit();
         srcTx.commit();
-
-        setJobState(jobId, JobMetadata.DONE);
-
-        // Update the branch to point the new graph.
-        MetaGraphTx tx = metaGraph.newTransaction();
-        BranchMetadata branchMetadata = tx.getBranch(branchId);
-        branchMetadata.setGraph(tx.getGraph(dstGraph.getId()));
-        tx.commit();
-
-        logger.debug("snapshotGraph: finished job: " + jobId);
-    }
-
-    private void createIndices(DendriteGraph srcGraph, DendriteGraph dstGraph) {
-        // This is very much a hack, but unfortunately Titan does not yet expose a proper way to copy indices from
-        // one graph to another.
-
-        TitanTransaction srcTx = srcGraph.buildTransaction().readOnly().start();
-
-        try {
-            DendriteGraphTx dstTx = dstGraph.newTransaction();
-
-            try {
-                for(TitanKey titanKey: srcTx.getTypes(TitanKey.class)) {
-                    if (titanKey instanceof TitanKeyVertex) {
-                        TitanKeyVertex keyVertex = (TitanKeyVertex) titanKey;
-                        TypeAttribute.Map definition = getDefinition(keyVertex);
-                        dstTx.makePropertyKey(keyVertex.getName(), definition);
-                    }
-                }
-
-                for(TitanLabel titanLabel: srcTx.getTypes(TitanLabel.class)) {
-                    TitanLabelVertex keyVertex = (TitanLabelVertex) titanLabel;
-                    TypeAttribute.Map definition = getDefinition(keyVertex);
-                    dstTx.makeEdgeLabel(keyVertex.getName(), definition);
-                }
-
-                dstTx.commit();
-            } catch (Throwable t) {
-                dstTx.rollback();
-                throw t;
-            }
-        } finally {
-            srcTx.commit();
-        }
-    }
-
-    private TypeAttribute.Map getDefinition(TitanTypeVertex vertex) {
-        TypeAttribute.Map definition = new TypeAttribute.Map();
-
-        for (TitanProperty p: vertex.query().includeHidden().type(SystemKey.TypeDefinition).properties()) {
-            definition.add(p.getValue(TypeAttribute.class));
-        }
-
-        return definition;
     }
 
     private void snapshotVertices(TitanTransaction srcTx, TitanTransaction dstTx) {
