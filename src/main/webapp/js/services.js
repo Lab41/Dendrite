@@ -147,12 +147,19 @@ angular.module('dendrite.services', ['ngResource']).
 
                   // parse the graph's vertices for available keys
                   var json = JSON.parse(text);
-                  Array().forEach.call(json.graph.vertices, function(v) {
-                      Object.keys(v).forEach(function(key) {
-                        keys[key] = true;
+                  if (json.graph !== undefined) {
+                      Array().forEach.call(json.graph.vertices, function(v) {
+                          Object.keys(v).forEach(function(key) {
+                            keys[key] = true;
+                          });
                       });
-                  });
-
+                  } else if (json.vertices !== undefined) {
+                      Array().forEach.call(json.vertices, function(v) {
+                          Object.keys(v).forEach(function(key) {
+                              keys[key] = true;
+                          });
+                      });
+                  }
                 }
                 else if (format === "GraphML") {
 

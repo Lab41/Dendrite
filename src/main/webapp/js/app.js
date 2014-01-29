@@ -154,7 +154,7 @@ angular.module('dendrite', [
     fileUpload: {
       parseGraphFile: true,
       parseSeparator: ":::",
-      maxBytesLocal: Math.pow(1024,2)
+      maxBytesLocal: Math.pow(1024,3)
     }
   }).
   run(['$rootScope', '$http', '$location', 'User', function(scope, $http, $location, User) {
