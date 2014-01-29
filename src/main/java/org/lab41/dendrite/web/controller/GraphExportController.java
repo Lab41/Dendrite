@@ -133,8 +133,9 @@ public class GraphExportController {
         logger.debug("saving graph '" + graphId + "'");
 
         // extract the storage location for the history
-        String historyStorageLocation = historyService.getHistoryStorage();
         String format = item.getFormat();
+        String projectId = item.getProjectId();
+        String historyStorageLocation = historyService.getHistoryStorage() + "/" + projectId;
 
         DendriteGraphTx tx = graph.buildTransaction().readOnly().start();
 
