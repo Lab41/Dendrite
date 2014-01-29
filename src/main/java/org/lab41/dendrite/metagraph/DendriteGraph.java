@@ -23,6 +23,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DendriteGraph extends TitanBlueprintsGraph {
 
+    public static final String INDEX_NAME = "search";
+    public static final String VERTEX_ID_KEY = "_vertexId";
+
     private Logger logger = LoggerFactory.getLogger(DendriteGraph.class);
 
     /**
@@ -76,15 +79,13 @@ public class DendriteGraph extends TitanBlueprintsGraph {
         String backend = properties.getProperty("storage.index.search.backend", null);
         if (backend != null && backend.equals("elasticsearch")) {
             TitanTransaction tx = titanGraph.newTransaction();
-            if (tx.getType(DendriteGraphTx.VERTEX_ID_KEY) == null) {
-                tx.makeKey(DendriteGraphTx.VERTEX_ID_KEY)
+            if (tx.getType(VERTEX_ID_KEY) == null) {
+                tx.makeKey(VERTEX_ID_KEY)
                         .dataType(String.class)
-                        .indexed("search", Vertex.class)
+                        .indexed(INDEX_NAME, Vertex.class)
                         .make();
             }
             tx.commit();
-
-            connectToElasticSearch();
         }
     }
 
@@ -130,6 +131,15 @@ public class DendriteGraph extends TitanBlueprintsGraph {
      * @return the ElasticSearch client.
      */
     public Client getElasticSearchClient() {
+        if (elasticSearchClient != null) {
+            return elasticSearchClient;
+        }
+
+        String backend = properties.getProperty("storage.index.search.backend", null);
+        if (backend != null && backend.equals("elasticsearch")) {
+            connectToElasticSearch();
+        }
+
         return elasticSearchClient;
     }
 
@@ -194,7 +204,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
     }
 
     @Override
-    public TitanTransaction newThreadBoundTransaction() {
+    public DendriteGraphTx newThreadBoundTransaction() {
         return newTransaction();
     }
 

@@ -17,33 +17,39 @@ public class DendriteGraphTransactionBuilder implements TransactionBuilder {
     }
 
     @Override
-    public TransactionBuilder readOnly() {
-        return transactionBuilder.readOnly();
+    public DendriteGraphTransactionBuilder readOnly() {
+        transactionBuilder.readOnly();
+        return this;
     }
 
     @Override
-    public TransactionBuilder enableBatchLoading() {
-        return transactionBuilder.enableBatchLoading();
+    public DendriteGraphTransactionBuilder enableBatchLoading() {
+        transactionBuilder.enableBatchLoading();
+        return this;
     }
 
     @Override
-    public TransactionBuilder setCacheSize(int size) {
-        return transactionBuilder.setCacheSize(size);
+    public DendriteGraphTransactionBuilder setCacheSize(int size) {
+        transactionBuilder.setCacheSize(size);
+        return this;
     }
 
     @Override
-    public TransactionBuilder checkInternalVertexExistence() {
-        return transactionBuilder.checkInternalVertexExistence();
+    public DendriteGraphTransactionBuilder checkInternalVertexExistence() {
+        transactionBuilder.checkInternalVertexExistence();
+        return this;
     }
 
     @Override
-    public TransactionBuilder setTimestamp(long timestamp) {
-        return transactionBuilder.setTimestamp(timestamp);
+    public DendriteGraphTransactionBuilder setTimestamp(long timestamp) {
+        transactionBuilder.setTimestamp(timestamp);
+        return this;
     }
 
     @Override
-    public TransactionBuilder setMetricsPrefix(String prefix) {
-        return transactionBuilder.setMetricsPrefix(prefix);
+    public DendriteGraphTransactionBuilder setMetricsPrefix(String prefix) {
+        transactionBuilder.setMetricsPrefix(prefix);
+        return this;
     }
 
     @Override

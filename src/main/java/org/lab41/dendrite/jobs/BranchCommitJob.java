@@ -96,25 +96,34 @@ public class BranchCommitJob extends AbstractJob implements Runnable {
         // This is very much a hack, but unfortunately Titan does not yet expose a proper way to copy indices from
         // one graph to another.
 
-        TitanTransaction srcTx = srcGraph.newTransaction();
-        DendriteGraphTx dstTx = dstGraph.newTransaction();
+        TitanTransaction srcTx = srcGraph.buildTransaction().readOnly().start();
 
-        for(TitanKey titanKey: srcTx.getTypes(TitanKey.class)) {
-            if (titanKey instanceof TitanKeyVertex) {
-                TitanKeyVertex keyVertex = (TitanKeyVertex) titanKey;
-                TypeAttribute.Map definition = getDefinition(keyVertex);
-                dstTx.makePropertyKey(keyVertex.getName(), definition);
+        try {
+            DendriteGraphTx dstTx = dstGraph.newTransaction();
+
+            try {
+                for(TitanKey titanKey: srcTx.getTypes(TitanKey.class)) {
+                    if (titanKey instanceof TitanKeyVertex) {
+                        TitanKeyVertex keyVertex = (TitanKeyVertex) titanKey;
+                        TypeAttribute.Map definition = getDefinition(keyVertex);
+                        dstTx.makePropertyKey(keyVertex.getName(), definition);
+                    }
+                }
+
+                for(TitanLabel titanLabel: srcTx.getTypes(TitanLabel.class)) {
+                    TitanLabelVertex keyVertex = (TitanLabelVertex) titanLabel;
+                    TypeAttribute.Map definition = getDefinition(keyVertex);
+                    dstTx.makeEdgeLabel(keyVertex.getName(), definition);
+                }
+
+                dstTx.commit();
+            } catch (Throwable t) {
+                dstTx.rollback();
+                throw t;
             }
+        } finally {
+            srcTx.commit();
         }
-
-        for(TitanLabel titanLabel: srcTx.getTypes(TitanLabel.class)) {
-            TitanLabelVertex keyVertex = (TitanLabelVertex) titanLabel;
-            TypeAttribute.Map definition = getDefinition(keyVertex);
-            dstTx.makeEdgeLabel(keyVertex.getName(), definition);
-        }
-
-        dstTx.commit();
-        srcTx.commit();
     }
 
     private TypeAttribute.Map getDefinition(TitanTypeVertex vertex) {

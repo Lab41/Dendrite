@@ -5,6 +5,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
+import org.lab41.dendrite.metagraph.MetaGraphTransactionBuilder;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,10 @@ public class MetaGraphService {
 
     public MetaGraphTx newTransaction() {
         return metaGraph.newTransaction();
+    }
+
+    public MetaGraphTransactionBuilder buildTransaction() {
+        return metaGraph.buildTransaction();
     }
 
     public void stop() {

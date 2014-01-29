@@ -235,11 +235,24 @@ angular.module('dendrite.services', ['ngResource']).
         return {
 
           search: function(queryParams) {
+            var query;
+
+            if (queryParams.queryTerm === "") {
+                query = { "match_all": {}}
+            } else {
+                query = {
+                    "query_string": {
+                        "query": queryParams.queryTerm,
+                        "lenient": true
+                    }
+                };
+            }
+
             // build elasticSearch query
             var inputJson = {
                     "from" : queryParams.pageSize*(queryParams.pageNumber - 1),
                     "size" : queryParams.pageSize,
-                    "query" : { "query_string" : {"query" : "*"+queryParams.queryTerm+"*"} },
+                    "query" : query,
                     "filter" : { "type": { "value": queryParams.resultType } },
                     "sort" : queryParams.sortInfo
                 };
@@ -531,21 +544,38 @@ angular.module('dendrite.services', ['ngResource']).
             isArray: false
           },
 
-          // fire off calculation
-          createPageRankJung: {
-            url: 'api/graphs/:graphId/analysis/jung-pagerank',
+          createJungBarycenterDistance: {
+            url: 'api/graphs/:graphId/analysis/jung/barycenter-distance',
+            method: 'POST',
+            isArray: false
+          },
+
+          createJungBetweennessCentrality: {
+            url: 'api/graphs/:graphId/analysis/jung/betweenness-centrality',
+            method: 'POST',
+            isArray: false
+          },
+
+          createJungClosenessCentrality: {
+            url: 'api/graphs/:graphId/analysis/jung/closeness-centrality',
+            method: 'POST',
+            isArray: false
+          },
+
+          createJungEigenvectorCentrality: {
+            url: 'api/graphs/:graphId/analysis/jung/eigenvector-centrality',
+            method: 'POST',
+            isArray: false
+          },
+
+          createJungPageRank: {
+            url: 'api/graphs/:graphId/analysis/jung/pagerank',
             method: 'POST',
             isArray: false
           },
 
           createGraphLab: {
             url: 'api/graphs/:graphId/analysis/:algorithm',
-            method: 'POST',
-            isArray: false
-          },
-
-          createBetweennessCentralityJung: {
-            url: 'api/graphs/:graphId/analysis/jung-betweenness-centrality',
             method: 'POST',
             isArray: false
           },

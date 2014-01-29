@@ -35,7 +35,7 @@ public class GraphController {
     @RequestMapping(value = "/graphs", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getGraphs() {
 
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         List<Map<String, Object>> graphs = new ArrayList<>();
         for (GraphMetadata graphMetadata: tx.getGraphs()) {
@@ -55,7 +55,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getGraph(@PathVariable String graphId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         GraphMetadata graphMetadata = tx.getGraph(graphId);
 
@@ -78,7 +78,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getRandom(@PathVariable String graphId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         GraphMetadata graphMetadata = tx.getGraph(graphId);
 
@@ -91,17 +91,23 @@ public class GraphController {
 
         DendriteGraph graph = metaGraphService.getGraph(graphId);
 
-        DendriteGraphTx dendriteGraphTx = graph.newTransaction();
+        DendriteGraphTx dendriteGraphTx = graph.buildTransaction().readOnly().start();
 
         Map<Object, Object> verticesMap = new HashMap<>();
         Map<Object, Object> edgesMap = new HashMap<>();
 
         int edgeCount = 0;
 
-        for (Vertex vertex: dendriteGraphTx.query().limit(100).vertices()) {
-            addVertex(verticesMap, vertex);
+        for (Edge edge: dendriteGraphTx.query().limit(100).edges()) {
+            addEdge(verticesMap, edgesMap, edge);
 
-            for (Edge edge: vertex.getEdges(Direction.BOTH)) {
+            for (Edge inEdge: edge.getVertex(Direction.IN).getEdges(Direction.BOTH)) {
+                edgeCount += 1;
+                if (edgeCount > 100) { break; }
+                addEdge(verticesMap, edgesMap, edge);
+            }
+
+            for (Edge outEdge: edge.getVertex(Direction.OUT).getEdges(Direction.BOTH)) {
                 edgeCount += 1;
                 if (edgeCount > 100) { break; }
                 addEdge(verticesMap, edgesMap, edge);
@@ -184,7 +190,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getGraphs(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {
@@ -246,7 +252,7 @@ public class GraphController {
     public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.newTransaction();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
         ProjectMetadata projectMetadata = tx.getProject(projectId);
 
         if (projectMetadata == null) {

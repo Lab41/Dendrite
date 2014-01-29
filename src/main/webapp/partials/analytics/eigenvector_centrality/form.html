@@ -1,0 +1,24 @@
+<!-- Modal (external ./partials/modal.html or inline ng-template) -->
+<div ng-controller="AnalyticsFormCtrl" ng-init="analyticType = 'EigenvectorCentrality'">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>Analytics: Eigenvector Centrality</h3>
+  </div>
+
+  <div class="modal-body">
+    <div class="well">
+      <p>
+          <strong>Definition:</strong>
+          <a href="http://en.wikipedia.org/wiki/Centrality#Eigenvector_centrality">Eigenvector centrality</a>
+          is a measure of the influence of a node in a network. It assigns relative scores to all nodes in the network
+          based on the concept that connections to high-scoring nodes contribute more to the score of the node in
+          question than equal connections to low-scoring nodes.
+      </p>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="dismiss()">Cancel</button>
+    <button class="btn btn-primary" ng-click="calculate(); dismiss()">Calculate Eigenvector Centrality</button>
+  </div>
+</div>
