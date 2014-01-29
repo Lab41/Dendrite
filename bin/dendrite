@@ -187,7 +187,7 @@ class Project(Table):
 
         return Job.get(self.conn, response['jobId'])
 
-    def commit_subset_branch(self, query, steps name=None):
+    def commit_subset_branch(self, query, steps, name=None):
         if name is None:
             url = '{}/{}/current-branch/commit-subset'.format(self.URL_PATH, self.id)
         else:

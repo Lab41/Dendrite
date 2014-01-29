@@ -86,16 +86,14 @@ public class GraphImportController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        DendriteGraphTx tx = graph.newTransaction();
-
         try {
             // create search indices
             if (searchKeys.contains(",")) {
                 // separate "k1,k2,k3" into ["k1", "k2", "k3"] and iterate
                 for (String key : searchKeys.split(",")) {
                     // create the search index (if it doesn't already exist and isn't a reserved key)
-                    if (tx.getType(key) == null && !RESERVED_KEYS.contains(key)) {
-                        tx.makeKey(key)
+                    if (graph.getType(key) == null && !RESERVED_KEYS.contains(key)) {
+                        graph.makeKey(key)
                                 .dataType(String.class)
                                 .indexed(Vertex.class)
                                 .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
@@ -104,17 +102,19 @@ public class GraphImportController {
                 }
             }
 
+            graph.commit();
+
             InputStream inputStream = file.getInputStream();
             if (format.equalsIgnoreCase("GraphSON")) {
-                GraphSONReader.inputGraph(tx, inputStream);
+                GraphSONReader.inputGraph(graph, inputStream);
             } else if (format.equalsIgnoreCase("GraphML")) {
-                GraphMLReader.inputGraph(tx, inputStream);
+                GraphMLReader.inputGraph(graph, inputStream);
             } else if (format.equalsIgnoreCase("GML")) {
-                GMLReader.inputGraph(tx, inputStream);
+                GMLReader.inputGraph(graph, inputStream);
             } else if (format.equalsIgnoreCase("FaunusGraphSON")) {
-                FaunusGraphSONReader.inputGraph(tx, inputStream);
+                FaunusGraphSONReader.inputGraph(graph, inputStream);
             } else {
-                tx.rollback();
+                graph.rollback();
 
                 response.put("status", "error");
                 response.put("msg", "unknown format '" + format + "'");
@@ -123,7 +123,7 @@ public class GraphImportController {
             }
             inputStream.close();
         } catch (IOException e) {
-            tx.rollback();
+            graph.rollback();
 
             response.put("status", "error");
             response.put("msg", "exception: " + e.toString());
