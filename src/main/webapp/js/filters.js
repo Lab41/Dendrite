@@ -26,10 +26,12 @@ angular.module('dendrite.filters', [])
   })
   .filter('truncate', function() {
     return function(input, scope) {
-      var maxLen = 7;
       var retVal = input;
-      if (input.length > maxLen) {
-        retVal = input.substring(0,maxLen)+"...";
+      var maxLen = 7;
+      if (input !== undefined) {
+        if (input.length > maxLen) {
+          retVal = input.substring(0,maxLen)+"...";
+        }
       }
       return retVal;
     }
