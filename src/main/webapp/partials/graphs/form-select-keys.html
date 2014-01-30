@@ -11,9 +11,17 @@
       <p>**Note: the default "select all" option will make every field searchable, but at the expense of storing all data in two locations, namely the database and search engine.</p>
     </div>
 
-    <label class="checkbox" ng-repeat="key in keysForGraph">
-      <input type="checkbox" ng-checked="checkboxHasKey(key)" ng-click="checkboxTally(key)" value="graph-key-{{keysForGraph.indexOf(key)}}"> {{ key }}
-    </label>
+    <div class="row-fluid row-padded" ng-repeat="key in keysForGraph">
+      <div class="span2 offset3">
+        <label class="checkbox" >
+          <input type="checkbox" ng-model="selectedKeyTypes[key].selected" value="graph-key-{{keysForGraph.indexOf(key)}}" ng-checked="selectedKeyTypes[key].selected"> {{ key }}
+        </label>
+      </div>
+      <div class="span3">
+        <select class="input-small" ng-model="selectedKeyTypes[key].type">
+          <option ng-repeat="t in indexTypes" ng-selected="{{ t===selectedKeyTypes[key].type }}">{{t}}</option>
+        </select>
+      </div>
   </div>
 
   <div class="modal-footer">
