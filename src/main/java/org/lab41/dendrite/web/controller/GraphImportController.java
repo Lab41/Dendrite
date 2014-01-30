@@ -88,15 +88,22 @@ public class GraphImportController {
 
         try {
             // create search indices
+            String elasticSearchIndex = "search";
             if (searchKeys.contains(",")) {
-                // separate "k1,k2,k3" into ["k1", "k2", "k3"] and iterate
-                for (String key : searchKeys.split(",")) {
+                // separate and iterate over "key1=type1,key2=type2"
+                for (String keyType : searchKeys.split(",")) {
+                    String[] tokens = keyVal.split("=");
+                    String key = tokens[0];
+                    String type = tokens[1];
+
+                    //TODO: make dataType below based on type passed from client
+
                     // create the search index (if it doesn't already exist and isn't a reserved key)
-                    if (graph.getType(key) == null && !RESERVED_KEYS.contains(key)) {
-                        graph.makeKey(key)
+                    if (tx.getType(key) == null && !RESERVED_KEYS.contains(key)) {
+                        tx.makeKey(key)
                                 .dataType(String.class)
                                 .indexed(Vertex.class)
-                                .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                                .indexed(elasticSearchIndex, Vertex.class)
                                 .make();
                     }
                 }
