@@ -944,14 +944,24 @@ angular.module('dendrite.controllers', []).
             return false;
         };
 
+        // FIXME: For some reason firefox fires this off on load. So ignore the error for now.
+        $scope.actuallyUploading = false;
+
         $scope.uploadFile = function(content) {
+            // See fixme above.
+            if (!$scope.actuallyUploading) { return; }
+
+            $scope.actuallyUploading = false;
+
             $scope.fileUploading = false;
             $scope.fileUploaded = true;
             if (content.status === "ok") {
                 $scope.uploadMessage = "file uploaded";
                 $scope.$emit('event:reloadGraph');
-            } else {
+            } else if (content.msg !== undefined) {
                 $scope.uploadMessage = "upload failed: " + content.msg;
+            } else {
+                $scope.uploadMessage = "upload failed";
             }
         };
 
@@ -1005,6 +1015,8 @@ angular.module('dendrite.controllers', []).
         // auto-submit form to upload graph
         // **note: explicitly set searchkeys value since Angular might be pending the scope's data update
         $scope.loadGraph = function() {
+          // See fixme above.
+          $scope.actuallyUploading = true;
 
           // build the list of key1=type1,key2=type2 if the checkbox is selected
           var selectedCheckboxes = $scope.selectedKeys.map(function(key) {
