@@ -41,6 +41,7 @@ public class MetaGraph {
         Properties systemProperties = new Properties();
         loadGraphProperties(systemGraphName, config.subset("metagraph.system"), systemProperties);
 
+        logger.debug("loading system graph");
         this.systemGraph = new DendriteGraph(systemGraphName, systemProperties);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
@@ -56,6 +57,19 @@ public class MetaGraph {
         );
 
         createMetadataGraphKeys();
+    }
+
+    public Set<String> getGraphNames() {
+        Set<String> graphNames = new TreeSet<>();
+
+        MetaGraphTx tx = newTransaction();
+        for (GraphMetadata graphMetadata: tx.getGraphs()) {
+            graphNames.add(graphMetadata.getId());
+        }
+
+        tx.commit();
+
+        return graphNames;
     }
 
     /**
@@ -333,6 +347,8 @@ public class MetaGraph {
 
         DendriteGraph graph = graphs.get(id);
         if (graph == null) {
+            logger.debug("Loading graph " + id);
+
             // Create a default config if we were passed a null config.
             if (properties == null) {
                 properties = getGraphProperties(id);

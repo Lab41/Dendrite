@@ -20,9 +20,11 @@ import org.apache.hadoop.mapreduce.JobStatus;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.lab41.dendrite.jobs.FaunusJob;
+import org.lab41.dendrite.jobs.titan.DegreeCentralityJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.*;
+import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.services.analysis.FaunusPipelineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,43 +41,19 @@ public class EdgeDegreesService extends AnalysisService {
     Logger logger = LoggerFactory.getLogger(EdgeDegreesService.class);
 
     @Autowired
+    MetaGraphService metaGraphService;
+
+    @Autowired
     FaunusPipelineService faunusPipelineService;
 
     @Async
     public void titanCountDegrees(DendriteGraph graph, String jobId) throws Exception {
+        DegreeCentralityJob job = new DegreeCentralityJob(
+                metaGraphService.getMetaGraph(),
+                jobId,
+                graph);
 
-        logger.debug("Starting Titan degree counting analysis on "
-                + graph.getId()
-                + " job " + jobId
-                + " " + Thread.currentThread().getName());
-
-        setJobName(jobId, "titan-degrees");
-        setJobState(jobId, JobMetadata.RUNNING);
-
-        createIndices(graph);
-
-        TitanTransaction tx = graph.newTransaction();
-        for (Vertex vertex: tx.getVertices()) {
-            int inDegrees = 0;
-            int outDegrees = 0;
-
-            for (Edge edge: vertex.getEdges(Direction.IN)) {
-                inDegrees += 1;
-            }
-
-            for (Edge edge: vertex.getEdges(Direction.OUT)) {
-                outDegrees += 1;
-            }
-
-            vertex.setProperty("in_degrees", inDegrees);
-            vertex.setProperty("out_degrees", outDegrees);
-            vertex.setProperty("degrees", inDegrees + outDegrees);
-        }
-        tx.commit();
-
-        setJobState(jobId, JobMetadata.DONE);
-
-        logger.debug("titanCountDegrees: finished job: " + jobId);
+        job.run();
     }
 
     @Async
