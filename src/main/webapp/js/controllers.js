@@ -766,7 +766,7 @@ angular.module('dendrite.controllers', []).
                 {field: '_id', displayName: 'ID', enableCellEdit: false, cellTemplate: '<div ng-click="edgeDetail(\'{{row.entity[col.field]}}\')"><a>{{row.entity[col.field]}}<a></div>'},
                 {field: '_inV', displayName: 'From', enableCellEdit: true, cellTemplate: '<div>{{getVertex( row.entity[col.field] )}}</div>'},
                 {field: '_label', displayName: 'Link', enableCellEdit: true},
-                {field: '_outV', displayName: 'To', enableCellEdit: true, cellTemplate: '<div>{{getVertex( row.entity[col.field] )}}</div>'},
+                {field: '_outV', displayName: 'To', enableCellEdit: true, cellTemplate: '<div>{{getVertex( row.entity[col.field] )}}</div>'}
 
                 //{field: 'weight', displayName: 'Edge Weight', enableCellEdit: true},
             ],
@@ -1001,7 +1001,6 @@ angular.module('dendrite.controllers', []).
             angular.element('#form-file-upload').submit();
           });
         };
-
     }).
     controller('VizHistogramCtrl', function($scope, $location, Histogram, ElasticSearch, appConfig) {
       $scope.searching = false;
