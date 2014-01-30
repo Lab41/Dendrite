@@ -82,7 +82,7 @@ public class JungController {
         tx.commit();
 
         // We can't pass the values directly because they'll live in a separate thread.
-        barycenterDistanceService.jungBarycenterDistance(graph, jobMetadata.getId());
+        barycenterDistanceService.run(graph, jobMetadata.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -127,7 +127,7 @@ public class JungController {
         tx.commit();
 
         // We can't pass the values directly because they'll live in a separate thread.
-        betweennessCentralityService.jungBetweennessCentrality(graph, jobMetadata.getId());
+        betweennessCentralityService.run(graph, jobMetadata.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -171,7 +171,7 @@ public class JungController {
         tx.commit();
 
         // We can't pass the values directly because they'll live in a separate thread.
-        closenessCentralityService.jungClosenessCentrality(graph, jobMetadata.getId());
+        closenessCentralityService.run(graph, jobMetadata.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -215,7 +215,7 @@ public class JungController {
         tx.commit();
 
         // We can't pass the values directly because they'll live in a separate thread.
-        eigenvectorCentralityService.jungEigenvectorCentrality(graph, jobMetadata.getId());
+        eigenvectorCentralityService.run(graph, jobMetadata.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -267,7 +267,7 @@ public class JungController {
         tx.commit();
 
         // We can't pass the values directly because they'll live in a separate thread.
-        pageRankService.jungPageRank(graph, jobMetadata.getId(), item.getAlpha());
+        pageRankService.run(graph, jobMetadata.getId(), item.getAlpha());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -12,8 +12,8 @@ public abstract class AbstractJob {
 
     static Logger logger = LoggerFactory.getLogger(AbstractJob.class);
 
-    MetaGraph metaGraph;
-    String jobId;
+    protected MetaGraph metaGraph;
+    protected String jobId;
 
     public AbstractJob(MetaGraph metaGraph, String jobId) {
         this.metaGraph = metaGraph;
