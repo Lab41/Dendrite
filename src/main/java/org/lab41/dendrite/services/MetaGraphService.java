@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Service
 public class MetaGraphService {
@@ -36,6 +39,10 @@ public class MetaGraphService {
 
     public MetaGraph getMetaGraph() {
         return metaGraph;
+    }
+
+    public Set<String> getGraphNames() {
+        return metaGraph.getGraphNames();
     }
 
     public Collection<DendriteGraph> getGraphs() {

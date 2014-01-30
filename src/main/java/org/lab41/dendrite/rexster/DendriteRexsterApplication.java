@@ -81,13 +81,8 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public Set<String> getGraphNames() {
-        Set<String> graphNames = new HashSet<>();
+        return metaGraphService.getGraphNames();
 
-        for (DendriteGraph graph: metaGraphService.getGraphs()) {
-            graphNames.add(graph.getId());
-        }
-
-        return graphNames;
     }
 
     @Override
