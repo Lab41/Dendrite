@@ -1,14 +1,16 @@
 <div ng-controller="VizHistogramCtrl">
-  <form class="form-inline">
-    <input ng-model="query" type="text" class="input-small" placeholder="Query">
-    <select class="inline form-control" style="width:45%" ng-model="facet">
-      <option ng-selected="true">Search Field</option>
-      <option ng-repeat="facet in searchFacets" value="{{ facet }}">{{ facet }}</option>
-    </select>
-    <button type="submit" class="btn" ng-click="visualize()">Visualize</button>
-  </form>
+  <div class="span12 well">
+    <form class="form-inline">
+      <input ng-model="query" type="text" class="input-small" placeholder="Query">
+      <select class="inline form-control" style="width:45%" ng-model="facet">
+        <option ng-selected="true">Search Field</option>
+        <option ng-repeat="facet in searchFacets" value="{{ facet }}">{{ facet }}</option>
+      </select>
+      <button type="submit" class="btn" ng-click="visualize()">Visualize</button>
+    </form>
+  </div>
 
   <h4 id="viz-histogram-title"></h4>
   <div ng-hide="!searching"><img src="img/icons/ajax-loader.gif"></div>
-  <div id="viz-histogram-wrapper"></div>
+  <div id="viz-histogram-wrapper" style="height: 600px"></div>
 </div>
