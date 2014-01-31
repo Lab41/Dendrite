@@ -13,7 +13,6 @@
 <div class="row row-padded">
 
   <div class="span8">
-
     <div class="row row-padded">
       <div class="inline float-left">
         <a class="btn btn-primary" href="#/graphs/{{ graphId }}/create_vertex">Add Person</a>
@@ -26,8 +25,13 @@
           <button type="submit" class="btn btn-default">
             <i class="icon-search icon-white" ng-hide="fullTextSearching"></i>
             <img src="img/icons/ajax-spinner.gif" ng-hide="!fullTextSearching">
-            <span ng-hide="fullTextSearching">Full Search</span>
           </button>
+
+          <button class="btn btn-primary" ng-if="gridOptions.filterOptions.filterText" bs-modal="'partials/project-carve.html'">
+            <i class="icon-random icon-white"></i>
+            <span>Carve New Project</span>
+          </button>
+
         </form>
       </div>
     </div>

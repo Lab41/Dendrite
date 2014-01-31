@@ -547,12 +547,12 @@ angular.module('dendrite.services', ['ngResource']).
               var getX = function(d) {
                 if (d["_source"][queryFacet] !== undefined || d["_source"][queryFacet2] !== undefined) {
                     return ((d["_source"][queryFacet] === undefined) ? -1 : d["_source"][queryFacet]);
-                } 
+                }
               };
               var getY = function(d) {
                 if (d["_source"][queryFacet] !== undefined || d["_source"][queryFacet2] !== undefined) {
                     return ((d["_source"][queryFacet2] === undefined) ? -1 : d["_source"][queryFacet2]);
-                } 
+                }
               };
 
               var chart,
@@ -587,7 +587,7 @@ angular.module('dendrite.services', ['ngResource']).
 
               var xval = results.map(getX);
               var yval = results.map(getY);
-            
+
               // remove existing svg on refresh
               $("#viz-scatterplot-wrapper svg").remove();
 
@@ -620,7 +620,7 @@ angular.module('dendrite.services', ['ngResource']).
                   .attr('height', height)
                   .datum(randomData(1,querySize, xval, yval))
                   .call(chart);
- 
+
                 nv.utils.windowResize(chart.update);
 
                 //chart.dispatch.on('stateChange', function(e) { ('New State:', JSON.stringify(e)); });
@@ -754,6 +754,11 @@ angular.module('dendrite.services', ['ngResource']).
             },
             commitBranch: {
               url: 'api/projects/:projectId/current-branch/commit',
+              method: 'POST',
+              isArray: false
+            },
+            carveSubgraph: {
+              url: 'api/projects/:projectId/current-branch/export-subset',
               method: 'POST',
               isArray: false
             }
