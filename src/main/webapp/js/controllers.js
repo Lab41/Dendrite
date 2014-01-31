@@ -924,6 +924,7 @@ angular.module('dendrite.controllers', []).
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
         $scope.indexTypes = [
+            "string",
             "text",
             "integer",
             "float",

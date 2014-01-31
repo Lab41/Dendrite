@@ -16,6 +16,8 @@
 
 package org.lab41.dendrite.web.controller;
 
+import com.thinkaurelius.titan.core.Mapping;
+import com.thinkaurelius.titan.core.Parameter;
 import com.thinkaurelius.titan.core.attribute.FullDouble;
 import com.thinkaurelius.titan.core.attribute.FullFloat;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
@@ -46,10 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Arrays;
+import java.util.*;
 
 @Controller
 public class GraphImportController {
@@ -102,8 +101,14 @@ public class GraphImportController {
                     // create the search index (if it doesn't already exist and isn't a reserved key)
                     if (graph.getType(key) == null && !RESERVED_KEYS.contains(key)) {
                         Class cls;
-                        if (type.equals("text")) {
+                        List<Parameter> parameters = new ArrayList<>();
+
+                        if (type.equals("string")) {
                             cls = String.class;
+                            parameters.add(Parameter.of(Mapping.MAPPING_PREFIX, Mapping.STRING));
+                        } else if (type.equals("text")) {
+                            cls = String.class;
+                            parameters.add(Parameter.of(Mapping.MAPPING_PREFIX, Mapping.TEXT));
                         } else if (type.equals("integer")) {
                             cls = Integer.class;
                         } else if (type.equals("float")) {
@@ -122,7 +127,7 @@ public class GraphImportController {
                         graph.makeKey(key)
                                 .dataType(cls)
                                 .indexed(Vertex.class)
-                                .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                                .indexed(DendriteGraph.INDEX_NAME, Vertex.class, parameters.toArray(new Parameter[parameters.size()]))
                                 .make();
                     }
                 }
