@@ -585,10 +585,9 @@ angular.module('dendrite.controllers', []).
                 // to allow dynamic setting of columns based on results
                 $scope.columnDefs = [];
                 Object.keys(resultKeys).forEach(function(k) {
-                  var nameCapitalized = k.charAt(0).toUpperCase() + k.slice(1);
                   $scope.columnDefs.push({
                     field: k,
-                    displayName: nameCapitalized,
+                    displayName: k,
                     enableCellEdit: false,
                     headerCellTemplate: '<div class="ngHeaderSortColumn  ngSorted" ng-style="{\'cursor\': col.cursor}" ng-class="{ \'ngSorted\': !noSortVisible }" style="cursor: pointer;" draggable="true">\
                       <div ng-click="externalSort(col.field)" ng-class="\'colt\' + col.index" class="ngHeaderText"">{{col.displayName}}</div>\
