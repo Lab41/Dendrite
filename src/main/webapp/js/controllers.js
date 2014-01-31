@@ -923,7 +923,13 @@ angular.module('dendrite.controllers', []).
     controller('FileUploadCtrl', function ($scope, $routeParams, $modal, appConfig) {
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
-        $scope.indexTypes = ["text", "number", "geocoordinate"];
+        $scope.indexTypes = [
+            "text",
+            "integer",
+            "float",
+            "double",
+            "geocoordinate"
+        ];
         $scope.keysForGraph = [];
 
         $scope.uploading = function() {
@@ -950,8 +956,18 @@ angular.module('dendrite.controllers', []).
         };
 
         // push/slice checkbox from list
-        $scope.selectedKeyTypes = {};
-        $scope.selectedCheckboxesList = "";
+        $scope.keys = [];
+        $scope.selectedKeys = [];
+
+        $scope.toggleSelection = function(key) {
+            var idx = $scope.selectedKeys.indexOf(key);
+
+            if (idx > -1) {
+                $scope.selectedKeys.splice(idx, 1);
+            } else {
+                $scope.selectedKeys.push(key);
+            }
+        }
 
         $scope.$on('event:graphFileParsed', function() {
           if (!appConfig.fileUpload.parseGraphFile) {
@@ -964,9 +980,16 @@ angular.module('dendrite.controllers', []).
             if ($scope.keysForGraph.length > 0) {
               $scope.fileParsed = true;
               $scope.fileParseError = false;
-              Array().forEach.call($scope.keysForGraph, function(k) {
-                  $scope.selectedKeyTypes[k] = {type: $scope.indexTypes[0], selected: true};
+              $scope.keysForGraph.forEach(function(k) {
+                  if (k !== "_id" && k !== "_type") {
+                      $scope.keys.push({
+                          name: k,
+                          type: $scope.indexTypes[0]
+                      });
+                  }
               });
+
+              $scope.selectedKeys = $scope.keys.slice(0);
 
               $scope.safeApply(function() {
                 $modal({scope: $scope, template: 'partials/graphs/form-select-keys.html'});
@@ -984,19 +1007,12 @@ angular.module('dendrite.controllers', []).
         $scope.loadGraph = function() {
 
           // build the list of key1=type1,key2=type2 if the checkbox is selected
-          $scope.selectedCheckboxes = [];
-          $scope.selectedCheckboxesList = "";
-          for(var key in $scope.selectedKeyTypes){
-            if ($scope.selectedKeyTypes.hasOwnProperty(key)) {
-              if ($scope.selectedKeyTypes[key].selected) {
-                $scope.selectedCheckboxes.push(key+"="+$scope.selectedKeyTypes[key].type);
-              }
-            }
-          }
+          var selectedCheckboxes = $scope.selectedKeys.map(function(key) {
+              return key.name + "=" + key.type;
+          }).join(",");
 
-          // pass list to server to index
-          $scope.selectedCheckboxesList = $scope.selectedCheckboxes.join(',');
-          angular.element('#form-file-upload input[name="searchkeys"]').val($scope.selectedCheckboxesList);
+          angular.element('#form-file-upload input[name="searchkeys"]').val(selectedCheckboxes);
+
           $scope.safeApply(function() {
             angular.element('#form-file-upload').submit();
           });
