@@ -280,6 +280,102 @@ angular.module('dendrite.services', ['ngResource']).
           }
         };
     }).
+    factory('Map', function($resource, $routeParams, $http, appConfig) {
+      return {
+
+        display: function(graphId, queryString, querySize, mapType, searchFacets) {
+          // default inputs
+          if (queryString === undefined || queryString === '') {
+            queryString = "*";
+          }
+          if (querySize === undefined || querySize === '') {
+            querySize = "1000";
+          }
+          if (mapType === undefined || mapType === '' || mapType === "day") {
+            mapType = "8";
+          }
+          else {
+            mapType = "9";
+          }
+
+          // build elasticSearch query
+          var inputJson = {
+                    "size" : parseInt(querySize),
+                    "query" : { "query_string" : {"query" : queryString} },
+                  };
+
+          // query server
+          return $http({
+              method: "POST",
+              url: '/dendrite/api/graphs/'+graphId+'/search',
+              data: JSON.stringify(inputJson)
+          })
+          .success(function(json, response) {
+            if (response === 200) {
+              var results = json.hits.hits;
+
+              // remove existing svg on refresh
+              $("#viz-map-wrapper svg").remove();
+
+              // add titlebar
+              $('#viz-map-title').html('Results for "' + queryString +'":');
+
+              var po = org.polymaps;
+              var svg = document.getElementById("viz-map-wrapper").appendChild(po.svg("svg")),
+                  defs = svg.appendChild(po.svg("defs")),
+                  rg = defs.appendChild(po.svg("radialGradient")),
+                  s0 = rg.appendChild(po.svg("stop")),
+                  s1 = rg.appendChild(po.svg("stop"));
+
+              rg.setAttribute("id", "gradient");
+              s0.setAttribute("offset", "0%");
+              s0.setAttribute("stop-color", "red");
+              s1.setAttribute("offset", "100%");
+              s1.setAttribute("stop-color", "red");
+              s1.setAttribute("stop-opacity", 0);
+
+              var left = po.map()
+                  .container(svg)
+                  .add(po.interact());
+
+              Array.prototype.move = function (from, to) {
+                this.splice(to, 0, this.splice(from, 1)[0]);
+              };
+
+              var data = [];
+              if (searchFacets !== undefined && results !== undefined) {
+                for (var i=0; i<results.length; i++) {
+                  for (var j=0; j<searchFacets.length; j++) {
+                    if (results[i]["_source"][searchFacets[j]] !== undefined) {
+                      var geocord = results[i]["_source"][searchFacets[j]];
+
+                      // re-order [lat, long] to [long, lat]
+                      geocord.move(0, 1);
+
+                      data.push({geometry: {coordinates:results[i]["_source"][searchFacets[j]], type: "Point"}}); 
+                    }
+                  }
+                }
+              }
+
+              /** Post-process the GeoJSON points! */
+              var load = function(e) {
+                var r = 200 * Math.pow(2, e.tile.zoom - 12);
+                for (var i = 0; i < e.features.length; i++) {
+                  var c = e.features[i].element;
+                  c.setAttribute("r", r);
+                  c.setAttribute("fill", "url(#gradient)");
+                }
+              }
+
+              left.add(po.geoJson()
+                  .features(data)
+                  .on("load", load));
+            }
+          });
+        }
+      }
+    }).
     factory('Histogram', function($resource, $routeParams, $http, appConfig) {
       return {
         display: function(graphId, queryTerm, queryFacet) {
@@ -333,6 +429,7 @@ angular.module('dendrite.services', ['ngResource']).
               scores = facets.map(getCount);
               height = bar_height;
 
+              $("#viz-histogram-wrapper").height("auto");
               // remove existing svg on refresh
               $("#viz-histogram-wrapper svg").remove();
 

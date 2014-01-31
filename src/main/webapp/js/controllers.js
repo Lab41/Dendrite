@@ -1055,6 +1055,36 @@ angular.module('dendrite.controllers', []).
           }
       });
     }).
+    controller('VizMapCtrl', function($scope, $location, Map, ElasticSearch, appConfig) {
+      $scope.searching = false;
+
+      $scope.$watch('graphId', function(newVal, oldVal) {
+          if (newVal !== undefined) {
+              ElasticSearch.mapping($scope.graphId)
+                  .success(function(data) {
+                      var elasticValueFields = [];
+                      Object.keys(data.vertex.properties).forEach(function(k) {
+                          var val = data["vertex"]["properties"][k]["type"]; 
+                          if (val === "geo_point") {
+                              elasticValueFields.push(k);
+                          };
+                      });
+                      $scope.searchFacets = elasticValueFields;
+                  });
+
+              $scope.visualize = function() {
+                  $scope.searching = true;
+                  Map.display($scope.graphId, $scope.filter, $scope.size, $scope.mapType, $scope.searchFacets)
+                      .success(function() {
+                          $scope.searching = false;
+                      })
+                      .error(function() {
+                          $scope.searching = false;
+                      });
+              };
+          }
+      });
+    }).
     controller('VizScatterplotCtrl', function($scope, $location, Scatterplot, ElasticSearch, appConfig) {
       $scope.searching = false;
 
