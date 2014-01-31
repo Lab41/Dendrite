@@ -31,10 +31,30 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
     String query;
     int steps;
 
-    Map<Object, Vertex> ids = new HashMap<>();
+    Map<Object, Vertex> vertices = new HashMap<>();
+    Set<Object> edges = new HashSet<>();
 
-    public BranchCommitSubsetJob(MetaGraph metaGraph, String jobId, String branchId, String query, int steps) {
+    public BranchCommitSubsetJob(MetaGraph metaGraph,
+                                 String jobId,
+                                 String branchId,
+                                 String query,
+                                 int steps) {
         super(metaGraph, jobId, branchId);
+
+        Preconditions.checkNotNull(query);
+        Preconditions.checkArgument(steps >= 0);
+
+        this.query = query;
+        this.steps = steps;
+    }
+
+    public BranchCommitSubsetJob(MetaGraph metaGraph,
+                                 String jobId,
+                                 String branchId,
+                                 String srcGraphId,
+                                 String dstGraphId,
+                                 String query, int steps) {
+        super(metaGraph, jobId, branchId, srcGraphId, dstGraphId);
 
         Preconditions.checkNotNull(query);
         Preconditions.checkArgument(steps >= 0);
@@ -67,6 +87,7 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
         }
 
         SearchRequestBuilder srb = client.prepareSearch(srcGraph.getIndexName())
+                .setTypes("vertex")
                 .setQuery(queryBuilder)
                 .setSize(SIZE)
                 .setSearchType(SearchType.SCAN)
@@ -80,7 +101,8 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
 
             try {
                 for (SearchHit hit: scan(srcGraph.getElasticSearchClient(), srb)) {
-                    copyVertex(srcTx, dstTx, hit.getId(), 0);
+                    Vertex vertex = srcTx.getVertex(hit.getId());
+                    copyVertex(srcTx, dstTx, vertex, 0);
                 }
             } catch (Exception e) {
                 dstTx.rollback();
@@ -100,41 +122,47 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
                 .execute().actionGet();
     }
 
-    private Vertex copyVertex(TitanTransaction srcTx, TitanTransaction dstTx, Object id, int step) {
-        if (ids.containsKey(id)) {
-            return ids.get(id);
+    private Vertex copyVertex(TitanTransaction srcTx, TitanTransaction dstTx, Vertex srcVertex, int step) {
+        Vertex dstVertex;
+
+        if (vertices.containsKey(srcVertex.getId())) {
+            dstVertex = vertices.get(srcVertex.getId());
+        } else {
+            dstVertex = dstTx.addVertex(srcVertex.getId());
+            vertices.put(srcVertex.getId(), dstVertex);
+
+            copyProperties(srcVertex, dstVertex);
         }
-
-        Vertex srcVertex = srcTx.getVertex(id);
-        Vertex dstVertex = dstTx.addVertex(srcVertex.getId());
-
-        copyProperties(srcVertex, dstVertex);
-
-        ids.put(srcVertex.getId(), dstVertex);
 
         step += 1;
 
         if (step <= steps) {
-            for (Edge srcEdge: srcVertex.getEdges(Direction.IN)) {
-                Vertex srcOutVertex = srcEdge.getVertex(Direction.OUT);
-                Vertex dstOutVertex = copyVertex(srcTx, dstTx, srcOutVertex.getId(), step);
-
-                Edge dstEdge = dstTx.addEdge(srcEdge.getId(), dstOutVertex, dstVertex, srcEdge.getLabel());
-
-                copyProperties(srcEdge, dstEdge);
-            }
-
-            for (Edge srcEdge: srcVertex.getEdges(Direction.OUT)) {
-                Vertex srcInVertex = srcEdge.getVertex(Direction.IN);
-                Vertex dstInVertex = copyVertex(srcTx, dstTx, srcInVertex.getId(), step);
-
-                Edge dstEdge = dstTx.addEdge(srcEdge.getId(), dstVertex, dstInVertex, srcEdge.getLabel());
-
-                copyProperties(srcEdge, dstEdge);
+            for (Edge srcEdge: srcVertex.getEdges(Direction.BOTH)) {
+                copyEdge(srcTx, dstTx, srcEdge, step);
             }
         }
 
         return dstVertex;
+    }
+
+    private void copyEdge(TitanTransaction srcTx, TitanTransaction dstTx, Edge srcEdge, int step) {
+        Vertex srcInVertex = srcEdge.getVertex(Direction.IN);
+        Vertex srcOutVertex = srcEdge.getVertex(Direction.OUT);
+
+        Vertex dstInVertex = copyVertex(srcTx, dstTx, srcInVertex, step);
+        Vertex dstOutVertex = copyVertex(srcTx, dstTx, srcOutVertex, step);
+
+        if (!edges.contains(srcEdge.getId())) {
+            edges.add(srcEdge.getId());
+
+            Edge dstEdge = dstTx.addEdge(
+                    srcEdge.getId(),
+                    dstOutVertex,
+                    dstInVertex,
+                    srcEdge.getLabel());
+
+            copyProperties(srcEdge, dstEdge);
+        }
     }
 
     private void copyProperties(Element src, Element dst) {

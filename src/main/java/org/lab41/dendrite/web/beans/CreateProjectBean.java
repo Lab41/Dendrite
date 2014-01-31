@@ -4,7 +4,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 
-public class ProjectBean {
+public class CreateProjectBean {
     @NotNull
     @NotEmpty
     private String name;

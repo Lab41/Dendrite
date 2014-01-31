@@ -193,8 +193,30 @@ class Project(Table):
         else:
             url = '{}/{}/branches/{}/commit-subset'.format(self.URL_PATH, self.id, name)
 
-        data = {'query': query, 'steps': steps}
-        response = response.post_json(url, data=data).json()
+        if query is None:
+            query = ''
+
+        data = {
+            'query': query,
+            'steps': steps,
+        }
+        response = self.conn.post_json(url, data=data).json()
+
+        return Job.get(self.conn, response['jobId'])
+
+    def export_subset(self, name, query, steps):
+        url = '{}/{}/current-branch/export-subset'.format(self.URL_PATH, self.id)
+
+        if query is None:
+            query = ''
+
+        data = {
+            'name': name,
+            'query': query,
+            'steps': steps,
+        }
+
+        response = self.conn.post_json(url, data=data).json()
 
         return Job.get(self.conn, response['jobId'])
 
@@ -307,6 +329,8 @@ class Job(Table):
             print 'job finished successfully'
         else:
             print 'job errored out'
+            if 'msg' in self.data:
+                print self.data['msg']
 
 # ------------------------------------------------------------------------------
 
@@ -423,6 +447,18 @@ def project_commit_branch(args):
     with closing(Connection(args)) as conn:
         project = Project.get(conn, args.id)
         job = project.commit_branch()
+        job.wait_until_finished()
+
+def project_commit_subset_branch(args):
+    with closing(Connection(args)) as conn:
+        project = Project.get(conn, args.id)
+        job = project.commit_subset_branch(args.query, args.steps)
+        job.wait_until_finished()
+
+def project_export_subset(args):
+    with closing(Connection(args)) as conn:
+        project = Project.get(conn, args.id)
+        job = project.export_subset(args.name, args.query, args.steps)
         job.wait_until_finished()
 
 def show_project_graphs(args):
@@ -632,11 +668,22 @@ def main():
             type=not_empty)
     parser_checkout_branch.set_defaults(func=project_checkout_branch)
 
-    # Options for checking out project branches.
+    # Options for committing project branches.
     parser_commit_branch = subparsers.add_parser('project-commit')
     parser_commit_branch.add_argument('id',
             type=int)
     parser_commit_branch.set_defaults(func=project_commit_branch)
+
+    # Options for exporting project branches.
+    parser_export_subset = subparsers.add_parser('project-export')
+    parser_export_subset.add_argument('id',
+            type=int)
+    parser_export_subset.add_argument('name',
+            type=not_empty)
+    parser_export_subset.add_argument('query')
+    parser_export_subset.add_argument('steps',
+            type=int)
+    parser_export_subset.set_defaults(func=project_export_subset)
 
     # Options for showing project graphs.
     parser_show_project_graphs = subparsers.add_parser('project-graphs')

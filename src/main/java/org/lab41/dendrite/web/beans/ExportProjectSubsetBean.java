@@ -4,12 +4,23 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 
-public class CreateGraphSubsetNSteps {
+public class ExportProjectSubsetBean {
     @NotNull
     @NotEmpty
+    private String name;
+
+    @NotNull
     private String query;
 
     private int steps;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getQuery() {
         return query;
