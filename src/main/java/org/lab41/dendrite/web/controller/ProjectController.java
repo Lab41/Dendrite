@@ -5,7 +5,7 @@ import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
-import org.lab41.dendrite.web.beans.ProjectBean;
+import org.lab41.dendrite.web.beans.CreateProjectBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +73,7 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/projects", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody ProjectBean item,
+    public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody CreateProjectBean item,
                                                              BindingResult result,
                                                              UriComponentsBuilder builder) {
 

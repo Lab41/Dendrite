@@ -1,5 +1,8 @@
 package org.lab41.dendrite.web.controller;
 
+import org.codehaus.jettison.json.JSONObject;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.lab41.dendrite.jobs.BranchCommitJob;
 import org.lab41.dendrite.jobs.BranchCommitSubsetJob;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
@@ -9,7 +12,8 @@ import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.CreateBranchBean;
-import org.lab41.dendrite.web.beans.CreateGraphSubsetNSteps;
+import org.lab41.dendrite.web.beans.CreateBranchSubsetNStepsBean;
+import org.lab41.dendrite.web.beans.ExportProjectSubsetBean;
 import org.lab41.dendrite.web.beans.UpdateCurrentBranchBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
@@ -391,7 +395,7 @@ public class BranchController {
 
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit-subset", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> commitSubsetBranch(@PathVariable String projectId,
-                                                                  @Valid @RequestBody CreateGraphSubsetNSteps item,
+                                                                  @Valid @RequestBody CreateBranchSubsetNStepsBean item,
                                                                   BindingResult result) {
         Map<String, Object> response = new HashMap<>();
 
@@ -439,6 +443,76 @@ public class BranchController {
         response.put("msg", "job submitted");
         response.put("jobId", jobMetadata.getId());
         response.put("graphId", branchCommitSubsetJob.getDstGraphId());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{projectId}/current-branch/export-subset", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> exportSubset(@PathVariable String projectId,
+                                                            @Valid @RequestBody ExportProjectSubsetBean item,
+                                                            BindingResult result) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (result.hasErrors()) {
+            response.put("error", result.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        String name = item.getName();
+        String query = item.getQuery();
+        int steps = item.getSteps();
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        ProjectMetadata srcProjectMetadata = tx.getProject(projectId);
+        if (srcProjectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        BranchMetadata srcBranchMetadata = srcProjectMetadata.getCurrentBranch();
+        if (srcBranchMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find current branch");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        GraphMetadata srcGraphMetadata = srcBranchMetadata.getGraph();
+        if (srcGraphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find current graph");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        ProjectMetadata dstProjectMetadata = tx.createProject(name, true);
+        BranchMetadata dstBranchMetadata = dstProjectMetadata.getCurrentBranch();
+        GraphMetadata dstGraphMetadata = dstBranchMetadata.getGraph();
+
+        JobMetadata jobMetadata = tx.createJob(srcProjectMetadata);
+
+        tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
+                metaGraphService.getMetaGraph(),
+                jobMetadata.getId(),
+                dstBranchMetadata.getId(),
+                srcGraphMetadata.getId(),
+                dstGraphMetadata.getId(),
+                query,
+                steps);
+
+        taskExecutor.execute(branchCommitSubsetJob);
+
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId());
+        response.put("graphId", dstGraphMetadata.getId());
+        response.put("projectId", dstProjectMetadata.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

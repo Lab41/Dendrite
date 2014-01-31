@@ -9,6 +9,7 @@ import junit.framework.Assert;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.*;
 import org.lab41.dendrite.metagraph.*;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;

@@ -27,7 +27,21 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
     String srcGraphId;
     String dstGraphId;
 
-    public AbstractGraphCommitJob(MetaGraph metaGraph, String jobId, String branchId) {
+    protected AbstractGraphCommitJob(MetaGraph metaGraph,
+                                     String jobId,
+                                     String branchId,
+                                     String srcGraphId,
+                                     String dstGraphId) {
+        super(metaGraph, jobId);
+
+        this.branchId = branchId;
+        this.srcGraphId = srcGraphId;
+        this.dstGraphId = dstGraphId;
+    }
+
+    protected AbstractGraphCommitJob(MetaGraph metaGraph,
+                                     String jobId,
+                                     String branchId) {
         super(metaGraph, jobId);
 
         MetaGraphTx tx = metaGraph.newTransaction();
@@ -64,21 +78,31 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
                 + " job " + jobId
                 + " " + Thread.currentThread().getName());
 
+        setJobState(jobId, JobMetadata.RUNNING);
+
         DendriteGraph srcGraph = metaGraph.getGraph(srcGraphId);
         DendriteGraph dstGraph = metaGraph.getGraph(dstGraphId);
 
-        setJobState(jobId, JobMetadata.RUNNING);
+        try {
+            copyIndices(srcGraph, dstGraph);
+            copyGraph(srcGraph, dstGraph);
 
-        copyIndices(srcGraph, dstGraph);
-        copyGraph(srcGraph, dstGraph);
+            // Update the branch to point the new graph.
+            MetaGraphTx tx = metaGraph.newTransaction();
+            try {
+                BranchMetadata branchMetadata = tx.getBranch(branchId);
+                branchMetadata.setGraph(tx.getGraph(dstGraph.getId()));
+                tx.commit();
+            } catch (Throwable t) {
+                tx.rollback();
+                throw t;
+            }
 
-        setJobState(jobId, JobMetadata.DONE);
-
-        // Update the branch to point the new graph.
-        MetaGraphTx tx = metaGraph.newTransaction();
-        BranchMetadata branchMetadata = tx.getBranch(branchId);
-        branchMetadata.setGraph(tx.getGraph(dstGraph.getId()));
-        tx.commit();
+            setJobState(jobId, JobMetadata.DONE);
+        } catch (Throwable t) {
+            setJobState(jobId, JobMetadata.ERROR, t.getMessage());
+            throw t;
+        }
 
         logger.debug("snapshotGraph: finished job: " + jobId);
     }
