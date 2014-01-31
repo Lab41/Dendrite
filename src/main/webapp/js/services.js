@@ -283,7 +283,7 @@ angular.module('dendrite.services', ['ngResource']).
     factory('Map', function($resource, $routeParams, $http, appConfig) {
       return {
 
-        display: function(graphId, querySize, queryString, mapType, searchFacets) {
+        display: function(graphId, queryString, querySize, mapType, searchFacets) {
           // default inputs
           if (queryString === undefined || queryString === '') {
             queryString = "*";
