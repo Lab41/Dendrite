@@ -90,7 +90,7 @@ angular.module('dendrite.directives', []).
         }
     };
   }]).
-  directive('forceDirectedGraph', ['$q', function($q) {
+  directive('forceDirectedGraph', ['$q', '$compile', function($q, $compile) {
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
@@ -177,6 +177,16 @@ angular.module('dendrite.directives', []).
           node.enter().append("circle")
             //.attr("class", "node")
             .attr("r", 7)
+            .attr("popover", function(d) {
+                if (d.name !== undefined) {
+                  return d.name;
+                }
+                else {
+                  return d._id;
+                }
+             })
+            .attr("popover-trigger", "mouseenter")
+            .attr("popover-append-to-body", "true")
             .style("stroke", "#fff")
             .style("stroke-width", "1.5px")
             .style("fill", function(d) { return color(d._id); })
@@ -187,6 +197,11 @@ angular.module('dendrite.directives', []).
 
           node.append("title")
             .text(function(d) { return d.name; });
+
+
+          // popover on svg elements requires recompile
+          element.removeAttr("force-directed-graph");
+          $compile(element)($scope);
         }
 
         function tick() {
