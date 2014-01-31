@@ -148,11 +148,13 @@ public class GraphImportController {
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
             inputStream.close();
-        } catch (IOException e) {
+        } catch (Throwable t) {
+            t.printStackTrace();
+
             graph.rollback();
 
             response.put("status", "error");
-            response.put("msg", "exception: " + e.toString());
+            response.put("msg", "exception: " + t.toString());
 
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
