@@ -766,7 +766,7 @@ angular.module('dendrite.controllers', []).
                 {field: '_id', displayName: 'ID', enableCellEdit: false, cellTemplate: '<div ng-click="edgeDetail(\'{{row.entity[col.field]}}\')"><a>{{row.entity[col.field]}}<a></div>'},
                 {field: '_inV', displayName: 'From', enableCellEdit: true, cellTemplate: '<div>{{getVertex( row.entity[col.field] )}}</div>'},
                 {field: '_label', displayName: 'Link', enableCellEdit: true},
-                {field: '_outV', displayName: 'To', enableCellEdit: true, cellTemplate: '<div>{{getVertex( row.entity[col.field] )}}</div>'},
+                {field: '_outV', displayName: 'To', enableCellEdit: true, cellTemplate: '<div>{{getVertex( row.entity[col.field] )}}</div>'}
 
                 //{field: 'weight', displayName: 'Edge Weight', enableCellEdit: true},
             ],
@@ -923,6 +923,13 @@ angular.module('dendrite.controllers', []).
     controller('FileUploadCtrl', function ($scope, $routeParams, $modal, appConfig) {
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
+        $scope.indexTypes = [
+            "text",
+            "integer",
+            "float",
+            "double",
+            "geocoordinate"
+        ];
         $scope.keysForGraph = [];
 
         $scope.uploading = function() {
@@ -937,34 +944,40 @@ angular.module('dendrite.controllers', []).
             return false;
         };
 
+        // FIXME: For some reason firefox fires this off on load. So ignore the error for now.
+        $scope.actuallyUploading = false;
+
         $scope.uploadFile = function(content) {
+            // See fixme above.
+            if (!$scope.actuallyUploading) { return; }
+
+            $scope.actuallyUploading = false;
+
             $scope.fileUploading = false;
             $scope.fileUploaded = true;
             if (content.status === "ok") {
                 $scope.uploadMessage = "file uploaded";
                 $scope.$emit('event:reloadGraph');
-            } else {
+            } else if (content.msg !== undefined) {
                 $scope.uploadMessage = "upload failed: " + content.msg;
+            } else {
+                $scope.uploadMessage = "upload failed";
             }
         };
 
         // push/slice checkbox from list
-        $scope.selectedCheckboxes = [];
-        $scope.selectedCheckboxesList = "";
-        $scope.checkboxTally = function(key) {
-          var idx = $scope.selectedCheckboxes.indexOf(key);
-          if (idx > -1) {
-            $scope.selectedCheckboxes.splice(idx, 1)
-          }
-          else {
-            $scope.selectedCheckboxes.push(key);
-          }
-        };
+        $scope.keys = [];
+        $scope.selectedKeys = [];
 
-        $scope.checkboxHasKey = function(key) {
-          var idx = $scope.selectedCheckboxes.indexOf(key);
-          return (idx > -1);
-        };
+        $scope.toggleSelection = function(key) {
+            var idx = $scope.selectedKeys.indexOf(key);
+
+            if (idx > -1) {
+                $scope.selectedKeys.splice(idx, 1);
+            } else {
+                $scope.selectedKeys.push(key);
+            }
+        }
 
         $scope.$on('event:graphFileParsed', function() {
           if (!appConfig.fileUpload.parseGraphFile) {
@@ -977,9 +990,17 @@ angular.module('dendrite.controllers', []).
             if ($scope.keysForGraph.length > 0) {
               $scope.fileParsed = true;
               $scope.fileParseError = false;
-              Array().forEach.call($scope.keysForGraph, function(k) {
-                $scope.checkboxTally(k);
+              $scope.keysForGraph.forEach(function(k) {
+                  if (k !== "_id" && k !== "_type") {
+                      $scope.keys.push({
+                          name: k,
+                          type: $scope.indexTypes[0]
+                      });
+                  }
               });
+
+              $scope.selectedKeys = $scope.keys.slice(0);
+
               $scope.safeApply(function() {
                 $modal({scope: $scope, template: 'partials/graphs/form-select-keys.html'});
               });
@@ -994,13 +1015,20 @@ angular.module('dendrite.controllers', []).
         // auto-submit form to upload graph
         // **note: explicitly set searchkeys value since Angular might be pending the scope's data update
         $scope.loadGraph = function() {
-          $scope.selectedCheckboxesList = $scope.selectedCheckboxes.join(",");
-          angular.element('#form-file-upload input[name="searchkeys"]').val($scope.selectedCheckboxesList);
+          // See fixme above.
+          $scope.actuallyUploading = true;
+
+          // build the list of key1=type1,key2=type2 if the checkbox is selected
+          var selectedCheckboxes = $scope.selectedKeys.map(function(key) {
+              return key.name + "=" + key.type;
+          }).join(",");
+
+          angular.element('#form-file-upload input[name="searchkeys"]').val(selectedCheckboxes);
+
           $scope.safeApply(function() {
             angular.element('#form-file-upload').submit();
           });
         };
-
     }).
     controller('VizHistogramCtrl', function($scope, $location, Histogram, ElasticSearch, appConfig) {
       $scope.searching = false;
@@ -1040,7 +1068,7 @@ angular.module('dendrite.controllers', []).
                   .success(function(data) {
                       var elasticValueFields = [];
                       Object.keys(data.vertex.properties).forEach(function(k) {
-                          var val = data["vertex"]["properties"][k]["type"]; 
+                          var val = data["vertex"]["properties"][k]["type"];
                           if (val === "integer" ||
                               val === "double" ||
                               val === "float") {

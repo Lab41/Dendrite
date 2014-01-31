@@ -16,6 +16,9 @@
 
 package org.lab41.dendrite.web.controller;
 
+import com.thinkaurelius.titan.core.attribute.FullDouble;
+import com.thinkaurelius.titan.core.attribute.FullFloat;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.util.io.gml.GMLReader;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLReader;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
@@ -75,9 +78,9 @@ public class GraphImportController {
         String searchKeys = item.getSearchkeys();
         CommonsMultipartFile file = item.getFile();
 
-        logger.debug("receiving file:", file.getOriginalFilename());
-        logger.debug("file format:", format);
-        logger.debug("search keys: "+searchKeys);
+        logger.debug("receiving file: '" +  file.getOriginalFilename() + "'");
+        logger.debug("file format: '" +  format + "'");
+        logger.debug("search keys: '" + searchKeys + "'");
 
         DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
@@ -87,14 +90,37 @@ public class GraphImportController {
         }
 
         try {
-            // create search indices
             if (searchKeys.contains(",")) {
-                // separate "k1,k2,k3" into ["k1", "k2", "k3"] and iterate
-                for (String key : searchKeys.split(",")) {
+                // separate and iterate over "key1=type1,key2=type2"
+                for (String keyType : searchKeys.split(",")) {
+                    String[] tokens = keyType.split("=");
+                    String key = tokens[0];
+                    String type = tokens[1];
+
+                    //TODO: make dataType below based on type passed from client
+
                     // create the search index (if it doesn't already exist and isn't a reserved key)
                     if (graph.getType(key) == null && !RESERVED_KEYS.contains(key)) {
+                        Class cls;
+                        if (type.equals("text")) {
+                            cls = String.class;
+                        } else if (type.equals("integer")) {
+                            cls = Integer.class;
+                        } else if (type.equals("float")) {
+                            cls = FullFloat.class;
+                        } else if (type.equals("double")) {
+                            cls = FullDouble.class;
+                        } else if (type.equals("geocoordinate")) {
+                            cls = Geoshape.class;
+                        } else {
+                            graph.rollback();
+                            response.put("status", "error");
+                            response.put("msg", "unknown type '" + type + "'");
+                            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                        }
+
                         graph.makeKey(key)
-                                .dataType(String.class)
+                                .dataType(cls)
                                 .indexed(Vertex.class)
                                 .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
                                 .make();
@@ -122,11 +148,13 @@ public class GraphImportController {
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
             inputStream.close();
-        } catch (IOException e) {
+        } catch (Throwable t) {
+            t.printStackTrace();
+
             graph.rollback();
 
             response.put("status", "error");
-            response.put("msg", "exception: " + e.toString());
+            response.put("msg", "exception: " + t.toString());
 
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
