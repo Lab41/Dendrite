@@ -96,40 +96,12 @@ public class GraphController {
         Map<Object, Object> verticesMap = new HashMap<>();
         Map<Object, Object> edgesMap = new HashMap<>();
 
-        int vertexCount = 0;
-        int edgeCount = 0;
+        for (Vertex vertex: dendriteGraphTx.query().limit(300).vertices()) {
+            addVertex(verticesMap, vertex);
+        }
 
-        for (Vertex vertex: dendriteGraphTx.query().vertices()) {
-            if (verticesMap.containsKey(vertex.getId())) {
-                continue;
-            }
-
-            boolean hasEdges = false;
-
-            for (Edge edge: vertex.getEdges(Direction.BOTH)) {
-                if (edgesMap.containsKey(edge.getId())) {
-                    continue;
-                }
-
-                hasEdges = true;
-                edgeCount = addEdge(verticesMap, edgesMap, edge, 0, edgeCount);
-
-                if (edgeCount > 100) { break; }
-            }
-
-            if (hasEdges) {
-                vertexCount += 1;
-            } else {
-                /*
-                if (vertexCount < 100) {
-                    edgeCount = addVertex(verticesMap, edgesMap, vertex, 0, edgeCount);
-                }
-                */
-            }
-
-            if (edgeCount > 100) {
-                break;
-            }
+        for (Edge edge: dendriteGraphTx.query().limit(300).edges()) {
+            addEdge(verticesMap, edgesMap, edge);
         }
 
         response.put("vertices", new ArrayList<>(verticesMap.values()));
@@ -143,7 +115,7 @@ public class GraphController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    private int addVertex(Map<Object, Object> verticesMap, Map<Object, Object> edgesMap, Vertex vertex, int depth, int edgeCount) {
+    private void addVertex(Map<Object, Object> verticesMap, Vertex vertex) {
         if (!verticesMap.containsKey(vertex.getId())) {
             Map<String, Object> vertexMap = new HashMap<>();
             verticesMap.put(vertex.getId(), vertexMap);
@@ -151,23 +123,16 @@ public class GraphController {
             vertexMap.put("_id", vertex.getId().toString());
             vertexMap.put("_type", "vertex");
 
-            if (depth <= 5 && edgeCount <= 500) {
-                for (Edge inEdge: vertex.getEdges(Direction.BOTH)) {
-                    edgeCount = addEdge(verticesMap, edgesMap, inEdge, depth, edgeCount + 1);
-                }
+            // Include the name so we can have a nice tooltip.
+            Object value = vertex.getProperty("name");
+            if (value != null) {
+                vertexMap.put("name", value);
             }
         }
-
-        return edgeCount;
     }
 
-    private int addEdge(Map<Object, Object> verticesMap, Map<Object, Object> edgesMap, Edge edge, int depth, int edgeCount) {
-        if (depth >= 5 || edgeCount > 500) {
-            return edgeCount;
-        }
-
+    private void addEdge(Map<Object, Object> verticesMap, Map<Object, Object> edgesMap, Edge edge) {
         if (!edgesMap.containsKey(edge.getId())) {
-            edgeCount += 1;
             Map<String, Object> edgeMap = new HashMap<>();
             edgesMap.put(edge.getId(), edgeMap);
 
@@ -179,11 +144,9 @@ public class GraphController {
             edgeMap.put("_inV", inV.getId().toString());
             edgeMap.put("_outV", outV.getId().toString());
 
-            edgeCount = addVertex(verticesMap, edgesMap, inV, depth + 1, edgeCount + 1);
-            edgeCount = addVertex(verticesMap, edgesMap, outV, depth + 1, edgeCount + 1);
+            addVertex(verticesMap, inV);
+            addVertex(verticesMap, outV);
         }
-
-        return edgeCount;
     }
 
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.DELETE)
