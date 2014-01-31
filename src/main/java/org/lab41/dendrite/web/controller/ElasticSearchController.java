@@ -24,6 +24,9 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.metadata.MetaData;
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.BranchMetadata;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,26 +54,65 @@ public class ElasticSearchController {
     @Autowired
     MetaGraphService metaGraphService;
 
+    @RequestMapping(value = "/api/branches/{branchId}/search", method = RequestMethod.POST)
+    public ResponseEntity<String> branchSearch(@PathVariable String branchId,
+                                               @RequestBody String body) throws JSONException, UnsupportedEncodingException {
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        try {
+            BranchMetadata branchMetadata = tx.getBranch(branchId);
+            if (branchMetadata == null) {
+                HttpHeaders responseHeaders = new HttpHeaders();
+                responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+                JSONObject json = new JSONObject();
+                json.put("status", "error");
+                json.put("msg", "unknown branch '" + branchId + "'");
+
+                return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+            }
+
+            GraphMetadata graphMetadata = branchMetadata.getGraph();
+            if (graphMetadata == null) {
+                HttpHeaders responseHeaders = new HttpHeaders();
+                responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+                JSONObject json = new JSONObject();
+                json.put("status", "error");
+                json.put("msg", "branch '" + branchId + "' does not point at a graph!");
+
+                return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+            }
+
+            return graphSearch(graphMetadata.getId(), body);
+        } finally {
+            tx.rollback();
+        }
+    }
+
     @RequestMapping(value = "/api/graphs/{graphId}/search", method = RequestMethod.POST)
-    public ResponseEntity<String> elasticSearch(@PathVariable String graphId,
-                                                @RequestBody String body) throws JSONException, UnsupportedEncodingException {
+    public ResponseEntity<String> graphSearch(@PathVariable String graphId,
+                                              @RequestBody String body) throws JSONException, UnsupportedEncodingException {
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        JSONObject json = new JSONObject();
-
         DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
+            JSONObject json = new JSONObject();
             json.put("status", "error");
             json.put("msg", "unknown graph '" + graphId + "'");
+
             return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
         Client client = graph.getElasticSearchClient();
         if (client == null) {
+            JSONObject json = new JSONObject();
             json.put("status", "error");
             json.put("msg", "graph does not have graph elasticsearch index");
+
             return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
         }
 
@@ -82,26 +124,57 @@ public class ElasticSearchController {
         return new ResponseEntity<>(response.toString(), responseHeaders, HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "/api/branches/{branchId}/search/mapping", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> branchMapping(@PathVariable String branchId) throws JSONException, IOException {
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        try {
+            BranchMetadata branchMetadata = tx.getBranch(branchId);
+            if (branchMetadata == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", "error");
+                response.put("msg", "unknown branch '" + branchId + "'");
+
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            GraphMetadata graphMetadata = branchMetadata.getGraph();
+            if (graphMetadata == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", "error");
+                response.put("msg", "branch '" + branchId + "' does not point at a graph!");
+
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            return graphMapping(graphMetadata.getId());
+        } finally {
+            tx.rollback();
+        }
+    }
+
+
     @RequestMapping(value = "/api/graphs/{graphId}/search/mapping", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> elasticSearchMapping(@PathVariable String graphId) throws JSONException, IOException {
+    public ResponseEntity<Map<String, Object>> graphMapping(@PathVariable String graphId) throws JSONException, IOException {
 
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-        Map<String, Object> json = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
 
         DendriteGraph graph = metaGraphService.getGraph(graphId);
         if (graph == null) {
-            json.put("status", "error");
-            json.put("msg", "unknown graph '" + graphId + "'");
-            return new ResponseEntity<>(json, responseHeaders, HttpStatus.BAD_REQUEST);
+            response.put("status", "error");
+            response.put("msg", "unknown graph '" + graphId + "'");
+
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         Client client = graph.getElasticSearchClient();
         if (client == null) {
-            json.put("status", "error");
-            json.put("msg", "graph does not have graph elasticsearch index");
-            return new ResponseEntity<>(json, responseHeaders, HttpStatus.BAD_REQUEST);
+            response.put("status", "error");
+            response.put("msg", "graph does not have graph elasticsearch index");
+
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         MetaData metaData = client.admin().cluster().prepareState()
@@ -113,10 +186,10 @@ public class ElasticSearchController {
 
         for (IndexMetaData indexMetaData: metaData) {
             for (MappingMetaData mappingMetaData: indexMetaData.mappings().values()) {
-                json.put(mappingMetaData.type(), mappingMetaData.sourceAsMap());
+                response.put(mappingMetaData.type(), mappingMetaData.sourceAsMap());
             }
         }
 
-        return new ResponseEntity<>(json, responseHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
