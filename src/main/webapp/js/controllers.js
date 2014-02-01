@@ -99,6 +99,15 @@ angular.module('dendrite.controllers', []).
                     });
         };
     }).
+    controller('ProjectCarveCtrl', function($rootScope, $scope, $route, $location, Project) {
+        $scope.projectCarve = function(projectId) {
+            var params = {name: $scope.newProjectName, query: $scope.gridOptions.filterOptions.filterText, steps: $scope.newProjectSteps};
+            Project.carveSubgraph({projectId: projectId}, params)
+                    .$then(function(response) {
+                      $location.path('projects/' + response.data.projectId);
+                    });
+        };
+    }).
     controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $route, $location, $q, Project, Graph, GraphTransform) {
         $scope.projectId = $routeParams.projectId;
         Project.query({projectId: $routeParams.projectId})

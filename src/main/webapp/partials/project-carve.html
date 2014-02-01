@@ -1,0 +1,35 @@
+<!-- Modal (external ./partials/modal.html or inline ng-template) -->
+<form ng-controller="ProjectCarveCtrl" ng-submit="dismiss(); projectCarve({{queryProject.project._id}})">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>Carve New Project</h3>
+  </div>
+
+  <div class="modal-body">
+    <div class="well">
+      <p>
+        <strong>Carving</strong> off a project will create a new project using the subgraph defined by your search.
+      </p>
+    </div>
+
+    <p>
+      <label>New Project Name</label>
+      <input type="text" ng-model="newProjectName">
+    </p>
+
+    <p>
+      <label>Number of steps from vertices</label>
+      <input type="number" ng-model="newProjectSteps">
+    </p>
+
+    <h4>Graph Parameters</h4>
+    <pre>
+      Subgraph: {{gridOptions.filterOptions.filterText}}
+    </pre>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="dismiss()">Cancel</button>
+    <button class="btn btn-primary">Create Project</button>
+  </div>
+</form>
