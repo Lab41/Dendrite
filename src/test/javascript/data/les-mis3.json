@@ -1,0 +1,2043 @@
+{
+  "vertices":
+[
+  {
+    "_id": 1, 
+    "city": "Digne", 
+    "group": 1, 
+    "location": "6.315023,44.110044", 
+    "name": "Myriel"
+  }, 
+  {
+    "_id": 2, 
+    "city": "Paris", 
+    "group": 1, 
+    "location": "2.327412,48.866920", 
+    "name": "Napoleon"
+  }, 
+  {
+    "_id": 3, 
+    "city": "Digne", 
+    "group": 1, 
+    "location": "6.323282,44.102541", 
+    "name": "Mlle.Baptistine"
+  }, 
+  {
+    "_id": 4, 
+    "city": "Digne", 
+    "group": 1, 
+    "location": "6.426447,44.096829", 
+    "name": "Mme.Magloire"
+  }, 
+  {
+    "_id": 5, 
+    "city": "Digne", 
+    "group": 1, 
+    "location": "6.320449,44.119167", 
+    "name": "CountessdeLo"
+  }, 
+  {
+    "_id": 6, 
+    "city": "Digne", 
+    "group": 1, 
+    "location": "6.416223,44.153405", 
+    "name": "Geborand"
+  }, 
+  {
+    "_id": 7, 
+    "city": "Digne", 
+    "group": 1, 
+    "location": "6.292797,44.164621", 
+    "name": "Champtercier"
+  }, 
+  {
+    "_id": 8, 
+    "city": "Digne", 
+    "group": 1, 
+    "location": "6.348383,44.123197", 
+    "name": "Cravatte"
+  }, 
+  {
+    "_id": 9, 
+    "city": "Digne", 
+    "group": 1, 
+    "location": "6.246611,44.099902", 
+    "name": "Count"
+  }, 
+  {
+    "_id": 10, 
+    "city": "Digne", 
+    "group": 1, 
+    "location": "6.434466,44.166332", 
+    "name": "OldMan"
+  }, 
+  {
+    "_id": 11, 
+    "city": "Paris", 
+    "group": 2, 
+    "location": "2.299384,48.863346", 
+    "name": "Labarre"
+  }, 
+  {
+    "_id": 12, 
+    "city": "Paris", 
+    "group": 2, 
+    "location": "2.484668,48.932188", 
+    "name": "Valjean"
+  }, 
+  {
+    "_id": 13, 
+    "group": 3, 
+    "name": "Marguerite"
+  }, 
+  {
+    "_id": 14, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.771885,50.487554", 
+    "name": "Mme.deR"
+  }, 
+  {
+    "_id": 15, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.955222,50.480264", 
+    "name": "Isabeau"
+  }, 
+  {
+    "_id": 16, 
+    "city": "Digne", 
+    "group": 2, 
+    "location": "6.356732,44.142225", 
+    "name": "Gervais"
+  }, 
+  {
+    "_id": 17, 
+    "city": "Paris", 
+    "group": 3, 
+    "location": "2.361059,48.905914", 
+    "name": "Tholomyes"
+  }, 
+  {
+    "_id": 18, 
+    "city": "Paris", 
+    "group": 3, 
+    "location": "2.443540,48.957838", 
+    "name": "Listolier"
+  }, 
+  {
+    "_id": 19, 
+    "city": "Paris", 
+    "group": 3, 
+    "location": "2.329586,48.950871", 
+    "name": "Fameuil"
+  }, 
+  {
+    "_id": 20, 
+    "city": "Paris", 
+    "group": 3, 
+    "location": "2.400064,48.938991", 
+    "name": "Blacheville"
+  }, 
+  {
+    "_id": 21, 
+    "city": "Paris", 
+    "group": 3, 
+    "location": "2.387603,48.881624", 
+    "name": "Favourite"
+  }, 
+  {
+    "_id": 22, 
+    "city": "Paris", 
+    "group": 3, 
+    "location": "2.355195,48.920997", 
+    "name": "Dahlia"
+  }, 
+  {
+    "_id": 23, 
+    "city": "Paris", 
+    "group": 3, 
+    "location": "2.388939,48.943074", 
+    "name": "Zephine"
+  }, 
+  {
+    "_id": 24, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 3, 
+    "location": "1.882506,50.553060", 
+    "name": "Fantine"
+  }, 
+  {
+    "_id": 25, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.387031,48.930851", 
+    "name": "Mme.Thenardier"
+  }, 
+  {
+    "_id": 26, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.417225,48.867177", 
+    "name": "Thenardier"
+  }, 
+  {
+    "_id": 27, 
+    "city": "Paris", 
+    "group": 5, 
+    "location": "2.440113,48.858746", 
+    "name": "Cosette"
+  }, 
+  {
+    "_id": 28, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.317155,48.892065", 
+    "name": "Javert"
+  }, 
+  {
+    "_id": 29, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 0, 
+    "location": "1.912302,50.474623", 
+    "name": "Fauchelevent"
+  }, 
+  {
+    "_id": 30, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.774025,50.559296", 
+    "name": "Bamatabois"
+  }, 
+  {
+    "_id": 31, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 3, 
+    "location": "1.881827,50.524025", 
+    "name": "Perpetue"
+  }, 
+  {
+    "_id": 32, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.948446,50.536327", 
+    "name": "Simplice"
+  }, 
+  {
+    "_id": 33, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.863686,50.527213", 
+    "name": "Scaufflaire"
+  }, 
+  {
+    "_id": 34, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.904231,50.508674", 
+    "name": "Woman1"
+  }, 
+  {
+    "_id": 35, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.821561,50.502338", 
+    "name": "Judge"
+  }, 
+  {
+    "_id": 36, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.919405,50.478515", 
+    "name": "Champmathieu"
+  }, 
+  {
+    "_id": 37, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.844116,50.476246", 
+    "name": "Brevet"
+  }, 
+  {
+    "_id": 38, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.846356,50.538333", 
+    "name": "Chenildieu"
+  }, 
+  {
+    "_id": 39, 
+    "city": "Montreuil-sur-Mermarker", 
+    "group": 2, 
+    "location": "1.797882,50.548318", 
+    "name": "Cochepaille"
+  }, 
+  {
+    "_id": 40, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.414013,48.886031", 
+    "name": "Pontmercy"
+  }, 
+  {
+    "_id": 41, 
+    "city": "Montfermeil", 
+    "group": 6, 
+    "location": "2.740008,48.943871", 
+    "name": "Boulatruelle"
+  }, 
+  {
+    "_id": 42, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.357843,48.929907", 
+    "name": "Eponine"
+  }, 
+  {
+    "_id": 43, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.458351,48.952645", 
+    "name": "Anzelma"
+  }, 
+  {
+    "_id": 44, 
+    "group": 5, 
+    "name": "Woman2"
+  }, 
+  {
+    "_id": 45, 
+    "city": "Paris", 
+    "group": 0, 
+    "location": "2.316162,48.907326", 
+    "name": "MotherInnocent"
+  }, 
+  {
+    "_id": 46, 
+    "city": "Paris", 
+    "group": 0, 
+    "location": "2.337218,48.949452", 
+    "name": "Gribier"
+  }, 
+  {
+    "_id": 47, 
+    "city": "Paris", 
+    "group": 7, 
+    "location": "2.309996,48.939189", 
+    "name": "Jondrette"
+  }, 
+  {
+    "_id": 48, 
+    "group": 7, 
+    "name": "Mme.Burgon"
+  }, 
+  {
+    "_id": 49, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.304676,48.945864", 
+    "name": "Gavroche"
+  }, 
+  {
+    "_id": 50, 
+    "group": 5, 
+    "name": "Gillenormand"
+  }, 
+  {
+    "_id": 51, 
+    "group": 5, 
+    "name": "Magnon"
+  }, 
+  {
+    "_id": 52, 
+    "group": 5, 
+    "name": "Mlle.Gillenormand"
+  }, 
+  {
+    "_id": 53, 
+    "group": 5, 
+    "name": "Mme.Pontmercy"
+  }, 
+  {
+    "_id": 54, 
+    "group": 5, 
+    "name": "Mlle.Vaubois"
+  }, 
+  {
+    "_id": 55, 
+    "group": 5, 
+    "name": "Lt.Gillenormand"
+  }, 
+  {
+    "_id": 56, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.464763,48.895306", 
+    "name": "Marius"
+  }, 
+  {
+    "_id": 57, 
+    "group": 5, 
+    "name": "BaronessT"
+  }, 
+  {
+    "_id": 58, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.357808,48.926305", 
+    "name": "Mabeuf"
+  }, 
+  {
+    "_id": 59, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.342211,48.937040", 
+    "name": "Enjolras"
+  }, 
+  {
+    "_id": 60, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.480860,48.860773", 
+    "name": "Combeferre"
+  }, 
+  {
+    "_id": 61, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.410371,48.928173", 
+    "name": "Prouvaire"
+  }, 
+  {
+    "_id": 62, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.487001,48.925126", 
+    "name": "Feuilly"
+  }, 
+  {
+    "_id": 63, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.351444,48.891635", 
+    "name": "Courfeyrac"
+  }, 
+  {
+    "_id": 64, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.320850,48.916629", 
+    "name": "Bahorel"
+  }, 
+  {
+    "_id": 65, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.351765,48.859448", 
+    "name": "Bossuet"
+  }, 
+  {
+    "_id": 66, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.390874,48.876438", 
+    "name": "Joly"
+  }, 
+  {
+    "_id": 67, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.390375,48.911645", 
+    "name": "Grantaire"
+  }, 
+  {
+    "_id": 68, 
+    "group": 9, 
+    "name": "MotherPlutarch"
+  }, 
+  {
+    "_id": 69, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.361444,48.879357", 
+    "name": "Gueulemer"
+  }, 
+  {
+    "_id": 70, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.337585,48.890158", 
+    "name": "Babet"
+  }, 
+  {
+    "_id": 71, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.411140,48.896475", 
+    "name": "Claquesous"
+  }, 
+  {
+    "_id": 72, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.464533,48.872395", 
+    "name": "Montparnasse"
+  }, 
+  {
+    "_id": 73, 
+    "group": 5, 
+    "name": "Toussaint"
+  }, 
+  {
+    "_id": 74, 
+    "group": 10, 
+    "name": "Child1"
+  }, 
+  {
+    "_id": 75, 
+    "group": 10, 
+    "name": "Child2"
+  }, 
+  {
+    "_id": 76, 
+    "city": "Paris", 
+    "group": 4, 
+    "location": "2.400600,48.882949", 
+    "name": "Brujon"
+  }, 
+  {
+    "_id": 77, 
+    "city": "Paris", 
+    "group": 8, 
+    "location": "2.427461,48.954518", 
+    "name": "Mme.Hucheloup"
+  }
+],
+  "edges":
+[
+  {
+    "_inV": 2, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 1
+  }, 
+  {
+    "_inV": 3, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 8
+  }, 
+  {
+    "_inV": 4, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 10
+  }, 
+  {
+    "_inV": 4, 
+    "_label": "knows", 
+    "_outV": 3, 
+    "value": 6
+  }, 
+  {
+    "_inV": 5, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 1
+  }, 
+  {
+    "_inV": 6, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 1
+  }, 
+  {
+    "_inV": 7, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 1
+  }, 
+  {
+    "_inV": 8, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 1
+  }, 
+  {
+    "_inV": 9, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 2
+  }, 
+  {
+    "_inV": 10, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 1
+  }, 
+  {
+    "_inV": 12, 
+    "_label": "knows", 
+    "_outV": 11, 
+    "value": 1
+  }, 
+  {
+    "_inV": 12, 
+    "_label": "knows", 
+    "_outV": 4, 
+    "value": 3
+  }, 
+  {
+    "_inV": 12, 
+    "_label": "knows", 
+    "_outV": 3, 
+    "value": 3
+  }, 
+  {
+    "_inV": 12, 
+    "_label": "knows", 
+    "_outV": 1, 
+    "value": 5
+  }, 
+  {
+    "_inV": 13, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 14, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 15, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 16, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 18, 
+    "_label": "knows", 
+    "_outV": 17, 
+    "value": 4
+  }, 
+  {
+    "_inV": 19, 
+    "_label": "knows", 
+    "_outV": 17, 
+    "value": 4
+  }, 
+  {
+    "_inV": 19, 
+    "_label": "knows", 
+    "_outV": 18, 
+    "value": 4
+  }, 
+  {
+    "_inV": 20, 
+    "_label": "knows", 
+    "_outV": 17, 
+    "value": 4
+  }, 
+  {
+    "_inV": 20, 
+    "_label": "knows", 
+    "_outV": 18, 
+    "value": 4
+  }, 
+  {
+    "_inV": 20, 
+    "_label": "knows", 
+    "_outV": 19, 
+    "value": 4
+  }, 
+  {
+    "_inV": 21, 
+    "_label": "knows", 
+    "_outV": 17, 
+    "value": 3
+  }, 
+  {
+    "_inV": 21, 
+    "_label": "knows", 
+    "_outV": 18, 
+    "value": 3
+  }, 
+  {
+    "_inV": 21, 
+    "_label": "knows", 
+    "_outV": 19, 
+    "value": 3
+  }, 
+  {
+    "_inV": 21, 
+    "_label": "knows", 
+    "_outV": 20, 
+    "value": 4
+  }, 
+  {
+    "_inV": 22, 
+    "_label": "knows", 
+    "_outV": 17, 
+    "value": 3
+  }, 
+  {
+    "_inV": 22, 
+    "_label": "knows", 
+    "_outV": 18, 
+    "value": 3
+  }, 
+  {
+    "_inV": 22, 
+    "_label": "knows", 
+    "_outV": 19, 
+    "value": 3
+  }, 
+  {
+    "_inV": 22, 
+    "_label": "knows", 
+    "_outV": 20, 
+    "value": 3
+  }, 
+  {
+    "_inV": 22, 
+    "_label": "knows", 
+    "_outV": 21, 
+    "value": 5
+  }, 
+  {
+    "_inV": 23, 
+    "_label": "knows", 
+    "_outV": 17, 
+    "value": 3
+  }, 
+  {
+    "_inV": 23, 
+    "_label": "knows", 
+    "_outV": 18, 
+    "value": 3
+  }, 
+  {
+    "_inV": 23, 
+    "_label": "knows", 
+    "_outV": 19, 
+    "value": 3
+  }, 
+  {
+    "_inV": 23, 
+    "_label": "knows", 
+    "_outV": 20, 
+    "value": 3
+  }, 
+  {
+    "_inV": 23, 
+    "_label": "knows", 
+    "_outV": 21, 
+    "value": 4
+  }, 
+  {
+    "_inV": 23, 
+    "_label": "knows", 
+    "_outV": 22, 
+    "value": 4
+  }, 
+  {
+    "_inV": 24, 
+    "_label": "knows", 
+    "_outV": 17, 
+    "value": 3
+  }, 
+  {
+    "_inV": 24, 
+    "_label": "knows", 
+    "_outV": 18, 
+    "value": 3
+  }, 
+  {
+    "_inV": 24, 
+    "_label": "knows", 
+    "_outV": 19, 
+    "value": 3
+  }, 
+  {
+    "_inV": 24, 
+    "_label": "knows", 
+    "_outV": 20, 
+    "value": 3
+  }, 
+  {
+    "_inV": 24, 
+    "_label": "knows", 
+    "_outV": 21, 
+    "value": 4
+  }, 
+  {
+    "_inV": 24, 
+    "_label": "knows", 
+    "_outV": 22, 
+    "value": 4
+  }, 
+  {
+    "_inV": 24, 
+    "_label": "knows", 
+    "_outV": 23, 
+    "value": 4
+  }, 
+  {
+    "_inV": 24, 
+    "_label": "knows", 
+    "_outV": 13, 
+    "value": 2
+  }, 
+  {
+    "_inV": 24, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 9
+  }, 
+  {
+    "_inV": 25, 
+    "_label": "knows", 
+    "_outV": 24, 
+    "value": 2
+  }, 
+  {
+    "_inV": 25, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 7
+  }, 
+  {
+    "_inV": 26, 
+    "_label": "knows", 
+    "_outV": 25, 
+    "value": 13
+  }, 
+  {
+    "_inV": 26, 
+    "_label": "knows", 
+    "_outV": 24, 
+    "value": 1
+  }, 
+  {
+    "_inV": 26, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 12
+  }, 
+  {
+    "_inV": 27, 
+    "_label": "knows", 
+    "_outV": 25, 
+    "value": 4
+  }, 
+  {
+    "_inV": 27, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 31
+  }, 
+  {
+    "_inV": 27, 
+    "_label": "knows", 
+    "_outV": 17, 
+    "value": 1
+  }, 
+  {
+    "_inV": 27, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 1
+  }, 
+  {
+    "_inV": 28, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 17
+  }, 
+  {
+    "_inV": 28, 
+    "_label": "knows", 
+    "_outV": 24, 
+    "value": 5
+  }, 
+  {
+    "_inV": 28, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 5
+  }, 
+  {
+    "_inV": 28, 
+    "_label": "knows", 
+    "_outV": 25, 
+    "value": 1
+  }, 
+  {
+    "_inV": 28, 
+    "_label": "knows", 
+    "_outV": 27, 
+    "value": 1
+  }, 
+  {
+    "_inV": 29, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 8
+  }, 
+  {
+    "_inV": 29, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 30, 
+    "_label": "knows", 
+    "_outV": 24, 
+    "value": 1
+  }, 
+  {
+    "_inV": 30, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 30, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 2
+  }, 
+  {
+    "_inV": 31, 
+    "_label": "knows", 
+    "_outV": 24, 
+    "value": 1
+  }, 
+  {
+    "_inV": 32, 
+    "_label": "knows", 
+    "_outV": 31, 
+    "value": 2
+  }, 
+  {
+    "_inV": 32, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 3
+  }, 
+  {
+    "_inV": 32, 
+    "_label": "knows", 
+    "_outV": 24, 
+    "value": 2
+  }, 
+  {
+    "_inV": 32, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 33, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 34, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 2
+  }, 
+  {
+    "_inV": 34, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 35, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 3
+  }, 
+  {
+    "_inV": 35, 
+    "_label": "knows", 
+    "_outV": 30, 
+    "value": 2
+  }, 
+  {
+    "_inV": 36, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 3
+  }, 
+  {
+    "_inV": 36, 
+    "_label": "knows", 
+    "_outV": 35, 
+    "value": 3
+  }, 
+  {
+    "_inV": 36, 
+    "_label": "knows", 
+    "_outV": 30, 
+    "value": 2
+  }, 
+  {
+    "_inV": 37, 
+    "_label": "knows", 
+    "_outV": 35, 
+    "value": 2
+  }, 
+  {
+    "_inV": 37, 
+    "_label": "knows", 
+    "_outV": 36, 
+    "value": 2
+  }, 
+  {
+    "_inV": 37, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 2
+  }, 
+  {
+    "_inV": 37, 
+    "_label": "knows", 
+    "_outV": 30, 
+    "value": 1
+  }, 
+  {
+    "_inV": 38, 
+    "_label": "knows", 
+    "_outV": 35, 
+    "value": 2
+  }, 
+  {
+    "_inV": 38, 
+    "_label": "knows", 
+    "_outV": 36, 
+    "value": 2
+  }, 
+  {
+    "_inV": 38, 
+    "_label": "knows", 
+    "_outV": 37, 
+    "value": 2
+  }, 
+  {
+    "_inV": 38, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 2
+  }, 
+  {
+    "_inV": 38, 
+    "_label": "knows", 
+    "_outV": 30, 
+    "value": 1
+  }, 
+  {
+    "_inV": 39, 
+    "_label": "knows", 
+    "_outV": 35, 
+    "value": 2
+  }, 
+  {
+    "_inV": 39, 
+    "_label": "knows", 
+    "_outV": 36, 
+    "value": 2
+  }, 
+  {
+    "_inV": 39, 
+    "_label": "knows", 
+    "_outV": 37, 
+    "value": 2
+  }, 
+  {
+    "_inV": 39, 
+    "_label": "knows", 
+    "_outV": 38, 
+    "value": 2
+  }, 
+  {
+    "_inV": 39, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 2
+  }, 
+  {
+    "_inV": 39, 
+    "_label": "knows", 
+    "_outV": 30, 
+    "value": 1
+  }, 
+  {
+    "_inV": 40, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 1
+  }, 
+  {
+    "_inV": 41, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 1
+  }, 
+  {
+    "_inV": 42, 
+    "_label": "knows", 
+    "_outV": 25, 
+    "value": 2
+  }, 
+  {
+    "_inV": 42, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 3
+  }, 
+  {
+    "_inV": 43, 
+    "_label": "knows", 
+    "_outV": 42, 
+    "value": 2
+  }, 
+  {
+    "_inV": 43, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 2
+  }, 
+  {
+    "_inV": 43, 
+    "_label": "knows", 
+    "_outV": 25, 
+    "value": 1
+  }, 
+  {
+    "_inV": 44, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 3
+  }, 
+  {
+    "_inV": 44, 
+    "_label": "knows", 
+    "_outV": 27, 
+    "value": 1
+  }, 
+  {
+    "_inV": 44, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 45, 
+    "_label": "knows", 
+    "_outV": 29, 
+    "value": 3
+  }, 
+  {
+    "_inV": 45, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 46, 
+    "_label": "knows", 
+    "_outV": 29, 
+    "value": 2
+  }, 
+  {
+    "_inV": 48, 
+    "_label": "knows", 
+    "_outV": 47, 
+    "value": 1
+  }, 
+  {
+    "_inV": 49, 
+    "_label": "knows", 
+    "_outV": 48, 
+    "value": 2
+  }, 
+  {
+    "_inV": 49, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 1
+  }, 
+  {
+    "_inV": 49, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 49, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 50, 
+    "_label": "knows", 
+    "_outV": 27, 
+    "value": 3
+  }, 
+  {
+    "_inV": 50, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 2
+  }, 
+  {
+    "_inV": 51, 
+    "_label": "knows", 
+    "_outV": 50, 
+    "value": 1
+  }, 
+  {
+    "_inV": 51, 
+    "_label": "knows", 
+    "_outV": 25, 
+    "value": 1
+  }, 
+  {
+    "_inV": 52, 
+    "_label": "knows", 
+    "_outV": 50, 
+    "value": 9
+  }, 
+  {
+    "_inV": 52, 
+    "_label": "knows", 
+    "_outV": 27, 
+    "value": 2
+  }, 
+  {
+    "_inV": 52, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 2
+  }, 
+  {
+    "_inV": 53, 
+    "_label": "knows", 
+    "_outV": 52, 
+    "value": 1
+  }, 
+  {
+    "_inV": 53, 
+    "_label": "knows", 
+    "_outV": 40, 
+    "value": 1
+  }, 
+  {
+    "_inV": 54, 
+    "_label": "knows", 
+    "_outV": 52, 
+    "value": 1
+  }, 
+  {
+    "_inV": 55, 
+    "_label": "knows", 
+    "_outV": 52, 
+    "value": 2
+  }, 
+  {
+    "_inV": 55, 
+    "_label": "knows", 
+    "_outV": 50, 
+    "value": 1
+  }, 
+  {
+    "_inV": 55, 
+    "_label": "knows", 
+    "_outV": 27, 
+    "value": 1
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 52, 
+    "value": 6
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 50, 
+    "value": 12
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 40, 
+    "value": 1
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 55, 
+    "value": 1
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 27, 
+    "value": 21
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 19
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 17, 
+    "value": 1
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 2
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 42, 
+    "value": 5
+  }, 
+  {
+    "_inV": 56, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 4
+  }, 
+  {
+    "_inV": 57, 
+    "_label": "knows", 
+    "_outV": 50, 
+    "value": 1
+  }, 
+  {
+    "_inV": 57, 
+    "_label": "knows", 
+    "_outV": 56, 
+    "value": 1
+  }, 
+  {
+    "_inV": 58, 
+    "_label": "knows", 
+    "_outV": 56, 
+    "value": 1
+  }, 
+  {
+    "_inV": 58, 
+    "_label": "knows", 
+    "_outV": 42, 
+    "value": 1
+  }, 
+  {
+    "_inV": 58, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 1
+  }, 
+  {
+    "_inV": 59, 
+    "_label": "knows", 
+    "_outV": 56, 
+    "value": 7
+  }, 
+  {
+    "_inV": 59, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 7
+  }, 
+  {
+    "_inV": 59, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 6
+  }, 
+  {
+    "_inV": 59, 
+    "_label": "knows", 
+    "_outV": 58, 
+    "value": 1
+  }, 
+  {
+    "_inV": 59, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 4
+  }, 
+  {
+    "_inV": 60, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 15
+  }, 
+  {
+    "_inV": 60, 
+    "_label": "knows", 
+    "_outV": 56, 
+    "value": 5
+  }, 
+  {
+    "_inV": 60, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 6
+  }, 
+  {
+    "_inV": 60, 
+    "_label": "knows", 
+    "_outV": 58, 
+    "value": 2
+  }, 
+  {
+    "_inV": 61, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 1
+  }, 
+  {
+    "_inV": 61, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 4
+  }, 
+  {
+    "_inV": 61, 
+    "_label": "knows", 
+    "_outV": 60, 
+    "value": 2
+  }, 
+  {
+    "_inV": 62, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 2
+  }, 
+  {
+    "_inV": 62, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 6
+  }, 
+  {
+    "_inV": 62, 
+    "_label": "knows", 
+    "_outV": 61, 
+    "value": 2
+  }, 
+  {
+    "_inV": 62, 
+    "_label": "knows", 
+    "_outV": 60, 
+    "value": 5
+  }, 
+  {
+    "_inV": 62, 
+    "_label": "knows", 
+    "_outV": 58, 
+    "value": 1
+  }, 
+  {
+    "_inV": 62, 
+    "_label": "knows", 
+    "_outV": 56, 
+    "value": 1
+  }, 
+  {
+    "_inV": 63, 
+    "_label": "knows", 
+    "_outV": 56, 
+    "value": 9
+  }, 
+  {
+    "_inV": 63, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 17
+  }, 
+  {
+    "_inV": 63, 
+    "_label": "knows", 
+    "_outV": 60, 
+    "value": 13
+  }, 
+  {
+    "_inV": 63, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 7
+  }, 
+  {
+    "_inV": 63, 
+    "_label": "knows", 
+    "_outV": 58, 
+    "value": 2
+  }, 
+  {
+    "_inV": 63, 
+    "_label": "knows", 
+    "_outV": 42, 
+    "value": 1
+  }, 
+  {
+    "_inV": 63, 
+    "_label": "knows", 
+    "_outV": 62, 
+    "value": 6
+  }, 
+  {
+    "_inV": 63, 
+    "_label": "knows", 
+    "_outV": 61, 
+    "value": 3
+  }, 
+  {
+    "_inV": 64, 
+    "_label": "knows", 
+    "_outV": 60, 
+    "value": 5
+  }, 
+  {
+    "_inV": 64, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 5
+  }, 
+  {
+    "_inV": 64, 
+    "_label": "knows", 
+    "_outV": 63, 
+    "value": 6
+  }, 
+  {
+    "_inV": 64, 
+    "_label": "knows", 
+    "_outV": 58, 
+    "value": 2
+  }, 
+  {
+    "_inV": 64, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 4
+  }, 
+  {
+    "_inV": 64, 
+    "_label": "knows", 
+    "_outV": 62, 
+    "value": 3
+  }, 
+  {
+    "_inV": 64, 
+    "_label": "knows", 
+    "_outV": 61, 
+    "value": 2
+  }, 
+  {
+    "_inV": 64, 
+    "_label": "knows", 
+    "_outV": 56, 
+    "value": 1
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 56, 
+    "value": 5
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 63, 
+    "value": 12
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 5
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 64, 
+    "value": 4
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 10
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 62, 
+    "value": 6
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 61, 
+    "value": 2
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 60, 
+    "value": 9
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 58, 
+    "value": 1
+  }, 
+  {
+    "_inV": 65, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 64, 
+    "value": 5
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 65, 
+    "value": 7
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 3
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 63, 
+    "value": 5
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 5
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 62, 
+    "value": 5
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 61, 
+    "value": 2
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 60, 
+    "value": 5
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 58, 
+    "value": 1
+  }, 
+  {
+    "_inV": 66, 
+    "_label": "knows", 
+    "_outV": 56, 
+    "value": 2
+  }, 
+  {
+    "_inV": 67, 
+    "_label": "knows", 
+    "_outV": 65, 
+    "value": 3
+  }, 
+  {
+    "_inV": 67, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 3
+  }, 
+  {
+    "_inV": 67, 
+    "_label": "knows", 
+    "_outV": 60, 
+    "value": 1
+  }, 
+  {
+    "_inV": 67, 
+    "_label": "knows", 
+    "_outV": 63, 
+    "value": 2
+  }, 
+  {
+    "_inV": 67, 
+    "_label": "knows", 
+    "_outV": 66, 
+    "value": 2
+  }, 
+  {
+    "_inV": 67, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 1
+  }, 
+  {
+    "_inV": 67, 
+    "_label": "knows", 
+    "_outV": 64, 
+    "value": 1
+  }, 
+  {
+    "_inV": 67, 
+    "_label": "knows", 
+    "_outV": 62, 
+    "value": 1
+  }, 
+  {
+    "_inV": 67, 
+    "_label": "knows", 
+    "_outV": 61, 
+    "value": 1
+  }, 
+  {
+    "_inV": 68, 
+    "_label": "knows", 
+    "_outV": 58, 
+    "value": 3
+  }, 
+  {
+    "_inV": 69, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 5
+  }, 
+  {
+    "_inV": 69, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 69, 
+    "_label": "knows", 
+    "_outV": 25, 
+    "value": 1
+  }, 
+  {
+    "_inV": 69, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 69, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 1
+  }, 
+  {
+    "_inV": 69, 
+    "_label": "knows", 
+    "_outV": 42, 
+    "value": 1
+  }, 
+  {
+    "_inV": 70, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 6
+  }, 
+  {
+    "_inV": 70, 
+    "_label": "knows", 
+    "_outV": 69, 
+    "value": 6
+  }, 
+  {
+    "_inV": 70, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 70, 
+    "_label": "knows", 
+    "_outV": 25, 
+    "value": 1
+  }, 
+  {
+    "_inV": 70, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 2
+  }, 
+  {
+    "_inV": 70, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 1
+  }, 
+  {
+    "_inV": 70, 
+    "_label": "knows", 
+    "_outV": 42, 
+    "value": 1
+  }, 
+  {
+    "_inV": 71, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 4
+  }, 
+  {
+    "_inV": 71, 
+    "_label": "knows", 
+    "_outV": 70, 
+    "value": 4
+  }, 
+  {
+    "_inV": 71, 
+    "_label": "knows", 
+    "_outV": 69, 
+    "value": 4
+  }, 
+  {
+    "_inV": 71, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 71, 
+    "_label": "knows", 
+    "_outV": 25, 
+    "value": 1
+  }, 
+  {
+    "_inV": 71, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 71, 
+    "_label": "knows", 
+    "_outV": 42, 
+    "value": 1
+  }, 
+  {
+    "_inV": 71, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 1
+  }, 
+  {
+    "_inV": 72, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 72, 
+    "_label": "knows", 
+    "_outV": 70, 
+    "value": 2
+  }, 
+  {
+    "_inV": 72, 
+    "_label": "knows", 
+    "_outV": 69, 
+    "value": 2
+  }, 
+  {
+    "_inV": 72, 
+    "_label": "knows", 
+    "_outV": 71, 
+    "value": 2
+  }, 
+  {
+    "_inV": 72, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 72, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 1
+  }, 
+  {
+    "_inV": 72, 
+    "_label": "knows", 
+    "_outV": 42, 
+    "value": 1
+  }, 
+  {
+    "_inV": 72, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 1
+  }, 
+  {
+    "_inV": 73, 
+    "_label": "knows", 
+    "_outV": 27, 
+    "value": 2
+  }, 
+  {
+    "_inV": 73, 
+    "_label": "knows", 
+    "_outV": 28, 
+    "value": 1
+  }, 
+  {
+    "_inV": 73, 
+    "_label": "knows", 
+    "_outV": 12, 
+    "value": 1
+  }, 
+  {
+    "_inV": 74, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 2
+  }, 
+  {
+    "_inV": 75, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 2
+  }, 
+  {
+    "_inV": 75, 
+    "_label": "knows", 
+    "_outV": 74, 
+    "value": 3
+  }, 
+  {
+    "_inV": 76, 
+    "_label": "knows", 
+    "_outV": 70, 
+    "value": 3
+  }, 
+  {
+    "_inV": 76, 
+    "_label": "knows", 
+    "_outV": 69, 
+    "value": 3
+  }, 
+  {
+    "_inV": 76, 
+    "_label": "knows", 
+    "_outV": 26, 
+    "value": 3
+  }, 
+  {
+    "_inV": 76, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 1
+  }, 
+  {
+    "_inV": 76, 
+    "_label": "knows", 
+    "_outV": 42, 
+    "value": 1
+  }, 
+  {
+    "_inV": 76, 
+    "_label": "knows", 
+    "_outV": 71, 
+    "value": 1
+  }, 
+  {
+    "_inV": 76, 
+    "_label": "knows", 
+    "_outV": 72, 
+    "value": 1
+  }, 
+  {
+    "_inV": 77, 
+    "_label": "knows", 
+    "_outV": 65, 
+    "value": 1
+  }, 
+  {
+    "_inV": 77, 
+    "_label": "knows", 
+    "_outV": 66, 
+    "value": 1
+  }, 
+  {
+    "_inV": 77, 
+    "_label": "knows", 
+    "_outV": 67, 
+    "value": 1
+  }, 
+  {
+    "_inV": 77, 
+    "_label": "knows", 
+    "_outV": 64, 
+    "value": 1
+  }, 
+  {
+    "_inV": 77, 
+    "_label": "knows", 
+    "_outV": 63, 
+    "value": 1
+  }, 
+  {
+    "_inV": 77, 
+    "_label": "knows", 
+    "_outV": 49, 
+    "value": 1
+  }, 
+  {
+    "_inV": 77, 
+    "_label": "knows", 
+    "_outV": 59, 
+    "value": 1
+  }
+]
+}
