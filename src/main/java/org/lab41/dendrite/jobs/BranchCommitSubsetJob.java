@@ -92,7 +92,7 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
                 .setSize(SIZE)
                 .setSearchType(SearchType.SCAN)
                 .setScroll(new TimeValue(60000))
-                .setNoFields();
+                .addField("_vertexId");
 
         TitanTransaction srcTx = srcGraph.newTransaction();
 
@@ -101,7 +101,7 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
 
             try {
                 for (SearchHit hit: scan(srcGraph.getElasticSearchClient(), srb)) {
-                    Vertex vertex = srcTx.getVertex(hit.getId());
+                    Vertex vertex = srcTx.getVertex(hit.field("_vertexId").value());
                     copyVertex(srcTx, dstTx, vertex, 0);
                 }
             } catch (Exception e) {
