@@ -363,6 +363,9 @@ angular.module('dendrite.controllers', []).
                                 if (pollAgain) {
                                   $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
                                 }
+                                else {
+                                  $scope.refresh();
+                                }
                             });
                 });
 
