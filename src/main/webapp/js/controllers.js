@@ -104,7 +104,8 @@ angular.module('dendrite.controllers', []).
             var params = {name: $scope.newProjectName, query: $scope.gridOptions.filterOptions.filterText, steps: $scope.newProjectSteps};
             Project.carveSubgraph({projectId: projectId}, params)
                     .$then(function(response) {
-                      $location.path('projects/' + response.data.projectId);
+                        angular.element('.modal-backdrop').hide();
+                        $location.path('projects/' + response.data.projectId);
                     });
         };
     }).
