@@ -855,6 +855,25 @@ body {
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
 }
+.bar-analytic {
+  position: relative;
+}
+.bar-analytic .text-analytic {
+  font-size: small;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  color: #2c3e50;
+}
+.bar-analytic .bar {
+  padding-top: 5px;
+}
+.btn-analytic {
+  margin-left: 0 !important;
+}
+.progress {
+  margin-bottom: 10px;
+}
 /*************************************************/
 /* notifications */
 /*************************************************/

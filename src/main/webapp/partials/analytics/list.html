@@ -3,13 +3,16 @@
 <!-- list of active analytics jobs -->
 <ul style="margin-top:10px" class="list-style-type-none padding-none margin-none">
   <li ng-repeat="analytic in activeAnalytics.jobs">
-    <div ng-if="analytic.progress == 1.0 || analytic.state == 'ERROR'" class="btn btn-small btn-attention"><i class="icon-white icon-zoom-in vertical-align-middle" ng-click="showAnalytic({{analytic._id}})"></i></div>
-    <strong> {{analytic.name}}</strong>
     <div ng-if="analytic.state==='ERROR'">
       Error: {{ analytic.mapreduceJobId }} {{ analytic.msg }}
     </div>
-    <div class="progress-{{colorProgressBars(analytic.progress)}} active progress" ng-class="(analytic.progress != 1.0) ? 'progress-striped' : ''" >
-      <div class="bar" style="width:{{analytic.progress*100}}%;">{{analytic.progress * 100}}%</div>
+    <div class="row-fluid">
+
+      <div class="span10 progress-{{colorProgressBars(analytic.progress)}} active progress bar-analytic" ng-class="(analytic.progress != 1.0) ? 'progress-striped' : ''" >
+        <div class="bar" style="width:{{analytic.progress*100}}%;"></div>
+        <span class="text-analytic"><span ng-if="analytic.progress<1.0">{{analytic.progress * 100}}%: </span><strong>{{analytic.name}}</strong></span>
+      </div>
+      <div class="btn-analytic span2 btn btn-small btn-attention"><i class="icon-white icon-zoom-in vertical-align-middle" ng-click="showAnalytic({{analytic._id}})"></i></div>
     </div>
   </li>
   <li ng-if="activeAnalytics.length == 0">(no active calculations)</li>
