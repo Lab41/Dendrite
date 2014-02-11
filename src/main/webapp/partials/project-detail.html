@@ -1,5 +1,10 @@
-<h2 class="titlebar">Project: {{ project.name }} <button ng-click="deleteItem(project)" ng-confirm-click="Really Delete?" class="btn btn-default"><i class="icon-white icon-trash"></i> Delete</button></h2>
-<div class="container-fluid">
+<h2 class="titlebar">Project: {{ project.name }} <button ng-if="graphLoaded" ng-click="deleteItem(project)" ng-confirm-click="Really Delete?" class="btn btn-default"><i class="icon-white icon-trash"></i> Delete</button></h2>
+
+<div ng-hide="graphLoaded">
+  <h4>Creating branch...</h4>
+  <img src="img/icons/ajax-loader.gif">
+</div>
+<div class="container-fluid" ng-if="graphLoaded">
   <div class="row-fluid">
     <div class="span12" style="margin-bottom:20px">
       <h4>Explore</h4>

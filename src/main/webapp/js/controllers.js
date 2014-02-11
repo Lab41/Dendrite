@@ -109,15 +109,52 @@ angular.module('dendrite.controllers', []).
                     });
         };
     }).
-    controller('ProjectDetailCtrl', function($rootScope, $scope, $routeParams, $route, $location, $q, Project, Graph, GraphTransform) {
+    controller('ProjectDetailCtrl', function($rootScope, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
         $scope.projectId = $routeParams.projectId;
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
                     $scope.project = response.data.project;
                     $scope.graphId = $scope.project.current_graph;
-                    $scope.graph = Graph.get({graphId: $scope.graphId});
-                    $scope.$broadcast('event:reloadGraph');
+                    pollBranches();
                 });
+
+
+        // poll for branches
+        //    determine if current branch's graph conflicts with other graphs
+        //    (indicates branch has not yet switched/cloned)
+        //    FIXME: placeholder until backend lineage between branches complete
+        //    FIXME: need comparison: currentBranch.graph != currentBranch.parentBranch.graph
+        //    FIXME: alternative comparison: currentGraph.branch != currentGraph.ParentGraph.branch
+        var pollBranches = function() {
+          $scope.graphLoaded = false;
+          Project.branches({projectId: $routeParams.projectId})
+                .$then(function(responseAllBranches) {
+
+                    // calculate number of branches that point to current graph
+                    var numGraphInstances = 0;
+                    Array().forEach.call(responseAllBranches.data.branches, function(branch) {
+                      if ($scope.graphId === branch.graphId) {
+                        ++numGraphInstances;
+                      }
+                    });
+
+                    // if current branch's graph is unique, reload everything and
+                    // signal presentation layer
+                    if (numGraphInstances > 1) {
+                      $timeout(pollBranches, appConfig.branches.metadata.pollTimeout);
+                    }
+                    else {
+                      $scope.graphLoaded = true;
+                      $scope.graph = Graph.get({graphId: $scope.graphId});
+                      $scope.$broadcast('event:reloadGraph');
+                    }
+                });
+        }
+
+        // enable other controllers to call poll function
+        $scope.$on("event:pollBranches", function() {
+          pollBranches();
+        });
 
         // tripwire to reload current graph
         $scope.$on('event:reloadGraph', function() {
@@ -135,6 +172,7 @@ angular.module('dendrite.controllers', []).
                     $scope.queryCurrentBranch = response.data;
                     $scope.graphId = $scope.queryCurrentBranch.branch.graphId;
                     $scope.$broadcast('event:reloadGraph');
+                    $scope.$broadcast('event:pollBranches');
                   });
           $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
         });
