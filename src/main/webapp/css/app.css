@@ -897,6 +897,9 @@ body {
 .align-center {
   text-align: center;
 }
+.align-right {
+  text-align: right;
+}
 .margin-bottom {
   margin-bottom: 10px;
 }
