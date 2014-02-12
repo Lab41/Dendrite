@@ -11,24 +11,50 @@
       <p>**Note: the default "select all" option will make every field searchable, but at the expense of storing all data in two locations, namely the database and search engine.</p>
     </div>
 
-      <div class="checkbox">
-        <table>
-          <tr ng-repeat="key in keys">
-            <td>
-              <input type="checkbox"
-                     name="selectedKeys[]"
-                     value="{{ key.name }}"
-                     ng-checked="selectedKeys.indexOf(key) > -1"
-                     ng-click="toggleSelection(key)">
-            </td>
-            <td>
-              {{ key.name }}
-            </td>
-            <td>
-              <select ng-model="key.type" ng-options="type for type in indexTypes"></select>
-            </td>
-          </tr>
-        </table>
+      <div class="checkbox row-fluid">
+        <div class="span6" ng-if="keys.vertices.length>0">
+          <h4>Vertices</h4>
+          <table>
+            <tr ng-repeat="key in keys.vertices">
+              <td>
+                <input type="checkbox"
+                       name="selectedKeys[]"
+                       value="{{ key.name }}"
+                       id="selected-key-vertex-{{key.name}}"
+                       ng-checked="selectedKeys.vertices.indexOf(key) > -1"
+                       ng-click="toggleSelection(key,'vertices')">
+              </td>
+              <td>
+                <label for="selected-key-vertex-{{key.name}}">{{ key.name }}</label>
+              </td>
+              <td>
+                <select class="input-medium" ng-model="key.type" ng-options="type for type in indexTypes"></select>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="span6" ng-if="keys.edges.length>0">
+          <h4>Edges</h4>
+          <table>
+            <tr ng-repeat="key in keys.edges">
+              <td>
+                <input type="checkbox"
+                       name="selectedKeys[]"
+                       value="{{ key.name }}"
+                       id="selected-key-edge-{{key.name}}"
+                       ng-checked="selectedKeys.edges.indexOf(key) > -1"
+                       ng-click="toggleSelection(key,'edges')">
+              </td>
+              <td>
+                <label for="selected-key-edge-{{key.name}}">{{ key.name }}</label>
+              </td>
+              <td>
+                <select class="input-medium" ng-model="key.type" ng-options="type for type in indexTypes"></select>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
   </div>
 
