@@ -39,7 +39,9 @@ public class DendriteGraphTx extends TitanBlueprintsTransaction {
 
     @Override
     public TitanEdge addEdge(TitanVertex outVertex, TitanVertex inVertex, TitanLabel label) {
-        return tx.addEdge(outVertex, inVertex, label);
+        TitanEdge edge = tx.addEdge(outVertex, inVertex, label);
+        edge.setProperty(DendriteGraph.EDGE_ID_KEY, edge.getId());
+        return edge;
     }
 
     @Override
