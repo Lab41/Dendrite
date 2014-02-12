@@ -699,8 +699,6 @@ angular.module('dendrite.controllers', []).
         }
       }, true);
 
-      // initialize on entry
-      $scope.refresh();
     }).
     controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;
