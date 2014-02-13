@@ -126,6 +126,11 @@ angular.module('dendrite', [
         direction: "asc"
       }
     },
+    branches: {
+      metadata: {
+        pollTimeout: 5 * 1000
+      }
+    },
     analytics: {
         metadata: {
           pollTimeout: 500
