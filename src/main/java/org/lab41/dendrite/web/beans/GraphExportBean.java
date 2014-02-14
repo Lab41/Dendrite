@@ -24,6 +24,7 @@ public class GraphExportBean {
     @NotNull
     @NotEmpty
     private String format;
+    private String projectId;
 
     public String getFormat() {
         return format;
@@ -31,5 +32,13 @@ public class GraphExportBean {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 }

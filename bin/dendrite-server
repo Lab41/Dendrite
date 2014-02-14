@@ -39,6 +39,14 @@ if [ "$DENDRITE_PROFILE" = "" ]; then
     DENDRITE_PROFILE=dev
 fi
 
+if [ "$DENDRITE_UNGIT_DIR" = "" ]; then
+    DENDRITE_UNGIT_DIR=src/main/nodejs/ungit
+fi
+
+if [ $DENDRITE_UNGIT_BUILD ]; then
+    DENDRITE_UNGIT_BUILDFLAG="-DwithGitHistoryServer=true"
+fi
+
 # We need a bit more memory to run properly.
 if [ "$MAVEN_OPTS" = "" ]; then
     export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=128m"
@@ -60,11 +68,27 @@ case $cmd in
             fi
         fi
 
+        # clone and configure ungit if it doesn't already exist
+        if [ -z $DENDRITE_UNGIT_BUILD ]; then
+          echo "skipping ungit history server (specify DENDRITE_UNGIT_BUILD=true to include)"
+        else
+          echo configuring ungit
+          if [ ! -d "$DENDRITE_UNGIT_DIR" ]; then
+            mvn scm:checkout $DENDRITE_UNGIT_BUILDFLAG
+            scripts/ci/configure_ungit.sh $DENDRITE_UNGIT_DIR
+            pushd $DENDRITE_UNGIT_DIR
+            git submodule update --init
+            sudo npm install
+            popd
+          fi
+
+        fi
+
         echo starting dendrite
 
         # remove any old .class files that might around from an older version of dendrite
         mvn clean > "$log" 2>&1 < /dev/null &
-        nohup mvn tomcat7:run -Dmaven.tomcat.port=8000 -Dspring.profiles.active=$DENDRITE_PROFILE > "$log" 2>&1 < /dev/null &
+        nohup mvn tomcat7:run -Dmaven.tomcat.port=8000 -Dspring.profiles.active=$DENDRITE_PROFILE $DENDRITE_UNGIT_BUILDFLAG > "$log" 2>&1 < /dev/null &
         echo $! > $pid
         ;;
 
@@ -90,6 +114,28 @@ case $cmd in
                     echo "dendrite did not stop gracefully after $DENDRITE_STOP_TIMEOUT seconds; killing with kill -9"
                     kill -9 $TARGET_PID
                 fi
+
+
+                /bin/echo -n "stopping ungit "
+                TARGET_PID=$(ps aux | grep $DENDRITE_UNGIT_DIR/source/server.js | grep -v grep | tr -s ' ' | cut -d' ' -f2)
+                kill $TARGET_PID
+
+                for (( try=0; try < $DENDRITE_STOP_TIMEOUT; ++try )); do
+                    sleep 1
+                    if kill -0 $TARGET_PID > /dev/null 2>&1; then
+                        /bin/echo -n .
+                    else
+                        break
+                    fi
+                done
+
+                echo
+
+                if kill -0 $TARGET_PID > /dev/null 2>&1; then
+                    echo "ungit did not stop gracefully after $DENDRITE_STOP_TIMEOUT seconds; killing with kill -9"
+                    kill -9 $TARGET_PID
+                fi
+
             else
                 echo no dendrite to stop
             fi

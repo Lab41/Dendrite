@@ -59,6 +59,7 @@ angular.module('dendrite', [
         when('/projects', {templateUrl: 'partials/project-list.html', controller: 'ProjectListCtrl', access: access.ROLE_USER}).
         when('/projects/create', {templateUrl: 'partials/project-create.html', controller: 'ProjectCreateCtrl', access: access.ROLE_USER}).
         when('/projects/:projectId', {templateUrl: 'partials/project-detail.html', controller: 'ProjectDetailCtrl', access: access.ROLE_USER}).
+        when('/projects/:projectId/history', {templateUrl: 'partials/history/show.html', controller: 'HistoryDetailCtrl', access: access.ROLE_USER}).
         otherwise({redirectTo: '/home'});
   }]).
   config([
@@ -125,6 +126,12 @@ angular.module('dendrite', [
       sorting: {
         direction: "asc"
       }
+    },
+    historyServer: {
+        enabled: false,
+        host: "localhost",
+        port: 8448,
+        storage: "/tmp/dendrite/history"
     },
     branches: {
       metadata: {
