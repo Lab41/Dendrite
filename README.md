@@ -12,10 +12,21 @@ Dendrite is a Lab41 exploration of ways to analyze, manipulate, version, and sha
 Install instructions
 ====================
 
-1. Check out the code:
+1. Check out the code. As of right now, we have to use the Lab41 forks of Titan
+   and Faunus:
 
   ```
-  % git clone https://github.com/Lab4/Dendrite.git
+  % git clone https://github.com/Lab41/titan.git
+  % cd titan
+  % git checkout dendrite
+  % mvn install -DskipTests=true
+  % cd ..
+  % git clone https://github.com/Lab41/faunus.git
+  % cd faunus
+  % git checkout dendrite
+  % mvn install -DskipTests=true
+  % cd ..
+  % git clone https://github.com/Lab41/Dendrite.git
   % cd Dendrite
   ```
 
