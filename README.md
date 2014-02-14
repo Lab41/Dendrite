@@ -6,8 +6,9 @@ People. Places. Things. Graphs.
 
 It turns out that much of the world, both physical and virtual, can be represented as a graph. Graphs describe things that are linked together such as web pages and human societies. Like many other topics, Web technologies can make these types of powerful mathematical concepts more accessible to everyday users.
 Dendrite is a Lab41 exploration of ways to analyze, manipulate, version, and share extremely large graphs:
-- The Web frontend leverages AngularJS to provide a responsive data-driven experience
-- The UI interacts with a backend instance of the Titan Distributed Graph Database
+- The Web frontend leverages AngularJS to provide a responsive data-driven experience.
+- The UI interacts with a backend instance of the Titan Distributed Graph Database.
+- The backend uses [GraphLab](https://graphlab.org), [Faunus](http://thinkaurelius.github.io/faunus/), and [Jung](http://jung.sourceforge.net/) for graph analytics.
 
 Install instructions
 ====================
