@@ -4,7 +4,6 @@ import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.graphdb.blueprints.TitanBlueprintsGraph;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.Edge;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.elasticsearch.client.Client;
@@ -26,7 +25,6 @@ public class DendriteGraph extends TitanBlueprintsGraph {
 
     public static final String INDEX_NAME = "search";
     public static final String VERTEX_ID_KEY = "_vertexId";
-    public static final String EDGE_ID_KEY = "_edgeId";
 
     private Logger logger = LoggerFactory.getLogger(DendriteGraph.class);
 
@@ -77,7 +75,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
         this.properties = properties;
         this.titanGraph = TitanFactory.open(getConfiguration());
 
-        // Make sure to index vertex/edge id's
+        // Make sure the vertexId is indexed
         String backend = properties.getProperty("storage.index.search.backend", null);
         if (backend != null && backend.equals("elasticsearch")) {
             TitanTransaction tx = titanGraph.newTransaction();
@@ -85,12 +83,6 @@ public class DendriteGraph extends TitanBlueprintsGraph {
                 tx.makeKey(VERTEX_ID_KEY)
                         .dataType(String.class)
                         .indexed(INDEX_NAME, Vertex.class)
-                        .make();
-            }
-            if (tx.getType(EDGE_ID_KEY) == null) {
-                tx.makeKey(EDGE_ID_KEY)
-                        .dataType(String.class)
-                        .indexed(INDEX_NAME, Edge.class)
                         .make();
             }
             tx.commit();
