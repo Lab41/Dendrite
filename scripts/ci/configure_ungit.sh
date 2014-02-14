@@ -18,7 +18,7 @@ else
   _gitDir=${_gitDir//\//\\\/}
 
   echo "Updating configuration variables"
-  sed -i "s/user: <FIXME.*>/user: '$_gitUser'/g" $_targetDir/public/source/app.js
-  sed -i "s/local: <FIXME.*>/local: '$_gitServer'/g" $_targetDir/public/source/app.js
-  sed -i "s/remote: <FIXME.*>/remote: '$_gitDir'/g" $_targetDir/public/source/app.js
+  sed -i "" "s/user: <FIXME.*>/user: '$_gitUser'/g" $_targetDir/public/source/app.js
+  sed -i "" "s/local: <FIXME.*>/local: '$_gitServer'/g" $_targetDir/public/source/app.js
+  sed -i "" "s/remote: <FIXME.*>/remote: '$_gitDir'/g" $_targetDir/public/source/app.js
 fi

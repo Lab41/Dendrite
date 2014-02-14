@@ -78,7 +78,7 @@ case $cmd in
             scripts/ci/configure_ungit.sh $DENDRITE_UNGIT_DIR
             pushd $DENDRITE_UNGIT_DIR
             git submodule update --init
-            sudo npm install
+            npm install
             popd
           fi
 
