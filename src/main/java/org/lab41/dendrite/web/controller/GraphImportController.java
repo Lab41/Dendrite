@@ -27,6 +27,7 @@ import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
 import org.lab41.dendrite.util.io.faunusgraphson.FaunusGraphSONReader;
 
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.Edge;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.services.MetaGraphService;
@@ -42,6 +43,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -89,50 +93,92 @@ public class GraphImportController {
         }
 
         try {
-            if (searchKeys.contains(",")) {
-                // separate and iterate over "key1=type1,key2=type2"
-                for (String keyType : searchKeys.split(",")) {
-                    String[] tokens = keyType.split("=");
-                    String key = tokens[0];
-                    String type = tokens[1];
+            // extract search indices from client JSON
+            JSONObject jsonKeys = new JSONObject(searchKeys);
+            JSONArray jsonVertices = jsonKeys.getJSONArray("vertices");
+            JSONArray jsonEdges = jsonKeys.getJSONArray("edges");
 
-                    //TODO: make dataType below based on type passed from client
+            // build search indices for vertices
+            for (int i = 0; i < jsonVertices.length(); ++i){
+              JSONObject jsonVertex = jsonVertices.getJSONObject(i);
+              String key = jsonVertex.getString("name");
+              String type = jsonVertex.getString("type");
 
-                    // create the search index (if it doesn't already exist and isn't a reserved key)
-                    if (graph.getType(key) == null && !RESERVED_KEYS.contains(key)) {
-                        Class cls;
-                        List<Parameter> parameters = new ArrayList<>();
+              // create the search index (if it doesn't already exist and isn't a reserved key)
+              if (graph.getType(key) == null && !RESERVED_KEYS.contains(key)) {
+                  Class cls;
+                  List<Parameter> parameters = new ArrayList<>();
 
-                        if (type.equals("string")) {
-                            cls = String.class;
-                            parameters.add(Parameter.of(Mapping.MAPPING_PREFIX, Mapping.STRING));
-                        } else if (type.equals("text")) {
-                            cls = String.class;
-                            parameters.add(Parameter.of(Mapping.MAPPING_PREFIX, Mapping.TEXT));
-                        } else if (type.equals("integer")) {
-                            cls = Integer.class;
-                        } else if (type.equals("float")) {
-                            cls = FullFloat.class;
-                        } else if (type.equals("double")) {
-                            cls = FullDouble.class;
-                        } else if (type.equals("geocoordinate")) {
-                            cls = Geoshape.class;
-                        } else {
-                            graph.rollback();
-                            response.put("status", "error");
-                            response.put("msg", "unknown type '" + type + "'");
-                            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-                        }
+                  if (type.equals("string")) {
+                      cls = String.class;
+                      parameters.add(Parameter.of(Mapping.MAPPING_PREFIX, Mapping.STRING));
+                  } else if (type.equals("text")) {
+                      cls = String.class;
+                      parameters.add(Parameter.of(Mapping.MAPPING_PREFIX, Mapping.TEXT));
+                  } else if (type.equals("integer")) {
+                      cls = Integer.class;
+                  } else if (type.equals("float")) {
+                      cls = FullFloat.class;
+                  } else if (type.equals("double")) {
+                      cls = FullDouble.class;
+                  } else if (type.equals("geocoordinate")) {
+                      cls = Geoshape.class;
+                  } else {
+                      graph.rollback();
+                      response.put("status", "error");
+                      response.put("msg", "unknown type '" + type + "'");
+                      return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                  }
 
-                        graph.makeKey(key)
-                                .dataType(cls)
-                                .indexed(Vertex.class)
-                                .indexed(DendriteGraph.INDEX_NAME, Vertex.class, parameters.toArray(new Parameter[parameters.size()]))
-                                .make();
-                    }
-                }
+                  graph.makeKey(key)
+                          .dataType(cls)
+                          .indexed(Vertex.class)
+                          .indexed(DendriteGraph.INDEX_NAME, Vertex.class, parameters.toArray(new Parameter[parameters.size()]))
+                          .make();
+              }
             }
 
+            // build search indices for edges
+            for (int i = 0; i < jsonEdges.length(); ++i){
+              JSONObject jsonEdge = jsonEdges.getJSONObject(i);
+              String key = jsonEdge.getString("name");
+              String type = jsonEdge.getString("type");
+
+              // create the search index (if it doesn't already exist and isn't a reserved key)
+              if (graph.getType(key) == null && !RESERVED_KEYS.contains(key)) {
+                  Class cls;
+                  List<Parameter> parameters = new ArrayList<>();
+
+                  if (type.equals("string")) {
+                      cls = String.class;
+                      parameters.add(Parameter.of(Mapping.MAPPING_PREFIX, Mapping.STRING));
+                  } else if (type.equals("text")) {
+                      cls = String.class;
+                      parameters.add(Parameter.of(Mapping.MAPPING_PREFIX, Mapping.TEXT));
+                  } else if (type.equals("integer")) {
+                      cls = Integer.class;
+                  } else if (type.equals("float")) {
+                      cls = FullFloat.class;
+                  } else if (type.equals("double")) {
+                      cls = FullDouble.class;
+                  } else if (type.equals("geocoordinate")) {
+                      cls = Geoshape.class;
+                  } else {
+                      graph.rollback();
+                      response.put("status", "error");
+                      response.put("msg", "unknown type '" + type + "'");
+                      return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                  }
+
+                  graph.makeKey(key)
+                          .dataType(cls)
+                          .indexed(Edge.class)
+                          .indexed(DendriteGraph.INDEX_NAME, Edge.class, parameters.toArray(new Parameter[parameters.size()]))
+                          .make();
+              }
+            }
+
+            // commit the indices
             graph.commit();
 
             InputStream inputStream = file.getInputStream();

@@ -662,13 +662,9 @@ angular.module('dendrite.controllers', []).
                 });
 
                 $scope.columnDefs.sort(function(a, b) {
-                    if (a.field < b.field) {
-                        return -1;
-                    } else if (a.field > b.field) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
+                  if (a.field < b.field) { return -1; }
+                  else if (a.field > b.field) { return 1; }
+                  else { return 0; }
                 });
 
                 // update sort options
@@ -744,8 +740,6 @@ angular.module('dendrite.controllers', []).
         }
       }, true);
 
-      // initialize on entry
-      $scope.refresh();
     }).
     controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;
@@ -787,133 +781,291 @@ angular.module('dendrite.controllers', []).
                   });
         };
     }).
-    controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, User, Project, Graph, Edge, Vertex) {
-        $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
+    controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
-        $scope.edgeDetail = function(id) {
-          $location.path('graphs/' + $scope.graphId + '/edges/' + id);
-        };
-
-        Graph.get({graphId: $routeParams.graphId})
-              .$then(function(dataGraph) {
-                  $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
-              });
-
-        //TODO refactor for more efficient on-demand Vertex retrieval
-        $scope.getVertex = function(id) {
-          if ($scope.vertices.results!==undefined) {
-            for (var i=0; i<$scope.vertices.results.length; i++) {
-              if ($scope.vertices.results[i]._id===id) {
-                return $scope.vertices.results[i].name;
-              }
-            }
-          }
-          //var name = Vertex.get({graphId: $routeParams.graphId, vertexId: id});
-          return 'name';
-        };
-
-        $scope.gridOptions = {
-            data: 'edges',
-            columnDefs: [
-                {field: '_id', displayName: 'ID', enableCellEdit: false, cellTemplate: '<div ng-click="edgeDetail(\'{{row.entity[col.field]}}\')"><a>{{row.entity[col.field]}}<a></div>'},
-                {field: '_inV', displayName: 'From', enableCellEdit: true, cellTemplate: '<div>{{getVertex( row.entity[col.field] )}}</div>'},
-                {field: '_label', displayName: 'Link', enableCellEdit: true},
-                {field: '_outV', displayName: 'To', enableCellEdit: true, cellTemplate: '<div>{{getVertex( row.entity[col.field] )}}</div>'}
-
-                //{field: 'weight', displayName: 'Edge Weight', enableCellEdit: true},
-            ],
-            filterOptions: {
-                filterText: "",
-                useExternalFilter: true
-            },
-            enablePaging: true,
-            showFooter: true,
-            pagingOptions: {
-                pageSizes: [50, 100],
-                pageSize: 50,
-                currentPage: 1
-            },
-            useExternalSorting: true,
-            sortInfo: {
-                fields: ['_id'],
-                directions: ['asc']
-            },
-            selectedItems: [],
-            selectWithCheckboxOnly: true,
-            showSelectionCheckbox: true,
-            plugins: [new ngGridFlexibleHeightPlugin()]
-        };
-
-
-        $scope.reloadData = function() {
-          Edge.query({graphId: $routeParams.graphId}, function(query) {
-            var results = query.results;
-
-            // We are going to pretend that the server does the sorting and paging. So first sort the data:
-            results = $filter('orderBy')(
-              results,
-              $scope.gridOptions.sortInfo.fields[0],
-              $scope.gridOptions.sortInfo.directions[0] === 'asc'
-            );
-
-            // Then truncate the data to fit our "page".
-            results = results.slice(
-              ($scope.gridOptions.pagingOptions.currentPage - 1) * $scope.gridOptions.pagingOptions.pageSize,
-              $scope.gridOptions.pagingOptions.currentPage * $scope.gridOptions.pagingOptions.pageSize
-            );
-
-            $scope.gridOptions.totalServerItems = query.totalSize;
-
-            $scope.edges = results;
-
-
-            // Finally, make sure that the scope is updated.
-            if (!$scope.$$phase) {
-              $scope.$apply();
-            }
-          })
-          .$then(function(res) {
-            $scope.vertices = Vertex.get({graphId: $routeParams.graphId});
-          });
-        };
-
-        $scope.reloadData();
-
-        $scope.$watch('gridOptions.filterOptions', function(newVal, oldVal) {
-          if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
-            $scope.reloadData();
-          }
-        }, true);
-        $scope.$watch('gridOptions.pagingOptions', function(newVal, oldVal) {
-          if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
-            $location.search('currentPage', newVal.currentPage);
-            $scope.reloadData();
-          }
-        }, true);
-        $scope.$watch('gridOptions.sortInfo', function(newVal, oldVal) {
-          if (newVal !== oldVal) {
-            $location.search('sortField', newVal.fields[0]);
-            $location.search('sortDirection', newVal.directions[0]);
-            $scope.reloadData();
-          }
-        }, true);
-
-        $scope.isDeleteDisabled = true;
-        $scope.$watch('gridOptions.selectedItems', function(newVal, oldVal) {
-          if (newVal !== oldVal) {
-            $scope.isDeleteDisabled = (newVal.length === 0);
-          }
-        }, true);
-
-        $scope.deleteSelectedEdges = function() {
-            $scope.gridOptions.selectedItems.forEach(function(edge) {
-                Edge.delete({graphId: $scope.graphId, edgeId: edge._id}, function() {
-                    $scope.getData();
-                });
+      $scope.graphId = $routeParams.graphId;
+      $scope.selectedItems = [];
+      $scope.queryStyle = "edges";
+      Graph.get({graphId: $routeParams.graphId})
+            .$then(function(dataGraph) {
+                $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
             });
-            $scope.isDeleteDisabled = true;
-        };
+
+      $scope.editEdge = function() {
+        $location.path('graphs/' + $scope.graphId + '/edges/' + $scope.selectedItems[0]._id + '/edit_edge');
+      };
+
+      // Delete the selected items.
+      $scope.deleteSelectedItems = function() {
+        $q.all(
+          $scope.selectedItems.map(function(edge) {
+            var deferred = $q.defer();
+            Edge.delete({graphId: $scope.graphId, edgeId: edge._id}, function() {
+              deferred.resolve();
+            }, function() {
+              deferred.reject();
+            });
+            return deferred.promise;
+          })
+        ).then(function() {
+          // Refresh the data once all the items are deleted.
+          $scope.refresh();
+        });
+
+        // Make sure to clear the selected list of items.
+        $scope.selectedItems.length = 0;
+      };
+
+      // reset selectedItems array
+      $scope.resetItems = function() {
+        while($scope.selectedItems.length>0) {
+          $scope.selectedItems.shift();
+        }
+        $scope.refresh();
+      }
+
+      $scope.objectType = "edge";
+      $scope.items = [];
+
+      // filter
+      $scope.filterOptions = {
+          filterText: "",
+          useExternalFilter: true
+      };
+
+      // paging
+      $scope.totalServerItems = 0;
+      $scope.pagingOptions = {
+          pageSizes: [5, 10, 25, 50, 100],
+          pageSize: appConfig.elasticSearch.fieldSize,
+          currentPage: 1
+      };
+
+      // sort
+      $scope.sortedField = {};
+      $scope.sortOptions = {
+          fields: [],
+          directions: []
+      };
+
+      // call elasticSearch sort when header is clicked
+      // extra function needed to be able to dynamically set
+      // sortOptions without a $scope.$watch, which would
+      // re-trigger refresh() call in an endless loop
+      $scope.externalSort = function(field, direction) {
+        // default the sortedField to "asc" unless already set to "asc"
+        var newSortedField = {};
+        newSortedField[field] = ($scope.sortedField && $scope.sortedField[field] === "asc") ? "desc" : "asc";
+        $scope.sortedField = newSortedField;
+
+        // update list
+        $scope.elasticSearchAction = "Sorting";
+        $scope.refresh();
+      }
+
+      $scope.formatSelectedNames = function() {
+        var names = "";
+        if ($scope.selectedItems.length == 1) {
+          names = $scope.selectedItems[0]._inV+'-'+$scope.selectedItems[0]._label+'-'+$scope.selectedItems[0]._outV;
+        } else if ($scope.selectedItems.length > 1) {
+          names = $scope.selectedItems.length+' edges';
+        }
+        return names;
+      };
+
+      $scope.selectedOne = function() {
+        return $scope.selectedItems.length===1
+      };
+
+      $scope.selectedMany = function() {
+        return $scope.selectedItems.length>1
+      };
+
+      // grid
+      $scope.gridOptions = {
+          data: "items",
+          columnDefs: 'columnDefs',
+          enablePaging: true,
+          enablePinning: true,
+          pagingOptions: $scope.pagingOptions,
+          filterOptions: { filterText: ''},//TODO: enable backend filtering once ES indexes edge details
+          keepLastSelected: true,
+          multiSelect: true,
+          showColumnMenu: true,
+          showFilter: true,
+          showGroupPanel: true,
+          showFooter: true,
+          selectedItems: $scope.selectedItems,
+          selectWithCheckboxOnly: false,
+          showSelectionCheckbox: true,
+          sortInfo: $scope.sortOptions,
+          totalServerItems: "totalServerItems",
+          useExternalSorting: false, //TODO: enable external sorting once ES indexes edge details
+          enableSorting: true,
+          plugins: [new ngGridFlexibleHeightPlugin()],
+          i18n: "en"
+      };
+
+      $scope.reload = function(elasticSearchAction) {
+          $scope.resetItems();
+          $scope.queryStyle = "edges";
+          $scope.refresh(elasticSearchAction);
+      }
+
+      $scope.refresh = function(elasticSearchAction) {
+
+        if ($scope.queryStyle === "edges") {
+          console.log('refreshing');
+
+          if (elasticSearchAction !== undefined){
+            $scope.elasticSearchAction = elasticSearchAction;
+          }
+          $scope.searching = true;
+
+          // first clear current items to give visual indicator
+          $scope.items = [];
+          if (!$scope.$$phase) {
+              $scope.$apply();
+          }
+
+          var elasticSortOptions = [];
+          Object.keys($scope.sortedField).forEach(function(k) {
+            var newHash = {};
+            newHash[k] = { "order" : $scope.sortedField[k] };
+            elasticSortOptions.push( newHash );
+          });
+
+          var p = {
+              queryTerm: $scope.filterOptions.filterText,
+              pageNumber: $scope.pagingOptions.currentPage,
+              pageSize: $scope.pagingOptions.pageSize,
+              sortInfo: elasticSortOptions,
+              resultType: $scope.objectType
+          };
+
+          var ignoredKeys = [$scope.objectType+'Id', '_'+$scope.objectType+'Id', "_id", "_type"];
+
+          ElasticSearch.search(p)
+            .success(function(data, status, headers, config) {
+                $scope.totalServerItems = data.hits.total;
+
+                // update sort options
+                var sortFields = [];
+                var sortDirections = [];
+
+                // build array of results
+                var resultArray = [];
+                var resultKeys = {};
+                data.hits.hits.forEach(function(hit) {
+                  if (hit._type === $scope.objectType) {
+
+                      Edge.query({graphId: $scope.graphId, edgeId: hit._id})
+                          .$then(function(dataEdge) {
+
+                              // extract information on inbound Vertices
+                              Vertex.query({graphId: $scope.graphId, vertexId: dataEdge.data.results._inV})
+                                    .$then(function(dataVertex) {
+                                        dataEdge.data.results._inV = dataVertex.data.results.name;
+                                    });
+
+                              // extract information on outbound Vertices
+                              Vertex.query({graphId: $scope.graphId, vertexId: dataEdge.data.results._outV})
+                                    .$then(function(dataVertex) {
+                                        dataEdge.data.results._outV = dataVertex.data.results.name;
+                                    });
+
+                              // build results
+                              resultArray.push(dataEdge.data.results);
+
+
+                              // if all results processed, update view
+                              if (resultArray.length === data.hits.hits.length) {
+
+                                // extract all keys (to dynamically update table columns)
+                                Object.keys(dataEdge.data.results).forEach(function(k) {
+                                  if (ignoredKeys.indexOf(k) == -1) {
+                                    resultKeys[k] = true;
+                                  }
+                                });
+
+
+                                // create table columns from result index keys
+                                // headerCellTemplate adds externalSort() function
+                                // to allow dynamic setting of columns based on results
+                                $scope.columnDefs = [];
+                                Object.keys(resultKeys).forEach(function(k) {
+                                  $scope.columnDefs.push({
+                                    field: k,
+                                    displayName: k,
+                                    enableCellEdit: false,
+                                    headerCellTemplate: '<div class="ngHeaderSortColumn  ngSorted" ng-style="{\'cursor\': col.cursor}" ng-class="{ \'ngSorted\': !noSortVisible }" style="cursor: pointer;" draggable="true">\
+                                      <div ng-class="\'colt\' + col.index" class="ngHeaderText"">{{col.displayName}}</div>\
+                                    </div>'
+                                  });
+
+                                  // update the table column heads
+                                  // use default sort unless set in external query
+                                  sortFields.push(k);
+                                  if ($scope.sortedField) {
+                                    if (k in $scope.sortedField) {
+                                      sortDirections.push($scope.sortedField[k]);
+                                    }
+                                    else {
+                                      sortDirections.push(appConfig.elasticSearch.sorting.direction);
+                                    }
+                                  }
+                                });
+
+                                $scope.columnDefs.sort(function(a, b) {
+                                    if (a.field < b.field) { return -1; }
+                                    else if (a.field > b.field) { return 1; }
+                                    else { return 0; }
+                                });
+
+                                // update sort options
+                                $scope.sortOptions.fields = sortFields;
+                                $scope.sortOptions.directions = sortDirections;
+
+                                // store the results
+                                $scope.items = resultArray;
+                                $scope.searching = false;
+                            }
+                          });
+                  }
+                });
+            }).error(function(data, status, headers, config) {
+                //alert(JSON.stringify(data));
+          });
+        }
+      };
+
+      // watches
+      $scope.$watch('pagingOptions', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+              $scope.elasticSearchAction = "Paging";
+              $scope.refresh();
+          }
+      }, true);
+
+//TODO: enable backend filtering once ES indexes edge details
+//      $scope.$watch('filterOptions', function (newVal, oldVal) {
+//          if (newVal !== oldVal) {
+//              $scope.elasticSearchAction = "Searching";
+//              $scope.refresh();
+//          }
+//      }, true);
+
+      // Update the hasSelectedItems when selectedItem changes.
+      $scope.$watch('selectedItems', function(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          $scope.hasSelectedItems = ($scope.selectedItems.length !== 0);
+          $scope.selectedVertex = $scope.selectedItems[0];
+        }
+      }, true);
+
+      // load data on entry
+      $scope.refresh();
+
     }).
     controller('EdgeDetailCtrl', function($scope, $routeParams, $location, Edge, Vertex) {
         $scope.graphId = $routeParams.graphId;
@@ -1020,20 +1172,23 @@ angular.module('dendrite.controllers', []).
         };
 
         // push/slice checkbox from list
-        $scope.keys = [];
+        $scope.keys = {vertices: [], edges: []};
         $scope.selectedKeys = [];
 
-        $scope.toggleSelection = function(key) {
-            var idx = $scope.selectedKeys.indexOf(key);
+        $scope.toggleSelection = function(key, keytype) {
+            var idx = $scope.selectedKeys[keytype].indexOf(key);
 
             if (idx > -1) {
-                $scope.selectedKeys.splice(idx, 1);
+                $scope.selectedKeys[keytype].splice(idx, 1);
             } else {
-                $scope.selectedKeys.push(key);
+                $scope.selectedKeys[keytype].push(key);
             }
         }
 
+        var restrictedKeys = ["_id", "id", "_type", "_outV", "_inV", "source", "target", "blueprintsId"];
+
         $scope.$on('event:graphFileParsed', function() {
+          $scope.keys = {vertices: [], edges: []};
           if (!appConfig.fileUpload.parseGraphFile) {
             $scope.safeApply(function() {
               $scope.fileParsed = true;
@@ -1041,20 +1196,27 @@ angular.module('dendrite.controllers', []).
           }
           else {
             $scope.fileParsed = false;
-            if ($scope.keysForGraph.length > 0) {
+            if ($scope.keysForGraph.vertices.length > 0) {
               $scope.fileParsed = true;
               $scope.fileParseError = false;
-              $scope.keysForGraph.forEach(function(k) {
-                  if (k !== "_id" && k !== "_type") {
-                      $scope.keys.push({
+              $scope.keysForGraph.vertices.forEach(function(k) {
+                  if (restrictedKeys.indexOf(k) == -1) {
+                      $scope.keys.vertices.push({
+                          name: k,
+                          type: $scope.indexTypes[0]
+                      });
+                  }
+              });
+              $scope.keysForGraph.edges.forEach(function(k) {
+                  if (restrictedKeys.indexOf(k) == -1) {
+                      $scope.keys.edges.push({
                           name: k,
                           type: $scope.indexTypes[0]
                       });
                   }
               });
 
-              $scope.selectedKeys = $scope.keys.slice(0);
-
+              $scope.selectedKeys = $scope.keys;
               $scope.safeApply(function() {
                 $modal({scope: $scope, template: 'partials/graphs/form-select-keys.html'});
               });
@@ -1072,12 +1234,9 @@ angular.module('dendrite.controllers', []).
           // See fixme above.
           $scope.actuallyUploading = true;
 
-          // build the list of key1=type1,key2=type2 if the checkbox is selected
-          var selectedCheckboxes = $scope.selectedKeys.map(function(key) {
-              return key.name + "=" + key.type;
-          }).join(",");
-
-          angular.element('#form-file-upload input[name="searchkeys"]').val(selectedCheckboxes);
+          // build the list of key-val pairs
+          var selectedKeysJson = JSON.stringify($scope.selectedKeys);
+          angular.element('#form-file-upload input[name="searchkeys"]').val(selectedKeysJson);
 
           $scope.safeApply(function() {
             angular.element('#form-file-upload').submit();
@@ -1118,7 +1277,7 @@ angular.module('dendrite.controllers', []).
                   .success(function(data) {
                       var elasticValueFields = [];
                       Object.keys(data.vertex.properties).forEach(function(k) {
-                          var val = data["vertex"]["properties"][k]["type"]; 
+                          var val = data["vertex"]["properties"][k]["type"];
                           if (val === "geo_point") {
                               elasticValueFields.push(k);
                           };

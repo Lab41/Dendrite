@@ -140,7 +140,7 @@ angular.module('dendrite.services', ['ngResource']).
             }
           },
           parseGraphFile: function(text, format) {
-            var keys = {};
+            var keys = {vertices: {}, edges: {}};
             try {
               if (format !== "Select Format") {
                 if (format === "GraphSON") {
@@ -150,15 +150,30 @@ angular.module('dendrite.services', ['ngResource']).
                   if (json.graph !== undefined) {
                       Array().forEach.call(json.graph.vertices, function(v) {
                           Object.keys(v).forEach(function(key) {
-                            keys[key] = true;
+                            keys.vertices[key] = true;
                           });
                       });
-                  } else if (json.vertices !== undefined) {
+                      Array().forEach.call(json.graph.edges, function(e) {
+                          Object.keys(e).forEach(function(key) {
+                            keys.edges[key] = true;
+                          });
+                      });
+                  }
+                  else {
+                    if (json.vertices !== undefined) {
                       Array().forEach.call(json.vertices, function(v) {
                           Object.keys(v).forEach(function(key) {
-                              keys[key] = true;
+                              keys.vertices[key] = true;
                           });
                       });
+                    }
+                    if (json.edges !== undefined) {
+                      Array().forEach.call(json.edges, function(v) {
+                          Object.keys(v).forEach(function(key) {
+                              keys.edges[key] = true;
+                          });
+                      });
+                    }
                   }
                 }
                 else if (format === "GraphML") {
@@ -167,18 +182,29 @@ angular.module('dendrite.services', ['ngResource']).
                   var xml = new DOMParser().parseFromString(text, "text/xml");
                   Array().forEach.call(xml.getElementsByTagName('node'), function(node) {
                     Array().forEach.call(node.attributes, function(attribute) {
-                      keys[attribute.nodeName] = true;
+                      keys.vertices[attribute.nodeName] = true;
                     });
                     Array().forEach.call(node.getElementsByTagName('data'), function(data) {
-                      keys[data.getAttribute('key')] = true;
+                      keys.vertices[data.getAttribute('key')] = true;
                     });
                   });
 
+                  // extract the graph>edge>data keys
+                  var xml = new DOMParser().parseFromString(text, "text/xml");
+                  Array().forEach.call(xml.getElementsByTagName('edge'), function(node) {
+                    Array().forEach.call(node.attributes, function(attribute) {
+                      keys.edges[attribute.nodeName] = true;
+                    });
+                    Array().forEach.call(node.getElementsByTagName('data'), function(data) {
+                      keys.edges[data.getAttribute('key')] = true;
+                    });
+                  });
                 }
                 else if (format === "GML") {
 
                   // parse via regex
                   var regex_nodes = /node \[(.*?)\]/g
+                  var regex_edges = /edge \[(.*?)\]/g
                   var regex_graph = /\[([.\s\S]*)\]/m
                   var regex_quote = /\".*?\"/g
 
@@ -189,7 +215,7 @@ angular.module('dendrite.services', ['ngResource']).
                   var graph = regex_graph.exec(formatted)[1];
 
                   // loop through each of the 'node [...]' blocks
-                  var nodes, quoted;
+                  var nodes, edges, quoted;
                   while (nodes = regex_nodes.exec(graph)) {
                     var properties_string = nodes[1];
 
@@ -211,7 +237,33 @@ angular.module('dendrite.services', ['ngResource']).
                     // split into 'k1 v1 k2 v2' space-separated string and save list of keys
                     var properties = properties_string_formatted.split(/\s+/);
                     for (var i=0; i<properties.length; i+=2) {
-                      keys[properties[i]] = true;
+                      keys.vertices[properties[i]] = true;
+                    }
+                  }
+
+                  // loop through each of the 'edge [...]' blocks
+                  while (edges = regex_edges.exec(graph)) {
+                    var properties_string = edges[1];
+
+                    // since key=val pairs are separated by spaces, first encapsulate multi-word values
+                    // to eliminate space separation from disrupting key=val separation
+                    // example using ':::' as multi-word separator:
+                    //    input:  'key1 "v a l 1" key2 val2'
+                    //    output: 'key1 "v:::a:::l:::1" key2 val2'
+                    var firstIndex, condensed, properties_string_formatted = "";
+                    while (quoted = regex_quote.exec(properties_string)) {
+                      firstIndex = regex_quote.lastIndex - quoted[0].length;
+                      condensed = quoted[0].replace(/ /g, appConfig.fileUpload.parseSeparator);
+                      properties_string_formatted += properties_string.substring(0,firstIndex) + condensed;
+                    }
+
+                    // trim leading/trailing whitespace
+                    properties_string_formatted = properties_string_formatted.trim();
+
+                    // split into 'k1 v1 k2 v2' space-separated string and save list of keys
+                    var properties = properties_string_formatted.split(/\s+/);
+                    for (var i=0; i<properties.length; i+=2) {
+                      keys.edges[properties[i]] = true;
                     }
                   }
 
@@ -219,12 +271,33 @@ angular.module('dendrite.services', ['ngResource']).
                 else if (format === "FaunusGraphSON") {
 
                   // read the file line-by-line, parse into JSON, and extract the keys
-                  text.split('\n').forEach(function(line) {
-                    if (line.length) {
+                  text.split("\n").forEach(function(line) {
+
+                    if (line.length > 0) {
                       var json = JSON.parse(line);
+
+                      // parse vertex keys
                       Object.keys(json).forEach(function(key) {
-                        keys[key] = true;
+                        keys.vertices[key] = true;
                       });
+
+                      // parse inward-edge keys
+                      if (json._inE !== undefined) {
+                        Array().forEach.call(json._inE, function(edge) {
+                          Object.keys(edge).forEach(function(key) {
+                            keys.edges[key] = true;
+                          });
+                        });
+                      }
+
+                      // parse outward-edge keys
+                      if (json._outE !== undefined) {
+                        Array().forEach.call(json._outE, function(edge) {
+                          Object.keys(edge).forEach(function(key) {
+                            keys.edges[key] = true;
+                          });
+                        });
+                      }
                     }
                   });
                 }
@@ -234,7 +307,10 @@ angular.module('dendrite.services', ['ngResource']).
 
             }
 
-            return Object.keys(keys);
+            return {
+                vertices: Object.keys(keys.vertices),
+                edges: Object.keys(keys.edges),
+            };
           }
         };
     }).
