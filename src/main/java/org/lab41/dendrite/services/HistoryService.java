@@ -37,6 +37,9 @@ public class HistoryService {
 
         // create directory
         historyStorage = configuration.getString("history.storage");
+
+        // Make sure the directory exists.
+        new File(historyStorage).mkdirs();
     }
 
     public Git projectGitRepository(ProjectMetadata projectMetadata) throws GitAPIException, IOException {
@@ -44,7 +47,7 @@ public class HistoryService {
 
         // Make the target directory.
         Git git;
-        if (gitDir.exists()) {
+        if (gitDir.exists() && new File(gitDir, ".git").exists()) {
             git = Git.open(gitDir);
         } else {
             logger.debug("Creating git repository: %s", gitDir);
