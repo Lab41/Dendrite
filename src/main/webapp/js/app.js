@@ -128,7 +128,7 @@ angular.module('dendrite', [
       }
     },
     historyServer: {
-        enabled: false,
+        enabled: true,
         host: "localhost",
         port: 8448,
         storage: "/tmp/dendrite/history"

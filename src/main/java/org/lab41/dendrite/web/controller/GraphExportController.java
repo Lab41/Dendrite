@@ -137,6 +137,9 @@ public class GraphExportController {
         String projectId = item.getProjectId();
         String historyStorageLocation = historyService.getHistoryStorage() + "/" + projectId;
 
+        // Make the target directory.
+        new File(historyStorageLocation).mkdirs();
+
         DendriteGraphTx tx = graph.buildTransaction().readOnly().start();
 
         try {
