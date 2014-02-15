@@ -1,15 +1,18 @@
 package org.lab41.dendrite.web.controller;
 
-import org.codehaus.jettison.json.JSONObject;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.lab41.dendrite.jobs.BranchCommitJob;
 import org.lab41.dendrite.jobs.BranchCommitSubsetJob;
+import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.services.HistoryService;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.CreateBranchBean;
 import org.lab41.dendrite.web.beans.CreateBranchSubsetNStepsBean;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -39,6 +43,9 @@ public class BranchController {
 
     @Autowired
     TaskExecutor taskExecutor;
+
+    @Autowired
+    HistoryService historyService;
 
     @RequestMapping(value = "/branches", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getBranches() {
@@ -87,6 +94,7 @@ public class BranchController {
 
         Map<String, Object> response = new HashMap<>();
         MetaGraphTx tx = metaGraphService.newTransaction();
+
         BranchMetadata branchMetadata = tx.getBranch(branchId);
 
         if (branchMetadata == null) {
@@ -96,8 +104,21 @@ public class BranchController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
+        String branchName = branchMetadata.getName();
+
         try {
             tx.deleteBranch(branchMetadata);
+
+            Git git = historyService.projectGitRepository(branchMetadata.getProject());
+            try {
+                git.branchDelete()
+                        .setBranchNames(branchName)
+                        .call();
+            } finally {
+                git.close();
+            }
+
+            tx.commit();
         } catch (Exception e) {
             response.put("status", "error");
             response.put("msg", e.toString());
@@ -105,10 +126,16 @@ public class BranchController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        response.put("msg", "deleted");
+        try {
 
-        // Commit must come after all branch access.
-        tx.commit();
+            response.put("msg", "deleted");
+
+            // Commit must come after all branch access.
+            tx.commit();
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
+        }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -176,7 +203,7 @@ public class BranchController {
     public ResponseEntity<Map<String, Object>> createBranch(@PathVariable String projectId,
                                                             @PathVariable String branchName,
                                                             @Valid @RequestBody CreateBranchBean item,
-                                                            BindingResult result) {
+                                                            BindingResult result) throws GitAPIException, IOException {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -215,6 +242,15 @@ public class BranchController {
         }
 
         JobMetadata jobMetadata = tx.createJob(projectMetadata);
+
+        Git git = historyService.projectGitRepository(projectMetadata);
+        try {
+            git.branchCreate()
+                    .setName(branchName)
+                    .call();
+        } finally {
+            git.close();
+        }
 
         // Commit must come after all branch access.
         tx.commit();
@@ -269,7 +305,7 @@ public class BranchController {
     @RequestMapping(value = "/projects/{projectId}/current-branch", method = RequestMethod.PUT)
     public ResponseEntity<Map<String, Object>> getCurrentBranch(@PathVariable String projectId,
                                                                @Valid @RequestBody UpdateCurrentBranchBean item,
-                                                               BindingResult result) {
+                                                               BindingResult result) throws GitAPIException, IOException {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -300,6 +336,15 @@ public class BranchController {
 
         projectMetadata.setCurrentBranch(branchMetadata);
 
+        Git git = historyService.projectGitRepository(projectMetadata);
+        try {
+            git.checkout()
+                    .setName(branchName)
+                    .call();
+        } finally {
+            git.close();
+        }
+
         response.put("msg", "current branch changed");
 
         // Commit must come after all branch access.
@@ -309,7 +354,7 @@ public class BranchController {
     }
 
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> commitBranch(@PathVariable String projectId) {
+    public ResponseEntity<Map<String, Object>> commitBranch(@PathVariable String projectId) throws GitAPIException, IOException {
         Map<String, Object> response = new HashMap<>();
 
         MetaGraphTx tx = metaGraphService.newTransaction();
@@ -331,6 +376,22 @@ public class BranchController {
         }
 
         JobMetadata jobMetadata = tx.createJob(projectMetadata);
+
+        try {
+            Git git = historyService.projectGitRepository(projectMetadata);
+            try {
+                git.commit()
+                        .setAuthor("user", "user@example.com")
+                        .setMessage("commit")
+                        .call();
+            } finally {
+                git.close();
+            }
+
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
+        }
 
         tx.commit();
 

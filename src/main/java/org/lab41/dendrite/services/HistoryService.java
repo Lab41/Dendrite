@@ -3,6 +3,10 @@ package org.lab41.dendrite.services;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +22,9 @@ import java.io.IOException;
 @Service
 public class HistoryService {
 
-    Logger logger = LoggerFactory.getLogger(HistoryService.class);
+    private static Logger logger = LoggerFactory.getLogger(HistoryService.class);
+
+    private String historyStorage;
 
     @Autowired(required = true)
     public HistoryService(@Value("${history.properties}") String pathToProperties, ResourceLoader resourceLoader) throws IOException, ConfigurationException {
@@ -31,13 +37,26 @@ public class HistoryService {
 
         // create directory
         historyStorage = configuration.getString("history.storage");
-        File file = new File(historyStorage);
-        file.mkdirs();
     }
 
-    public String getHistoryStorage() {
-        return historyStorage;
-    }
+    public Git projectGitRepository(ProjectMetadata projectMetadata) throws GitAPIException, IOException {
+        File gitDir = new File(historyStorage, projectMetadata.getId());
 
-    private String historyStorage;
+        // Make the target directory.
+        Git git;
+        if (gitDir.exists()) {
+            git = Git.open(gitDir);
+        } else {
+            logger.debug("Creating git repository: %s", gitDir);
+
+            gitDir.mkdirs();
+
+            git = Git.init()
+                    .setDirectory(gitDir)
+                    .setBare(false)
+                    .call();
+        }
+
+        return git;
+    }
 }
