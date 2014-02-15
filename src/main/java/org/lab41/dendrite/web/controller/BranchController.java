@@ -411,6 +411,7 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /*
     @RequestMapping(value = "/projects/{projectId}/branches/{branchName}/commit", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> commitBranch(@PathVariable String projectId,
                                                             @PathVariable String branchName) {
@@ -453,6 +454,7 @@ public class BranchController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    */
 
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit-subset", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> commitSubsetBranch(@PathVariable String projectId,
