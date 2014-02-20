@@ -38,16 +38,28 @@
 Dendrite is a Lab41 exploration of ways to analyze, manipulate, version, and share extremely large graphs:</p>
 
 <ul>
-<li>The Web frontend leverages AngularJS to provide a responsive data-driven experience</li>
-<li>The UI interacts with a backend instance of the Titan Distributed Graph Database</li>
+<li>The Web frontend leverages AngularJS to provide a responsive data-driven experience.</li>
+<li>The UI interacts with a backend instance of the Titan Distributed Graph Database.</li>
+<li>The backend uses <a href="https://graphlab.org">GraphLab</a>, <a href="http://thinkaurelius.github.io/faunus/">Faunus</a>, and <a href="http://jung.sourceforge.net/">Jung</a> for graph analytics.</li>
 </ul><h1>
 <a name="install-instructions" class="anchor" href="#install-instructions"><span class="octicon octicon-link"></span></a>Install instructions</h1>
 
 <ol>
 <li>
-<p>Check out the code:</p>
+<p>Check out the code. As of right now, we have to use the Lab41 forks of Titan
+and Faunus:</p>
 
-<pre><code>% git clone https://github.com/Lab41/Dendrite.git
+<pre><code>% git clone https://github.com/Lab41/titan.git
+% cd titan
+% git checkout dendrite
+% mvn install -DskipTests=true
+% cd ..
+% git clone https://github.com/Lab41/faunus.git
+% cd faunus
+% git checkout dendrite
+% mvn install -DskipTests=true
+% cd ..
+% git clone https://github.com/Lab41/Dendrite.git
 % cd Dendrite
 </code></pre>
 </li>
@@ -78,9 +90,12 @@ metadata.directory=/tmp/dendrite
 history.properties=/WEB-INF/history.properties
 </code></pre>
 
+<p>If you plan to use GraphLab with Dendrite, be sure and install <code>mpiexec</code> on the Dendrite server, as well as allow passwordless ssh from the Dendrite server to the GraphLab cluster.</p>
+
 <p>Then launch dendrite with:</p>
 
-<pre><code>% hadoop fs -mkdir -p dendrite/
+<pre><code>% export HADOOP_CONF_DIR=/etc/hadoop/conf
+% hadoop fs -mkdir -p dendrite/
 % hadoop fs -put src/main/groovy/org/lab41/dendrite/dendrite-import.groovy dendrite/
 % DENDRITE_PROFILE=prod ./bin/dendrite-server start
 </code></pre>
