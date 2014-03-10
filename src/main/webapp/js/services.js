@@ -417,7 +417,19 @@ angular.module('dendrite.services', ['ngResource']).
               Array.prototype.move = function (from, to) {
                 this.splice(to, 0, this.splice(from, 1)[0]);
               };
+              
+              // cloudmade (has day and night map)
+              left.add(po.image()
+                  .url(po.url("http://{S}tile.cloudmade.com"
+                  + "/a37fc95e27114718bfbc85f95f278ef7" // http://cloudmade.com/register
+                  + "/99" + mapType
+                  + "/256/{Z}/{X}/{Y}.png")
+                  .hosts(["a.", "b.", "c.", ""])));
 
+              // mapbox (has day map only)
+              //left.add(po.image()
+              //  .url(po.url("https://api.tiles.mapbox.com/v3/examples.map-zr0njcqy/{Z}/{X}/{Y}.png")));
+              
               var data = [];
               if (searchFacets !== undefined && results !== undefined) {
                 for (var i=0; i<results.length; i++) {
