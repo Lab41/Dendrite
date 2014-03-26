@@ -20,8 +20,12 @@ import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.DendriteGraphTx;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.services.HistoryService;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.beans.GraphExportBean;
@@ -32,6 +36,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -113,7 +119,8 @@ public class GraphExportController {
     @RequestMapping(value = "/api/graphs/{graphId}/file-save", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> save(@PathVariable String graphId,
                                                     @Valid GraphExportBean item,
-                                                    BindingResult result) {
+                                                    BindingResult result) throws IOException, GitAPIException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         Map<String, Object> response = new HashMap<>();
 
@@ -121,6 +128,19 @@ public class GraphExportController {
             response.put("status", "error");
             response.put("msg", result.toString());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        MetaGraphTx metaGraphTx = metaGraphService.buildTransaction().readOnly().start();
+        GraphMetadata graphMetadata;
+        Git git;
+
+        try {
+            graphMetadata = metaGraphTx.getGraph(graphId);
+            git = historyService.projectGitRepository(graphMetadata.getProject());
+            metaGraphTx.commit();
+        } catch (Throwable t) {
+            metaGraphTx.rollback();
+            throw t;
         }
 
         DendriteGraph graph = metaGraphService.getGraph(graphId);
@@ -134,30 +154,40 @@ public class GraphExportController {
 
         // extract the storage location for the history
         String format = item.getFormat();
-        String projectId = item.getProjectId();
-        String historyStorageLocation = historyService.getHistoryStorage() + "/" + projectId;
-
-        // Make the target directory.
-        new File(historyStorageLocation).mkdirs();
 
         DendriteGraphTx tx = graph.buildTransaction().readOnly().start();
 
         try {
-            if (format.equalsIgnoreCase("GraphSON")) {
-                String path = new File(historyStorageLocation, graphId + ".json").getPath();
-                GraphSONWriter.outputGraph(tx, path);
-            } else if (format.equalsIgnoreCase("GraphML")) {
-                String path = new File(historyStorageLocation, graphId + ".xml").getPath();
-                GraphMLWriter.outputGraph(tx, path);
-            } else if (format.equalsIgnoreCase("GML")) {
-                String path = new File(historyStorageLocation, graphId + ".gml").getPath();
-                GMLWriter.outputGraph(tx, path);
-            } else {
-                tx.rollback();
+            try {
+                String path;
 
-                response.put("status", "error");
-                response.put("msg", "unknown format '" + format + "'");
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+                if (format.equalsIgnoreCase("GraphSON")) {
+                    path = new File(git.getRepository().getDirectory(), graphId + ".json").getPath();
+                    GraphSONWriter.outputGraph(tx, path);
+                } else if (format.equalsIgnoreCase("GraphML")) {
+                    path = new File(git.getRepository().getDirectory(), graphId + ".xml").getPath();
+                    GraphMLWriter.outputGraph(tx, path);
+                } else if (format.equalsIgnoreCase("GML")) {
+                    path = new File(git.getRepository().getDirectory(), graphId + ".gml").getPath();
+                    GMLWriter.outputGraph(tx, path);
+                } else {
+                    tx.rollback();
+
+                    response.put("status", "error");
+                    response.put("msg", "unknown format '" + format + "'");
+                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+                }
+
+                git.add()
+                        .addFilepattern(".")
+                        .call();
+
+                git.commit()
+                        .setAuthor(authentication.getName(), "")
+                        .setMessage("commit")
+                        .call();
+            } finally {
+                git.close();
             }
         } catch (IOException e) {
             tx.rollback();

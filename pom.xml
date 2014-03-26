@@ -468,6 +468,13 @@
             <artifactId>blueprints-graph-jung</artifactId>
             <version>2.4.0</version>
         </dependency>
+
+        <!-- History dependencies -->
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>3.2.0.201312181205-r</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -585,6 +592,9 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
+                    <url>${tomcat.url}</url>
+                    <server>${tomcat.server}</server>
+                    <path>/dendrite</path>
                     <additionalClasspathDirs>
                         <additionalClasspathDir>${HADOOP_CONF_DIR}</additionalClasspathDir>
                     </additionalClasspathDirs>
