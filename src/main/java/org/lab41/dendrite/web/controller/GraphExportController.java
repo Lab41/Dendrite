@@ -36,6 +36,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -118,6 +120,7 @@ public class GraphExportController {
     public ResponseEntity<Map<String, Object>> save(@PathVariable String graphId,
                                                     @Valid GraphExportBean item,
                                                     BindingResult result) throws IOException, GitAPIException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         Map<String, Object> response = new HashMap<>();
 
@@ -180,7 +183,7 @@ public class GraphExportController {
                         .call();
 
                 git.commit()
-                        .setAuthor("user", "user@example.com")
+                        .setAuthor(authentication.getName(), "")
                         .setMessage("commit")
                         .call();
             } finally {
