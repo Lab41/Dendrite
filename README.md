@@ -19,12 +19,12 @@ Install instructions
   ```
   % git clone https://github.com/Lab41/titan.git
   % cd titan
-  % git checkout dendrite
+  % git checkout dendrite-hadoop2
   % mvn install -DskipTests=true
   % cd ..
   % git clone https://github.com/Lab41/faunus.git
   % cd faunus
-  % git checkout dendrite
+  % git checkout dendrite-hadoop2
   % mvn install -DskipTests=true
   % cd ..
   % git clone https://github.com/Lab41/Dendrite.git
