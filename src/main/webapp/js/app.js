@@ -152,6 +152,9 @@ angular.module('dendrite', [
         GraphLab: {
           algorithm: 'pagerank'
         },
+        Snap: {
+          algorithm: 'centrality'
+        },
         EdgeDegrees: {
           analyticEngine: 'titan'
         }
