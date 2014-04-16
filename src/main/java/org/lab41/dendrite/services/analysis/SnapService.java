@@ -90,11 +90,61 @@ public class SnapService extends AnalysisService {
     private void createIndices(DendriteGraph graph, String algorithm) {
         TitanTransaction tx = graph.newTransaction();
 
-        if (tx.getType("snap_"+algorithm) == null) {
-            tx.makeKey("snap_"+algorithm)
-                    .dataType(FullDouble.class)
-                    .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
-                    .make();
+        if (algorithm == "centrality") {
+            if (tx.getType("snap_degree") == null) {
+                tx.makeKey("snap_degree")
+                        .dataType(FullDouble.class)
+                        .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                        .make();
+            }
+            if (tx.getType("snap_closeness") == null) {
+                tx.makeKey("snap_closeness")
+                        .dataType(FullDouble.class)
+                        .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                        .make();
+            }
+            if (tx.getType("snap_betweenness") == null) {
+                tx.makeKey("snap_betweenness")
+                        .dataType(FullDouble.class)
+                        .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                        .make();
+            }
+            if (tx.getType("snap_eigenvector") == null) {
+                tx.makeKey("snap_eigenvector")
+                        .dataType(FullDouble.class)
+                        .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                        .make();
+            }
+            if (tx.getType("snap_network_constraint") == null) {
+                tx.makeKey("snap_network_constraint")
+                        .dataType(FullDouble.class)
+                        .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                        .make();
+            }
+            if (tx.getType("snap_clustering_coefficient") == null) {
+                tx.makeKey("snap_clustering_coefficient")
+                        .dataType(FullDouble.class)
+                        .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                        .make();
+            }
+            if (tx.getType("snap_pagerank") == null) {
+                tx.makeKey("snap_pagerank")
+                        .dataType(FullDouble.class)
+                        .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                        .make();
+            }
+            if (tx.getType("snap_hub_score") == null) {
+                tx.makeKey("snap_hub_score")
+                        .dataType(FullDouble.class)
+                        .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                        .make();
+            }
+            if (tx.getType("snap_authority_score") == null) {
+                tx.makeKey("snap_authority_score")
+                        .dataType(FullDouble.class)
+                        .indexed(DendriteGraph.INDEX_NAME, Vertex.class)
+                        .make();
+            }
         }
 
         tx.commit();
@@ -156,10 +206,9 @@ public class SnapService extends AnalysisService {
 
         try {
             // feed output to snap as input
-            String cmd = new Path(config.getString("metagraph.template.snap.algorithm-path"), algorithm) + ""; 
-            //        " --graph " + exportDir;
-
-            //cmd += " --saveprefix " + importDir;
+            String cmd = new Path(config.getString("metagraph.template.snap.algorithm-path"), algorithm) +
+                         " -i:" + exportDir +
+                         " -o:" + importDir;
 
             logger.debug("running: " + cmd);
 
@@ -186,18 +235,47 @@ public class SnapService extends AnalysisService {
             for (FileStatus status: fs.listStatus(importDir)) {
                 BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(status.getPath())));
                 String line;
+
+                // get rid of header
                 line = br.readLine();
+                for (int i = 0; i < 3; i++) {
+                    line = br.readLine();
+                }
+
                 while (line != null) {
                     String[] parts;
                     parts = line.split("\t");
 
                     String id = parts[0];
-                    double value = Double.valueOf(parts[1]);
+                    if (algorithm == "centrality") {
+                        double degree = Double.valueOf(parts[1]);
+                        double closeness = Double.valueOf(parts[2]);
+                        double betweenness = Double.valueOf(parts[3]);
+                        double eigenvector = Double.valueOf(parts[4]);
+                        double networkConstraint = Double.valueOf(parts[5]);
+                        double clusteringCoefficient = Double.valueOf(parts[6]);
+                        double pagerank = Double.valueOf(parts[7]);
+                        double hubScore = Double.valueOf(parts[8]);
+                        double authorityScore = Double.valueOf(parts[9]);
 
-                    // feed snap output as input for updating each vertex
-                    Vertex vertex = tx.getVertex(id);
-                    vertex.setProperty("snap_" + algorithm, value);
+                        // feed snap output as input for updating each vertex
+                        Vertex vertex = tx.getVertex(id);
+                        vertex.setProperty("snap_degree", degree);
+                        vertex.setProperty("snap_closeness", closeness);
+                        vertex.setProperty("snap_betweenness", betweenness);
+                        vertex.setProperty("snap_eigenvector", eigenvector);
+                        vertex.setProperty("snap_network_constraint", networkConstraint);
+                        vertex.setProperty("snap_clustering_coefficient", clusteringCoefficient);
+                        vertex.setProperty("snap_pagerank", pagerank);
+                        vertex.setProperty("snap_hub_score", hubScore);
+                        vertex.setProperty("snap_authority_score", authorityScore);
+                    } else {
+                        double value = Double.valueOf(parts[1]);
 
+                        // feed snap output as input for updating each vertex
+                        Vertex vertex = tx.getVertex(id);
+                        vertex.setProperty("snap_" + algorithm, value);
+                    }
                     line = br.readLine();
                 }
             }
