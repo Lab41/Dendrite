@@ -2,7 +2,7 @@ package org.lab41.dendrite.services.analysis;
 
 import com.thinkaurelius.faunus.FaunusGraph;
 import com.thinkaurelius.faunus.FaunusPipeline;
-import com.thinkaurelius.faunus.formats.adjacency.AdjacencyFileOutputFormat;
+import com.thinkaurelius.faunus.formats.edgelist.EdgeListOutputFormat;
 import com.thinkaurelius.faunus.formats.titan.hbase.TitanHBaseInputFormat;
 import com.thinkaurelius.titan.core.TitanTransaction;
 import com.thinkaurelius.titan.core.attribute.FullDouble;
@@ -76,7 +76,7 @@ public class SnapService extends AnalysisService {
 
             run(graph, jobId, algorithm);
         } catch (Exception e) {
-            logger.debug("snap" + algorithm + ": error: ", e);
+            logger.debug("snap-" + algorithm + ": error: ", e);
             e.printStackTrace();
             setJobState(jobId, JobMetadata.ERROR, e.getMessage());
             throw e;
@@ -90,7 +90,7 @@ public class SnapService extends AnalysisService {
     private void createIndices(DendriteGraph graph, String algorithm) {
         TitanTransaction tx = graph.newTransaction();
 
-        if (algorithm == "centrality") {
+        if (algorithm.equals("centrality")) {
             if (tx.getType("snap_degree") == null) {
                 tx.makeKey("snap_degree")
                         .dataType(FullDouble.class)
@@ -187,7 +187,7 @@ public class SnapService extends AnalysisService {
     private void runExport(DendriteGraph graph, String jobId, Path exportDir) throws Exception {
         FaunusGraph faunusGraph = new FaunusGraph();
         faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
-        faunusGraph.setGraphOutputFormat(AdjacencyFileOutputFormat.class);
+        faunusGraph.setGraphOutputFormat(EdgeListOutputFormat.class);
 
         faunusPipelineService.configureGraph(faunusGraph, exportDir, graph);
         FaunusPipeline exportPipeline = new FaunusPipeline(faunusGraph);
@@ -202,13 +202,12 @@ public class SnapService extends AnalysisService {
         File tmpFile = File.createTempFile("temp", "");
 
         exportDir = new Path(exportDir, "job-0");
-        importDir = new Path(importDir, "output");
 
         try {
             // feed output to snap as input
             String cmd = new Path(config.getString("metagraph.template.snap.algorithm-path"), algorithm) +
-                         " -i:" + exportDir +
-                         " -o:" + importDir;
+                         " -i:" + exportDir.toString().substring(5)+"/part-m-00000" +
+                         " -o:" + importDir.toString().substring(5) + "/graph";
 
             logger.debug("running: " + cmd);
 
@@ -218,10 +217,12 @@ public class SnapService extends AnalysisService {
 
             logger.debug("snap finished with ", exitStatus);
 
-            String stdout = IOUtils.toString(p.getInputStream());
-            String stderr = IOUtils.toString(p.getErrorStream());
+            if (exitStatus != 0) {
+                String stdout = IOUtils.toString(p.getInputStream());
+                String stderr = IOUtils.toString(p.getErrorStream());
 
-            throw new Exception("Snap process failed: [" + exitStatus + "]:\n" + stdout + "\n" + stderr);
+                throw new Exception("Snap process failed: [" + exitStatus + "]:\n" + stdout + "\n" + stderr);
+            }
         } finally {
             tmpFile.delete();
         }
@@ -247,7 +248,7 @@ public class SnapService extends AnalysisService {
                     parts = line.split("\t");
 
                     String id = parts[0];
-                    if (algorithm == "centrality") {
+                    if (algorithm.equals("centrality")) {
                         double degree = Double.valueOf(parts[1]);
                         double closeness = Double.valueOf(parts[2]);
                         double betweenness = Double.valueOf(parts[3]);
