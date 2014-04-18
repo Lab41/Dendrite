@@ -268,6 +268,12 @@ class Graph(Table):
 
         return Job.get(self.conn, response['jobId'])
 
+    def run_snap(self, algorithm):
+        url = '/api/graphs/{}/analysis/snap/{}'.format(self.id, algorithm)
+        response = self.conn.post(url).json()
+
+        return Job.get(self.conn, response['jobId'])
+
     def run_jung(self, algorithm, alpha=0.15):
         url = '/api/graphs/{}/analysis/jung-{}'.format(self.id, algorithm)
         response = self.conn.post_json(url).json()
@@ -578,6 +584,14 @@ def run_graphlab(args):
         job = graph.run_graphlab(args.algorithm)
         job.wait_until_finished()
 
+def run_snap(args):
+    with closing(Connection(args)) as conn:
+        graph = Graph.get(conn, args.id)
+
+        print 'Running Snap ' + args.algorithm + ' analysis...'
+        job = graph.run_snap(args.algorithm)
+        job.wait_until_finished()
+
 def run_jung(args):
     with closing(Connection(args)) as conn:
         graph = Graph.get(conn, args.id)
@@ -786,6 +800,13 @@ def main():
     parser_run_graphlab.add_argument('algorithm',
             choices=['approximate_diameter', 'connected_component', 'connected_component_stats', 'directed_triangle_count', 'eigen_vector_normalization', 'graph_laplacian', 'kcore', 'pagerank', 'partitioning', 'simple_coloring', 'simple_undirected_triangle_count', 'sssp', 'TSC', 'undirected_triangle_count'])
     parser_run_graphlab.set_defaults(func=run_graphlab)
+
+    parser_run_snap = run_subparsers.add_parser('snap')
+    parser_run_snap.add_argument('id',
+            type=int)
+    parser_run_snap.add_argument('algorithm',
+            choices=['centrality'])
+    parser_run_snap.set_defaults(func=run_snap)
 
     parser_run_jung = run_subparsers.add_parser('jung')
     parser_run_jung.add_argument('-a', '--alpha',
