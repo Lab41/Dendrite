@@ -240,4 +240,9 @@ angular.module('dendrite.directives', []).
         }
       }
     }
-  ]);
+  ])
+  .directive('autoFocus', function() {
+     return function(scope, elem, attr) {
+        elem[0].focus();
+     };
+  });
