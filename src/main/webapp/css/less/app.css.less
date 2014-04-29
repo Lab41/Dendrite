@@ -79,6 +79,15 @@
 //
 
 /*************************************************/
+/* colors */
+/*************************************************/
+.color-blue-dark { color: @color-blue-dark; }
+.color-black-light { color: @color-black-light; }
+.color-gray-dark { color: @color-gray-dark; }
+.color-gray-light { color: @color-gray-light; }
+
+
+/*************************************************/
 /* iframe */
 /*************************************************/
 .iframe-history {
@@ -139,6 +148,16 @@
 .img-badge.ROLE_ADMIN {
   background: url("../img/badge_admin.png") no-repeat left top;
   background-size: auto 50px;
+}
+
+
+.analytics-example-wrapper {
+  min-height: 180px !important;
+}
+
+img.analytics-example {
+  max-height: 150px;
+  max-width: 150px;
 }
 
 circle.node {
@@ -235,6 +254,9 @@ line.link {
 
 h1,h2,h3,h4,h5,h6 {
   color: @color-orange-dark;
+  small {
+    color: @color-gray-dark;
+  }
 }
 
 .dropdown-menu  a.link-disabled {
@@ -315,20 +337,32 @@ body {
   float: left;
 }
 
-.inline {
-  display: inline;
+.inline { display: inline;}
+.inline-block { display: inline-block;}
+
+.modal-large, .modal-large.fade.in {
+  width: 90%;
+  margin-left: -45%;
+  height: 80vh;
+  top: 10vh;
 }
 
+.modal-large .modal-body {
+  max-height: 100vh;
+  height: 70vh;
+}
+
+.modal-large .modal-header {
+  background: @color-blue-dark;
+  h1,h2,h3,h4,h5,h6 {
+    color: @color-white-dark;
+  }
+}
 /*************************************************/
 /* sections */
 /*************************************************/
-.align-top {
-  vertical-align:top;
-}
-
-.vertical-align-middle {
-  vertical-align:middle ! important;
-}
+.vertical-align-middle { vertical-align:middle ! important; }
+.vertical-align-top { vertical-align:top ! important; }
 
 .thick-divide-bottom {
   margin-bottom: 15px;
@@ -337,7 +371,7 @@ body {
 }
 
 .well {
-  background-color: @color-gray-light;
+  background-color: lighten(@color-gray-light, 10%);
 }
 
 
@@ -419,29 +453,18 @@ body {
   padding: 0;
 }
 
-.align-center {
-  text-align: center;
-}
+.align-top { vertical-align:top;}
+.align-center { text-align: center;}
+.align-right { text-align: right;}
+.align-left { text-align: left;}
 
-.align-right {
-  text-align: right;
-}
-
-.margin-bottom {
-  margin-bottom: @spacing-default;
-}
-
-.margin-right-large {
-  margin-right: @spacing-large;
-}
-
-.margin-bottom-large {
-  margin-bottom: @spacing-large;
-}
-
-.margin-none {
-  margin: 0;
-}
+.margin-top { margin-top: @spacing-default;}
+.margin-bottom { margin-bottom: @spacing-default;}
+.margin-left-large { margin-left: @spacing-large;}
+.margin-right-large { margin-right: @spacing-large;}
+.margin-bottom-large { margin-bottom: @spacing-large;}
+.margin-top-large { margin-top: @spacing-large;}
+.margin-none { margin: 0;}
 
 /*************************************************/
 /* forms */
@@ -498,6 +521,9 @@ textarea {
   margin-left: 20px
 }
 
+.modal input[type="radio"]:selected {
+  color: red;
+}
 /*************************************************/
 /* ui elements */
 /*************************************************/
@@ -511,6 +537,53 @@ div.span6 div.span6 div.dataTables_length label {
 
 .row-padded {
   padding: 0 5px 10px 5px ;
+}
+
+.ui-widget-content a {
+  color: @color-blue-dark;
+}
+
+
+.ui-tabs-nav {
+  &.ui-widget-header {
+    background: @color-gray-light;
+    border: 1px solid @color-gray-light;
+  }
+  &.ui-widget-header.tabs-dark {
+    background: @color-black-light;
+  }
+}
+
+.ui-state-default {
+  a, a:link, a:visited {
+    color: @color-gray-dark;
+  }
+
+  .icon-faded {
+    opacity: 0.5;
+  }
+}
+
+.ui-state-active {
+  a, a:link, a:visited {
+    color: @color-black-light;
+  }
+  .icon-faded {
+    opacity: 1;
+  }
+}
+
+.ui-corner-all, .ui-corner-bottom, .ui-corner-right, .ui-corner-br {
+  border-bottom-right-radius: 2px;
+}
+.ui-corner-all, .ui-corner-bottom, .ui-corner-left, .ui-corner-bl {
+  border-bottom-left-radius: 2px;
+}
+.ui-corner-all, .ui-corner-top, .ui-corner-right, .ui-corner-tr {
+  border-top-right-radius: 2px;
+}
+.ui-corner-all, .ui-corner-top, .ui-corner-left, .ui-corner-tl {
+  border-top-left-radius: 2px;
 }
 
 /*************************************************/
@@ -580,6 +653,11 @@ div.span6 div.span6 div.dataTables_length label {
 
 .navbar-nav label {
   display:inline-block;
+}
+
+label.inline {
+  .inline;
+  margin: 0 5px;
 }
 
 .navbar-nav form {
