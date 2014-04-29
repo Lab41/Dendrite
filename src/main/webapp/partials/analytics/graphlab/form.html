@@ -1,48 +1,24 @@
-<!-- Modal (external ./partials/modal.html or inline ng-template) -->
-<div ng-controller="AnalyticsFormCtrl" ng-init="analyticType = 'GraphLab'">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3>Analytics: GraphLab</h3>
-  </div>
-
-  <div class="modal-body">
-    <div class="well">
-      <p><strong>Definition: </strong>GraphLab has a wide variety of Graph Analytic Algorithms, below are the choices available to calculate.</p>
-    </div>
-
-    <p>
-      <label>GraphLab Algorithms</label>
-      <form name="algorithmsForm">
-        <!--
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="approximate_diameter"> Approximate Diameter<br />
-        -->
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="connected_component"> Connected Component<br />
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="connected_component_stats"> Connected Component Stats<br />
-        <!--
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="directed_triangle_count"> Directed Triangle Count<br />
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="eigen_vector_normalization"> Eigen Vector Normalization<br />
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="graph_laplacian"> Graph Laplacian<br />
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="kcore"> K-core<br />
-        -->
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="pagerank"> PageRank<br />
-        <!--
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="partitioning"> Partitioning<br />
-        -->
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="simple_coloring"> Simple Coloring<br />
-        <!--
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="simple_undirected_triangle_count"> Simple Undirected Triangle Count<br />
-        -->
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="sssp"> Single-Source Shortest Path<br />
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="TSC"> Total Subgraph Communicability<br />
-        <!--
-        <input type="radio" ng-model="attr.algorithm" name="algorithms" value="undirected_triangle_count"> Undirected Triangle Count<br />
-        -->
-      </form>
-    </p>
-  </div>
-
-  <div class="modal-footer">
-    <button type="button" class="btn btn-default" ng-click="dismiss()">Cancel</button>
-    <button class="btn btn-primary" ng-click="calculate(); dismiss()">Calculate GraphLab Algorithm</button>
-  </div>
-</div>
+<!--
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="approximate_diameter"> Approximate Diameter<br />
+-->
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="connected_component"> Connected Component<br />
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="connected_component_stats"> Connected Component Stats<br />
+<!--
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="directed_triangle_count"> Directed Triangle Count<br />
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="eigen_vector_normalization"> Eigen Vector Normalization<br />
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="graph_laplacian"> Graph Laplacian<br />
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="kcore"> K-core<br />
+-->
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="pagerank"> PageRank<br />
+<!--
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="partitioning"> Partitioning<br />
+-->
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="simple_coloring"> Simple Coloring<br />
+<!--
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="simple_undirected_triangle_count"> Simple Undirected Triangle Count<br />
+-->
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="sssp"> Single-Source Shortest Path<br />
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="TSC"> Total Subgraph Communicability<br />
+<!--
+<input type="radio" ng-model="attr.algorithm" name="algorithms" value="undirected_triangle_count"> Undirected Triangle Count<br />
+-->

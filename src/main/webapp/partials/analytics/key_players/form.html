@@ -1,0 +1,26 @@
+<fieldset>
+  <div class="row-fluid">
+    <h3><strong>Key Players</strong> <small>Identify central nodes in a network</small></h3>
+    <h4 class="color-black-light">Select Algorithm:</h4>
+  </div>
+  <div class="row-fluid">
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="pagerank" ng-click="setAnalyticType('pagerank')"> PageRank</label>
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="betweennessCentrality" ng-click="setAnalyticType('betweennessCentrality')"> Betweenness Centrality</label>
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="closenessCentrality" ng-click="setAnalyticType('closenessCentrality')"> Closeness Centrality</label>
+  </div>
+
+  <div class="row-fluid">
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="eigenvectorCentrality" ng-click="setAnalyticType('eigenvectorCentrality')"> Eigenvector Centrality</label>
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="barycenterDistance" ng-click="setAnalyticType('barycenterDistance')"> Barycenter Distance</label>
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="TSC" ng-click="setAnalyticType('TSC')"> Subgraph Communicability</label>
+  </div>
+
+  <div class="row-fluid">
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="snapCentrality" ng-click="setAnalyticType('snapCentrality')"> SNAP "Mother-of-all-Centralities"</label>
+  </div>
+</fieldset>
+
+<div ng-show="isAnalyticType('key_players')">
+  <div ng-include="'partials/analytics/_description.html'"></div>
+  <div ng-include="algorithms[analyticType].form"><div>
+</div>
