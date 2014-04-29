@@ -25,8 +25,10 @@ angular.module('dendrite', [
         'ngCookies',
         'ngUpload',
         'ngGrid',
+        'ngSanitize',
         '$strap.directives',
-        'ui.bootstrap.popover'
+        'ui.bootstrap.popover',
+        'ui.bootstrap.collapse'
     ]).
   config(['$routeProvider', function($routeProvider) {
     var access = routingConfig.accessLevels;
