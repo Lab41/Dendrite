@@ -328,12 +328,25 @@ angular.module('dendrite.controllers', []).
                   });
         };
     }).
-    controller('AnalyticsFormCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
+    controller('AnalyticsFormCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // placeholder default attributes
+        $scope.algorithms = appConfig.algorithms;
 
-        $scope.$watch('analyticType', function () {
-          $scope.attr = appConfig.analytics[$scope.analyticType];
-        });
+        $scope.setAnalyticType = function(t) {
+          $scope.analyticType = t;
+        };
+
+        $scope.$watch('analyticType', function (newVal, oldVal) {
+            if (newVal !== oldVal && newVal !== undefined) {
+              // perform deep copy to avoid changing default values
+              $scope.attr = {};
+              angular.copy(appConfig.algorithms[$scope.analyticType].defaults, $scope.attr);
+            }
+        }, true);
+
+        $scope.isAnalyticType = function(t) {
+          return (appConfig.algorithms[$scope.analyticType] !== undefined && t === appConfig.algorithms[$scope.analyticType].category);
+        };
 
         // calculate analytic job
         $scope.calculate = function() {
@@ -362,7 +375,7 @@ angular.module('dendrite.controllers', []).
           else if ($scope.analyticType === "GraphLab") {
             Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
           }
-          // Snap 
+          // Snap
           else if ($scope.analyticType === "Snap") {
             Analytics.createSnap({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
           }
