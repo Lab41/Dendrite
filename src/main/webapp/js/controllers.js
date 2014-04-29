@@ -392,19 +392,29 @@ angular.module('dendrite.controllers', []).
           $rootScope.$broadcast("event:pollActiveAnalytics");
         };
     }).
-    controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Helpers, $timeout) {
+    controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Analytics, Helpers, $timeout) {
         // config
         $scope.activeAnalytics = [];
         $scope.colorProgressBars = Helpers.colorProgressBars;
+        $scope.numPendingJobs = 0;
 
         // show result
         $scope.showAnalytic = function(id) {
           $location.path('graphs/' + $routeParams.graphId + '/analytics/' + id);
         };
 
+        $scope.deleteAnalytic = function(job) {
+          console.log('id='+job._id);
+          Analytics.deleteJob({jobId: job._id})
+                    .$then(function(data) {
+                        $scope.activeAnalytics.jobs.splice(job, 1);
+                    });
+        }
+
         // periodically poll for active calculations
         // use $then syntax to avoid full list refresh each time
         var pollActive = function() {
+          $scope.numPendingJobs = 0;
           Graph.get({graphId: $routeParams.graphId})
                 .$then(function(dataGraph) {
                     Project.jobs({projectId: dataGraph.data.graph.projectId})
@@ -417,12 +427,17 @@ angular.module('dendrite.controllers', []).
                                 // if not, will poll on next event:pollActiveAnalytics
                                 var pollAgain = false;
                                 Array().forEach.call(dataJobs.data.jobs, function(job) {
-                                  if (job.progress < 1.0) { pollAgain = true; }
+                                  if (job.progress < 1.0) {
+                                    pollAgain = true;
+                                    $scope.numPendingJobs++;
+                                  }
                                 });
                                 if (pollAgain) {
+                                  $scope.setJobsInProgress(true);
                                   $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
                                 }
                                 else {
+                                  $scope.setJobsInProgress(false);
                                   $scope.refresh();
                                 }
                             });
@@ -438,9 +453,10 @@ angular.module('dendrite.controllers', []).
         // poll on page entry
         pollActive();
     }).
-    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
+    controller('VertexListCtrl', function($scope, $location, $timeout, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
       $scope.graphId = $routeParams.graphId;
+      $scope.isCollapsed = true;
       $scope.selectedItems = [];
       $scope.queryStyle = "vertices";
       $scope.vertexFrom = "";
@@ -448,6 +464,17 @@ angular.module('dendrite.controllers', []).
             .$then(function(dataGraph) {
                 $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
             });
+
+      $scope.collapseJobs = function() {
+//        console.log(!$scope.jobsInProgress || $scope.isCollapsed || $scope.filterOptions.filterText);
+        return $scope.isCollapsed;//($scope.filterOptions.filterText || );// (!$scope.jobsInProgress || ));
+      };
+
+      // use function for child inheritance
+      $scope.setJobsInProgress = function(newVal) {
+        $scope.jobsInProgress = newVal;
+      };
+      $scope.setJobsInProgress(false);
 
       $scope.followEdges = function() {
         $routeParams.mode = "edge";
@@ -474,6 +501,10 @@ angular.module('dendrite.controllers', []).
 
       $scope.editVertex = function() {
         $location.path('graphs/' + $scope.graphId + '/vertices/' + $scope.selectedItems[0]._id + '/edit_vertex');
+      };
+
+      $scope.dynamicWidth = function() {
+        return ($scope.hasSelectedItems) ? 'span7' : 'span11';
       };
 
       // Delete the selected items.
@@ -754,7 +785,16 @@ angular.module('dendrite.controllers', []).
         if (newVal !== oldVal) {
           $scope.hasSelectedItems = ($scope.selectedItems.length !== 0);
           $scope.selectedVertex = $scope.selectedItems[0];
+
+          // redraw the grid
+          // use timeout to appear more responsive than external resize event
+          //$('.grid-container').trigger('resize');
+          $timeout(function() {
+            $scope.gridOptions.$gridServices.DomUtilityService.RebuildGrid($scope.gridOptions.$gridScope, $scope.gridOptions.ngGrid);
+          }, 0);
         }
+
+
       }, true);
 
     }).
