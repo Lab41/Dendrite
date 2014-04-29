@@ -376,7 +376,7 @@ angular.module('dendrite.controllers', []).
             }
           }
 
-          $scope.$emit("event:pollActiveAnalytics");
+          $rootScope.$broadcast("event:pollActiveAnalytics");
         };
     }).
     controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Helpers, $timeout) {
