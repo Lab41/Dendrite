@@ -330,6 +330,7 @@ angular.module('dendrite.controllers', []).
     }).
     controller('AnalyticsFormCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // placeholder default attributes
+        $scope.graphId = $routeParams.graphId;
         $scope.algorithms = appConfig.algorithms;
 
         $scope.setAnalyticType = function(t) {
@@ -341,6 +342,10 @@ angular.module('dendrite.controllers', []).
               // perform deep copy to avoid changing default values
               $scope.attr = {};
               angular.copy(appConfig.algorithms[$scope.analyticType].defaults, $scope.attr);
+
+              if (newVal === 'sssp') {
+                $scope.allVertices = Vertex.list({graphId: $scope.graphId});
+              }
             }
         }, true);
 
@@ -350,37 +355,57 @@ angular.module('dendrite.controllers', []).
 
         // calculate analytic job
         $scope.calculate = function() {
-
           // Barycenter
-          if ($scope.analyticType === "BarycenterDistance") {
+          if ($scope.analyticType === "barycenterDistance") {
             Analytics.createJungBarycenterDistance({graphId: $routeParams.graphId}, undefined);
           }
           // BetweennessCentrality
-          else if ($scope.analyticType === "BetweennessCentrality") {
+          else if ($scope.analyticType === "betweennessCentrality") {
             Analytics.createJungBetweennessCentrality({graphId: $routeParams.graphId}, undefined);
           }
           // ClosenessCentrality
-          else if ($scope.analyticType === "ClosenessCentrality") {
-              Analytics.createJungClosenessCentrality({graphId: $routeParams.graphId}, undefined);
+          else if ($scope.analyticType === "closenessCentrality") {
+            Analytics.createJungClosenessCentrality({graphId: $routeParams.graphId}, undefined);
           }
           // Eigenvector
-          else if ($scope.analyticType === "EigenvectorCentrality") {
-              Analytics.createJungEigenvectorCentrality({graphId: $routeParams.graphId}, undefined);
+          else if ($scope.analyticType === "eigenvectorCentrality") {
+            Analytics.createJungEigenvectorCentrality({graphId: $routeParams.graphId}, undefined);
           }
           // PageRank
-          else if ($scope.analyticType === "PageRank") {
+          else if ($scope.analyticType === "pagerank") {
+            if ($scope.attr.analyticEngine === "jung") {
               Analytics.createJungPageRank({graphId: $routeParams.graphId}, {alpha: 1-$scope.attr.dampingFactor});
+            }
+            else {
+              Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+            }
           }
-          // GraphLab
-          else if ($scope.analyticType === "GraphLab") {
-            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
+          // Total Subgraph Communicability
+          else if ($scope.analyticType === "TSC") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
           }
-          // Snap
-          else if ($scope.analyticType === "Snap") {
-            Analytics.createSnap({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
+          // Single source shortest path
+          else if ($scope.analyticType === "sssp") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType, sourceVertex: $scope.sourceVertex}, undefined);
+          }
+          // connected component
+          else if ($scope.analyticType === "connected_component") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+          }
+          // connected component histogram
+          else if ($scope.analyticType === "connected_component_stats") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+          }
+          // graph coloring
+          else if ($scope.analyticType === "simple_coloring") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+          }
+          // SNAP
+          else if ($scope.analyticType === "snapCentrality") {
+            Analytics.createSnap({graphId: $routeParams.graphId, algorithm: "centrality"}, undefined);
           }
           // Edge Degrees
-          else if ($scope.analyticType === "EdgeDegrees") {
+          else if ($scope.analyticType === "edgeDegrees") {
             if ($scope.attr.analyticEngine === "faunus") {
               Analytics.createEdgeDegreesFaunus({graphId: $routeParams.graphId}, undefined);
             }
