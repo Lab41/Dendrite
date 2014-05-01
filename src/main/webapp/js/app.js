@@ -149,7 +149,7 @@ angular.module('dendrite', [
           'analyticEngine': 'titan'
         },
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/d/d6/UndirectedDegrees_%28Loop%29.svg',
+          'img': 'partials/analytics/connectedness/edge_degrees/example/UndirectedDegrees_(Loop).svg',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/d/d6/UndirectedDegrees_%28Loop%29.svg'
         }
       },
@@ -161,7 +161,7 @@ angular.module('dendrite', [
           'sourceVertex': 'emptyValue'
         },
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/3/3b/Shortest_path_with_direct_weights.svg',
+          'img': 'partials/analytics/connectedness/shortest_path/example/Shortest_path_with_direct_weights.svg',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/3/3b/Shortest_path_with_direct_weights.svg'
         }
       },
@@ -175,7 +175,7 @@ angular.module('dendrite', [
           'dampingFactor': 0.85
         },
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/f/fb/PageRanks-Example.svg',
+          'img': 'partials/analytics/key_players/pagerank/example/PageRanks-Example.svg',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/f/fb/PageRanks-Example.svg'
         }
       },
@@ -186,7 +186,7 @@ angular.module('dendrite', [
         'form': 'partials/analytics/key_players/betweenness_centrality/form.html',
         'defaults': {},
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Social_graph.gif/800px-Social_graph.gif',
+          'img': 'partials/analytics/key_players/betweenness_centrality/example/800px-Social_graph.gif',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Social_graph.gif/800px-Social_graph.gif'
         }
       },
@@ -197,7 +197,7 @@ angular.module('dendrite', [
         'form': 'partials/analytics/key_players/closeness_centrality/form.html',
         'defaults': {},
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Graph_betweenness.svg/240px-Graph_betweenness.svg.png',
+          'img': 'partials/analytics/key_players/closeness_centrality/example/240px-Graph_betweenness.svg.png',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Graph_betweenness.svg/240px-Graph_betweenness.svg.png'
         }
       },
@@ -207,7 +207,7 @@ angular.module('dendrite', [
         'form': 'partials/analytics/key_players/eigenvector_centrality/form.html',
         'defaults': {},
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/7/7e/Apex_rhombic_dodecahedron.svg',
+          'img': 'partials/analytics/key_players/eigenvector_centrality/example/Apex_rhombic_dodecahedron.svg',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/7/7e/Apex_rhombic_dodecahedron.svg'
         }
       },
@@ -217,7 +217,7 @@ angular.module('dendrite', [
         'form': 'partials/analytics/key_players/barycenter_distance/form.html',
         'defaults': {},
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/9/91/5n_PERT_graph_with_critical_path.svg',
+          'img': 'partials/analytics/key_players/barycenter_distance/example/5n_PERT_graph_with_critical_path.svg',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/9/91/5n_PERT_graph_with_critical_path.svg'
         }
       },
@@ -227,7 +227,7 @@ angular.module('dendrite', [
         'form': 'partials/analytics/key_players/total_subgraph_communicability/form.html',
         'defaults': {},
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Interest_graph.gif/800px-Interest_graph.gif',
+          'img': 'partials/analytics/key_players/total_subgraph_communicability/example/800px-Interest_graph.gif',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Interest_graph.gif/800px-Interest_graph.gif'
         }
       },
@@ -237,7 +237,7 @@ angular.module('dendrite', [
         'form': 'partials/analytics/key_players/snap_centrality/form.html',
         'defaults': {},
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/5/5f/Random-graph-Erdos_generated_network.svg',
+          'img': 'partials/analytics/key_players/snap_centrality/example/Random-graph-Erdos_generated_network.svg',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/5/5f/Random-graph-Erdos_generated_network.svg'
         }
       },
@@ -247,7 +247,7 @@ angular.module('dendrite', [
         'form': 'partials/analytics/community/connected_component/form.html',
         'defaults': {},
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/8/85/Pseudoforest.svg',
+          'img': 'partials/analytics/community/connected_component/example/Pseudoforest.svg',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/8/85/Pseudoforest.svg'
         }
       },
@@ -257,7 +257,7 @@ angular.module('dendrite', [
         'form': 'partials/analytics/community/connected_component_stats/form.html',
         'defaults': {},
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/a/aa/Histogram-ETTR.png',
+          'img': 'partials/analytics/community/connected_component_stats/example/Histogram-ETTR.png',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/a/aa/Histogram-ETTR.png'
         }
       },
@@ -267,7 +267,7 @@ angular.module('dendrite', [
         'form': 'partials/analytics/community/simple_coloring/form.html',
         'defaults': {},
         'example': {
-          'img': 'http://upload.wikimedia.org/wikipedia/commons/9/90/Petersen_graph_3-coloring.svg',
+          'img': 'partials/analytics/community/simple_coloring/example/Petersen_graph_3-coloring.svg',
           'ref': 'http://upload.wikimedia.org/wikipedia/commons/9/90/Petersen_graph_3-coloring.svg'
         }
       }
