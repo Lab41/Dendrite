@@ -1,0 +1,108 @@
+/**
+ * Copyright 2013 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.tour-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1100;
+  background-color: #000;
+  opacity: 0.8;
+}
+
+.tour-step-backdrop {
+  position: relative;
+  z-index: 1101;
+  background: inherit;
+}
+
+.tour-step-background {
+  position: absolute;
+  z-index: 1100;
+  background: inherit;
+  border-radius: 6px;
+}
+
+.tour-well {
+  li {
+    margin-left: 16px;
+    margin-bottom: 16px;
+  }
+}
+
+.tour-start {
+  float: left;
+  margin-left: 20px;
+}
+
+.popover[class*="tour-"] {
+  &.tour {
+    max-width: 400px;
+  }
+
+  z-index: 1100;
+
+  .popover-navigation {
+    padding: 9px 14px;
+
+    .prev-next-wrapper {
+      float: right;
+    }
+
+    *[data-role="end"] {
+      float: none;
+    }
+
+    *[data-role="prev"],
+    *[data-role="next"],
+    *[data-role="end"] {
+      cursor: pointer;
+
+      &.disabled {
+        cursor: default;
+      }
+    }
+  }
+
+  .popover-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .popover-content {
+    font-size: 16px;
+
+    .well {
+      color: @color-navy-dark;
+
+      a {
+        text-decoration: underline;
+        color: @color-blue-dark;
+      }
+    }
+  }
+
+  &.orphan {
+    position: fixed;
+    margin-top: 0;
+
+    .arrow {
+      display: none;
+    }
+  }
+}
