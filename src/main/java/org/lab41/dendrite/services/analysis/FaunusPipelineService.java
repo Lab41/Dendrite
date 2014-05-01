@@ -22,7 +22,7 @@ public class FaunusPipelineService extends AnalysisService {
     public void configureGraph(FaunusGraph faunusGraph, Path tmpDir, DendriteGraph graph) {
         org.apache.commons.configuration.Configuration config = graph.getConfiguration();
 
-        faunusGraph.getConf().set("mapred.jar", "../faunus/target/faunus-0.4.1-Lab41-SNAPSHOT-job.jar");
+        faunusGraph.getConf().set("mapred.jar", "../faunus/target/faunus-0.4.2-dendrite-hadoop2-SNAPSHOT-job.jar");
 
         Configuration faunusConfig = faunusGraph.getConf();
 
