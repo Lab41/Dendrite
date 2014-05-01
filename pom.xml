@@ -17,10 +17,6 @@
         <commons-net.version>3.3</commons-net.version>
         <elasticsearch.version>0.90.5</elasticsearch.version>
         <faunus.version>0.4.2-dendrite-hadoop2-SNAPSHOT</faunus.version>
-        <hbase.version>0.94.6-cdh4.4.0</hbase.version>
-        <hadoop-core.version>2.0.0-mr1-cdh4.4.0</hadoop-core.version>
-        <hadoop-common.version>2.0.0-cdh4.4.0</hadoop-common.version>
-        <hadoop-client.version>2.0.0-cdh4.4.0</hadoop-client.version>
         <jackson.version>1.9.12</jackson.version>
         <java.version>1.7</java.version>
         <jersey.version>1.17.1</jersey.version>
@@ -149,65 +145,6 @@
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>httpcore</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- Hadoop dependencies -->
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-            <version>${hadoop-common.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sun.jersey.jersey-test-framework</groupId>
-                    <artifactId>jersey-test-framework-grizzly2</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jersey</groupId>
-                    <artifactId>jersey-server</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jersey</groupId>
-                    <artifactId>jersey-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase</artifactId>
-            <version>${hbase.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>servlet-api-2.5</artifactId>
-                    <groupId>org.mortbay.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jersey</groupId>
-                    <artifactId>jersey-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jersey</groupId>
-                    <artifactId>jersey-server</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client</artifactId>
-            <version>${hadoop-client.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sun.jersey.jersey-test-framework</groupId>
-                    <artifactId>jersey-test-framework-grizzly2</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jersey</groupId>
-                    <artifactId>jersey-server</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jersey</groupId>
-                    <artifactId>jersey-json</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -351,6 +288,18 @@
                     <groupId>com.tinkerpop.blueprints</groupId>
                     <artifactId>blueprints-sail-graph</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey.jersey-test-framework</groupId>
+                    <artifactId>jersey-test-framework-grizzly2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -443,6 +392,14 @@
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-server</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
