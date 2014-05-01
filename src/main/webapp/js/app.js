@@ -338,6 +338,13 @@ angular.module('dendrite', [
       $location.search({});
     });
 
+    // event:loggedIn - action immediately after login
+    scope.$on('event:loggedIn', function() {
+      console.log('event:loggedIn');
+      $location.path('/projects');
+      $location.search({});
+    });
+
 
     //event:loginRequest - send credentials to the server.
     scope.$on('event:loginRequest', function(event, username, password) {

@@ -20,7 +20,7 @@
 /* Controllers */
 
 angular.module('dendrite.controllers', []).
-    controller('navCtrl', ['$scope', '$location', 'User', 'Graph', function ($scope, $location, User, Graph) {
+    controller('navCtrl', ['$rootScope', '$scope', '$location', 'User', 'Graph', function ($rootScope, $scope, $location, User, Graph) {
       $scope.User = User;
       $scope.query = Graph.query();
 
@@ -35,7 +35,7 @@ angular.module('dendrite.controllers', []).
         User.login($scope.username, $scope.password).
           success(function(){
             $scope.User = User;
-            $scope.$broadcast('event:returnHome');
+            $rootScope.$broadcast('event:loggedIn');
           }).
           error(function(response){
             window.alert('Authentication failed!', response);
@@ -46,12 +46,12 @@ angular.module('dendrite.controllers', []).
       $scope.User = User;
       $scope.accessLevels = User.accessLevels;
     }).
-    controller('LoginCtrl', function($scope, $location, User) {
+    controller('LoginCtrl', function($rootScope, $scope, $location, User) {
       $scope.login = function() {
         User.login($scope.username, $scope.password).
           success(function(){
             $scope.User = User;
-            $scope.$broadcast('event:returnHome');
+            $rootScope.$broadcast('event:loggedIn');
           }).
           error(function(response){
             window.alert('Authentication failed!', response);
