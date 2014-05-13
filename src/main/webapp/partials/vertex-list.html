@@ -12,15 +12,15 @@
 
 <div class="row row-padded">
 
-  <div class="span8">
+  <div class="span11">
     <div class="row row-padded">
       <div class="inline float-left">
         <a class="btn btn-primary" href="#/graphs/{{ graphId }}/create_vertex">Add Person</a>
-        <a href="#/graphs/{{ graphId }}/edges?mode=edge" class="btn btn-success">View Connections</a>
+        <a href="#/graphs/{{ graphId }}/edges?mode=edge" class="btn btn-success">View Links</a>
       </div>
       <!-- searchbar -->
       <div class="inline input-append">
-        <form ng-submit="refresh('Searching')">
+        <form class="inline" ng-submit="refresh('Searching')">
           <input type="text" class="form-control inline searchbar" placeholder="Filter Results" ng-model="gridOptions.filterOptions.filterText" id="filter">
           <button type="submit" class="btn btn-default">
             <i class="icon-search icon-white" ng-hide="fullTextSearching"></i>
@@ -34,10 +34,47 @@
 
         </form>
       </div>
+
+
+      <div class="inline float-right">
+        <div style="text-align:right">
+          <button type="button" class="btn btn-primary" modal-class="modal-large" data-animation="am-slide-bottom" bs-modal="'partials/analytics/form.html'">Analytics <i class="icon-share icon-white"></i></button>
+        </div>
+        <div>
+          <a ng-click="isCollapsed = !isCollapsed"><span ng-controller="AnalyticsListCtrl">({{ numPendingJobs }} pending/{{ activeAnalytics.jobs.length }} total) &#x25BE;</span></a>
+        </div>
+
+      </div>
     </div>
 
     <div class="row">
-      <div class="span8">
+      <div collapse="collapseJobs()">
+        <div class="well well-lg">
+          <div class="inline float-right">
+            <a ng-click="isCollapsed = !isCollapsed">less &#x25B4;</a>
+          </div>
+          <p>Calculate various properties:</p>
+          <ul>
+            <li><strong>Connectedness</strong>: Quantify the number and strength of connections</li>
+            <li><strong>Key Players</strong>: Identify central nodes </li>
+            <li><strong>Community</strong>: Find densely-connected groups</li>
+          </ul>
+
+
+          <div ng-controller="AnalyticsListCtrl">
+            <!-- list -->
+            <div ng-show="activeAnalytics.jobs.length">
+              <h4 class="titlebar" style="padding-top:20px">Calculations</h4>
+              <div ng-include="'partials/analytics/list.html'"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div ng-class="dynamicWidth()">
         <div class="inline float-left">
           <strong>{{ totalServerItems }}</strong> {{ queryStyle }}
           <span ng-if="filterOptions.filterText">
@@ -58,61 +95,54 @@
     </div>
 
     <div class="row">
-      <div class="span8">
+      <div ng-class="dynamicWidth()" class="grid-container">
         <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
       </div>
+
+      <div class="span4" ng-show="hasSelectedItems">
+        <ul ng-if="hasSelectedItems" style="list-style:none" class="well well-lg">
+          <li>
+
+            <h4 class="titlebar">
+              <span ng-if="hasSelectedItems">{{ formatSelectedNames()  }}</span>
+            </h4>
+
+            <!-- dropdown button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-attention dropdown-toggle" data-toggle="dropdown">
+                Links <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li ng-if="selectedOne()"><a ng-click="addVertexEdge()">Add</a></li>
+                <li ng-if="selectedOne()" class="divider"></li>
+                <li><a ng-click="followEdges()" ng-show="hasSelectedItems">All To/From</a></li>
+                <li><a ng-click="followInEdges()" ng-show="hasSelectedItems">From Selected</a></li>
+                <li><a ng-click="followOutEdges()" ng-show="hasSelectedItems">To Selected</a></li>
+              </ul>
+            </div>
+
+            <!-- dropdown button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
+                Modify <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li ng-if="selectedOne()"><a ng-click="editVertex()">Edit</a></li>
+                <li ng-if="selectedOne()" class="divider"></li>
+                <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete<span ng-if="selectedMany()"> Selected</span></a></li>
+              </ul>
+            </div>
+
+
+            <ul ng-if="selectedOne()">
+              <li><strong>Name</strong>: {{ selectedItems[0].name | capitalize  }}</li>
+              <li><strong>Age</strong>: {{ selectedItems[0].age }}</li>
+            </ul>
+
+          </li>
+        </ul>
+      <div>
     </div>
   </div>
 
-  <div class="span3">
-      <!-- edit functions -->
-        <div>
-          <ul style="list-style:none">
-            <li ng-if="hasSelectedItems">
-
-              <h4 class="titlebar">
-                <span ng-if="hasSelectedItems">{{ formatSelectedNames()  }}</span>
-              </h4>
-
-              <!-- dropdown button -->
-              <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-attention dropdown-toggle" data-toggle="dropdown">
-                  Links <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                  <li ng-if="selectedOne()"><a ng-click="addVertexEdge()">Add</a></li>
-                  <li ng-if="selectedOne()" class="divider"></li>
-                  <li><a ng-click="followEdges()" ng-show="hasSelectedItems">All To/From</a></li>
-                  <li><a ng-click="followInEdges()" ng-show="hasSelectedItems">From Selected</a></li>
-                  <li><a ng-click="followOutEdges()" ng-show="hasSelectedItems">To Selected</a></li>
-                </ul>
-              </div>
-
-              <!-- dropdown button -->
-              <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
-                  Modify <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                  <li ng-if="selectedOne()"><a ng-click="editVertex()">Edit</a></li>
-                  <li ng-if="selectedOne()" class="divider"></li>
-                  <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete<span ng-if="selectedMany()"> Selected</span></a></li>
-                </ul>
-              </div>
-
-
-              <ul ng-if="selectedOne()">
-                <li><strong>Name</strong>: {{ selectedItems[0].name | capitalize  }}</li>
-                <li><strong>Age</strong>: {{ selectedItems[0].age }}</li>
-              </ul>
-
-            </li>
-          </ul>
-        </div>
-
-      <!-- analytics navbar -->
-        <div class="sidepane-analytics" style="padding:10px">
-          <div ng-include="'partials/analytics/nav.html'"></div>
-        </div>
-  </div>
 </div>

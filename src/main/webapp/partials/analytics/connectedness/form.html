@@ -1,0 +1,16 @@
+<fieldset>
+  <div class="row-fluid">
+    <h3><strong>Connectedness</strong> <small>Quantify the number and strength of connections</small></h3>
+    <h4 class="color-black-light">Select Type:</h4>
+  </div>
+
+  <div class="row-fluid">
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="edgeDegrees" ng-click="setAnalyticType('edgeDegrees')"> Edge Degrees</label>
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="sssp" ng-click="setAnalyticType('sssp')"> Shortest Path</label>
+  </div>
+</fieldset>
+
+<div ng-show="isAnalyticType('connectedness')">
+  <div ng-include="'partials/analytics/_description.html'"></div>
+  <div ng-include="algorithms[analyticType].form"><div>
+</div>

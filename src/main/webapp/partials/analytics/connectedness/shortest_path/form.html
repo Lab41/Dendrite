@@ -1,0 +1,6 @@
+<div>
+  <select class="inline form-control" ng-model="attr.sourceVertex">
+    <option value="emptyValue">Source Vertex</option>
+    <option ng-repeat="vertex in allVertices.results" value="{{ vertex._id }}">{{ vertex.name }}</option>
+  </select>
+</div>

@@ -613,6 +613,21 @@
   padding: 2px;
 }
 /*************************************************/
+/* colors */
+/*************************************************/
+.color-blue-dark {
+  color: #2980b9;
+}
+.color-black-light {
+  color: #424a4a;
+}
+.color-gray-dark {
+  color: #7f8c8d;
+}
+.color-gray-light {
+  color: #bdc3c7;
+}
+/*************************************************/
 /* iframe */
 /*************************************************/
 .iframe-history {
@@ -662,6 +677,13 @@
 .img-badge.ROLE_ADMIN {
   background: url("../img/badge_admin.png") no-repeat left top;
   background-size: auto 50px;
+}
+.analytics-example-wrapper {
+  min-height: 180px !important;
+}
+img.analytics-example {
+  max-height: 150px;
+  max-width: 150px;
 }
 circle.node {
   cursor: pointer;
@@ -751,6 +773,14 @@ h5,
 h6 {
   color: #d35400;
 }
+h1 small,
+h2 small,
+h3 small,
+h4 small,
+h5 small,
+h6 small {
+  color: #7f8c8d;
+}
 .dropdown-menu a.link-disabled {
   color: #95a5a6;
 }
@@ -834,14 +864,39 @@ body {
 .inline {
   display: inline;
 }
+.inline-block {
+  display: inline-block;
+}
+.modal-large,
+.modal-large.fade.in {
+  width: 90%;
+  margin-left: -45%;
+  height: 80vh;
+  top: 10vh;
+}
+.modal-large .modal-body {
+  max-height: 100vh;
+  height: 70vh;
+}
+.modal-large .modal-header {
+  background: #2980b9;
+}
+.modal-large .modal-header h1,
+.modal-large .modal-header h2,
+.modal-large .modal-header h3,
+.modal-large .modal-header h4,
+.modal-large .modal-header h5,
+.modal-large .modal-header h6 {
+  color: #ecf0f1;
+}
 /*************************************************/
 /* sections */
 /*************************************************/
-.align-top {
-  vertical-align: top;
-}
 .vertical-align-middle {
   vertical-align: middle ! important;
+}
+.vertical-align-top {
+  vertical-align: top ! important;
 }
 .thick-divide-bottom {
   margin-bottom: 15px;
@@ -849,7 +904,7 @@ body {
   padding-bottom: 15px;
 }
 .well {
-  background-color: #bdc3c7;
+  background-color: #d9dcde;
 }
 /*************************************************/
 /* analytics */
@@ -922,20 +977,35 @@ body {
 .padding-none {
   padding: 0;
 }
+.align-top {
+  vertical-align: top;
+}
 .align-center {
   text-align: center;
 }
 .align-right {
   text-align: right;
 }
+.align-left {
+  text-align: left;
+}
+.margin-top {
+  margin-top: 10px;
+}
 .margin-bottom {
   margin-bottom: 10px;
+}
+.margin-left-large {
+  margin-left: 30px;
 }
 .margin-right-large {
   margin-right: 30px;
 }
 .margin-bottom-large {
   margin-bottom: 30px;
+}
+.margin-top-large {
+  margin-top: 30px;
 }
 .margin-none {
   margin: 0;
@@ -993,6 +1063,9 @@ textarea {
   width: 33%;
   margin-left: 20px;
 }
+.modal input[type="radio"]:selected {
+  color: red;
+}
 /*************************************************/
 /* ui elements */
 /*************************************************/
@@ -1004,6 +1077,56 @@ div.span6 div.span6 div.dataTables_length label {
 }
 .row-padded {
   padding: 0 5px 10px 5px ;
+}
+.ui-widget-content a {
+  color: #2980b9;
+}
+.ui-tabs-nav.ui-widget-header {
+  background: #bdc3c7;
+  border: 1px solid #bdc3c7;
+}
+.ui-tabs-nav.ui-widget-header.tabs-dark {
+  background: #424a4a;
+}
+.ui-state-default a,
+.ui-state-default a:link,
+.ui-state-default a:visited {
+  color: #7f8c8d;
+}
+.ui-state-default .icon-faded {
+  opacity: 0.5;
+}
+.ui-state-active a,
+.ui-state-active a:link,
+.ui-state-active a:visited {
+  color: #424a4a;
+}
+.ui-state-active .icon-faded {
+  opacity: 1;
+}
+.ui-corner-all,
+.ui-corner-bottom,
+.ui-corner-right,
+.ui-corner-br {
+  border-bottom-right-radius: 2px;
+}
+.ui-corner-all,
+.ui-corner-bottom,
+.ui-corner-left,
+.ui-corner-bl {
+  border-bottom-left-radius: 2px;
+}
+.ui-corner-all,
+.ui-corner-top,
+.ui-corner-right,
+.ui-corner-tr {
+  border-top-right-radius: 2px;
+}
+.ui-corner-all,
+.ui-corner-top,
+.ui-corner-left,
+.ui-corner-tl {
+  border-top-left-radius: 2px;
 }
 /*************************************************/
 /* navbar */
@@ -1072,6 +1195,10 @@ div.span6 div.span6 div.dataTables_length label {
 }
 .navbar-nav label {
   display: inline-block;
+}
+label.inline {
+  display: inline;
+  margin: 0 5px;
 }
 .navbar-nav form {
   margin-bottom: 0;

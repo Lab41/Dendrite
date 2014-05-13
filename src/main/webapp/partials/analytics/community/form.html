@@ -1,0 +1,17 @@
+<fieldset>
+  <div class="row-fluid">
+    <h3><strong>Community</strong> <small>Find densely-connected groups in a population</small></h3>
+    <h4 class="color-black-light">Select Type:</h4>
+  </div>
+
+  <div class="row-fluid">
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="connected_component" ng-click="setAnalyticType('connected_component')"> Connected Component</label>
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="connected_component_stats" ng-click="setAnalyticType('connected_component_stats')"> Connected Component Stats</label>
+    <label class="inline-block span4"><input type="radio" ng-model="analyticType" name="algorithms" value="simple_coloring" ng-click="setAnalyticType('simple_coloring')"> Simple Coloring</label>
+  </div>
+</fieldset>
+
+<div ng-show="isAnalyticType('community')">
+  <div ng-include="'partials/analytics/_description.html'"></div>
+  <div ng-include="algorithms[analyticType].form"><div>
+</div>

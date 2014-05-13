@@ -24,6 +24,13 @@ angular.module('dendrite.filters', [])
         return input.substring(0,1).toUpperCase()+input.substring(1);
     }
   })
+  .filter('domainName', function() {
+    return function(input, scope) {
+        var el = document.createElement("a");
+        el.href = input;
+        return el.hostname;
+    }
+  })
   .filter('truncate', function() {
     return function(input, scope) {
       var retVal = input;

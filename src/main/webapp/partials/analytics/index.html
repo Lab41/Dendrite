@@ -1,9 +1,18 @@
 <h3>Analytics</h3>
+  <p>
+    <div><button type="button" class="btn btn-primary" bs-modal="'partials/analytics/form.html'">Run <i class="icon-share icon-white"></i></button> graph calculations:</div>
+  </p>
+  <ul>
+    <li><strong>Connectedness</strong>: Quantify the number and strength of connections</li>
+    <li><strong>Key Players</strong>: Identify central nodes </li>
+    <li><strong>Community</strong>: Find densely-connected groups</li>
+  </ul>
+
+
 
 <div ng-controller="AnalyticsListCtrl">
+  <!-- Buttons to trigger modal
   <h4 class="titlebar">Calculate</h4>
-
-  <!-- Buttons to trigger modal -->
   <button type="button" class="btn btn-primary" bs-modal="'partials/analytics/barycenter_distance/form.html'">Barycenter Distance</button><br />
   <button type="button" class="btn btn-primary" bs-modal="'partials/analytics/betweenness_centrality/form.html'">Betweenness Centrality</button><br />
   <button type="button" class="btn btn-primary" bs-modal="'partials/analytics/closeness_centrality/form.html'">Closeness Centrality</button><br />
@@ -12,6 +21,7 @@
   <button type="button" class="btn btn-primary" bs-modal="'partials/analytics/graphlab/form.html'">GraphLab</button><br />
   <button type="button" class="btn btn-primary" bs-modal="'partials/analytics/snap/form.html'">Snap</button><br />
   <button type="button" class="btn btn-primary" bs-modal="'partials/analytics/pagerank/form.html'">PageRank</button><br />
+  -->
 
   <!-- list -->
   <div ng-include="'partials/analytics/list.html'"></div>

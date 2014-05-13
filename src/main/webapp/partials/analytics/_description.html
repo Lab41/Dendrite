@@ -1,0 +1,13 @@
+<div class="well margin-top" ng-show="algorithms[analyticType].description">
+  <div class="row-fluid">
+    <div class="span4 align-center analytics-example-wrapper" ng-show="algorithms[analyticType].example" >
+      <img class="analytics-example" src="{{ algorithms[analyticType].example.img }}">
+      <div class="align-left margin-top color-gray-dark">
+        <small>Image from <a href="{{ algorithms[analyticType].example.ref }}">{{ algorithms[analyticType].example.ref | domainName }}</a></small>
+      </div>
+    </div>
+    <div class="span6">
+      <div ng-bind-html="algorithms[analyticType].description"></div>
+    </div>
+  </div>
+</div>

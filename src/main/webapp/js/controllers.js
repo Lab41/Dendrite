@@ -20,7 +20,7 @@
 /* Controllers */
 
 angular.module('dendrite.controllers', []).
-    controller('navCtrl', ['$scope', '$location', 'User', 'Graph', function ($scope, $location, User, Graph) {
+    controller('navCtrl', ['$rootScope', '$scope', '$location', 'User', 'Graph', function ($rootScope, $scope, $location, User, Graph) {
       $scope.User = User;
       $scope.query = Graph.query();
 
@@ -35,7 +35,7 @@ angular.module('dendrite.controllers', []).
         User.login($scope.username, $scope.password).
           success(function(){
             $scope.User = User;
-            $scope.$broadcast('event:returnHome');
+            $rootScope.$broadcast('event:loggedIn');
           }).
           error(function(response){
             window.alert('Authentication failed!', response);
@@ -46,12 +46,12 @@ angular.module('dendrite.controllers', []).
       $scope.User = User;
       $scope.accessLevels = User.accessLevels;
     }).
-    controller('LoginCtrl', function($scope, $location, User) {
+    controller('LoginCtrl', function($rootScope, $scope, $location, User) {
       $scope.login = function() {
         User.login($scope.username, $scope.password).
           success(function(){
             $scope.User = User;
-            $scope.$broadcast('event:returnHome');
+            $rootScope.$broadcast('event:loggedIn');
           }).
           error(function(response){
             window.alert('Authentication failed!', response);
@@ -328,46 +328,88 @@ angular.module('dendrite.controllers', []).
                   });
         };
     }).
-    controller('AnalyticsFormCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
+    controller('AnalyticsFormCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // placeholder default attributes
+        $scope.graphId = $routeParams.graphId;
+        $scope.algorithms = appConfig.algorithms;
 
-        $scope.$watch('analyticType', function () {
-          $scope.attr = appConfig.analytics[$scope.analyticType];
-        });
+        $scope.setAnalyticType = function(t) {
+          $scope.analyticType = t;
+        };
+
+        $scope.$watch('analyticType', function (newVal, oldVal) {
+            if (newVal !== oldVal && newVal !== undefined) {
+              // perform deep copy to avoid changing default values
+              $scope.attr = {};
+              angular.copy(appConfig.algorithms[$scope.analyticType].defaults, $scope.attr);
+
+              if (newVal === 'sssp') {
+                $scope.allVertices = Vertex.list({graphId: $scope.graphId});
+              }
+            }
+        }, true);
+
+        $scope.isAnalyticType = function(t) {
+          return (appConfig.algorithms[$scope.analyticType] !== undefined && t === appConfig.algorithms[$scope.analyticType].category);
+        };
 
         // calculate analytic job
         $scope.calculate = function() {
-
           // Barycenter
-          if ($scope.analyticType === "BarycenterDistance") {
+          if ($scope.analyticType === "barycenterDistance") {
             Analytics.createJungBarycenterDistance({graphId: $routeParams.graphId}, undefined);
           }
           // BetweennessCentrality
-          else if ($scope.analyticType === "BetweennessCentrality") {
+          else if ($scope.analyticType === "betweennessCentrality") {
             Analytics.createJungBetweennessCentrality({graphId: $routeParams.graphId}, undefined);
           }
           // ClosenessCentrality
-          else if ($scope.analyticType === "ClosenessCentrality") {
-              Analytics.createJungClosenessCentrality({graphId: $routeParams.graphId}, undefined);
+          else if ($scope.analyticType === "closenessCentrality") {
+            Analytics.createJungClosenessCentrality({graphId: $routeParams.graphId}, undefined);
           }
           // Eigenvector
-          else if ($scope.analyticType === "EigenvectorCentrality") {
-              Analytics.createJungEigenvectorCentrality({graphId: $routeParams.graphId}, undefined);
+          else if ($scope.analyticType === "eigenvectorCentrality") {
+            Analytics.createJungEigenvectorCentrality({graphId: $routeParams.graphId}, undefined);
           }
           // PageRank
-          else if ($scope.analyticType === "PageRank") {
+          else if ($scope.analyticType === "pagerank") {
+            if ($scope.attr.analyticEngine === "jung") {
               Analytics.createJungPageRank({graphId: $routeParams.graphId}, {alpha: 1-$scope.attr.dampingFactor});
+            }
+            else {
+              Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+            }
           }
-          // GraphLab
-          else if ($scope.analyticType === "GraphLab") {
-            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
+          // Total Subgraph Communicability
+          else if ($scope.analyticType === "TSC") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+          }
+          // Single source shortest path
+          else if ($scope.analyticType === "sssp") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType, sourceVertex: $scope.sourceVertex}, undefined);
+          }
+          // connected component
+          else if ($scope.analyticType === "connected_component") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+          }
+          // connected component histogram
+          else if ($scope.analyticType === "connected_component_stats") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+          }
+          // graph coloring
+          else if ($scope.analyticType === "simple_coloring") {
+            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+          }
+          // SNAP
+          else if ($scope.analyticType === "snapCentrality") {
+            Analytics.createSnap({graphId: $routeParams.graphId, algorithm: "centrality"}, undefined);
           }
           // Snap 
           else if ($scope.analyticType === "Snap") {
             Analytics.createSnap({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
           }
           // Edge Degrees
-          else if ($scope.analyticType === "EdgeDegrees") {
+          else if ($scope.analyticType === "edgeDegrees") {
             if ($scope.attr.analyticEngine === "faunus") {
               Analytics.createEdgeDegreesFaunus({graphId: $routeParams.graphId}, undefined);
             }
@@ -376,22 +418,32 @@ angular.module('dendrite.controllers', []).
             }
           }
 
-          $scope.$emit("event:pollActiveAnalytics");
+          $rootScope.$broadcast("event:pollActiveAnalytics");
         };
     }).
-    controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Helpers, $timeout) {
+    controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Analytics, Helpers, $timeout) {
         // config
         $scope.activeAnalytics = [];
         $scope.colorProgressBars = Helpers.colorProgressBars;
+        $scope.numPendingJobs = 0;
 
         // show result
         $scope.showAnalytic = function(id) {
           $location.path('graphs/' + $routeParams.graphId + '/analytics/' + id);
         };
 
+        $scope.deleteAnalytic = function(job) {
+          console.log('id='+job._id);
+          Analytics.deleteJob({jobId: job._id})
+                    .$then(function(data) {
+                        $scope.activeAnalytics.jobs.splice(job, 1);
+                    });
+        }
+
         // periodically poll for active calculations
         // use $then syntax to avoid full list refresh each time
         var pollActive = function() {
+          $scope.numPendingJobs = 0;
           Graph.get({graphId: $routeParams.graphId})
                 .$then(function(dataGraph) {
                     Project.jobs({projectId: dataGraph.data.graph.projectId})
@@ -404,12 +456,17 @@ angular.module('dendrite.controllers', []).
                                 // if not, will poll on next event:pollActiveAnalytics
                                 var pollAgain = false;
                                 Array().forEach.call(dataJobs.data.jobs, function(job) {
-                                  if (job.progress < 1.0) { pollAgain = true; }
+                                  if (job.progress < 1.0) {
+                                    pollAgain = true;
+                                    $scope.numPendingJobs++;
+                                  }
                                 });
                                 if (pollAgain) {
+                                  $scope.setJobsInProgress(true);
                                   $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
                                 }
                                 else {
+                                  $scope.setJobsInProgress(false);
                                   $scope.refresh();
                                 }
                             });
@@ -425,9 +482,10 @@ angular.module('dendrite.controllers', []).
         // poll on page entry
         pollActive();
     }).
-    controller('VertexListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
+    controller('VertexListCtrl', function($scope, $location, $timeout, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
       $scope.graphId = $routeParams.graphId;
+      $scope.isCollapsed = true;
       $scope.selectedItems = [];
       $scope.queryStyle = "vertices";
       $scope.vertexFrom = "";
@@ -435,6 +493,17 @@ angular.module('dendrite.controllers', []).
             .$then(function(dataGraph) {
                 $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
             });
+
+      $scope.collapseJobs = function() {
+//        console.log(!$scope.jobsInProgress || $scope.isCollapsed || $scope.filterOptions.filterText);
+        return $scope.isCollapsed;//($scope.filterOptions.filterText || );// (!$scope.jobsInProgress || ));
+      };
+
+      // use function for child inheritance
+      $scope.setJobsInProgress = function(newVal) {
+        $scope.jobsInProgress = newVal;
+      };
+      $scope.setJobsInProgress(false);
 
       $scope.followEdges = function() {
         $routeParams.mode = "edge";
@@ -461,6 +530,10 @@ angular.module('dendrite.controllers', []).
 
       $scope.editVertex = function() {
         $location.path('graphs/' + $scope.graphId + '/vertices/' + $scope.selectedItems[0]._id + '/edit_vertex');
+      };
+
+      $scope.dynamicWidth = function() {
+        return ($scope.hasSelectedItems) ? 'span7' : 'span11';
       };
 
       // Delete the selected items.
@@ -741,7 +814,16 @@ angular.module('dendrite.controllers', []).
         if (newVal !== oldVal) {
           $scope.hasSelectedItems = ($scope.selectedItems.length !== 0);
           $scope.selectedVertex = $scope.selectedItems[0];
+
+          // redraw the grid
+          // use timeout to appear more responsive than external resize event
+          //$('.grid-container').trigger('resize');
+          $timeout(function() {
+            $scope.gridOptions.$gridServices.DomUtilityService.RebuildGrid($scope.gridOptions.$gridScope, $scope.gridOptions.ngGrid);
+          }, 0);
         }
+
+
       }, true);
 
     }).
