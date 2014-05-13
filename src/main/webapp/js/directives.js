@@ -90,7 +90,7 @@ angular.module('dendrite.directives', []).
         }
     };
   }]).
-  directive('forceDirectedGraph', ['$q', '$compile', function($q, $compile) {
+  directive('forceDirectedGraph', ['$rootScope', '$q', '$compile', function($rootScope, $q, $compile) {
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
@@ -202,6 +202,11 @@ angular.module('dendrite.directives', []).
           // popover on svg elements requires recompile
           element.removeAttr("force-directed-graph");
           $compile(element)($scope);
+
+          // alert app to data in the project
+          if (nodes.length) {
+            $rootScope.$broadcast('event:projectHasData');
+          }
         }
 
         function tick() {
