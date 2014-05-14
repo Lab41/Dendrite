@@ -1,6 +1,6 @@
 
 /**
- * Copyright 2013 In-Q-Tel/Lab41
+ * Copyright 2014 In-Q-Tel/Lab41
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
