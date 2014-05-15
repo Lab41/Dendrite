@@ -1,6 +1,6 @@
 
 /**
- * Copyright 2013 In-Q-Tel/Lab41
+ * Copyright 2014 In-Q-Tel/Lab41
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ angular.module('dendrite.controllers', []).
           });
       };
     }).
-    controller('ProjectListCtrl', function($scope, $location, User, Project) {
+    controller('ProjectListCtrl', function($scope, $modal, $location, User, Project) {
         $scope.User = User;
         $scope.query = Project.index();
 
@@ -113,6 +113,10 @@ angular.module('dendrite.controllers', []).
     controller('ProjectDetailCtrl', function($rootScope, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
         $scope.projectId = $routeParams.projectId;
         $scope.historyEnabled = appConfig.historyServer.enabled;
+        $scope.projectHasData = false;
+        $scope.$on('event:projectHasData', function() {
+          $scope.projectHasData = true;
+        });
 
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
@@ -1211,7 +1215,7 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
-    controller('FileUploadCtrl', function ($scope, $routeParams, $modal, appConfig) {
+    controller('FileUploadCtrl', function ($rootScope, $scope, $routeParams, $modal, appConfig) {
         $scope.fileUploaded = false;
         $scope.fileUploading = false;
         $scope.indexTypes = [
@@ -1250,6 +1254,7 @@ angular.module('dendrite.controllers', []).
             if (content.status === "ok") {
                 $scope.uploadMessage = "file uploaded";
                 $scope.$emit('event:reloadGraph');
+                $rootScope.$broadcast('event:graphFileImported');
             } else if (content.msg !== undefined) {
                 $scope.uploadMessage = "upload failed: " + content.msg;
             } else {
@@ -1304,12 +1309,17 @@ angular.module('dendrite.controllers', []).
 
               $scope.selectedKeys = $scope.keys;
               $scope.safeApply(function() {
-                $modal({scope: $scope, template: 'partials/graphs/form-select-keys.html'});
+                $modal({
+                  scope: $scope,
+                  template: 'partials/graphs/form-select-keys.html'
+                }).then(function() {
+                      tourFileSelected();
+                });
               });
             } else {
-              $scope.safeApply(function() {
-                $scope.fileParseError = "Error: Unrecognized Format!";
-              });
+                $scope.safeApply(function() {
+                  $scope.fileParseError = "Error: Unrecognized Format!";
+                });
             }
           }
         });
