@@ -90,11 +90,75 @@ angular.module('dendrite.directives', []).
         }
     };
   }]).
+  directive('sigmajsGraph', ['$rootScope', '$q', '$compile', 'GraphTransform', function($rootScope, $q, $compile, GraphTransform) {
+    return {
+      restrict: 'A',
+      transclude: true,
+      link: function($scope, element, attrs) {
+
+        // only generate visualization one time
+        if ($scope.$parent.sigmaViz === undefined) {
+          $scope.sigmaGraph = {nodes: [], edges: []};
+
+          // build nodes into SigmaJS format
+          var vertexSize = 20/$scope.sigmajsGraphData.vertices.length;
+          var vertexColor = "#424a4a";
+          $scope.sigmajsGraphData.vertices.forEach(function(vertex) {
+            vertex.id = vertex._id;
+            vertex.x = Math.random();
+            vertex.y = Math.random();
+            vertex.color = vertexColor;
+            vertex.size = vertexSize;
+            vertex.label = vertex.name;
+
+            // push vertex
+            $scope.sigmaGraph.nodes.push(vertex);
+          });
+
+          // build edges into SigmaJS format
+          $scope.sigmajsGraphData.edges.forEach(function(edge) {
+            edge.id = edge._id;
+            edge.source = edge._inV;
+            edge.target = edge._outV;
+
+            // push edge
+            $scope.sigmaGraph.edges.push(edge);
+          });
+
+          // generate sigma visualization
+          // attach to parent scope to avoid future refreshes
+          $scope.$parent.sigmaViz = new sigma({
+            graph: $scope.sigmaGraph
+          })
+          .startForceAtlas2();
+        }
+
+        // render visualization, regardless of when displayed
+        var r = $scope.$parent.sigmaViz.addRenderer({
+          type: 'canvas',
+          container: document.getElementById('container-graph-sigmajs')
+        });
+        $scope.$parent.sigmaViz.refresh();
+
+        // alert app to data completion
+        $rootScope.$broadcast('event:projectHasData');
+      }
+    };
+  }]).
+  directive('tabs', ['$rootScope', function($rootScope) {
+      return {
+          restrict: 'A',
+          link: function($scope, element, attrs) {
+              var jqueryElement = $(element[0]);
+              $scope.tabElement = jqueryElement;
+          }
+      };
+  }]).
   directive('forceDirectedGraph', ['$rootScope', '$q', '$compile', function($rootScope, $q, $compile) {
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
-        var width = $('#forceDirectedGraph').parent().width()*0.90,
+        var width = $('#tabs').width()*0.90,
           height = 500;
 
         var color = d3.scale.category20();
@@ -205,7 +269,7 @@ angular.module('dendrite.directives', []).
 
           // alert app to data in the project
           if (nodes.length) {
-            $rootScope.$broadcast('event:projectHasData');
+
           }
         }
 

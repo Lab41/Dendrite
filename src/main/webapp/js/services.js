@@ -957,6 +957,34 @@ angular.module('dendrite.services', ['ngResource']).
             });
 
             return forceDirectedGraphData;
+          },
+          // load random graph data for Sigma.js visualization
+          reloadSigmaGraph: function(graphId) {
+            var vertices = $q.defer();
+            var edges = $q.defer();
+            var forceDirectedGraphData = {
+              vertices: [],
+              edges: [],
+            };
+
+            // extract random subset of graph
+            // since data will be used in directive, manually resolve vertices/edges
+            Vertex.random({graphId: graphId}, function(response) {
+              vertices.resolve(response.vertices);
+              edges.resolve(response.edges);
+              vertices.promise.then(function(responseVertices) {
+                edges.promise.then(function(responseEdges) {
+                  forceDirectedGraphData.vertices = responseVertices;
+                  forceDirectedGraphData.edges = responseEdges;
+                });
+              });
+
+            }, function() {
+              vertices.reject();
+              edges.reject();
+            });
+
+            return forceDirectedGraphData;
           }
         };
     }).
