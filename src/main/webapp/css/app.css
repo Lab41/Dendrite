@@ -143,6 +143,9 @@
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
 }
 .ngGrid input[type="checkbox"] {
   margin: 0;
@@ -183,6 +186,10 @@
   font-weight: bold;
   background-color: #34495e;
   color: #ecf0f1;
+  -webkit-border-radius: 6px 6px 0 0;
+  -moz-border-radius: 6px 6px 0 0;
+  -khtml-border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 0 0;
   -webkit-border-radius: 6px 6px 0 0;
   -moz-border-radius: 6px 6px 0 0;
   -khtml-border-radius: 6px 6px 0 0;
@@ -536,6 +543,10 @@
   -moz-border-radius: 0 0 6px 6px;
   -khtml-border-radius: 0 0 6px 6px;
   border-radius: 0 0 6px 6px;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
 }
 .ngFooterPanel {
   background-color: #7f8c8d;
@@ -543,6 +554,10 @@
   border-top: 1px solid #7f8c8d;
   color: #ecf0f1;
   position: relative;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
   -webkit-border-radius: 0 0 6px 6px;
   -moz-border-radius: 0 0 6px 6px;
   -khtml-border-radius: 0 0 6px 6px;
@@ -701,6 +716,61 @@
 }
 .popover[class*="tour-"].orphan .arrow {
   display: none;
+}
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+.graph-sigma {
+  max-width: 800px;
+  height: 400px;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: relative;
 }
 /*************************************************/
 /* colors */
@@ -920,6 +990,12 @@ body {
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
@@ -934,6 +1010,9 @@ body {
 }
 .container-comments {
   border: 1px dashed #bdc3c7;
+  border-radius: 10px;
+  webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
   border-radius: 10px;
   webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -1002,6 +1081,9 @@ body {
 .sidepane-analytics {
   background-color: #ecf0f1;
   background-color: rgba(236, 240, 241, 0.5);
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -1107,6 +1189,9 @@ input:focus:invalid:focus,
 textarea:focus:invalid:focus,
 select:focus:invalid:focus {
   border-color: #1abc9c;
+  -webkit-box-shadow: 0 0 6px 0 #16a085;
+  -moz-box-shadow: 0 0 6px 0 #16a085;
+  box-shadow: 0 0 6px 0 #16a085;
   -webkit-box-shadow: 0 0 6px 0 #16a085;
   -moz-box-shadow: 0 0 6px 0 #16a085;
   box-shadow: 0 0 6px 0 #16a085;
@@ -1253,9 +1338,15 @@ div.span6 div.span6 div.dataTables_length label {
   -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
 }
 .navbar .nav .active a {
   background-color: #ecf0f1;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1292,6 +1383,10 @@ label.inline {
 }
 .navbar-nav form {
   margin-bottom: 0;
+}
+.nav-tabs li a {
+  color: #424a4a;
+  font-weight: bold;
 }
 /*************************************************/
 /* buttons */
