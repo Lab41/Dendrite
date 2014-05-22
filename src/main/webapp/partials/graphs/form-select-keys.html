@@ -12,17 +12,17 @@
     </div>
 
       <div class="checkbox row-fluid">
-        <div class="span6" ng-if="keys.vertices.length>0">
+        <div class="span6" ng-if="selectedKeys.vertices.length>0">
           <h4>Vertices</h4>
           <table>
-            <tr ng-repeat="key in keys.vertices">
+            <tr ng-repeat="key in selectedKeys.vertices">
               <td>
                 <input type="checkbox"
                        name="selectedKeys[]"
                        value="{{ key.name }}"
                        id="selected-key-vertex-{{key.name}}"
-                       ng-checked="selectedKeys.vertices.indexOf(key) > -1"
-                       ng-click="toggleSelection(key,'vertices')">
+                       ng-checked="key.show"
+                       ng-click="toggleSelection(key)">
               </td>
               <td>
                 <label for="selected-key-vertex-{{key.name}}">{{ key.name }}</label>
@@ -34,17 +34,17 @@
           </table>
         </div>
 
-        <div class="span6" ng-if="keys.edges.length>0">
+        <div class="span6" ng-if="selectedKeys.edges.length>0">
           <h4>Edges</h4>
           <table>
-            <tr ng-repeat="key in keys.edges">
+            <tr ng-repeat="key in selectedKeys.edges">
               <td>
                 <input type="checkbox"
                        name="selectedKeys[]"
                        value="{{ key.name }}"
                        id="selected-key-edge-{{key.name}}"
-                       ng-checked="selectedKeys.edges.indexOf(key) > -1"
-                       ng-click="toggleSelection(key,'edges')">
+                       ng-checked="key.show"
+                       ng-click="toggleSelection(key)">
               </td>
               <td>
                 <label for="selected-key-edge-{{key.name}}">{{ key.name }}</label>
@@ -60,6 +60,6 @@
 
   <div class="modal-footer">
     <button type="button" class="btn btn-default" ng-click="dismiss()">Cancel</button>
-    <button id="tour-step-6" class="btn btn-primary" ng-click="loadGraph(); dismiss()">Load Graph</button>
+    <button id="tour-step-6" class="btn btn-primary" ng-click="getSelected(); dismiss()">Load Graph</button>
   </div>
 </div>
