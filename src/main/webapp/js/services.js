@@ -178,27 +178,42 @@ angular.module('dendrite.services', ['ngResource']).
                 }
                 else if (format === "GraphML") {
 
-                  // parse the XML and extract the graph>node>data keys
                   var xml = new DOMParser().parseFromString(text, "text/xml");
-                  Array().forEach.call(xml.getElementsByTagName('node'), function(node) {
-                    Array().forEach.call(node.attributes, function(attribute) {
-                      keys.vertices[attribute.nodeName] = true;
-                    });
-                    Array().forEach.call(node.getElementsByTagName('data'), function(data) {
-                      keys.vertices[data.getAttribute('key')] = true;
-                    });
-                  });
 
-                  // extract the graph>edge>data keys
-                  var xml = new DOMParser().parseFromString(text, "text/xml");
-                  Array().forEach.call(xml.getElementsByTagName('edge'), function(node) {
-                    Array().forEach.call(node.attributes, function(attribute) {
-                      keys.edges[attribute.nodeName] = true;
+                  var myNodeList = xml.getElementsByTagName('key');
+                  var myArrayFromNodeList = [];
+                  for (var i = 0; i < myNodeList.length; i++) {
+                    myArrayFromNodeList.push(myNodeList[i]);
+
+                  }
+                  if (myArrayFromNodeList.length > 0) { //if key nodes are present in graphML file, use keys here
+                    myArrayFromNodeList.forEach(function(key) {
+                      if (key.getAttribute('for') === "node") {
+                        keys.vertices[key.getAttribute('attr.name')] = true;                      }
+                      if (key.getAttribute('for') === "edge") {
+                        keys.edges[key.getAttribute('attr.name')] = true;
+                      }
                     });
-                    Array().forEach.call(node.getElementsByTagName('data'), function(data) {
-                      keys.edges[data.getAttribute('key')] = true;
+                  }
+                  else { //if keys not present in graphML
+                    Array().forEach.call(xml.getElementsByTagName('node'), function(node) { //getting nodes
+                      Array().forEach.call(node.attributes, function(attribute) {
+                        keys.vertices[attribute.nodeName] = true;
+                      });
+                      Array().forEach.call(node.getElementsByTagName('data'), function(data) { //getting node key
+                        keys.vertices[data.getAttribute('key')] = true;
+                      });
                     });
-                  });
+                    var xml = new DOMParser().parseFromString(text, "text/xml");
+                    Array().forEach.call(xml.getElementsByTagName('edge'), function(node) { //getting edges
+                      Array().forEach.call(node.attributes, function(attribute) {
+                        keys.edges[attribute.nodeName] = true;
+                      });
+                      Array().forEach.call(node.getElementsByTagName('data'), function(data) { //getting edge key
+                        keys.edges[data.getAttribute('key')] = true;
+                      });
+                    });
+                  }
                 }
                 else if (format === "GML") {
 
@@ -440,7 +455,7 @@ angular.module('dendrite.services', ['ngResource']).
                       // re-order [lat, long] to [long, lat]
                       geocord.move(0, 1);
 
-                      data.push({geometry: {coordinates:results[i]["_source"][searchFacets[j]], type: "Point"}}); 
+                      data.push({geometry: {coordinates:results[i]["_source"][searchFacets[j]], type: "Point"}});
                     }
                   }
                 }

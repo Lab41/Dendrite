@@ -408,7 +408,7 @@ angular.module('dendrite.controllers', []).
           else if ($scope.analyticType === "snapCentrality") {
             Analytics.createSnap({graphId: $routeParams.graphId, algorithm: "centrality"}, undefined);
           }
-          // Snap 
+          // Snap
           else if ($scope.analyticType === "Snap") {
             Analytics.createSnap({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
           }
@@ -1263,23 +1263,31 @@ angular.module('dendrite.controllers', []).
         };
 
         // push/slice checkbox from list
-        $scope.keys = {vertices: [], edges: []};
-        $scope.selectedKeys = [];
+        $scope.selectedKeys = {vertices: [], edges: []};
+        $scope.arrayShow = {vertices: [], edges: []};
 
-        $scope.toggleSelection = function(key, keytype) {
-            var idx = $scope.selectedKeys[keytype].indexOf(key);
+        $scope.toggleSelection = function(key) {
+            key.show = !key.show;
+        };
 
-            if (idx > -1) {
-                $scope.selectedKeys[keytype].splice(idx, 1);
-            } else {
-                $scope.selectedKeys[keytype].push(key);
+        $scope.getSelected = function() { // 'load graph' button calls getSelected()
+
+          Object.keys($scope.selectedKeys).forEach(function(key) { //arrays within selectedKeys
+            for (var x = 0; x < $scope.selectedKeys[key].length; x++) { //items in arrays
+
+              if ($scope.selectedKeys[key][x].show) { //if checked in load form, add fields to array for indexing
+                delete $scope.selectedKeys[key][x].show;
+                $scope.arrayShow[key].push($scope.selectedKeys[key][x]);
+              }
             }
+          });
+            $scope.loadGraph($scope.arrayShow); //loadgraph function being called with selected keys from form
         }
 
         var restrictedKeys = ["_id", "id", "_type", "_outV", "_inV", "source", "target", "blueprintsId"];
 
         $scope.$on('event:graphFileParsed', function() {
-          $scope.keys = {vertices: [], edges: []};
+          $scope.selectedKeys = {vertices: [], edges: []};
           if (!appConfig.fileUpload.parseGraphFile) {
             $scope.safeApply(function() {
               $scope.fileParsed = true;
@@ -1292,22 +1300,23 @@ angular.module('dendrite.controllers', []).
               $scope.fileParseError = false;
               $scope.keysForGraph.vertices.forEach(function(k) {
                   if (restrictedKeys.indexOf(k) == -1) {
-                      $scope.keys.vertices.push({
+                      $scope.selectedKeys.vertices.push({
                           name: k,
-                          type: $scope.indexTypes[0]
+                          type: $scope.indexTypes[0],
+                          show: true
                       });
                   }
               });
               $scope.keysForGraph.edges.forEach(function(k) {
                   if (restrictedKeys.indexOf(k) == -1) {
-                      $scope.keys.edges.push({
+                      $scope.selectedKeys.edges.push({
                           name: k,
-                          type: $scope.indexTypes[0]
+                          type: $scope.indexTypes[0],
+                          show: true
                       });
                   }
               });
 
-              $scope.selectedKeys = $scope.keys;
               $scope.safeApply(function() {
                 $modal({
                   scope: $scope,
@@ -1326,12 +1335,13 @@ angular.module('dendrite.controllers', []).
 
         // auto-submit form to upload graph
         // **note: explicitly set searchkeys value since Angular might be pending the scope's data update
-        $scope.loadGraph = function() {
+        $scope.loadGraph = function(selected) {
           // See fixme above.
           $scope.actuallyUploading = true;
 
           // build the list of key-val pairs
-          var selectedKeysJson = JSON.stringify($scope.selectedKeys);
+          console.log($scope.arrayShow.length);
+          var selectedKeysJson = JSON.stringify(selected);
           angular.element('#form-file-upload input[name="searchkeys"]').val(selectedKeysJson);
 
           $scope.safeApply(function() {
