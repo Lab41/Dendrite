@@ -28,6 +28,7 @@
         <spring-security.version>3.1.4.RELEASE</spring-security.version>
         <spring.version>3.2.0.RELEASE</spring.version>
         <titan.version>0.4.4-dendrite-hadoop2-SNAPSHOT</titan.version>
+        <hadoop.version>2.3.0</hadoop.version>
     </properties>
     <repositories>
         <repository>
@@ -407,6 +408,11 @@
             <groupId>com.thinkaurelius.titan</groupId>
             <artifactId>titan-rexster</artifactId>
             <version>${titan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
         </dependency>
 
         <!-- Blueprints dependencies -->
