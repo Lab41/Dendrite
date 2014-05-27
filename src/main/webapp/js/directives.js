@@ -134,14 +134,16 @@ angular.module('dendrite.directives', []).
         }
 
         // render visualization, regardless of when displayed
-        var r = $scope.$parent.sigmaViz.addRenderer({
-          type: 'canvas',
-          container: document.getElementById('container-graph-sigmajs')
-        });
-        $scope.$parent.sigmaViz.refresh();
+        if ($scope.$parent.sigmaViz !== undefined) {
+          var r = $scope.$parent.sigmaViz.addRenderer({
+            type: 'canvas',
+            container: document.getElementById('container-graph-sigmajs')
+          });
+          $scope.$parent.sigmaViz.refresh();
 
-        // alert app to data completion
-        $rootScope.$broadcast('event:projectHasData');
+          // alert app to data completion
+          $rootScope.$broadcast('event:reloadGraph');
+        }
       }
     };
   }]).

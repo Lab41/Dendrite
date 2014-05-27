@@ -115,14 +115,6 @@ angular.module('dendrite.controllers', []).
         $scope.historyEnabled = appConfig.historyServer.enabled;
         $scope.graphLoaded = false;
 
-        // scope state for when project has loaded data to visualize
-        $scope.projectHasData = false;
-        $scope.$on('event:projectHasData', function() {
-          $scope.safeApply(function() {
-            $scope.projectHasData = true;
-          });
-        });
-
         // boolean function to determine whether to show tabbed visualization panel
         $scope.showTabs = function() {
           return ($scope.projectHasData && $scope.graphLoaded);
@@ -174,16 +166,17 @@ angular.module('dendrite.controllers', []).
         });
 
         // tripwire to reload current graph
+        $scope.projectHasData = false; // scope state for when project has loaded data to visualize
         $scope.$on('event:reloadGraph', function() {
           $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
 
           // reload data as few times as possible (ideally once) to avoid wasted repetition
-          if ($scope.sigmajsGraphData === undefined) {
+          if ($scope.sigmajsGraphData === undefined || !$scope.sigmajsGraphData.vertices.length) {
             $scope.sigmajsGraphData = GraphTransform.reloadSigmaGraph($scope.graphId);
           }
 
           // let app know data is loaded into project
-          $rootScope.$broadcast('event:projectHasData');
+          $scope.projectHasData = true;
         });
 
 
