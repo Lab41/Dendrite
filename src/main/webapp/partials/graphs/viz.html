@@ -1,26 +1,10 @@
 <div class="row-fluid" style="margin-top:40px" ng-show="projectHasData">
   <div class="span12">
-    <div id="tabs">
-      <ul>
-        <li><a href="#tabs-1">Graph View</a></li>
-        <li><a href="#tabs-2">Histogram</a></li>
-        <li><a href="#tabs-3">Scatterplot</a></li>
-        <li><a href="#tabs-4">Map</a></li>
-      </ul>
-      <div id="tabs-1">
-        <div id="forceDirectedGraph" class="col-sm-8" align="center">
-          <svg force-directed-graph data="forceDirectedGraphData"></svg>
-        </div>
-      </div>
-      <div id="tabs-2">
-        <div ng-include="'partials/viz/histogram/form.html'"></div>
-      </div>
-      <div id="tabs-3">
-        <div ng-include="'partials/viz/scatterplot/form.html'"></div>
-      </div>
-      <div id="tabs-4">
-        <div ng-include="'partials/viz/map/form.html'"></div>
-      </div>
-    </div>
+    <tabset id="tabs" ng-show="showTabs()">
+      <tab title="Graph" template-url="partials/viz/network/d3.html"></tab>
+      <tab title="Histogram" template-url="partials/viz/histogram/form.html"></tab>
+      <tab title="Scatterplot" template-url="partials/viz/scatterplot/form.html"></tab>
+      <tab title="Map" template-url="partials/viz/map/form.html"></tab>
+    </tabset>
   </div>
 </div>
