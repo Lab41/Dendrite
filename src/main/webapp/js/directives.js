@@ -250,4 +250,129 @@ angular.module('dendrite.directives', []).
      return function(scope, elem, attr) {
         elem[0].focus();
      };
-  });
+  })
+  .directive('panels', function() {
+    return {
+      restrict: 'A',
+      link: function($scope, element, attrs) {
+
+        // panel-edit mode controlled by view checkbox/variable
+        $scope.$watch('panelEdit', function () {
+
+          // draggability controlled by panelEdit mode
+          if ($scope.panelEdit) {
+
+              // enable draggability
+              $('.column').sortable('enable').sortable({
+                  connectWith: '.column',
+                  handle: 'h2',
+                  cursor: 'move',
+                  placeholder: 'placeholder',
+                  forcePlaceholderSize: true,
+                  opacity: 0.4
+              })
+
+              // disable text selection of text to focus on moving/rearranging panels
+              .disableSelection()
+
+              // add hover class when h2 is hovered
+              .find('h2').each(function() {
+                  $(this).hover(function(){
+                      $(this).closest('.dragbox').addClass('hover');
+                  }, function(){
+                      $(this).closest('.dragbox').removeClass('hover');
+                  });
+            });
+          }
+          else {
+
+            // disable draggability
+            $('.column').sortable().sortable('disable')
+
+            // enable text selection
+            .enableSelection()
+
+            // disable h2:hover
+            .find('h2').each(function() {
+                $(this).unbind('mouseenter mouseleave');
+            });
+          }
+        });
+
+        // regardless of panelEdit mode, enable panel resizing
+        $('.dragbox').each(function(){
+
+            $(this)
+
+              // add temporary panel border for visual clue to panel size/state
+              .find('.collapse-buttons').hover(function(){
+                  $(this).closest('.dragbox').addClass('hover');
+              }, function(){
+                  $(this).closest('.dragbox').removeClass('hover');
+              })
+              .end()
+
+              // click handler for toggling show/hide of panel content
+              .find('.expand-toggle').click(function() {
+
+                  // if panel in shrink mode, expand to half width
+                  if (!$(this).closest('.column').hasClass('width-full')) {
+                    setWidth($(this), 'width-half', 'width-half');
+                  }
+
+                  // toggle visibility of content
+                  $(this).closest('h2').siblings('.dragbox-content').toggle();
+              })
+              .end()
+
+              //click handler for expanding panel to largest size
+              .find('.expand-full').click(function() {
+
+                  // if not already full width, expand panel
+                  if (!$(this).closest('.column').hasClass('width-full')) {
+                    setWidth($(this), 'width-full', 'width-mini');
+                  }
+                  else {
+
+                    // if already full width and visible, toggle horizontally to half-width
+                    if ($(this).closest('.dragbox').find('.dragbox-content').is(":visible")) {
+                      setWidth($(this), 'width-half', 'width-half');
+                    }
+                  }
+
+                  // hide all other panels except expanded one
+                  $(this).closest('.row-fluid').find('.dragbox-content').hide();
+                  $(this).closest('.dragbox').find('.dragbox-content').show();
+              })
+              .end()
+        });
+
+        // helper function to set the width of a panel and sibling panels
+        function setWidth(element, classForElement, classForOthers) {
+          // remove all classnames beginning with 'width-'
+          element.closest('.row-fluid').find('.column').removeClass (function (index, css) {
+              return (css.match (/\bwidth-\S+/g) || []).join(' ');
+          });
+
+          // add classes for panel and siblings
+          element.closest('.row-fluid').find('.column').addClass(classForOthers);
+          element.closest('.column').removeClass(classForOthers).addClass(classForElement);
+        };
+      }
+    };
+  })
+  .directive('panelCollapseButtons', function() {
+    return {
+      restrict: 'E',
+      link: function($scope, element, attrs) {
+
+      },
+      template:
+        '<span class="nav-buttons"><i class="icon-move"></i></span>\
+        <span class="collapse-buttons">\
+          <i class="icon-resize-vertical expand-toggle"></i>\
+          <i class="icon-fullscreen expand-full"></i>\
+        </span>'
+    };
+  })
+  ;

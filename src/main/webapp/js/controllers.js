@@ -118,6 +118,12 @@ angular.module('dendrite.controllers', []).
           $scope.projectHasData = true;
         });
 
+        $scope.panelEditable = function() {
+          if ($scope.panelEdit) {
+            return "panel-editable";
+          }
+        };
+
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
                     $scope.project = response.data.project;

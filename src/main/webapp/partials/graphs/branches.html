@@ -1,0 +1,51 @@
+<div class="row-fluid">
+
+  <div class="span12" ng-controller="BranchEditCtrl" ng-show="projectHasData">
+    <h4 class="titlebar"> <a ng-show="historyEnabled" href="#/projects/{{ projectId }}/history" class="btn btn-default btn-history">History</a></h4>
+    <div class="alert alert-info" ng-show="branchMessage">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        {{ branchMessage }}
+    </div>
+    <div class="alert alert-error" ng-show="branchError">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        {{ branchError }}
+    </div>
+
+    <div class="row-fluid">
+      <div class="span12"><strong id="tour-step-7" ng-if="projectHasData && graphLoaded">Current</strong>:
+
+        <!-- split button -->
+        <div class="btn-group navbar-btn btn-branch" class="display-inline">
+          <button class="btn btn-medium btn-primary dropdown-toggle" data-toggle="dropdown">{{ queryCurrentBranch.branch.name | truncate }} <span class="caret"></span></button>
+          <ul class="dropdown-menu">
+            <li><a href="" ng-click="showModalCreate(queryCurrentBranch.branch)">New branch from {{ queryCurrentBranch.branch.name }}</a></li>
+              <li class="divider"></li>
+            <li><a href="" ng-click="commitBranch(queryCurrentBranch.branch)" ng-confirm-click="Are you sure?" >Commit {{ queryCurrentBranch.branch.name }}</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="row-fluid" ng-if="queryBranches.branches.length>1">
+      <div class="span12">Additional:</div>
+    </div>
+    <ul ng-repeat="branch in queryBranches.branches">
+      <li ng-if="branch._id != queryCurrentBranch.branch._id">
+
+        <!-- split button -->
+        <div class="btn-group navbar-btn btn-branch" class="display-inline">
+          <button class="btn btn-medium btn-default dropdown-toggle" data-toggle="dropdown">{{ branch.name | truncate }} <span class="caret"></span></button>
+          <ul class="dropdown-menu">
+          <li><a href="" ng-click="showModalCreate(branch)">New branch from {{ branch.name }}</a></li>
+            <li><a href="" ng-click="switchBranch(branch, $event)" ng-confirm-click="Are you sure?" >Switch to {{ branch.name }}</a></li>
+            <li class="divider"></li>
+            <li><a href="" ng-click="deleteBranch(branch, $event)" ng-confirm-click="Really Delete?" >Delete {{ branch.name }}</a></li>
+          </ul>
+        </div>
+      </strong>
+
+      </li>
+    </ul>
+  </div>
+</div>
