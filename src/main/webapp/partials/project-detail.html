@@ -149,42 +149,23 @@
 
         </li>
       </ul>
+
+
     </div>
   </div>
 
-  <div class="row-fluid" style="margin-top:40px" ng-show="projectHasData">
+  <div class="row-fluid" style="margin-top:40px" ng-if="projectHasData">
     <div class="span12">
-      <h3 class="titlebar"><span id="tour-step-8" ng-if="projectHasData && graphLoaded">Quick View</span> of {{ graphId }}</h3>
-      <div id="tabs">
-        <ul>
-          <li><a href="#tabs-1">Graph View</a></li>
-          <li><a href="#tabs-2">Histogram</a></li>
-          <li><a href="#tabs-3">Scatterplot</a></li>
-          <li><a href="#tabs-4">Map</a></li>
-        </ul>
-        <div id="tabs-1">
-          <div id="forceDirectedGraph" class="col-sm-8" align="center">
-            <svg force-directed-graph data="forceDirectedGraphData"></svg>
-          </div>
-        </div>
-        <div id="tabs-2">
-          <div ng-include="'partials/viz/histogram/form.html'"></div>
-        </div>
-        <div id="tabs-3">
-          <div ng-include="'partials/viz/scatterplot/form.html'"></div>
-        </div>
-        <div id="tabs-4">
-          <div ng-include="'partials/viz/map/form.html'"></div>
-        </div>
-      </div>
+      <h3 ng-show="showTabs()"><span id="tour-step-8">Quick View</span> of {{ graphId }}</h3>
+
+      <img src="img/icons/ajax-loader.gif" ng-hide="showTabs()">
+      <tabset id="tabs" ng-show="showTabs()">
+        <tab title="Graph-D3" template-url="partials/viz/network/d3.html"></tab>
+        <tab title="Graph-SigmaJS" template-url="partials/viz/network/sigma.html"></tab>
+        <tab title="Histogram" template-url="partials/viz/histogram/form.html"></tab>
+        <tab title="Scatterplot" template-url="partials/viz/scatterplot/form.html"></tab>
+        <tab title="Map" template-url="partials/viz/map/form.html"></tab>
+      </tabset>
     </div>
   </div>
-
 </div>
-
-
-<script type="text/javascript">
-  $(function() {
-    $( "#tabs" ).tabs();
-  });
-</script>

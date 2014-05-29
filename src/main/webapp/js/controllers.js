@@ -113,10 +113,20 @@ angular.module('dendrite.controllers', []).
     controller('ProjectDetailCtrl', function($rootScope, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
         $scope.projectId = $routeParams.projectId;
         $scope.historyEnabled = appConfig.historyServer.enabled;
+        $scope.graphLoaded = false;
+
+        // scope state for when project has loaded data to visualize
         $scope.projectHasData = false;
         $scope.$on('event:projectHasData', function() {
-          $scope.projectHasData = true;
+          $scope.safeApply(function() {
+            $scope.projectHasData = true;
+          });
         });
+
+        // boolean function to determine whether to show tabbed visualization panel
+        $scope.showTabs = function() {
+          return ($scope.projectHasData && $scope.graphLoaded);
+        };
 
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
@@ -166,7 +176,16 @@ angular.module('dendrite.controllers', []).
         // tripwire to reload current graph
         $scope.$on('event:reloadGraph', function() {
           $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
+
+          // reload data as few times as possible (ideally once) to avoid wasted repetition
+          if ($scope.sigmajsGraphData === undefined) {
+            $scope.sigmajsGraphData = GraphTransform.reloadSigmaGraph($scope.graphId);
+          }
+
+          // let app know data is loaded into project
+          $rootScope.$broadcast('event:projectHasData');
         });
+
 
         // get project's branches
         $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});

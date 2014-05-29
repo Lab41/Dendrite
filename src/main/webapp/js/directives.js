@@ -90,11 +90,75 @@ angular.module('dendrite.directives', []).
         }
     };
   }]).
+  directive('sigmajsGraph', ['$rootScope', '$q', '$compile', 'GraphTransform', function($rootScope, $q, $compile, GraphTransform) {
+    return {
+      restrict: 'A',
+      transclude: true,
+      link: function($scope, element, attrs) {
+
+        // only generate visualization one time
+        if ($scope.$parent.sigmaViz === undefined) {
+          $scope.sigmaGraph = {nodes: [], edges: []};
+
+          // build nodes into SigmaJS format
+          var vertexSize = 20/$scope.sigmajsGraphData.vertices.length;
+          var vertexColor = "#424a4a";
+          $scope.sigmajsGraphData.vertices.forEach(function(vertex) {
+            vertex.id = vertex._id;
+            vertex.x = Math.random();
+            vertex.y = Math.random();
+            vertex.color = vertexColor;
+            vertex.size = vertexSize;
+            vertex.label = vertex.name;
+
+            // push vertex
+            $scope.sigmaGraph.nodes.push(vertex);
+          });
+
+          // build edges into SigmaJS format
+          $scope.sigmajsGraphData.edges.forEach(function(edge) {
+            edge.id = edge._id;
+            edge.source = edge._inV;
+            edge.target = edge._outV;
+
+            // push edge
+            $scope.sigmaGraph.edges.push(edge);
+          });
+
+          // generate sigma visualization
+          // attach to parent scope to avoid future refreshes
+          $scope.$parent.sigmaViz = new sigma({
+            graph: $scope.sigmaGraph
+          })
+          .startForceAtlas2();
+        }
+
+        // render visualization, regardless of when displayed
+        var r = $scope.$parent.sigmaViz.addRenderer({
+          type: 'canvas',
+          container: document.getElementById('container-graph-sigmajs')
+        });
+        $scope.$parent.sigmaViz.refresh();
+
+        // alert app to data completion
+        $rootScope.$broadcast('event:projectHasData');
+      }
+    };
+  }]).
+  directive('tabs', ['$rootScope', function($rootScope) {
+      return {
+          restrict: 'A',
+          link: function($scope, element, attrs) {
+              var jqueryElement = $(element[0]);
+              $scope.tabElement = jqueryElement;
+          }
+      };
+  }]).
   directive('forceDirectedGraph', ['$rootScope', '$q', '$compile', function($rootScope, $q, $compile) {
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
-        var width = $('#forceDirectedGraph').parent().width()*0.90,
+        var width = $('#tabs').width()*0.90,
           height = 500;
 
         var color = d3.scale.category20();
@@ -205,7 +269,7 @@ angular.module('dendrite.directives', []).
 
           // alert app to data in the project
           if (nodes.length) {
-            $rootScope.$broadcast('event:projectHasData');
+
           }
         }
 
@@ -250,4 +314,77 @@ angular.module('dendrite.directives', []).
      return function(scope, elem, attr) {
         elem[0].focus();
      };
+  }).
+  // <tabset>
+  //    <tab ..>
+  //    <tab ..>
+  // </tabset>
+  // tabset enables lazy loading of tab content to avoid unnecessary overhead, as well as
+  // force refresh that AngularJS might otherwise not apply to DOM
+  directive('tabset', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      transclude: true,
+      controller: function($scope) {
+        $scope.templateUrl = '';
+        var tabs = $scope.tabs = [];
+        var controller = this;
+
+        this.selectTab = function (tab) {
+          angular.forEach(tabs, function (tab) {
+            tab.selected = false;
+          });
+          tab.selected = true;
+        };
+
+        this.setTabTemplate = function (templateUrl) {
+          $scope.templateUrl = templateUrl;
+        }
+
+        this.addTab = function (tab) {
+          if (tabs.length == 0) {
+            controller.selectTab(tab);
+          }
+          tabs.push(tab);
+        };
+      },
+      template:
+        '<div class="row-fluid">' +
+          '<div class="row-fluid">' +
+            '<div class="nav nav-tabs" ng-transclude></div>' +
+          '</div>' +
+          '<div id="tabs-content" class="row-fluid">' +
+            '<ng-include src="templateUrl">' +
+          '</ng-include></div>' +
+        '</div>'
+    };
+  }).
+  directive('tab', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      require: '^tabset',
+      scope: {
+        title: '@',
+        templateUrl: '@'
+      },
+      link: function(scope, element, attrs, tabsetController) {
+        tabsetController.addTab(scope);
+
+        scope.select = function () {
+          tabsetController.selectTab(scope);
+        }
+
+        scope.$watch('selected', function () {
+          if (scope.selected) {
+            tabsetController.setTabTemplate(scope.templateUrl);
+          }
+        });
+      },
+      template:
+        '<li ng-class="{active: selected}">' +
+          '<a href="" ng-click="select()">{{ title }}</a>' +
+        '</li>'
+    };
   });
