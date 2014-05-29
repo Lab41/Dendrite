@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+// base
 @import "ui-colors.css.less";
 @import "ui-mixins.css.less";
+
+// components
 @import "angular.css.less";
+@import "panels.css.less";
 @import "ng-grid.css.less";
 @import "bootstrap-tour.css.less";
 
@@ -151,6 +155,11 @@
   background-size: auto 50px;
 }
 
+#viz-histogram-wrapper {
+  background: @color-gray-dark;
+  padding: 15px;
+  .rounded-corner(3px);
+}
 
 .analytics-example-wrapper {
   min-height: 180px !important;
@@ -186,7 +195,7 @@ line.link {
 }
 
 .chart text.name {
-  fill: darken(@color-blue-dark, 20%);
+  fill: @color-white-dark;
 }
 
 .chart line {

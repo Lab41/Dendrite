@@ -42,3 +42,22 @@
  -khtml-border-radius: 0 0 @radius @radius;
  border-radius: 0 0 @radius @radius;
 }
+
+.transparent (@opacity: 0.5) {
+  @opacity100: @opacity*100;
+
+  /* IE 8 */
+  -ms-filter: ~"progid:DXImageTransform.Microsoft.Alpha(Opacity=@{opacity100})";
+
+  /* IE 5-7 */
+  filter: alpha(opacity=@opacity100);
+
+  /* Netscape */
+  -moz-opacity: @opacity;
+
+  /* Safari 1.x */
+  -khtml-opacity: @opacity;
+
+  /* Good browsers */
+  opacity: @opacity;
+}
