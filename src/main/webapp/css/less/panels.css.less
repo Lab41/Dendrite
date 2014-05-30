@@ -1,0 +1,143 @@
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http: //www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import "ui-colors.css.less";
+@import "ui-mixins.css.less";
+
+.titlebar-buttons {
+  .float-right;
+  font-size: 12px;
+
+  label {
+    display: inline-block;
+    margin: 0px 5px;
+  }
+}
+
+.panel-editable {
+  .dragbox {
+    border: 2px dotted @color-white-dark !important;
+  }
+}
+.panel {
+  .dragbox {
+
+    &.hover {
+      cursor: move !important;
+      border: 2px dashed @color-blue-light !important;
+    }
+
+    h2 {
+      .nav-buttons {
+        display: inline-block;
+      }
+    }
+  }
+
+
+}
+
+
+.panel {
+  .column-fullwidth {
+    .column {
+      width: 100% !important;
+    }
+
+    .collapse-buttons {
+      .expand-full {
+        display:none;
+      }
+    }
+  }
+  .column {
+      width: 50%;
+      min-height: 300px;
+      background: transparent;
+      float: left;
+
+    &.width-mini { width: 25%; }
+    &.width-half { width: 50%; }
+    &.width-full { width: 75%; }
+
+    .dragbox {
+      margin-right: 5px;
+      margin-bottom: 5px;
+      position: relative;
+      .rounded-corner(5px);
+
+      border: 2px solid transparent;
+
+
+
+      h2 {
+        margin: 0;
+        line-height: 24px;
+        font-size: 17.5px;
+        .rounded-corner(3px);
+        padding: 5px;
+        background: #f0f0f0;
+        background: rgba(255,255,255,0.15);
+        color: @color-orange-dark;
+        font-family: Verdana;
+
+        &.collapse{
+          background: #f0f0f0 url('collapse.png') no-repeat top rightright;
+        }
+
+        .nav-buttons {
+          display: none;
+          text-align: center;
+          opacity: 0.5;
+        }
+
+        .collapse-buttons {
+          float: right;
+
+          i {
+            .transparent(0.5);
+          }
+          i:hover {
+            cursor: pointer;
+            .transparent(1.0);
+          }
+        }
+
+        .configure{
+            font-size: 11px;
+            font-weight: normal;
+            margin-right: 30px;
+            float: right;
+        }
+      }
+    }
+
+    .placeholder {
+        background: #f0f0f0;
+        border: 2px dashed @color-blue-light;
+    }
+
+    .dragbox-content {
+        min-height: 100px;
+        margin: 5px;
+        font-family: 'Lucida Grande', Verdana;
+        font-size: 0.8em;
+        line-height: 1.5em;
+    }
+  }
+
+
+}

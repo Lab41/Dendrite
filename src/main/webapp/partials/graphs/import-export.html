@@ -1,0 +1,86 @@
+<div class="row-fluid">
+  <div class="span12">
+    <label for="file-import-format">Upload a file to add to the network:</label>
+    <div ng-controller="FileUploadCtrl">
+      <form id="form-file-upload" ng-upload="uploadFile(content)" ng-upload-loading="uploading()" action="api/graphs/{{ graphId }}/file-import" upload-options-enable-controls>
+
+        <input type="hidden" name="searchkeys" value="{{selectedCheckboxesList}}">
+
+        <select name="format" id="file-import-format" class="inline form-control">
+            <option selected>Select Format</option>
+            <option value="GraphSON">GraphSON</option>
+            <option value="GraphML">GraphML</option>
+            <option value="GML">GML</option>
+            <option value="FaunusGraphSON">Faunus GraphSON</option>
+        </select>
+
+        <div class="inline fileupload fileupload-new" data-provides="fileupload">
+          <span class="btn btn-file" id="tour-step-5">
+            <span class="fileupload-new">Select file</span>
+            <span class="fileupload-exists">Change</span>
+            <input file-parse-graph type="file" name="file" id="file" style="display:inline">
+          </span>
+          <div>
+            <div class="alert alert-info" ng-hide="!fileParseError">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                {{ fileParseError }}
+            </div>
+            <span ng-hide="fileUploaded || fileParseError">
+              <span class="inline fileupload-preview"> </span>
+              <a class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+            </span>
+
+            <input ng-if="fileParsed && !fileUploaded" id="file-upload-submit" type="submit" class="inline btn btn-primary" value="Submit" ng-disabled="fileUploading"/>
+            <div class="alert alert-info" ng-hide="!fileUploaded">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                {{ uploadMessage }}
+            </div>
+            <div ng-hide="!fileUploading"><img src="img/icons/ajax-loader.gif"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row-fluid" ng-show="projectHasData">
+    <div class="span12">
+        <label for="file-export-format">Download this graph:</label>
+        <div>
+            <form action="api/graphs/{{graphId}}/file-export" method="POST">
+                <select name="format" id="file-export-format" class="inline form-control">
+                    <option selected>Select Format</option>
+                    <option value="GraphSON">GraphSON</option>
+                    <option value="GraphML">GraphML</option>
+                    <option value="GML">GML</option>
+                </select>
+
+                <input type="submit" class="inline btn btn-primary" value="Download"/>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row-fluid" ng-show="projectHasData">
+    <div class="span12">
+        <label for="checkpoint-format">Checkpoint this graph:</label>
+        <div ng-controller="GraphSaveCtrl">
+          <form ng-submit="saveFile(content, completed)">
+            <select ng-model="format" name="format" id="checkpoint-format" class="inline form-control">
+              <option selected ng-selected="true">Select Format</option>
+              <option value="GraphSON">GraphSON</option>
+              <option value="GraphML">GraphML</option>
+              <option value="GML">GML</option>
+            </select>
+
+            <input type="submit" class="inline btn btn-primary" value="Checkpoint" ng-click="saveFile"/>
+            <div ng-hide="!fileSaving"><img src="img/icons/ajax-loader.gif"></div>
+            <div class="alert alert-info" ng-hide="!fileSaved">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                {{ savedMessage }}
+            </div>
+          </form>
+        </div>
+    </div>
+</div>
+</div>

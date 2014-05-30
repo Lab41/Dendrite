@@ -17,10 +17,10 @@
 'use strict';
 
 /* Directives */
-angular.module('dendrite.directives', []).
+angular.module('dendrite.directives', [])
   // Use: <span access-level='accessLevels.ROLE_USER'>test data</span>
   // Note: accessLevels must be set in controller
-  directive('accessLevel', ['$rootScope', 'User', function($rootScope, User) {
+  .directive('accessLevel', ['$rootScope', 'User', function($rootScope, User) {
     return {
         restrict: 'A',
         link: function($scope, element, attrs) {
@@ -50,8 +50,8 @@ angular.module('dendrite.directives', []).
             }
         }
     };
-  }]).
-  directive('fileParseGraph', ['$rootScope', 'appConfig', 'Helpers', function($rootScope, appConfig, Helpers) {
+  }])
+  .directive('fileParseGraph', ['$rootScope', 'appConfig', 'Helpers', function($rootScope, appConfig, Helpers) {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
@@ -89,30 +89,30 @@ angular.module('dendrite.directives', []).
           });
         }
     };
-  }]).
-  directive('forceDirectedGraph', ['$rootScope', '$q', '$compile', function($rootScope, $q, $compile) {
+  }])
+  .directive('forceDirectedGraph', ['$rootScope', '$q', '$compile', function($rootScope, $q, $compile) {
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
-        var width = $('#forceDirectedGraph').parent().width()*0.90,
-          height = 500;
-
+        var width, height, force, svg;
         var color = d3.scale.category20();
-
-        var force = d3.layout.force()
-          .on("tick", tick)
-          .charge(-120)
-          .linkDistance(30)
-          .size([width, height]);
-
-        var svg = d3.select(element[0])
-          .attr("width", width)
-          .attr("height", height);
-
         var nodes = [], links = [];
 
         $scope.$watch(attrs.data, function(data) {
           if (data) {
+            $('#forceDirectedGraph').height(height);
+            width = $('#forceDirectedGraph').closest('.column').width()*0.90;
+            height = 500;
+
+            svg = d3.select(element[0])
+                      .attr("width", width)
+                      .attr("height", height);
+
+            force = d3.layout.force()
+                    .on("tick", tick)
+                    .charge(-120)
+                    .linkDistance(10)
+                    .size([width*.90, height*.90]);
             $q.all([
                 data.vertices.promise,
                 data.edges.promise
@@ -228,8 +228,8 @@ angular.module('dendrite.directives', []).
         }
       }
     };
-  }]).
-  directive('ngConfirmClick', [
+  }])
+  .directive('ngConfirmClick', [
     function(){
       return {
         priority: 1,
@@ -250,4 +250,201 @@ angular.module('dendrite.directives', []).
      return function(scope, elem, attr) {
         elem[0].focus();
      };
+  })
+  .directive('panels', function() {
+    return {
+      restrict: 'A',
+      link: function($scope, element, attrs) {
+
+        // panel-edit mode controlled by view checkbox/variable
+        $scope.$watch('panelEdit', function () {
+
+          // draggability controlled by panelEdit mode
+          if ($scope.panelEdit) {
+
+              // enable draggability
+              $('.column').sortable('enable').sortable({
+                  connectWith: '.column',
+                  handle: 'h2',
+                  cursor: 'move',
+                  placeholder: 'placeholder',
+                  forcePlaceholderSize: true,
+                  opacity: 0.4
+              })
+
+              // disable text selection of text to focus on moving/rearranging panels
+              .disableSelection()
+
+              // add hover class when h2 is hovered
+              .find('h2').each(function() {
+                  $(this).hover(function(){
+                      $(this).closest('.dragbox').addClass('hover');
+                  }, function(){
+                      $(this).closest('.dragbox').removeClass('hover');
+                  });
+            });
+          }
+          else {
+
+            // disable draggability
+            $('.column').sortable().sortable('disable')
+
+            // enable text selection
+            .enableSelection()
+
+            // disable h2:hover
+            .find('h2').each(function() {
+                $(this).unbind('mouseenter mouseleave');
+            });
+          }
+        });
+
+        // regardless of panelEdit mode, enable panel resizing
+        $('.dragbox').each(function(){
+
+            $(this)
+
+              // add temporary panel border for visual clue to panel size/state
+              .find('.collapse-buttons').hover(function(){
+                  $(this).closest('.dragbox').addClass('hover');
+              }, function(){
+                  $(this).closest('.dragbox').removeClass('hover');
+              })
+              .end()
+
+              // click handler for toggling show/hide of panel content
+              .find('.expand-toggle').click(function() {
+
+                  // if panel in shrink mode, expand to half width
+                  if (!$(this).closest('.column').hasClass('width-full')) {
+                    setWidth($(this), 'width-half', 'width-half');
+                  }
+
+                  // toggle visibility of content
+                  $(this).closest('h2').siblings('.dragbox-content').toggle();
+              })
+              .end()
+
+              //click handler for expanding panel to largest size
+              .find('.expand-full').click(function() {
+
+                  // if not already full width, expand panel
+                  if (!$(this).closest('.column').hasClass('width-full')) {
+                    setWidth($(this), 'width-full', 'width-mini');
+                  }
+                  else {
+
+                    // if already full width and visible, toggle horizontally to half-width
+                    if ($(this).closest('.dragbox').find('.dragbox-content').is(":visible")) {
+                      setWidth($(this), 'width-half', 'width-half');
+                    }
+                  }
+
+                  // hide all other panels except expanded one
+                  $(this).closest('.row-fluid').find('.dragbox-content').hide();
+                  $(this).closest('.dragbox').find('.dragbox-content').show();
+              })
+              .end()
+        });
+
+        // helper function to set the width of a panel and sibling panels
+        function setWidth(element, classForElement, classForOthers) {
+          // remove all classnames beginning with 'width-'
+          element.closest('.row-fluid').find('.column').removeClass (function (index, css) {
+              return (css.match (/\bwidth-\S+/g) || []).join(' ');
+          });
+
+          // add classes for panel and siblings
+          element.closest('.row-fluid').find('.column').addClass(classForOthers);
+          element.closest('.column').removeClass(classForOthers).addClass(classForElement);
+        };
+      }
+    };
+  })
+  .directive('panelCollapseButtons', function() {
+    return {
+      restrict: 'E',
+      link: function($scope, element, attrs) {
+
+      },
+      template:
+        '<span class="nav-buttons"><i class="icon-move"></i></span>\
+        <span class="collapse-buttons">\
+          <i class="icon-resize-vertical expand-toggle"></i>\
+          <i class="icon-fullscreen expand-full"></i>\
+        </span>'
+    };
+  })
+  // <tabset>
+  //    <tab ..>
+  //    <tab ..>
+  // </tabset>
+  // tabset enables lazy loading of tab content to avoid unnecessary overhead, as well as
+  // force refresh that AngularJS might otherwise not apply to DOM
+  .directive('tabset', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      transclude: true,
+      controller: function($scope) {
+        $scope.templateUrl = '';
+        var tabs = $scope.tabs = [];
+        var controller = this;
+
+        this.selectTab = function (tab) {
+          angular.forEach(tabs, function (tab) {
+            tab.selected = false;
+          });
+          tab.selected = true;
+        };
+
+        this.setTabTemplate = function (templateUrl) {
+          $scope.templateUrl = templateUrl;
+        }
+
+        this.addTab = function (tab) {
+          if (tabs.length == 0) {
+            controller.selectTab(tab);
+          }
+          tabs.push(tab);
+        };
+      },
+      template:
+        '<div class="row-fluid">' +
+          '<div class="row-fluid">' +
+            '<div class="nav nav-tabs" ng-transclude></div>' +
+          '</div>' +
+          '<div id="tabs-content" class="row-fluid">' +
+            '<ng-include src="templateUrl">' +
+          '</ng-include></div>' +
+        '</div>'
+    };
+  })
+  .directive('tab', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      require: '^tabset',
+      scope: {
+        title: '@',
+        templateUrl: '@'
+      },
+      link: function(scope, element, attrs, tabsetController) {
+        tabsetController.addTab(scope);
+
+        scope.select = function () {
+          tabsetController.selectTab(scope);
+        }
+
+        scope.$watch('selected', function () {
+          if (scope.selected) {
+            tabsetController.setTabTemplate(scope.templateUrl);
+          }
+        });
+      },
+      template:
+        '<li ng-class="{active: selected}">' +
+          '<a href="" ng-click="select()">{{ title }}</a>' +
+        '</li>'
+    };
   });

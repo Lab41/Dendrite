@@ -520,11 +520,11 @@ angular.module('dendrite.services', ['ngResource']).
               var names,scores,
                   x,y,height,
                   chart,
-                  width = $("#viz-histogram-wrapper").parent().width()*0.90,
+                  width = $("#viz-histogram-wrapper").closest('.column').width()*0.90,
                   bar_height = 20,
                   padding_width = 40,
                   padding_height = 30,
-                  left_width = 100,
+                  left_width = 2,
                   gap = 2;
 
               // extract names and scores
@@ -570,31 +570,32 @@ angular.module('dendrite.services', ['ngResource']).
                 .enter().append("rect")
                 .attr("x", left_width)
                 .attr("y", function(d) { return y(d.term) + gap; })
-                .attr("width", function(d) { return x(d.count) })
+                .attr("width", function(d) { return Math.min(x(d.count), width) })
                 .attr("height", bar_height);
 
               // display count
-              chart.selectAll("text.score")
-                .data(facets)
-                .enter().append("text")
-                .attr("x", function(d) { return x(d.count) + left_width; })
-                .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
-                .attr("dx", -5)
-                .attr("dy", ".36em")
-                .attr("text-anchor", "end")
-                .attr('class', 'score')
-                .text(function(d) { return d.count });
+//              chart.selectAll("text.score")
+//                .data(facets)
+//                .enter().append("text")
+//                .attr("x", function(d) { return x(d.count) + left_width; })
+//                .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
+//                .attr("dx", -5)
+//                .attr("dy", ".36em")
+//                .attr("text-anchor", "end")
+//                .attr('class', 'score')
+//                .text(function(d) { return d.count });
 
               // category label
               chart.selectAll("text.name")
                 .data(facets)
                 .enter().append("text")
-                .attr("x", left_width / 2)
+                .attr("x", left_width + 5)
                 .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
                 .attr("dy", ".36em")
-                .attr("text-anchor", "middle")
+                .attr("text-anchor", "left")
                 .attr('class', 'name')
-                .text(function(d) { return d.term });
+                .text(function(d) { return d.term + ' (' + d.count + ')'
+                 });
               }
            });
         }
