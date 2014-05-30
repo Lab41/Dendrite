@@ -17,10 +17,10 @@
 'use strict';
 
 /* Directives */
-angular.module('dendrite.directives', []).
+angular.module('dendrite.directives', [])
   // Use: <span access-level='accessLevels.ROLE_USER'>test data</span>
   // Note: accessLevels must be set in controller
-  directive('accessLevel', ['$rootScope', 'User', function($rootScope, User) {
+  .directive('accessLevel', ['$rootScope', 'User', function($rootScope, User) {
     return {
         restrict: 'A',
         link: function($scope, element, attrs) {
@@ -50,8 +50,8 @@ angular.module('dendrite.directives', []).
             }
         }
     };
-  }]).
-  directive('fileParseGraph', ['$rootScope', 'appConfig', 'Helpers', function($rootScope, appConfig, Helpers) {
+  }])
+  .directive('fileParseGraph', ['$rootScope', 'appConfig', 'Helpers', function($rootScope, appConfig, Helpers) {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
@@ -89,8 +89,8 @@ angular.module('dendrite.directives', []).
           });
         }
     };
-  }]).
-  directive('forceDirectedGraph', ['$rootScope', '$q', '$compile', function($rootScope, $q, $compile) {
+  }])
+  .directive('forceDirectedGraph', ['$rootScope', '$q', '$compile', function($rootScope, $q, $compile) {
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
@@ -228,8 +228,8 @@ angular.module('dendrite.directives', []).
         }
       }
     };
-  }]).
-  directive('ngConfirmClick', [
+  }])
+  .directive('ngConfirmClick', [
     function(){
       return {
         priority: 1,
@@ -381,7 +381,7 @@ angular.module('dendrite.directives', []).
   // </tabset>
   // tabset enables lazy loading of tab content to avoid unnecessary overhead, as well as
   // force refresh that AngularJS might otherwise not apply to DOM
-  directive('tabset', function () {
+  .directive('tabset', function () {
     return {
       restrict: 'E',
       replace: true,
@@ -419,8 +419,8 @@ angular.module('dendrite.directives', []).
           '</ng-include></div>' +
         '</div>'
     };
-  }).
-  directive('tab', function () {
+  })
+  .directive('tab', function () {
     return {
       restrict: 'E',
       replace: true,
