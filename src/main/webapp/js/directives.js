@@ -94,25 +94,25 @@ angular.module('dendrite.directives', []).
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
-        var width = $('#forceDirectedGraph').parent().width()*0.90,
-          height = 500;
-
+        var width, height, force, svg;
         var color = d3.scale.category20();
-
-        var force = d3.layout.force()
-          .on("tick", tick)
-          .charge(-120)
-          .linkDistance(30)
-          .size([width, height]);
-
-        var svg = d3.select(element[0])
-          .attr("width", width)
-          .attr("height", height);
-
         var nodes = [], links = [];
 
         $scope.$watch(attrs.data, function(data) {
           if (data) {
+            $('#forceDirectedGraph').height(height);
+            width = $('#forceDirectedGraph').closest('.column').width()*0.90;
+            height = 500;
+
+            svg = d3.select(element[0])
+                      .attr("width", width)
+                      .attr("height", height);
+
+            force = d3.layout.force()
+                    .on("tick", tick)
+                    .charge(-120)
+                    .linkDistance(10)
+                    .size([width*.90, height*.90]);
             $q.all([
                 data.vertices.promise,
                 data.edges.promise
