@@ -124,6 +124,11 @@ angular.module('dendrite.controllers', []).
           }
         };
 
+        // boolean function to determine whether to show tabbed visualization panel
+        $scope.showTabs = function() {
+          return ($scope.projectHasData && $scope.graphLoaded);
+        };
+
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
                     $scope.project = response.data.project;
