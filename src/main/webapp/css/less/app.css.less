@@ -353,13 +353,14 @@ body {
 .modal-large, .modal-large.fade.in {
   width: 90%;
   margin-left: -45%;
-  height: 80vh;
+  height: 70vh;
   top: 10vh;
 }
 
 .modal-large .modal-body {
   max-height: 100vh;
-  height: 70vh;
+  height: 60vh;
+  padding: 30px;
 }
 
 .modal-large .modal-header {
@@ -368,6 +369,7 @@ body {
     color: @color-white-dark;
   }
 }
+
 /*************************************************/
 /* sections */
 /*************************************************/
@@ -564,24 +566,13 @@ div.span6 div.span6 div.dataTables_length label {
   }
 }
 
-.ui-state-default {
-  a, a:link, a:visited {
-    color: @color-gray-dark;
-  }
-
-  .icon-faded {
-    opacity: 0.5;
-  }
-}
-
-.ui-state-active {
-  a, a:link, a:visited {
-    color: @color-black-light;
-  }
+.icon-faded { opacity: 0.5; }
+.active {
   .icon-faded {
     opacity: 1;
   }
 }
+
 
 .ui-corner-all, .ui-corner-bottom, .ui-corner-right, .ui-corner-br {
   border-bottom-right-radius: 2px;
