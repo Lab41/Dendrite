@@ -6,22 +6,11 @@
   </div>
 
   <div class="modal-body">
-    <div id="tabs">
-      <ul class="tabs-dark">
-        <li><a href="#tabs-1"><i class="icon-star icon-faded"></i> Key Players</a></li>
-        <li><a href="#tabs-2"><i class="icon-random icon-faded"></i> Connectedness</a></li>
-        <li><a href="#tabs-3"><i class="icon-globe icon-faded"></i> Community</a></li>
-      </ul>
-      <div id="tabs-1">
-        <div ng-include="'partials/analytics/key_players/form.html'"></div>
-      </div>
-      <div id="tabs-2">
-        <div ng-include="'partials/analytics/connectedness/form.html'"></div>
-      </div>
-      <div id="tabs-3">
-        <div ng-include="'partials/analytics/community/form.html'"></div>
-      </div>
-    </div>
+    <tabset id="tabs">
+      <tab title="<i class='icon-star icon-faded'></i> Key Players" template-url="partials/analytics/key_players/form.html"></tab>
+      <tab title="<i class='icon-random icon-faded'></i> Connectedness" template-url="partials/analytics/connectedness/form.html"></tab>
+      <tab title="<i class='icon-globe icon-faded'></i> Community" template-url="partials/analytics/community/form.html"></tab>
+    </tabset>
   </div>
 
   <div class="modal-footer">
@@ -29,9 +18,3 @@
     <button class="btn btn-primary" ng-click="calculate(); dismiss()" id="tour-step-13">Calculate</button>
   </div>
 </div>
-
-<script type="text/javascript">
-  $(function() {
-    $( "#tabs" ).tabs();
-  });
-</script>
