@@ -488,4 +488,10 @@ angular.module('dendrite.directives', [])
         element.html($compile(template)($scope));
       }
     };
+  })
+  .directive('analyticProgressBar', function() {
+    return {
+      restrict: 'E',
+      templateUrl: 'partials/analytics/progress-bar.html'
+    };
   });
