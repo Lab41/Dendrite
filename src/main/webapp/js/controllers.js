@@ -110,13 +110,27 @@ angular.module('dendrite.controllers', []).
                     });
         };
     }).
-    controller('ProjectDetailCtrl', function($rootScope, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
+    controller('ProjectDetailCtrl', function($rootScope, $modal, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
         $scope.projectId = $routeParams.projectId;
         $scope.historyEnabled = appConfig.historyServer.enabled;
         $scope.projectHasData = false;
         $scope.$on('event:projectHasData', function() {
           $scope.projectHasData = true;
         });
+
+        $scope.panelFullScreen = function(title, url) {
+          $scope.modalUrl = url;
+          $scope.modalTitle = title;
+                $scope.safeApply(function() {
+                    $modal({
+                        scope: $scope,
+                        template: "partials/layouts/panel-modal.html",
+                        modalClass: 'modal-large',
+                        backdrop: 'static'
+                    })
+                });
+
+        };
 
         $scope.panelEditable = function() {
           if ($scope.panelEdit) {
