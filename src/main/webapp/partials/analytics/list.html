@@ -1,15 +1,8 @@
 <!-- list of active analytics jobs -->
 <ul style="margin-top:10px" class="list-style-type-none padding-none margin-none">
   <li ng-repeat="analytic in activeAnalytics.jobs">
-    <div ng-if="analytic.state==='ERROR'">
-      Error: {{ analytic.mapreduceJobId }} {{ analytic.msg }}
-    </div>
     <div class="row-fluid">
-
-      <div class="span8 progress-{{colorProgressBars(analytic.progress)}} active progress bar-analytic" ng-class="(analytic.progress != 1.0) ? 'progress-striped' : ''" >
-        <div class="bar" style="width:{{analytic.progress*100}}%;"></div>
-        <span class="text-analytic"><span ng-if="analytic.progress<1.0">{{analytic.progress * 100}}%: </span><strong>{{analytic.name}}</strong></span>
-      </div>
+      <analytic-progress-bar></analytic-progress-bar>
       <div class="btn-analytic span2 btn btn-small btn-attention" ng-click="showAnalytic({{analytic._id}})"><i class="icon-white icon-zoom-in vertical-align-middle"></i></div>
       <div class="btn-analytic span2 btn btn-small btn-default" ng-click="deleteAnalytic({{analytic}})"><i class="icon-white icon-trash vertical-align-middle"></i></div>
     </div>

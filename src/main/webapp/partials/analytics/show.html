@@ -1,15 +1,7 @@
 <h4 class="titlebar" style="padding-top:20px">
-  Status
+  Status for Analytic {{analytic._id}}
   <button ng-click="deleteJob(analytic._id)" ng-confirm-click="Really Delete?" class="btn btn-default"><i class="icon-white icon-trash"></i> Delete</button>
 </h4>
-<ul style="margin-top:10px">
-  <li>ID: {{analytic._id}}</li>
-  <li>Type: <strong>{{analytic.name}}</strong></li>
-  <li>Progress:
-    <div class="progress-{{colorProgressBars(analytic.progress)}} active progress" ng-class="(analytic.progress != 1.0) ? 'progress-striped' : ''" style="width:50%; display:inline-block; margin:0">
-      <div class="bar " style="display:inline-block; width:{{analytic.progress*100}}%;">{{analytic.progress*100}}%</div>
-    </div>
-  </li>
-  <li>Messages: {{analytic.msg}}</li>
-  <li>MapReduce Job: {{analytic.mapreduceJobId}}</li>
-</ul>
+<div class="row-fluid">
+  <analytic-progress-bar></analytic-progress-bar>
+</div>
