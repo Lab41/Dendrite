@@ -1065,4 +1065,74 @@ angular.module('dendrite.services', ['ngResource']).
                 isArray: false
             }
         });
+    })
+    .factory('Community', function($resource, $rootScope, $http, $q) {
+        return {
+            metrics: function(projectId) {
+              var x =
+              {
+                    global: [
+                      {name: "Modularity", value: 0.351192}
+                    ],
+                    communities: {
+                        averages: [
+                            {name: "Density", value: 0.124139887683},
+                            {name: "Avg Degree", value: 6.56826995761},
+                            {name: "FOMD", value: 0.00233333333333},
+                            {name: "TPR", value: "Not Implemented"},
+                            {name: "Avg Boundary Edges", value: 3.69049518469},
+                            {name: "Cut Ratio", value: 0.0136242703939},
+                            {name: "Conductance", value: 0.049332930715},
+                            {name: "Normalized Cut", value: 0.101576987981},
+                            {name: "Separability", value: 0.815689805154},
+                            {name: "Cohesiveness", value: "Not Implemented"}
+                        ],
+                        details: [
+                          { id: 1,
+                            metrics: [
+                              {name: "Density", value: 0.105911330049},
+                              {name: "Avg Degree", value: 6.65517241379},
+                              {name: "FOMD", value: 0.0},
+                              {name: "TPR", value: "Not Implemented"},
+                              {name: "Expansion", value: 3.68965517241},
+                              {name: "Out Degree Fraction",
+                                value: {
+                                        'max': 0.75,
+                                        'average': 0.512421008110663,
+                                        'flake': 0.5517241379310345}
+                                },
+                              {name: "Cut Ratio", value: 0.0136149637358},
+                              {name: "Conductance", value: 0.0507831039393},
+                              {name: "Normalized Cut", value: 0.103727191025},
+                              {name: "Separability", value: 0.803738317757},
+                              {name: "Cohesiveness", value: "Not Implemented"}
+                            ]
+                          },
+                          { id: 2,
+                            metrics: [
+                              {name: "Density", value: 0.0931174089069},
+                              {name: "Avg Degree", value: 6.87179487179},
+                              {name: "FOMD", value: 0.00333333333333},
+                              {name: "TPR", value: "Not Implemented"},
+                              {name: "Expansion", value: 3.33333333333},
+                              {name: "Out Degree Fraction",
+                                value: {
+                                        'max': 0.75,
+                                        'average': 0.44584304584304574,
+                                        'flake': 0.3333333333333333}
+                                },
+                              {name: "Cut Ratio", value: 0.0127713920817},
+                              {name: "Conductance", value: 0.0610328638498},
+                              {name: "Normalized Cut", value: 0.126293908026},
+                              {name: "Separability", value: 1.06153846154},
+                              {name: "Cohesiveness", value: "Not Implemented"}
+                            ]
+                          }
+                        ]
+                    }
+              };
+              return x;
+
+            }
+        }
     });

@@ -1,0 +1,13 @@
+<div class="container-fluid">
+  <h4>Network-centric</h4>
+  <div class="row-fluid" ng-repeat="metric in communityMetrics.global">
+    <div class="span3"><strong>{{metric.name}}</strong></div> <div class="span3">{{metric.value}}</div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <h4>Community Averages</h4>
+  <div class="row-fluid" ng-repeat="metric in communityMetrics.communities.averages">
+    <div class="span3"><strong>{{metric.name}}</strong></div> <div class="span3">{{metric.value}}</div>
+  </div>
+</div>

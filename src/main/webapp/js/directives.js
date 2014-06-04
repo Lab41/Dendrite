@@ -463,4 +463,29 @@ angular.module('dendrite.directives', [])
           '<a href="" ng-click="select()">{{ title }}</a>' +
         '</li>'
     };
+  })
+  .directive('graphCommunityMetric', function($compile) {
+    return {
+      restrict: 'E',
+      link: function($scope, element, attrs) {
+        var value = $scope.metric.value;
+        var valueHtml = value;
+
+        // handle nested objects
+        if ((typeof value) === "object") {
+          valueHtml = '';
+          for (var key in value) {
+            valueHtml += '<div class="row-fluid">\
+                            <div class="span3">'+key+'</div>\
+                            <div class="span9">'+value[key]+'</div>\
+                          </div>';
+          }
+        }
+        var template = '<div class="span3"><strong>{{metric.name}}</strong></div>\
+                        <div class="span6">'+valueHtml+'</div>';
+
+        // requires recompile
+        element.html($compile(template)($scope));
+      }
+    };
   });

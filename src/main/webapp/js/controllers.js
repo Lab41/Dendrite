@@ -1461,4 +1461,20 @@ angular.module('dendrite.controllers', []).
       console.log(History.serverUrl() + "/#/repository?path="+encodeURIComponent(graphHistoryPath));
 
       $scope.historyUrl = History.serverUrl() + "/#/repository?path="+encodeURIComponent(graphHistoryPath);
+    }).
+    controller('CommunityListCtrl', function($scope, $routeParams, appConfig, Project, Graph, Community) {
+      $scope.projectId = $routeParams.projectId;
+      $scope.queryProject = Project.query({projectId: $scope.projectId});
+
+      $scope.communityMetrics = Community.metrics($scope.projectId);
+
+      $scope.communitySelected = $scope.communityMetrics.communities.details[0];
+
+      $scope.communityIsSelected = function(community) {
+        return (community.id === $scope.communitySelected.id);
+      };
+
+      $scope.viewCommunity = function(community) {
+        $scope.communitySelected = community;
+      };
     });
