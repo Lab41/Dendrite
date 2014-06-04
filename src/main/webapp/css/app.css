@@ -1,4 +1,3 @@
-@import url("http://fonts.googleapis.com/css?family=Syncopate:400,700|Oxygen");
 /**
  * Copyright 2014 In-Q-Tel/Lab41
  *
@@ -44,6 +43,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@font-face {
+  font-family: 'Oxygen';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Oxygen'), local('Oxygen-Regular'), url(http://themes.googleusercontent.com/static/fonts/oxygen/v3/RzoNiRR1p2Mqyyz2RwqSMw.woff) format('woff');
+}
+@font-face {
+  font-family: 'Syncopate';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Syncopate'), local('Syncopate-Regular'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/pDM9CVwNx1ufBHCEatJA3D8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+}
+@font-face {
+  font-family: 'Syncopate';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Syncopate Bold'), local('Syncopate-Bold'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/S5z8ixiOoC4WJ1im6jAlYHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+}
 /**
  * Copyright 2014 In-Q-Tel/Lab41
  *
@@ -135,6 +152,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@font-face {
+  font-family: 'Oxygen';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Oxygen'), local('Oxygen-Regular'), url(http://themes.googleusercontent.com/static/fonts/oxygen/v3/RzoNiRR1p2Mqyyz2RwqSMw.woff) format('woff');
+}
+@font-face {
+  font-family: 'Syncopate';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Syncopate'), local('Syncopate-Regular'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/pDM9CVwNx1ufBHCEatJA3D8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+}
+@font-face {
+  font-family: 'Syncopate';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Syncopate Bold'), local('Syncopate-Bold'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/S5z8ixiOoC4WJ1im6jAlYHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+}
 .titlebar-buttons {
   float: right;
   font-size: 12px;
