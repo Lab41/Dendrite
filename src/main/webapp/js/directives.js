@@ -447,4 +447,10 @@ angular.module('dendrite.directives', [])
           '<a href="" ng-click="select()">{{ title }}</a>' +
         '</li>'
     };
+  })
+  .directive('analyticProgressBar', function() {
+    return {
+      restrict: 'E',
+      templateUrl: 'partials/analytics/progress-bar.html'
+    };
   });
