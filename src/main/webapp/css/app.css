@@ -203,13 +203,12 @@
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   padding: 5px;
-  background: #f0f0f0;
-  background: rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid #afb6bb;
   color: #d35400;
   font-family: Verdana;
 }
 .panel .column .dragbox h2.collapse {
-  background: #f0f0f0 url('collapse.png') no-repeat top rightright;
+  background: #bdc3c7 url('collapse.png') no-repeat top rightright;
 }
 .panel .column .dragbox h2 .nav-buttons {
   display: none;
@@ -321,7 +320,7 @@
   float: right;
 }
 .panel .column .placeholder {
-  background: #f0f0f0;
+  background: #ecf0f1;
   border: 2px dashed #3498db;
 }
 .panel .column .dragbox-content {
@@ -377,7 +376,7 @@
  * limitations under the License.
  */
 .ngGrid {
-  background-color: #fdfdfd;
+  background-color: #bdc3c7;
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -425,7 +424,7 @@
   position: relative;
   overflow: hidden;
   font-weight: bold;
-  background-color: #34495e;
+  background-color: #2c3e50;
   color: #ecf0f1;
   -webkit-border-radius: 6px 6px 0 0;
   -moz-border-radius: 6px 6px 0 0;
@@ -890,7 +889,7 @@
   bottom: 0;
   left: 0;
   z-index: 1100;
-  background-color: #000;
+  background-color: #2c3e50;
   opacity: 0.8;
 }
 .tour-step-backdrop {
@@ -1076,6 +1075,12 @@ line.link {
 /*************************************************/
 /* typography */
 /*************************************************/
+.downplay {
+  color: #bdc3c7;
+}
+.emphasis {
+  color: #d35400;
+}
 .role-enabled {
   font-weight: bold;
   color: #e74c3c;
