@@ -554,6 +554,90 @@ div.span6 div.span6 div.dataTables_length label {
 }
 
 
+.nav-tabs {
+  border-bottom: 1px dotted darken(@color-white-dark, 5%);
+}
+
+.nav-tabs,
+#tabs-content {
+  margin-bottom: 0;
+}
+
+.tabs-vertical {
+  .nav-tabs {
+
+    border-bottom: none;
+    .gradient(fade(@color-white-dark, 30%), transparent);
+    min-height: 300px;
+/*    background: rgba(0,0,0,0.1);*/
+/*    border-right: 1px solid #ddd;*/
+
+
+    li {
+      float: none;
+
+      a {
+        .rounded-corner(3px);
+
+        &:hover,
+        &:focus {
+          border-right: 1px dotted @color-white-dark;
+          border-left: 1px dotted @color-white-dark;
+          border-top: 1px dotted transparent;
+          border-bottom: 1px dotted transparent;
+        }
+      }
+
+      &.active > a {
+        background: transparent;
+        border-left: 2px solid @color-white-dark;
+        border-bottom: 2px solid transparent;
+        border-right: 2px solid @color-white-dark;
+        border-top: 2px solid transparent;
+
+        &:hover,
+        &:focus {
+          background: transparent;
+        }
+      }
+
+    }
+  }
+
+/*  .nav-tabs {*/
+  #tabs-content {
+    padding-top: 10px;
+  }
+
+}
+
+
+.nav-tabs > li{
+  &.active > a {
+    background: @color-white-dark;
+    &:hover,
+    &:focus {
+      background: @color-white-dark;
+    }
+  }
+
+  >a {
+    background-color: transparent;
+    border: 1px dotted transparent;
+    color: @color-blue-dark;
+    margin-right: 0;
+  }
+
+  >a:focus,
+  >a:hover {
+/*    color: #555555;*/
+    cursor: pointer;
+    background: transparent;
+    border: 1px dotted @color-white-dark;
+/*    border-bottom-color: transparent;*/
+  }
+}
+
 .ui-tabs-nav {
   &.ui-widget-header {
     background: @color-gray-light;

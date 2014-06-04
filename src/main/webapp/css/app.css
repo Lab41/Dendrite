@@ -1455,6 +1455,101 @@ div.span6 div.span6 div.dataTables_length label {
 .ui-widget-content a {
   color: #2980b9;
 }
+.nav-tabs {
+  border-bottom: 1px dotted #dde4e6;
+}
+.nav-tabs,
+#tabs-content {
+  margin-bottom: 0;
+}
+.tabs-vertical {
+  /*  .nav-tabs {*/
+
+}
+.tabs-vertical .nav-tabs {
+  border-bottom: none;
+  background-color: rgba(236, 240, 241, 0.3);
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
+  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background-color: rgba(236, 240, 241, 0.3);
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
+  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background-color: rgba(236, 240, 241, 0.3);
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
+  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  min-height: 300px;
+  /*    background: rgba(0,0,0,0.1);*/
+
+  /*    border-right: 1px solid #ddd;*/
+
+}
+.tabs-vertical .nav-tabs li {
+  float: none;
+}
+.tabs-vertical .nav-tabs li a {
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+}
+.tabs-vertical .nav-tabs li a:hover,
+.tabs-vertical .nav-tabs li a:focus {
+  border-right: 1px dotted #ecf0f1;
+  border-left: 1px dotted #ecf0f1;
+  border-top: 1px dotted transparent;
+  border-bottom: 1px dotted transparent;
+}
+.tabs-vertical .nav-tabs li.active > a {
+  background: transparent;
+  border-left: 2px solid #ecf0f1;
+  border-bottom: 2px solid transparent;
+  border-right: 2px solid #ecf0f1;
+  border-top: 2px solid transparent;
+}
+.tabs-vertical .nav-tabs li.active > a:hover,
+.tabs-vertical .nav-tabs li.active > a:focus {
+  background: transparent;
+}
+.tabs-vertical #tabs-content {
+  padding-top: 10px;
+}
+.nav-tabs > li.active > a {
+  background: #ecf0f1;
+}
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  background: #ecf0f1;
+}
+.nav-tabs > li > a {
+  background-color: transparent;
+  border: 1px dotted transparent;
+  color: #2980b9;
+  margin-right: 0;
+}
+.nav-tabs > li > a:focus,
+.nav-tabs > li > a:hover {
+  /*    color: #555555;*/
+
+  cursor: pointer;
+  background: transparent;
+  border: 1px dotted #ecf0f1;
+  /*    border-bottom-color: transparent;*/
+
+}
 .ui-tabs-nav.ui-widget-header {
   background: #bdc3c7;
   border: 1px solid #bdc3c7;
