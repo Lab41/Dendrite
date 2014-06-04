@@ -203,8 +203,7 @@
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   padding: 5px;
-  background: #f0f0f0;
-  background: rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid #afb6bb;
   color: #d35400;
   font-family: Verdana;
 }
