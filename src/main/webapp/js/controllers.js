@@ -1331,7 +1331,7 @@ angular.module('dendrite.controllers', []).
               $scope.safeApply(function() {
                 $modal({
                   scope: $scope,
-                  template: 'partials/graphs/form-select-keys.html'
+                  template: 'partials/panels/form-select-keys.html'
                 }).then(function() {
                       tourFileSelected();
                 });
