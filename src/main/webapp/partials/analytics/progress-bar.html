@@ -1,0 +1,13 @@
+<div class="span8 progress-{{colorProgressBars(analytic.progress)}} active progress bar-analytic" ng-class="(analytic.progress != 1.0) ? 'progress-striped' : ''" >
+  <div class="bar" style="width:{{analytic.progress*100}}%;"></div>
+  <span class="text-analytic">
+
+    <div ng-if="analytic.state==='ERROR'" class="text-error font-weight-bold">
+      Error: {{ analytic.name }} {{ analytic.mapreduceJobId }} ({{ analytic.msg }})
+    </div>
+    <div ng-if="analytic.state!=='ERROR'">
+      {{analytic.progress * 100}}%: </span><strong>{{analytic.name}}</strong>
+    </div>
+
+  </span>
+</div>
