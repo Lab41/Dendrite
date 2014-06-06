@@ -250,7 +250,7 @@ angular.module('dendrite.controllers', []).
           Analytics.getJob({jobId: $routeParams.analyticsId})
                       .$then(function(data) {
                           $scope.analytic = data.data.job;
-                          if ($scope.analytic.progress < 1.0) {
+                          if ($scope.analytic !== undefined && $scope.analytic.progress < 1.0) {
                             $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
                           }
                       });
@@ -436,54 +436,95 @@ angular.module('dendrite.controllers', []).
           $rootScope.$broadcast("event:pollActiveAnalytics");
         };
     }).
-    controller('AnalyticsListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Analytics, Helpers, $timeout) {
+    controller('AnalyticsListCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Analytics, Helpers, $timeout) {
         // config
         $scope.activeAnalytics = [];
         $scope.colorProgressBars = Helpers.colorProgressBars;
-        $scope.numPendingJobs = 0;
 
         // show result
         $scope.showAnalytic = function(id) {
           $location.path('graphs/' + $routeParams.graphId + '/analytics/' + id);
         };
 
+        $scope.setNumJobsTotal = function(val) {
+          $scope.$parent.numJobsTotal = val;
+        };
+        $scope.setNumJobsTotal(0);
+
+        $scope.setNumJobsPending = function(val) {
+          $scope.$parent.numJobsPending = val;
+        };
+        $scope.setNumJobsPending(0);
+
+        $scope.setNumJobsError = function(val) {
+          $scope.$parent.numJobsError = val;
+        };
+        $scope.setNumJobsError(0);
+
         $scope.deleteAnalytic = function(job) {
-          console.log('id='+job._id);
           Analytics.deleteJob({jobId: job._id})
                     .$then(function(data) {
-                        $scope.activeAnalytics.jobs.splice(job, 1);
+                        var update = $scope.activeAnalytics.jobs.filter(function(el) {
+                          return el._id !== job._id
+                        });
+                        $scope.activeAnalytics.jobs = update;
+                        pollActive();
                     });
         }
 
         // periodically poll for active calculations
         // use $then syntax to avoid full list refresh each time
         var pollActive = function() {
-          $scope.numPendingJobs = 0;
+          var numJobsPending = 0;
+          var numJobsError = 0;
+          var numJobsComplete = 0;
+          var activeAnalytics = {jobs: []};
           Graph.get({graphId: $routeParams.graphId})
                 .$then(function(dataGraph) {
                     Project.jobs({projectId: dataGraph.data.graph.projectId})
                             .$then(function(dataJobs) {
 
-                                // set list of active jobs
-                                $scope.activeAnalytics = dataJobs.data;
-
                                 // determine if client should continue polling
                                 // if not, will poll on next event:pollActiveAnalytics
                                 var pollAgain = false;
                                 Array().forEach.call(dataJobs.data.jobs, function(job) {
-                                  if (job.progress < 1.0) {
-                                    pollAgain = true;
-                                    $scope.numPendingJobs++;
+
+                                  if (job.parentJob === undefined) {
+                                    activeAnalytics.jobs.push(job);
+
+                                    if (job.progress < 1.0) {
+
+                                      // check for errored and pending jobs
+                                      if (job.state === "ERROR") {
+                                        numJobsError++;
+                                      }
+                                      else {
+                                        pollAgain = true;
+                                        numJobsPending++;
+                                      }
+                                    }
                                   }
                                 });
+
+                                // set list of active jobs
+                                $scope.activeAnalytics = activeAnalytics;
+                                $scope.setNumJobsTotal(activeAnalytics.jobs.length);
+
+                                // re-poll for analytics or let app know
                                 if (pollAgain) {
-                                  $scope.setJobsInProgress(true);
-                                  $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
+                                  $timeout(pollActive, appConfig.analytics.metadata.pollTimeout*5);
                                 }
                                 else {
-                                  $scope.setJobsInProgress(false);
-                                  $scope.refresh();
+
+                                  // alert app to change only if job(s) have moved from pending->complete
+                                  if (numJobsPending !== $scope.numJobsPending && $scope.numJobsError === numJobsError) {
+                                    $rootScope.$broadcast('event:reloadProjectNeeded');
+                                  }
                                 }
+
+                                // update number of jobs
+                                $scope.setNumJobsPending(numJobsPending);
+                                $scope.setNumJobsError(numJobsError);
                             });
                 });
 
@@ -509,16 +550,13 @@ angular.module('dendrite.controllers', []).
                 $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
             });
 
-      $scope.collapseJobs = function() {
-//        console.log(!$scope.jobsInProgress || $scope.isCollapsed || $scope.filterOptions.filterText);
-        return $scope.isCollapsed;//($scope.filterOptions.filterText || );// (!$scope.jobsInProgress || ));
-      };
+      $scope.$on('event:reloadProjectNeeded', function() {
+        $scope.refresh();
+      });
 
-      // use function for child inheritance
-      $scope.setJobsInProgress = function(newVal) {
-        $scope.jobsInProgress = newVal;
+      $scope.collapseJobs = function() {
+        return $scope.isCollapsed;
       };
-      $scope.setJobsInProgress(false);
 
       $scope.followEdges = function() {
         $routeParams.mode = "edge";
@@ -840,6 +878,10 @@ angular.module('dendrite.controllers', []).
 
 
       }, true);
+
+
+      // load data on enter
+      $scope.refresh();
 
     }).
     controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {

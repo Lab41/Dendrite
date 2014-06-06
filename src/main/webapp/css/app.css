@@ -1185,6 +1185,9 @@ h6 small {
   font-family: 'Syncopate', sans-serif;
   font-weight: 700;
 }
+.font-weight-bold {
+  font-weight: bold;
+}
 /*************************************************/
 /* layout */
 /*************************************************/
