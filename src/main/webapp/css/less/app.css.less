@@ -36,7 +36,7 @@
 @color-info:                      @color-blue-light;
 
 @btn-hsl-alpha: 1.0;
-@color-btn-start:                  @color-white-dark;
+@color-btn-start:                 @color-white-dark;
 @color-btn-end:                   @color-white-dark;
 @color-btn-hsv:                   hsla(hue(@color-btn-end), saturation(@color-btn-end), lightness(@color-btn-end), @btn-hsl-alpha);
 @color-btn-primary-start:         @color-blue-dark;
@@ -54,11 +54,17 @@
 @color-btn-default-start:         @color-gray-dark;
 @color-btn-default-end:           @color-gray-dark;
 @color-btn-default-hsv:           hsla(hue(@color-btn-default-end), saturation(@color-btn-default-end), lightness(@color-btn-default-end), @btn-hsl-alpha);
+@color-btn-transparent:           @color-gray-dark;
+@color-btn-nostyle:               @color-blue-light;      
 
 @color-heading-light:             @color-blue-dark;
 @color-heading-dark:              @color-navy-dark;
+
 @color-navbar-from:               @color-black-light;
 @color-navbar-to:                 @color-black-light;
+@color-navbar-primary:            @color-white-dark;
+@color-navbar-secondary:          @color-orange-dark;
+@color-navbar-caret-select:       @color-green-light;                
 
 @color-page-background-mysql:     @color-red-light;
 @color-page-background-mongo:     @color-yellow-light;
@@ -67,12 +73,68 @@
 
 @color-background-stage:          @color-gray-light;
 
+@color-emphasis:                  @color-orange-dark;
+@color-downplay:                  @color-gray-light;
+
 @color-link:                      @color-blue-dark;
 @color-inverse:                   @color-white-dark;
 
+@color-logo-primary:              @color-blue-dark;
+@color-logo-secondary:            @color-orange-dark;
+@color-img-histogram:             @color-gray-dark;
+
+@color-chart-rect-primary:	      @color-white-dark;
+@color-chart-rect-secondary:      @color-blue-dark;
+@color-chart-text-primary:        @color-white-dark;
+@color-chart-line-primary:        @color-gray-light;
+@color-chart-rule-primary:        @color-gray-dark;
+
+@color-typ-role-primary:          @color-red-light;
+@color-typ-role-secondary:        @color-navy-dark;
+@color-typ-titlebar:              @color-gray-dark;
+@color-typ-small:                 @color-gray-dark;
+@color-typ-dropdown:              @color-gray-medium;
+
+@color-layout-container:          @color-gray-light;
+@color-modal:                     @color-blue-dark;
+@color-modal-headings:            @color-white-dark;
+
+@color-sections-primary:          @color-gray-light;
+
+@color-analytics-side:            @color-white-dark;
+@color-analytics-bar:             @color-navy-dark;
+
+@color-alert-success:	          @color-gray-light;
+@color-alert-success-bkgd:        @color-aqua-light;
+@color-alert-success-border:      @color-aqua-dark;
+
+@color-alert-error:               @color-gray-light;
+@color-alert-error-bkgd:          @color-red-light;
+@color-alert-error-border:        @color-red-dark;
+
+@color-alert-warn:                @color-navy-dark;
+@color-alert-warn-bkgd:           @color-yellow-light;
+@color-alert-warn-border:         @color-yellow-dark;
+
+@color-alert-info:                @color-white-dark;
+@color-alert-info-bkgd:           @color-blue-light;
+@color-alert-info-border:         @color-blue-dark;
+
+@color-form-primary:              @color-gray-light;
+@color-form-focus-shadow:         @color-aqua-dark;
+@color-form-focus-border:         @color-aqua-light;
+@color-form-abbr:                 @color-red-light;
+
+@color-ui-content:                @color-blue-dark;
+@color-ui-tabs:                   @color-gray-light;
+@color-ui-tabs-dark:              @color-black-light;
+@color-ui-state-default:          @color-gray-dark;
+@color-ui-state-active:           @color-black-light;
+
+
 @font-size:                       12px;
 @margin-left:                     120px;
-@spacing-small:                 5px;
+@spacing-small:                   5px;
 @spacing-default:                 10px;
 @spacing-large:                   30px;
 
@@ -118,11 +180,11 @@
     vertical-align: text-top;
   }
   .font-lab {
-    color: @color-blue-dark;
+    color: @color-logo-primary;
   }
 
   .font-41 {
-    color: @color-orange-dark;
+    color: @color-logo-secondary;
   }
 }
 
@@ -158,7 +220,7 @@
 }
 
 #viz-histogram-wrapper {
-  background: @color-gray-dark;
+  background: @color-img-histogram;
   padding: 15px;
   .rounded-corner(3px);
 }
@@ -188,41 +250,47 @@ line.link {
 /* visuals */
 /*************************************************/
 .chart rect {
-  stroke: @color-white-dark;
-  fill: @color-blue-dark;
+  stroke: @color-chart-rect-primary;
+  fill: @color-chart-rect-secondary;
 }
 
 .chart text {
-  fill: @color-white-dark;
+  fill: @color-chart-text-primary;
 }
 
 .chart text.name {
-  fill: @color-white-dark;
+  fill: @color-chart-text-primary;
 }
 
 .chart line {
-  stroke: @color-gray-light;
+  stroke: @color-chart-line-primary;
 }
 
 .chart .rule {
-  fill: @color-gray-dark;
+  fill: @color-chart-rule-primary;
 }
 
 /*************************************************/
 /* typography */
 /*************************************************/
+.downplay{
+    color: @color-downplay;
+}
+.emphasis{
+    color: @color-emphasis;
+}
 .role-enabled {
   font-weight: bold;
-  color: @color-red-light;
+  color: @color-typ-role-primary;
 }
 
 .role-disabled {
   font-weight: normal;
-  color:@color-navy-dark;
+  color:@color-typ-role-secondary;
 }
 
 .titlebar {
-  border-bottom: 1px solid @color-gray-dark;
+  border-bottom: 1px solid @color-typ-titlebar;
 }
 
 .heading {
@@ -255,28 +323,28 @@ line.link {
 
 .page-heading h1 {
   font-size:50px;
-  color: @color-gray-light;
+  color: @color-downplay;
 }
 
 .jumbotron {
   h1,h2,h3,h4,h5,h6 {
-    color: @color-orange-dark;
+    color: @color-emphasis;
   }
 }
 
 h1,h2,h3,h4,h5,h6 {
-  color: @color-orange-dark;
+  color: @color-emphasis;
   small {
-    color: @color-gray-dark;
+    color: @color-typ-small;
   }
 }
 
 .dropdown-menu  a.link-disabled {
-  color: @color-gray-medium;
+  color: @color-typ-dropdown;
 }
 
 .dropdown-menu .divider {
-  background-color: @color-gray-light;
+  background-color: @color-downplay;
 }
 
 .text-logo {
@@ -336,7 +404,7 @@ body {
 }
 
 .container-comments {
-  border: 1px dashed @color-gray-light;
+  border: 1px dashed @color-layout-container;
   .rounded-corner(10px);
 }
 
@@ -369,9 +437,9 @@ body {
 }
 
 .modal-large .modal-header {
-  background: @color-blue-dark;
+  background: @color-modal;
   h1,h2,h3,h4,h5,h6 {
-    color: @color-white-dark;
+    color: @color-modal-headings;
   }
 }
 /*************************************************/
@@ -382,12 +450,12 @@ body {
 
 .thick-divide-bottom {
   margin-bottom: 15px;
-  border-bottom: 10px solid @color-gray-light;
+  border-bottom: 10px solid @color-sections-primary;
   padding-bottom: 15px;
 }
 
 .well {
-  background-color: lighten(@color-gray-light, 10%);
+  background-color: lighten(@color-sections-primary, 10%);
 }
 
 
@@ -395,8 +463,8 @@ body {
 /* analytics */
 /*************************************************/
 .sidepane-analytics {
-  background-color: @color-white-dark;
-  background-color: fadeout(@color-white-dark, 50%);
+  background-color: @color-analytics-side;
+  background-color: fadeout(@color-analytics-side, 50%);
   .rounded-corner;
 }
 
@@ -407,7 +475,7 @@ body {
     position: absolute;
     top: 5px;
     left: 5px;
-    color: @color-navy-dark;
+    color: @color-analytics-bar;
   }
   .bar {
     padding-top: 5px;
@@ -426,27 +494,27 @@ body {
 /* notifications */
 /*************************************************/
 .alert-success {
-  background-color: @color-aqua-light;
-  border-color: @color-aqua-dark;
-  color: @color-gray-light;
+  background-color: @color-alert-success-bkgd;
+  border-color: @color-alert-success-border;
+  color: @color-alert-success;
 }
 
 .alert-error {
-  background-color: @color-red-light;
-  border-color: @color-red-dark;
-  color: @color-gray-light;
+  background-color: @color-alert-error-bkgd;
+  border-color: @color-alert-error-border;
+  color: @color-alert-error;
 }
 
 .alert-warning {
-  background-color: @color-yellow-light;
-  border-color: @color-yellow-dark;
-  color: @color-navy-dark;
+  background-color: @color-alert-warn-bkgd;
+  border-color: @color-alert-warn-border;
+  color: @color-alert-warn;
 }
 
 .alert-info {
-  background-color: @color-blue-light;
-  border-color: @color-blue-dark;
-  color: @color-white-dark;
+  background-color: @color-alert-info-bkgd;
+  border-color: @color-alert-info-border;
+  color: @color-alert-info;
 }
 
 #errorExplanation {
@@ -486,15 +554,15 @@ body {
 /* forms */
 /*************************************************/
 input:focus:invalid:focus, textarea:focus:invalid:focus, select:focus:invalid:focus {
-  border-color: @color-aqua-light;
-  .shadow(0, 0, 6px, 0, @color-aqua-dark);
+  border-color: @color-form-focus-border;
+  .shadow(0, 0, 6px, 0, @color-form-focus-shadow);
 }
 
 .simple_form .error {
   clear: left;
   margin-left: @margin-left;
   font-size: @font-size;
-  color: @color-gray-light;
+  color: @color-form-primary;
   display: block;
 }
 
@@ -506,13 +574,13 @@ select {
   clear: left;
   margin-left: @margin-left;
   font-size: @font-size;
-  color: @color-gray-light;
+  color: @color-form-primary;
   display: block;
   font-style: italic;
 }
 
 .disclaimer {
-  color: @color-gray-light;
+  color: @color-form-primary;
   text-align: center;
   font-style: italic;
   font-size: smaller;
@@ -520,7 +588,7 @@ select {
 }
 
 abbr[title="required"] {
-  color: @color-red-light;
+  color: @color-form-abbr;
 }
 
 .form-tags {
@@ -556,23 +624,23 @@ div.span6 div.span6 div.dataTables_length label {
 }
 
 .ui-widget-content a {
-  color: @color-blue-dark;
+  color: @color-ui-content;
 }
 
 
 .ui-tabs-nav {
   &.ui-widget-header {
-    background: @color-gray-light;
-    border: 1px solid @color-gray-light;
+    background: @color-ui-tabs;
+    border: 1px solid @color-ui-tabs;
   }
   &.ui-widget-header.tabs-dark {
-    background: @color-black-light;
+    background: @color-ui-tabs-dark;
   }
 }
 
 .ui-state-default {
   a, a:link, a:visited {
-    color: @color-gray-dark;
+    color: @color-ui-state-default;
   }
 
   .icon-faded {
@@ -582,7 +650,7 @@ div.span6 div.span6 div.dataTables_length label {
 
 .ui-state-active {
   a, a:link, a:visited {
-    color: @color-black-light;
+    color: @color-ui-state-active;
   }
   .icon-faded {
     opacity: 1;
@@ -607,7 +675,7 @@ div.span6 div.span6 div.dataTables_length label {
 /*************************************************/
 
 .navbar {
-  border-top: 2px solid @color-orange-dark;
+  border-top: 2px solid @color-navbar-secondary;
   padding-right: 0;
   padding-left: 0;
   font-weight: bold;
@@ -615,7 +683,7 @@ div.span6 div.span6 div.dataTables_length label {
 
 .navbar-brand {
   padding: 0 15px;
-  color: @color-white-dark;
+  color: @color-navbar-primary;
   font-family: 'Syncopate', sans-serif;
   font-weight: 700;
   font-size: 20px;
@@ -638,7 +706,7 @@ div.span6 div.span6 div.dataTables_length label {
 }
 
 .navbar .nav .active a {
-  background-color: @color-white-dark;
+  background-color: @color-navbar-primary;
   .rounded-corner(3px);
 }
 
@@ -657,14 +725,14 @@ div.span6 div.span6 div.dataTables_length label {
 
 .nav .dropdown-toggle .caret {
   margin-top: 6px;
-  border-top-color: @color-white-dark;
-  border-bottom-color: @color-white-dark;
+  border-top-color: @color-navbar-primary;
+  border-bottom-color: @color-navbar-primary;
 }
 
 .nav .dropdown-toggle:hover .caret,
 .nav .dropdown-toggle:focus .caret {
-  border-top-color: @color-green-light;
-  border-bottom-color: @color-green-light;
+  border-top-color: @color-navbar-caret-select;
+  border-bottom-color: @color-navbar-caret-select;
 }
 
 .navbar-nav label {
@@ -813,13 +881,13 @@ label.inline {
 
 .btn-transparent {
   background: transparent !important;
-  color: @color-gray-dark !important;
+  color: @color-btn-transparent !important;
 }
 
 .btn-nostyle {
   background-color: transparent;
   border: none;
-  color: @color-blue-light;
+  color: @color-btn-nostyle;
   text-decoration: underline;
 }
 
