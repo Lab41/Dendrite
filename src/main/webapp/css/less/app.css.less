@@ -24,6 +24,7 @@
 @import "panels.css.less";
 @import "ng-grid.css.less";
 @import "bootstrap-tour.css.less";
+@import "viz.css.less";
 
 //
 // PROJECT VARIABLES
@@ -261,7 +262,7 @@ line.link {
 }
 
 h1,h2,h3,h4,h5,h6 {
-  color: @color-orange-dark;
+  color: @color-red-dark;
   small {
     color: @color-gray-dark;
   }
@@ -318,7 +319,7 @@ body {
 }
 
 .content {
-  background-color: @color-gray-light;
+  background-color: fade(@color-gray-light, 75%);
   padding: 40px;
   margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
   .rounded-corner;
