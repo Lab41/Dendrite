@@ -1504,19 +1504,102 @@ angular.module('dendrite.controllers', []).
 
       $scope.historyUrl = History.serverUrl() + "/#/repository?path="+encodeURIComponent(graphHistoryPath);
     }).
-    controller('CommunityListCtrl', function($scope, $routeParams, appConfig, Project, Graph, Community) {
+    controller('CommunityListCtrl', function($scope, $routeParams, $filter, appConfig, Project, Graph, Community) {
       $scope.projectId = $routeParams.projectId;
       $scope.queryProject = Project.query({projectId: $scope.projectId});
-
       $scope.communityMetrics = Community.metrics($scope.projectId);
 
-      $scope.communitySelected = $scope.communityMetrics.communities.details[0];
+      // calculate the range of [low,high] values for each metric
+      for (var i=0; i<$scope.communityMetrics.communities.details.length; i++) {
+        var community = $scope.communityMetrics.communities.details[i];
 
-      $scope.communityIsSelected = function(community) {
-        return (community.id === $scope.communitySelected.id);
+        var metricNames = Object.keys(community.metrics);
+        for (var m=0; m<metricNames.length; ++m) {
+
+          // ensure metric is tracked graphwide
+          var metric = metricNames[m];
+          if ($scope.communityMetrics.communities.metrics[metric] === undefined) {
+            $scope.communityMetrics.communities.metrics[metric] = {};
+          }
+
+          // store low value for that metric
+          if ($scope.communityMetrics.communities.metrics[metric].low === undefined || community.metrics[metric] < $scope.communityMetrics.communities.metrics[metric].low) {
+            $scope.communityMetrics.communities.metrics[metric].low = community.metrics[metric];
+          }
+
+          // store high value for that metric
+          if ($scope.communityMetrics.communities.metrics[metric].high === undefined || community.metrics[metric] > $scope.communityMetrics.communities.metrics[metric].high) {
+            $scope.communityMetrics.communities.metrics[metric].high = community.metrics[metric];
+          }
+        }
+
+        // store [low,high] range for number of vertices and edges
+        if ($scope.communityMetrics.communities.metrics.size === undefined) {
+          $scope.communityMetrics.communities.metrics.size = {vertices: {}, edges: {}};
+        }
+        if ($scope.communityMetrics.communities.metrics.size.vertices.low === undefined || community.vertices < $scope.communityMetrics.communities.metrics.size.vertices.low) {
+          $scope.communityMetrics.communities.metrics.size.vertices.low = community.vertices;
+        }
+        if ($scope.communityMetrics.communities.metrics.size.vertices.high === undefined || community.vertices > $scope.communityMetrics.communities.metrics.size.vertices.high) {
+          $scope.communityMetrics.communities.metrics.size.vertices.high = community.vertices;
+        }
+        if ($scope.communityMetrics.communities.metrics.size.edges.low === undefined || community.edges < $scope.communityMetrics.communities.metrics.size.edges.low) {
+          $scope.communityMetrics.communities.metrics.size.edges.low = community.edges;
+        }
+        if ($scope.communityMetrics.communities.metrics.size.edges.high === undefined || community.edges > $scope.communityMetrics.communities.metrics.size.edges.high) {
+          $scope.communityMetrics.communities.metrics.size.edges.high = community.edges;
+        }
+      }
+      console.log($scope.communityMetrics);
+
+      // ensure each metric has an avg
+      var metricNames = Object.keys($scope.communityMetrics.communities.metrics);
+      for (var i=0; i<metricNames.length; i++) {
+        var metric = metricNames[i];
+        if ($scope.communityMetrics.communities.metrics[metric].avg === undefined && (typeof $scope.communityMetrics.communities.metrics[metric].high) === "number") {
+          $scope.communityMetrics.communities.metrics[metric].avg = ($scope.communityMetrics.communities.metrics[metric].high/$scope.communityMetrics.communities.metrics[metric].low)/2;
+        }
+      }
+
+
+      $scope.formatHTML = function(val) {
+        var fractionSize = 4;
+        if (val === undefined || (typeof val) === "string") {
+          return val;
+        }
+        else {
+          return $filter('number')(val, fractionSize);
+        }
       };
 
+      // start with the first metric
+      $scope.communitySelected = [];
+//      $scope.communitySelected.push($scope.communityMetrics.communities.details[0]);
+
+      $scope.communityIsSelected = function(community) {
+        return ($scope.communitySelected.indexOf(community) !== -1);
+      };
+
+      $scope.communityIsSelectedClass = function(community) {
+        return ($scope.communityIsSelected(community)) ? "active" : "inactive";
+      }
+
       $scope.viewCommunity = function(community) {
-        $scope.communitySelected = community;
+        console.log($(this));
+        var maxCompare = 2;
+        var idx = $scope.communitySelected.indexOf(community);
+        if (idx !== -1 || $scope.communitySelected.length === maxCompare) {
+          $scope.communitySelected.splice(idx, 1);
+        }
+        else {
+          $scope.communitySelected.push(community);
+        }
+      };
+
+      $scope.showCommunityFields = function(community) {
+        return ($scope.communitySelected.indexOf(community)==0);
+      };
+      $scope.showCommunityProgressFields = function(community) {
+        return ($scope.communitySelected.length === 1 && $scope.communitySelected.indexOf(community)==0);
       };
     });
