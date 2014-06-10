@@ -162,7 +162,7 @@ angular.module('dendrite.directives', [])
           // Enter any new links.
           link.enter().insert("svg:line")
             //.attr("class", "link")
-            .style("stroke", "#999")
+            .style("stroke", "#444")
             .style("stroke-opacity", "0.6")
             .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
@@ -187,7 +187,7 @@ angular.module('dendrite.directives', [])
              })
             .attr("popover-trigger", "mouseenter")
             .attr("popover-append-to-body", "true")
-            .style("stroke", "#fff")
+            .style("stroke", "#AAA")
             .style("stroke-width", "1.5px")
             .style("fill", function(d) { return color(d._id); })
             .call(force.drag);
