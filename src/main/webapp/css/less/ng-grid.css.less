@@ -18,7 +18,7 @@
 @import "ui-mixins.css.less";
 
 .ngGrid {
-  background-color: #fdfdfd;
+  background-color: @color-background-downplay;
   .rounded-corner;
 }
 .ngGrid input[type="checkbox"] {
@@ -58,8 +58,8 @@
   position: relative;
   overflow: hidden;
   font-weight: bold;
-  background-color: @color-navy-light;
-  color: @color-white-dark;
+  background-color: @color-background-dark;
+  color: @color-text-light;
   .rounded-top;
 }
 .ngHeaderCell {
@@ -352,8 +352,8 @@
   background-color: #f3f3f3;
 }
 .ngRow.selected {
-  background-color: @color-aqua-dark;
-  color: @color-white-dark;
+  background-color: @color-background-primary;
+  color: @color-text-light;
 }
 .ngCell {
   overflow: hidden;
@@ -401,10 +401,10 @@
   .rounded-bottom;
 }
 .ngFooterPanel {
-  background-color: @color-gray-dark;
+  background-color: @color-background-medium;
   padding: 0;
-  border-top: 1px solid @color-gray-dark;
-  color: @color-white-dark;
+  border-top: 1px solid @color-background-medium;
+  color: @color-text-light;
   position: relative;
   .rounded-bottom;
 }
