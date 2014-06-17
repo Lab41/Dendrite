@@ -1068,6 +1068,11 @@ angular.module('dendrite.services', ['ngResource']).
     })
     .factory('Community', function($resource, $rootScope, $http, $q) {
         return {
+            //FIXME build out backend to poll submission/completion of CD jobs
+            pollComplete: function(projectId) {
+              return true;
+            },
+            //FIXME build out backend to return output of CD jobs
             metrics: function(projectId) {
               var x =
               {

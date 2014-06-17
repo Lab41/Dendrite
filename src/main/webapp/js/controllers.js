@@ -137,6 +137,10 @@ angular.module('dendrite.controllers', []).
                 });
 
 
+        $scope.showCommunities = function() {
+          Community.pollComplete($scope.projectId);
+        };
+
         // poll for branches
         //    determine if current branch's graph conflicts with other graphs
         //    (indicates branch has not yet switched/cloned)
