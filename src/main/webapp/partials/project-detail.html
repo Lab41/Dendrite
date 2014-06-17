@@ -5,7 +5,6 @@
     <label><input type="checkbox" ng-value="panelEdit" ng-click="panelEdit=!panelEdit"></input> Edit Layout</label>
   </span>
 </h2>
-
 <div ng-hide="graphLoaded">
   <h4>Creating branch...</h4>
   <img src="img/icons/ajax-loader.gif">
@@ -42,7 +41,7 @@
 
     <div class="row-fluid column-fullwidth">
       <div class="column" id="column3" >
-        <div class="dragbox" id="item-view-viz" ng-show="projectHasData">
+        <div class="dragbox expand-full-visible" id="item-view-viz" ng-show="projectHasData">
           <h2><span id="tour-step-8">QuickViz</span> <panel-collapse-buttons></panel-collapse-buttons></h2>
           <div class="dragbox-content" >
               <div ng-include="'partials/panels/viz.html'"></div>

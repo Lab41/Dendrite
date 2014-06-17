@@ -251,7 +251,7 @@ angular.module('dendrite.directives', [])
         elem[0].focus();
      };
   })
-  .directive('panels', function() {
+  .directive('panels', function($modal) {
     return {
       restrict: 'A',
       link: function($scope, element, attrs) {
@@ -313,7 +313,7 @@ angular.module('dendrite.directives', [])
               .end()
 
               // click handler for toggling show/hide of panel content
-              .find('.expand-toggle').click(function() {
+              .find('.expand-vertical').click(function() {
 
                   // if panel in shrink mode, expand to half width
                   if (!$(this).closest('.column').hasClass('width-full')) {
@@ -325,8 +325,8 @@ angular.module('dendrite.directives', [])
               })
               .end()
 
-              //click handler for expanding panel to largest size
-              .find('.expand-full').click(function() {
+              //click handler for expanding panel horizontally
+              .find('.expand-horizontal').click(function() {
 
                   // if not already full width, expand panel
                   if (!$(this).closest('.column').hasClass('width-full')) {
@@ -345,6 +345,16 @@ angular.module('dendrite.directives', [])
                   $(this).closest('.dragbox').find('.dragbox-content').show();
               })
               .end()
+
+              //click handler for expanding panel to largest size
+              .find('.expand-full').click(function() {
+                var dragBox = $(this).closest('.dragbox');
+                var modalUrl = $(dragBox).find('div[ng-include]').attr('ng-include').replace(/'/g, '');
+                var modalTitle = $(dragBox).find('h2').text();
+                $scope.panelFullScreen(modalTitle, modalUrl);
+              })
+              .end()
+
         });
 
         // helper function to set the width of a panel and sibling panels
@@ -370,7 +380,8 @@ angular.module('dendrite.directives', [])
       template:
         '<span class="nav-buttons"><i class="icon-move"></i></span>\
         <span class="collapse-buttons">\
-          <i class="icon-resize-vertical expand-toggle"></i>\
+          <i class="icon-resize-vertical expand-vertical"></i>\
+          <i class="icon-resize-horizontal expand-horizontal"></i>\
           <i class="icon-fullscreen expand-full"></i>\
         </span>'
     };

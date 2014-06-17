@@ -1,3 +1,4 @@
+@import url("http://fonts.googleapis.com/css?family=Syncopate:400,700|Oxygen");
 /**
  * Copyright 2014 In-Q-Tel/Lab41
  *
@@ -43,24 +44,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@font-face {
-  font-family: 'Oxygen';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Oxygen'), local('Oxygen-Regular'), url(http://themes.googleusercontent.com/static/fonts/oxygen/v3/RzoNiRR1p2Mqyyz2RwqSMw.woff) format('woff');
-}
-@font-face {
-  font-family: 'Syncopate';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Syncopate'), local('Syncopate-Regular'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/pDM9CVwNx1ufBHCEatJA3D8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
-}
-@font-face {
-  font-family: 'Syncopate';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Syncopate Bold'), local('Syncopate-Bold'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/S5z8ixiOoC4WJ1im6jAlYHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
-}
 /**
  * Copyright 2014 In-Q-Tel/Lab41
  *
@@ -152,24 +135,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@font-face {
-  font-family: 'Oxygen';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Oxygen'), local('Oxygen-Regular'), url(http://themes.googleusercontent.com/static/fonts/oxygen/v3/RzoNiRR1p2Mqyyz2RwqSMw.woff) format('woff');
-}
-@font-face {
-  font-family: 'Syncopate';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Syncopate'), local('Syncopate-Regular'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/pDM9CVwNx1ufBHCEatJA3D8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
-}
-@font-face {
-  font-family: 'Syncopate';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Syncopate Bold'), local('Syncopate-Bold'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/S5z8ixiOoC4WJ1im6jAlYHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
-}
 .titlebar-buttons {
   float: right;
   font-size: 12px;
@@ -188,10 +153,16 @@
 .panel .dragbox h2 .nav-buttons {
   display: inline-block;
 }
+.expand-full {
+  display: none;
+}
+.expand-full-visible .expand-full {
+  display: inline-block;
+}
 .panel .column-fullwidth .column {
   width: 100% !important;
 }
-.panel .column-fullwidth .collapse-buttons .expand-full {
+.panel .column-fullwidth .collapse-buttons .expand-horizontal {
   display: none;
 }
 .panel .column {
@@ -222,9 +193,6 @@
   border-radius: 5px;
   webkit-border-radius: 5px;
   -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
   border: 2px solid transparent;
 }
 .panel .column .dragbox h2 {
@@ -240,12 +208,9 @@
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
   padding: 5px;
   border-bottom: 1px solid #afb6bb;
-  color: #424a4a;
+  color: #d35400;
   font-family: Verdana;
 }
 .panel .column .dragbox h2.collapse {
@@ -305,39 +270,9 @@
   /* Good browsers */
 
   opacity: 0.5;
-  /* IE 8 */
-
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  /* IE 5-7 */
-
-  filter: alpha(opacity=50);
-  /* Netscape */
-
-  -moz-opacity: 0.5;
-  /* Safari 1.x */
-
-  -khtml-opacity: 0.5;
-  /* Good browsers */
-
-  opacity: 0.5;
 }
 .panel .column .dragbox h2 .collapse-buttons i:hover {
   cursor: pointer;
-  /* IE 8 */
-
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
-  /* IE 5-7 */
-
-  filter: alpha(opacity=50);
-  /* Netscape */
-
-  -moz-opacity: 1;
-  /* Safari 1.x */
-
-  -khtml-opacity: 1;
-  /* Good browsers */
-
-  opacity: 1;
   /* IE 8 */
 
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
@@ -457,9 +392,6 @@
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
 }
 .ngGrid input[type="checkbox"] {
   margin: 0;
@@ -500,10 +432,6 @@
   font-weight: bold;
   background-color: #2c3e50;
   color: #ecf0f1;
-  -webkit-border-radius: 6px 6px 0 0;
-  -moz-border-radius: 6px 6px 0 0;
-  -khtml-border-radius: 6px 6px 0 0;
-  border-radius: 6px 6px 0 0;
   -webkit-border-radius: 6px 6px 0 0;
   -moz-border-radius: 6px 6px 0 0;
   -khtml-border-radius: 6px 6px 0 0;
@@ -865,10 +793,6 @@
   -moz-border-radius: 0 0 6px 6px;
   -khtml-border-radius: 0 0 6px 6px;
   border-radius: 0 0 6px 6px;
-  -webkit-border-radius: 0 0 6px 6px;
-  -moz-border-radius: 0 0 6px 6px;
-  -khtml-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
 }
 .ngFooterPanel {
   background-color: #7f8c8d;
@@ -876,10 +800,6 @@
   border-top: 1px solid #7f8c8d;
   color: #ecf0f1;
   position: relative;
-  -webkit-border-radius: 0 0 6px 6px;
-  -moz-border-radius: 0 0 6px 6px;
-  -khtml-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
   -webkit-border-radius: 0 0 6px 6px;
   -moz-border-radius: 0 0 6px 6px;
   -khtml-border-radius: 0 0 6px 6px;
@@ -1043,127 +963,6 @@
 .popover[class*="tour-"].orphan .arrow {
   display: none;
 }
-/**
- * Copyright 2014 In-Q-Tel/Lab41
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/**
- * Copyright 2014 In-Q-Tel/Lab41
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/**
- * Copyright 2014 In-Q-Tel/Lab41
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-.ui-progressbar {
-  height: 20px;
-  width: 100%;
-  border: 1px solid transparent;
-  margin: 0;
-  padding: 0;
-  display: inline-block;
-}
-.ui-progressbar-value {
-  height: 20px;
-  margin: 0;
-  padding: 0;
-  text-align: right;
-  background: #2c3e50;
-  border: 1px solid #2c3e50;
-}
-.ui-progressbar-text {
-  position: relative;
-  /*  top: -3px;*/
-
-  left: 0;
-  padding: 0 5px;
-  font-size: 85%;
-  font-weight: bold;
-  color: #ecf0f1;
-  line-height: 20px;
-}
-.ui-progressbar-text.text-dummy {
-  color: #c0392b;
-  font-size: 1em;
-}
-.circle-wrapper {
-  display: inline-block;
-  padding: 5px;
-  border-bottom: 2px solid transparent;
-}
-.circle-wrapper.active {
-  border-color: #c0392b;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  background: #bdc3c7;
-}
-.circle {
-  border-radius: 50%;
-  webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
-  border-radius: 50%;
-  webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
-  border-radius: 50%;
-  webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
-  border-radius: 50%;
-  webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
-  height: 50px;
-  width: 50px;
-  display: inline-block;
-  margin: 0 5px;
-}
-.circle .text {
-  position: relative;
-  top: 25%;
-  left: 25%;
-  color: #ecf0f1;
-}
 /*************************************************/
 /* colors */
 /*************************************************/
@@ -1233,9 +1032,6 @@
 #viz-histogram-wrapper {
   background: #7f8c8d;
   padding: 15px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1337,7 +1133,7 @@ line.link {
 .jumbotron h4,
 .jumbotron h5,
 .jumbotron h6 {
-  color: #c0392b;
+  color: #d35400;
 }
 h1,
 h2,
@@ -1345,7 +1141,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: #c0392b;
+  color: #d35400;
 }
 h1 small,
 h2 small,
@@ -1396,7 +1192,7 @@ body {
   background-color: #1abc9c;
 }
 .content {
-  background-color: rgba(189, 195, 199, 0.75);
+  background-color: #bdc3c7;
   padding: 40px;
   margin: 0 -20px;
   /* negative indent the amount of the padding to maintain the grid system */
@@ -1410,12 +1206,6 @@ body {
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
@@ -1433,9 +1223,6 @@ body {
 }
 .container-comments {
   border: 1px dashed #bdc3c7;
-  border-radius: 10px;
-  webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
   border-radius: 10px;
   webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -1507,9 +1294,6 @@ body {
 .sidepane-analytics {
   background-color: #ecf0f1;
   background-color: rgba(236, 240, 241, 0.5);
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -1627,9 +1411,6 @@ select:focus:invalid:focus {
   -webkit-box-shadow: 0 0 6px 0 #16a085;
   -moz-box-shadow: 0 0 6px 0 #16a085;
   box-shadow: 0 0 6px 0 #16a085;
-  -webkit-box-shadow: 0 0 6px 0 #16a085;
-  -moz-box-shadow: 0 0 6px 0 #16a085;
-  box-shadow: 0 0 6px 0 #16a085;
 }
 .simple_form .error {
   clear: left;
@@ -1687,110 +1468,6 @@ div.span6 div.span6 div.dataTables_length label {
 }
 .ui-widget-content a {
   color: #2980b9;
-}
-.nav-tabs {
-  border-bottom: 1px dotted #dde4e6;
-}
-.nav-tabs,
-#tabs-content {
-  margin-bottom: 0;
-}
-.tabs-vertical {
-  /*  .nav-tabs {*/
-
-}
-.tabs-vertical .nav-tabs {
-  border-bottom: none;
-  background-color: rgba(236, 240, 241, 0.3);
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
-  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background-color: rgba(236, 240, 241, 0.3);
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
-  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background-color: rgba(236, 240, 241, 0.3);
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
-  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background-color: rgba(236, 240, 241, 0.3);
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
-  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  min-height: 300px;
-  /*    background: rgba(0,0,0,0.1);*/
-
-  /*    border-right: 1px solid #ddd;*/
-
-}
-.tabs-vertical .nav-tabs li {
-  float: none;
-}
-.tabs-vertical .nav-tabs li a {
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-}
-.tabs-vertical .nav-tabs li a:hover,
-.tabs-vertical .nav-tabs li a:focus {
-  border-right: 1px dotted #ecf0f1;
-  border-left: 1px dotted #ecf0f1;
-  border-top: 1px dotted transparent;
-  border-bottom: 1px dotted transparent;
-}
-.tabs-vertical .nav-tabs li.active > a {
-  background: transparent;
-  border-left: 2px solid #ecf0f1;
-  border-bottom: 2px solid transparent;
-  border-right: 2px solid #ecf0f1;
-  border-top: 2px solid transparent;
-}
-.tabs-vertical .nav-tabs li.active > a:hover,
-.tabs-vertical .nav-tabs li.active > a:focus {
-  background: transparent;
-}
-.tabs-vertical #tabs-content {
-  padding-top: 10px;
-}
-.nav-tabs > li.active > a {
-  background: #ecf0f1;
-}
-.nav-tabs > li.active > a:hover,
-.nav-tabs > li.active > a:focus {
-  background: #ecf0f1;
-}
-.nav-tabs > li > a {
-  background-color: transparent;
-  border: 1px dotted transparent;
-  color: #2980b9;
-  margin-right: 0;
-}
-.nav-tabs > li > a:focus,
-.nav-tabs > li > a:hover {
-  /*    color: #555555;*/
-
-  cursor: pointer;
-  background: transparent;
-  border: 1px dotted #ecf0f1;
-  /*    border-bottom-color: transparent;*/
-
 }
 .ui-tabs-nav.ui-widget-header {
   background: #bdc3c7;
@@ -1877,15 +1554,9 @@ div.span6 div.span6 div.dataTables_length label {
   -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
 }
 .navbar .nav .active a {
   background-color: #ecf0f1;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;

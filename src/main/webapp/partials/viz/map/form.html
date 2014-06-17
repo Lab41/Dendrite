@@ -5,8 +5,8 @@
       <input ng-model="filter" type="text" class="input-small" placeholder="Query">
       <p style="display:inline"> Number of results: </p>
       <input ng-model="size" type="number" class="input-small" placeholder="1000">
-      <input ng-model="mapType" type="radio" value="day">Day Map
-      <input ng-model="mapType" type="radio" value="night">Night Map
+      <label><input ng-model="mapType" type="radio" value="day"> Day Map</label>
+      <label><input ng-model="mapType" type="radio" value="night"> Night Map</label>
       <button type="submit" class="btn btn-default" ng-click="visualize()">Visualize</button>
   </form>
   </div>
