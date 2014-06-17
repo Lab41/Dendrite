@@ -153,10 +153,16 @@
 .panel .dragbox h2 .nav-buttons {
   display: inline-block;
 }
+.expand-full {
+  display: none;
+}
+.expand-full-visible .expand-full {
+  display: inline-block;
+}
 .panel .column-fullwidth .column {
   width: 100% !important;
 }
-.panel .column-fullwidth .collapse-buttons .expand-full {
+.panel .column-fullwidth .collapse-buttons .expand-horizontal {
   display: none;
 }
 .panel .column {
