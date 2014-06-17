@@ -112,7 +112,7 @@ angular.module('dendrite.controllers', []).
     }).
     controller('ProjectDetailCtrl', function($rootScope, $modal, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
         $scope.projectId = $routeParams.projectId;
-        $scope.historyEnabled = appConfig.historyServer.enabled;
+        $scope.historyEnabled = appConfig.historyServer.enabled();
         $scope.projectHasData = false;
         $scope.$on('event:projectHasData', function() {
           $scope.projectHasData = true;
