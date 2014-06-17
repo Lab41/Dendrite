@@ -130,7 +130,21 @@ angular.module('dendrite', [
       }
     },
     historyServer: {
-        enabled: true,
+        enabled: function() {
+          $.ajax('http://'+this.host+':'+this.port, {
+            statusCode: {
+              404: function() {
+                return false;
+              },
+              200: function() {
+                return true;
+              },
+              0: function (response) {
+                return false;
+              }
+            }
+          });
+        },
         host: "localhost",
         port: 8448,
         storage: "/tmp/dendrite/history"

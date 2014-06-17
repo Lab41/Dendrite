@@ -126,7 +126,7 @@ var tour = new Tour({
                 <li>Get a few quick visual overviews of the network</li>\
               </ul>\
               <p class="well">\
-                Download the <strong><a target="_blank" href="FIXME">test dataset</a></strong> before continuing.\
+                Download the <strong><a target="_blank" href="https://raw.githubusercontent.com/Lab41/Dendrite/master/src/test/javascript/data/les-mis3.json">test dataset</a></strong> before continuing.\
               </p>',
     backdrop: true,
     orphan: true,

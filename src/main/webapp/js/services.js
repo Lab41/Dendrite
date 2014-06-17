@@ -912,7 +912,7 @@ angular.module('dendrite.services', ['ngResource']).
             return "http://"+appConfig.historyServer.host+":"+appConfig.historyServer.port;
           },
           createDir: function(projectId) {
-            if (appConfig.historyServer.enabled) {
+            if (appConfig.historyServer.enabled()) {
               var url = this.serverUrl() + '/api/git/repo/mkdir/';
               var json = { path: appConfig.historyServer.storage+'/'+projectId };
               return $http({

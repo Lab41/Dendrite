@@ -188,10 +188,19 @@
 .panel .dragbox h2 .nav-buttons {
   display: inline-block;
 }
+.expand-full {
+  display: none;
+}
+.expand-full-visible .expand-full {
+  display: inline-block;
+}
 .panel .column-fullwidth .column {
   width: 100% !important;
 }
 .panel .column-fullwidth .collapse-buttons .expand-full {
+  display: none;
+}
+.panel .column-fullwidth .collapse-buttons .expand-horizontal {
   display: none;
 }
 .panel .column {
@@ -1337,7 +1346,7 @@ line.link {
 .jumbotron h4,
 .jumbotron h5,
 .jumbotron h6 {
-  color: #c0392b;
+  color: #d35400;
 }
 h1,
 h2,
@@ -1345,7 +1354,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: #c0392b;
+  color: #d35400;
 }
 h1 small,
 h2 small,
@@ -1396,7 +1405,7 @@ body {
   background-color: #1abc9c;
 }
 .content {
-  background-color: rgba(189, 195, 199, 0.75);
+  background-color: #bdc3c7;
   padding: 40px;
   margin: 0 -20px;
   /* negative indent the amount of the padding to maintain the grid system */
