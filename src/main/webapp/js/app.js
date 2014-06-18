@@ -286,6 +286,31 @@ angular.module('dendrite', [
         }
       }
     },
+    //     FIXME: fill out descriptions
+    //     FIXME: connect to better storage and make sure keys match
+    communityMetricsHelp: {
+        'Modularity':{
+           'description': '<a><strong>Modularity</strong></a> is designed to measure the strength of division of a network into modules (also called groups, clusters or communities). Networks with high modularity have dense connections between the nodes within modules but sparse connections between nodes in different modules',
+           'defaults': {}
+           },
+        'Density': {
+           'description': 'FILL ME OUT'
+           },
+        'Average Degree': {'description': 'FILL ME OUT'},
+        'FOMD': {'description': 'FILL ME OUT'},
+        'TPR': {'description': 'FILL ME OUT'},
+        'Avg Boundary Edges': {'description': 'FILL ME OUT'},
+        'Cut Ratio': {'description': 'FILL ME OUT'},
+        'Conductance': {'description': 'FILL ME OUT'},
+        'Normalized Cut': {'description': 'FILL ME OUT'},
+        'Separability': {'description': 'FILL ME OUT'},
+        'Cohesiveness': {'description': 'FILL ME OUT'},
+        'Expansion': {'description': 'FILL ME OUT'},
+        'Out Degree Fraction': {'description': 'FILL ME OUT'},
+        'Avg Degree': {'description': 'FILL ME OUT'},
+        'size': {'description': 'FILL ME OUT'}
+    },
+           
     analytics: {
         metadata: {
           pollTimeout: 500

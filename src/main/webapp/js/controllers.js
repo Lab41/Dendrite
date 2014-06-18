@@ -110,7 +110,7 @@ angular.module('dendrite.controllers', []).
                     });
         };
     }).
-    controller('ProjectDetailCtrl', function($rootScope, $modal, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
+    controller('ProjectDetailCtrl', function($rootScope, $modal, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform, Community) {
         $scope.projectId = $routeParams.projectId;
         $scope.historyEnabled = appConfig.historyServer.enabled();
         $scope.projectHasData = false;
@@ -152,7 +152,7 @@ angular.module('dendrite.controllers', []).
 
 
         $scope.showCommunities = function() {
-          Community.pollComplete($scope.projectId);
+          return Community.pollComplete($scope.projectId);
         };
 
         // poll for branches
@@ -1526,8 +1526,12 @@ angular.module('dendrite.controllers', []).
       $scope.projectId = $routeParams.projectId;
       $scope.queryProject = Project.query({projectId: $scope.projectId});
       $scope.communityMetrics = Community.metrics($scope.projectId);
-        
-      $scope.helpText = "HII";    
+        //shennanigans    
+          
+      $scope.helpText = function(metricKey){
+          return appConfig.communityMetricsHelp[metricKey].description;
+      }
+      
       // calculate the range of [low,high] values for each metric
       for (var i=0; i<$scope.communityMetrics.communities.details.length; i++) {
         var community = $scope.communityMetrics.communities.details[i];
