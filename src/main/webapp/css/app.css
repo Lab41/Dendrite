@@ -122,54 +122,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Copyright 2014 In-Q-Tel/Lab41
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/**
- * Copyright 2014 In-Q-Tel/Lab41
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-@font-face {
-  font-family: 'Oxygen';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Oxygen'), local('Oxygen-Regular'), url(http://themes.googleusercontent.com/static/fonts/oxygen/v3/RzoNiRR1p2Mqyyz2RwqSMw.woff) format('woff');
-}
-@font-face {
-  font-family: 'Syncopate';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Syncopate'), local('Syncopate-Regular'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/pDM9CVwNx1ufBHCEatJA3D8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
-}
-@font-face {
-  font-family: 'Syncopate';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Syncopate Bold'), local('Syncopate-Bold'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/S5z8ixiOoC4WJ1im6jAlYHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
-}
 .titlebar-buttons {
   float: right;
   font-size: 12px;
@@ -225,30 +177,12 @@
   border-radius: 5px;
   webkit-border-radius: 5px;
   -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
   border: 2px solid transparent;
 }
 .panel .column .dragbox h2 {
   margin: 0;
   line-height: 24px;
   font-size: 17.5px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -270,127 +204,27 @@
 }
 .panel .column .dragbox h2 .collapse-buttons i {
   /* IE 8 */
-
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
   /* IE 5-7 */
-
   filter: alpha(opacity=50);
   /* Netscape */
-
   -moz-opacity: 0.5;
   /* Safari 1.x */
-
   -khtml-opacity: 0.5;
   /* Good browsers */
-
-  opacity: 0.5;
-  /* IE 8 */
-
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  /* IE 5-7 */
-
-  filter: alpha(opacity=50);
-  /* Netscape */
-
-  -moz-opacity: 0.5;
-  /* Safari 1.x */
-
-  -khtml-opacity: 0.5;
-  /* Good browsers */
-
-  opacity: 0.5;
-  /* IE 8 */
-
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  /* IE 5-7 */
-
-  filter: alpha(opacity=50);
-  /* Netscape */
-
-  -moz-opacity: 0.5;
-  /* Safari 1.x */
-
-  -khtml-opacity: 0.5;
-  /* Good browsers */
-
-  opacity: 0.5;
-  /* IE 8 */
-
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  /* IE 5-7 */
-
-  filter: alpha(opacity=50);
-  /* Netscape */
-
-  -moz-opacity: 0.5;
-  /* Safari 1.x */
-
-  -khtml-opacity: 0.5;
-  /* Good browsers */
-
   opacity: 0.5;
 }
 .panel .column .dragbox h2 .collapse-buttons i:hover {
   cursor: pointer;
   /* IE 8 */
-
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   /* IE 5-7 */
-
-  filter: alpha(opacity=50);
+  filter: alpha(opacity=100);
   /* Netscape */
-
   -moz-opacity: 1;
   /* Safari 1.x */
-
   -khtml-opacity: 1;
   /* Good browsers */
-
-  opacity: 1;
-  /* IE 8 */
-
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
-  /* IE 5-7 */
-
-  filter: alpha(opacity=50);
-  /* Netscape */
-
-  -moz-opacity: 1;
-  /* Safari 1.x */
-
-  -khtml-opacity: 1;
-  /* Good browsers */
-
-  opacity: 1;
-  /* IE 8 */
-
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
-  /* IE 5-7 */
-
-  filter: alpha(opacity=50);
-  /* Netscape */
-
-  -moz-opacity: 1;
-  /* Safari 1.x */
-
-  -khtml-opacity: 1;
-  /* Good browsers */
-
-  opacity: 1;
-  /* IE 8 */
-
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
-  /* IE 5-7 */
-
-  filter: alpha(opacity=50);
-  /* Netscape */
-
-  -moz-opacity: 1;
-  /* Safari 1.x */
-
-  -khtml-opacity: 1;
-  /* Good browsers */
-
   opacity: 1;
 }
 .panel .column .dragbox h2 .configure {
@@ -425,47 +259,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Copyright 2014 In-Q-Tel/Lab41
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/**
- * Copyright 2014 In-Q-Tel/Lab41
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 .ngGrid {
   background-color: #bdc3c7;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -509,18 +304,6 @@
   font-weight: bold;
   background-color: #2c3e50;
   color: #ecf0f1;
-  -webkit-border-radius: 6px 6px 0 0;
-  -moz-border-radius: 6px 6px 0 0;
-  -khtml-border-radius: 6px 6px 0 0;
-  border-radius: 6px 6px 0 0;
-  -webkit-border-radius: 6px 6px 0 0;
-  -moz-border-radius: 6px 6px 0 0;
-  -khtml-border-radius: 6px 6px 0 0;
-  border-radius: 6px 6px 0 0;
-  -webkit-border-radius: 6px 6px 0 0;
-  -moz-border-radius: 6px 6px 0 0;
-  -khtml-border-radius: 6px 6px 0 0;
-  border-radius: 6px 6px 0 0;
   -webkit-border-radius: 6px 6px 0 0;
   -moz-border-radius: 6px 6px 0 0;
   -khtml-border-radius: 6px 6px 0 0;
@@ -866,18 +649,6 @@
   -moz-border-radius: 0 0 6px 6px;
   -khtml-border-radius: 0 0 6px 6px;
   border-radius: 0 0 6px 6px;
-  -webkit-border-radius: 0 0 6px 6px;
-  -moz-border-radius: 0 0 6px 6px;
-  -khtml-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
-  -webkit-border-radius: 0 0 6px 6px;
-  -moz-border-radius: 0 0 6px 6px;
-  -khtml-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
-  -webkit-border-radius: 0 0 6px 6px;
-  -moz-border-radius: 0 0 6px 6px;
-  -khtml-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
 }
 .ngFooterPanel {
   background-color: #7f8c8d;
@@ -885,18 +656,6 @@
   border-top: 1px solid #7f8c8d;
   color: #ecf0f1;
   position: relative;
-  -webkit-border-radius: 0 0 6px 6px;
-  -moz-border-radius: 0 0 6px 6px;
-  -khtml-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
-  -webkit-border-radius: 0 0 6px 6px;
-  -moz-border-radius: 0 0 6px 6px;
-  -khtml-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
-  -webkit-border-radius: 0 0 6px 6px;
-  -moz-border-radius: 0 0 6px 6px;
-  -khtml-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
   -webkit-border-radius: 0 0 6px 6px;
   -moz-border-radius: 0 0 6px 6px;
   -khtml-border-radius: 0 0 6px 6px;
@@ -1067,36 +826,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Copyright 2014 In-Q-Tel/Lab41
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/**
- * Copyright 2014 In-Q-Tel/Lab41
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 .ui-progressbar {
   height: 20px;
   width: 100%;
@@ -1116,7 +845,6 @@
 .ui-progressbar-text {
   position: relative;
   /*  top: -3px;*/
-
   left: 0;
   padding: 0 5px;
   font-size: 85%;
@@ -1138,27 +866,9 @@
   border-radius: 5px;
   webkit-border-radius: 5px;
   -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
   background: #bdc3c7;
 }
 .circle {
-  border-radius: 50%;
-  webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
-  border-radius: 50%;
-  webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
-  border-radius: 50%;
-  webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
   border-radius: 50%;
   webkit-border-radius: 50%;
   -moz-border-radius: 50%;
@@ -1242,15 +952,6 @@
 #viz-histogram-wrapper {
   background: #7f8c8d;
   padding: 15px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1409,28 +1110,9 @@ body {
   padding: 40px;
   margin: 0 -20px;
   /* negative indent the amount of the padding to maintain the grid system */
-
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
@@ -1442,15 +1124,6 @@ body {
 }
 .container-comments {
   border: 1px dashed #bdc3c7;
-  border-radius: 10px;
-  webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
-  webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
-  webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
   border-radius: 10px;
   webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -1519,15 +1192,6 @@ body {
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
 }
 .bar-analytic {
   position: relative;
@@ -1547,6 +1211,9 @@ body {
 }
 .progress {
   margin-bottom: 10px;
+}
+.metric-icon {
+  padding-right: 3px;
 }
 /*************************************************/
 /* notifications */
@@ -1630,15 +1297,6 @@ select:focus:invalid:focus {
   -webkit-box-shadow: 0 0 6px 0 #16a085;
   -moz-box-shadow: 0 0 6px 0 #16a085;
   box-shadow: 0 0 6px 0 #16a085;
-  -webkit-box-shadow: 0 0 6px 0 #16a085;
-  -moz-box-shadow: 0 0 6px 0 #16a085;
-  box-shadow: 0 0 6px 0 #16a085;
-  -webkit-box-shadow: 0 0 6px 0 #16a085;
-  -moz-box-shadow: 0 0 6px 0 #16a085;
-  box-shadow: 0 0 6px 0 #16a085;
-  -webkit-box-shadow: 0 0 6px 0 #16a085;
-  -moz-box-shadow: 0 0 6px 0 #16a085;
-  box-shadow: 0 0 6px 0 #16a085;
 }
 .simple_form .error {
   clear: left;
@@ -1706,7 +1364,6 @@ div.span6 div.span6 div.dataTables_length label {
 }
 .tabs-vertical {
   /*  .nav-tabs {*/
-
 }
 .tabs-vertical .nav-tabs {
   border-bottom: none;
@@ -1716,43 +1373,14 @@ div.span6 div.span6 div.dataTables_length label {
   background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
   background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
   background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background-color: rgba(236, 240, 241, 0.3);
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
-  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background-color: rgba(236, 240, 241, 0.3);
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
-  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background-color: rgba(236, 240, 241, 0.3);
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
-  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
-  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
   min-height: 300px;
   /*    background: rgba(0,0,0,0.1);*/
-
   /*    border-right: 1px solid #ddd;*/
-
 }
 .tabs-vertical .nav-tabs li {
   float: none;
 }
 .tabs-vertical .nav-tabs li a {
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1794,12 +1422,10 @@ div.span6 div.span6 div.dataTables_length label {
 .nav-tabs > li > a:focus,
 .nav-tabs > li > a:hover {
   /*    color: #555555;*/
-
   cursor: pointer;
   background: transparent;
   border: 1px dotted #ecf0f1;
   /*    border-bottom-color: transparent;*/
-
 }
 .ui-tabs-nav.ui-widget-header {
   background: #bdc3c7;
@@ -1875,32 +1501,14 @@ div.span6 div.span6 div.dataTables_length label {
   background-image: -o-linear-gradient(top, #424a4a, #424a4a);
   background-image: linear-gradient(to bottom, #424a4a, #424a4a);
   background-repeat: repeat-x;
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr=#424a4a, #424a4a, GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#424a4a, #424a4a, GradientType=0);
   border: 1px solid #D4D4D4;
-  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
 }
 .navbar .nav .active a {
   background-color: #ecf0f1;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1963,7 +1571,7 @@ label.inline {
 .btn {
   background-color: #edf1f2 !important;
   background-repeat: repeat-x;
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-start", endColorstr="@color-btn-end");
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-start", endColorstr="@color-btn-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#ecf0f1), to(#ecf0f1));
   background-image: -moz-linear-gradient(top, #ecf0f1, #ecf0f1);
   background-image: -ms-linear-gradient(top, #ecf0f1, #ecf0f1);
@@ -1978,7 +1586,7 @@ label.inline {
 .btn-primary {
   background-color: #287fb8 !important;
   background-repeat: repeat-x;
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-primary-start", endColorstr="@color-btn-primary-end");
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-primary-start", endColorstr="@color-btn-primary-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#2980b9), to(#2980b9));
   background-image: -moz-linear-gradient(top, #2980b9, #2980b9);
   background-image: -ms-linear-gradient(top, #2980b9, #2980b9);
@@ -1994,7 +1602,7 @@ label.inline {
 .btn-file {
   background-color: #808d8e !important;
   background-repeat: repeat-x;
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-file-start", endColorstr="@color-btn-file-end");
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-file-start", endColorstr="@color-btn-file-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#7f8c8d), to(#7f8c8d));
   background-image: -moz-linear-gradient(top, #7f8c8d, #7f8c8d);
   background-image: -ms-linear-gradient(top, #7f8c8d, #7f8c8d);
@@ -2010,7 +1618,7 @@ label.inline {
 .btn-success {
   background-color: #16a286 !important;
   background-repeat: repeat-x;
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-success-start", endColorstr="@color-btn-success-end");
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-success-start", endColorstr="@color-btn-success-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#16a085), to(#16a085));
   background-image: -moz-linear-gradient(top, #16a085, #16a085);
   background-image: -ms-linear-gradient(top, #16a085, #16a085);
@@ -2026,7 +1634,7 @@ label.inline {
 .btn-attention {
   background-color: #d15400 !important;
   background-repeat: repeat-x;
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-attention-start", endColorstr="@color-btn-attention-end");
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-attention-start", endColorstr="@color-btn-attention-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#d35400), to(#d35400));
   background-image: -moz-linear-gradient(top, #d35400, #d35400);
   background-image: -ms-linear-gradient(top, #d35400, #d35400);
@@ -2042,7 +1650,7 @@ label.inline {
 .btn-default {
   background-color: #808d8e !important;
   background-repeat: repeat-x;
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-default-start", endColorstr="@color-btn-default-end");
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-default-start", endColorstr="@color-btn-default-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#7f8c8d), to(#7f8c8d));
   background-image: -moz-linear-gradient(top, #7f8c8d, #7f8c8d);
   background-image: -ms-linear-gradient(top, #7f8c8d, #7f8c8d);
