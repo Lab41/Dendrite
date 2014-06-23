@@ -23,12 +23,12 @@
 .ui-progressbar {
   height: 20px;
   width: 100%;
-  border: 1px solid transparent;
   margin: 0;
   padding: 0;
-  display: inline-block;
+  display: block;
 }
 .ui-progressbar-value {
+  display: block;
   height: 20px;
   margin: 0;
   padding: 0;
@@ -36,6 +36,18 @@
   background: @color-community-progressbar;
   border: 1px solid @color-community-progressbar;
 }
+
+
+  .ui-progressbar-standard-deviation {
+    height: 20px;
+    top: -20px;
+    position: relative;
+    background: red;
+    width: 3px;
+    .inline-block;
+  }
+
+
 .ui-progressbar-text {
   position: relative;
 /*  top: -3px;*/
