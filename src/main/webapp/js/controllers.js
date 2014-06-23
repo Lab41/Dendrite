@@ -1585,8 +1585,8 @@ angular.module('dendrite.controllers', []).
       }
 
 
-      $scope.formatHTML = function(val) {
-        var fractionSize = 4;
+      $scope.formatHTML = function(val, fractionSize) {
+        if (fractionSize === undefined) fractionSize = 4;
         if (val === undefined || (typeof val) === "string") {
           return val;
         }
