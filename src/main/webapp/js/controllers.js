@@ -1522,66 +1522,66 @@ angular.module('dendrite.controllers', []).
 
       $scope.historyUrl = History.serverUrl() + "/#/repository?path="+encodeURIComponent(graphHistoryPath);
     }).
-    controller('CommunityListCtrl', function($scope, $routeParams, $filter, appConfig, Project, Graph, Community) {
+    controller('CommunityListCtrl', function($scope, $routeParams, $filter, appConfig, Project, Graph, Community, Helpers) {
       $scope.projectId = $routeParams.projectId;
       $scope.queryProject = Project.query({projectId: $scope.projectId});
       $scope.communityMetrics = Community.metrics($scope.projectId);
-        //shennanigans
 
       $scope.helpText = function(metricKey){
           return appConfig.communityMetricsHelp[metricKey].description;
       }
 
-      // calculate the range of [low,high] values for each metric
+      // store metrics as arrays of values for later calculations
+      $scope.communityValues = {
+                metrics: {},
+                vertices: [],
+                edges: []
+      };
       for (var i=0; i<$scope.communityMetrics.communities.details.length; i++) {
+
         var community = $scope.communityMetrics.communities.details[i];
 
         var metricNames = Object.keys(community.metrics);
         for (var m=0; m<metricNames.length; ++m) {
 
-          // ensure metric is tracked graphwide
+          // ensure metric is tracked graphwide and add to values
           var metric = metricNames[m];
-          if ($scope.communityMetrics.communities.metrics[metric] === undefined) {
-            $scope.communityMetrics.communities.metrics[metric] = {};
-          }
+          $scope.communityValues.metrics[metric] = $scope.communityValues.metrics[metric] || [];
+          $scope.communityValues.metrics[metric].push(community.metrics[metric]);
 
-          // store low value for that metric
-          if ($scope.communityMetrics.communities.metrics[metric].low === undefined || community.metrics[metric] < $scope.communityMetrics.communities.metrics[metric].low) {
-            $scope.communityMetrics.communities.metrics[metric].low = community.metrics[metric];
-          }
-
-          // store high value for that metric
-          if ($scope.communityMetrics.communities.metrics[metric].high === undefined || community.metrics[metric] > $scope.communityMetrics.communities.metrics[metric].high) {
-            $scope.communityMetrics.communities.metrics[metric].high = community.metrics[metric];
-          }
         }
 
-        // store [low,high] range for number of vertices and edges
-        if ($scope.communityMetrics.communities.metrics.size === undefined) {
-          $scope.communityMetrics.communities.metrics.size = {vertices: {}, edges: {}};
-        }
-        if ($scope.communityMetrics.communities.metrics.size.vertices.low === undefined || community.vertices < $scope.communityMetrics.communities.metrics.size.vertices.low) {
-          $scope.communityMetrics.communities.metrics.size.vertices.low = community.vertices;
-        }
-        if ($scope.communityMetrics.communities.metrics.size.vertices.high === undefined || community.vertices > $scope.communityMetrics.communities.metrics.size.vertices.high) {
-          $scope.communityMetrics.communities.metrics.size.vertices.high = community.vertices;
-        }
-        if ($scope.communityMetrics.communities.metrics.size.edges.low === undefined || community.edges < $scope.communityMetrics.communities.metrics.size.edges.low) {
-          $scope.communityMetrics.communities.metrics.size.edges.low = community.edges;
-        }
-        if ($scope.communityMetrics.communities.metrics.size.edges.high === undefined || community.edges > $scope.communityMetrics.communities.metrics.size.edges.high) {
-          $scope.communityMetrics.communities.metrics.size.edges.high = community.edges;
-        }
+        // keep track of number of edges and vertices
+        $scope.communityValues.vertices.push(community.vertices);
+        $scope.communityValues.edges.push(community.edges);
       }
-      console.log($scope.communityMetrics);
 
-      // ensure each metric has an avg
-      var metricNames = Object.keys($scope.communityMetrics.communities.metrics);
-      for (var i=0; i<metricNames.length; i++) {
-        var metric = metricNames[i];
-        if ($scope.communityMetrics.communities.metrics[metric].avg === undefined && (typeof $scope.communityMetrics.communities.metrics[metric].high) === "number") {
-          $scope.communityMetrics.communities.metrics[metric].avg = ($scope.communityMetrics.communities.metrics[metric].high/$scope.communityMetrics.communities.metrics[metric].low)/2;
+      var decimalPrecision = 6;
+      $scope.communityMetrics.communities.metrics.size = {vertices: {}, edges: {}};
+      for (var i=0; i<$scope.communityMetrics.communities.details.length; i++) {
+
+        var community = $scope.communityMetrics.communities.details[i];
+        var metricNames = Object.keys(community.metrics);
+        for (var m=0; m<metricNames.length; ++m) {
+
+          // ensure metric is tracked graphwide and add to values
+          var metric = metricNames[m];
+          $scope.communityMetrics.communities.metrics[metric] = $scope.communityMetrics.communities.metrics[metric] || {};
+          $scope.communityMetrics.communities.metrics[metric].low = Helpers.min($scope.communityValues.metrics[metric]);
+          $scope.communityMetrics.communities.metrics[metric].high = Helpers.max($scope.communityValues.metrics[metric]);
+          $scope.communityMetrics.communities.metrics[metric].avg = Helpers.avg($scope.communityValues.metrics[metric]);
+          $scope.communityMetrics.communities.metrics[metric].avg = Helpers.avg($scope.communityValues.metrics[metric]);
+          $scope.communityMetrics.communities.metrics[metric].standardDeviation = Helpers.standardDeviation($scope.communityValues.metrics[metric], decimalPrecision);
         }
+
+        $scope.communityMetrics.communities.metrics.size.vertices.low = Helpers.min($scope.communityValues.vertices);
+        $scope.communityMetrics.communities.metrics.size.vertices.high = Helpers.max($scope.communityValues.vertices);
+        $scope.communityMetrics.communities.metrics.size.vertices.avg = Helpers.avg($scope.communityValues.vertices);
+        $scope.communityMetrics.communities.metrics.size.vertices.standardDeviation = Helpers.standardDeviation($scope.communityValues.vertices, decimalPrecision);
+        $scope.communityMetrics.communities.metrics.size.edges.low = Helpers.min($scope.communityValues.edges);
+        $scope.communityMetrics.communities.metrics.size.edges.high = Helpers.max($scope.communityValues.edges);
+        $scope.communityMetrics.communities.metrics.size.edges.avg = Helpers.avg($scope.communityValues.edges);
+        $scope.communityMetrics.communities.metrics.size.edges.standardDeviation = Helpers.standardDeviation($scope.communityValues.edges, decimalPrecision);
       }
 
 

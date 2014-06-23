@@ -126,7 +126,79 @@ angular.module('dendrite.services', ['ngResource']).
         //TODO: delete once backend APIs complete - dummy result array
         var analyticResults = [];
 
+        var defaultPrecision = 6;
+
+        var isArray = function (obj) {
+          return Object.prototype.toString.call(obj) === "[object Array]";
+        };
+
+        var numberWithPrecision = function(num, precision){
+          var pow10s = Math.pow(10, precision || 0);
+          return (precision) ? Math.round(pow10s * num) / pow10s : num;
+        };
+
+        var getAverageFromNumbersArray = function(numbersArray, precision){
+          if(!isArray(numbersArray)){ return false;  }
+          var i = numbersArray.length;
+          var sum = 0;
+          while(i--){
+            sum += numbersArray[i];
+          }
+          return numberWithPrecision((sum / numbersArray.length), precision);
+        };
+
         return {
+
+          variance: function(numbersArray, precision){
+            if (precision === undefined) precision = defaultPrecision;
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            console.log('numbersArray=');
+            console.log(numbersArray);
+            var avg = this.avg(numbersArray);
+            var i = numbersArray.length;
+            var v = 0;
+
+            console.log('avg='+avg);
+
+            while(i--){
+              v += Math.pow((numbersArray[i] - avg), 2);
+            }
+            v /= numbersArray.length;
+            console.log('v='+v);
+            console.log('numberWithPrecision='+numberWithPrecision(v, precision));
+            return numberWithPrecision(v, precision);
+          },
+
+          standardDeviation: function(numbersArray, precision){
+            if (precision === undefined) precision = defaultPrecision;
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            var variance = this.variance(numbersArray, precision);
+            console.log('variance='+variance);
+            var stdDev = Math.sqrt(variance);
+            console.log('stdDev='+stdDev);
+            return numberWithPrecision(stdDev, precision);
+          },
+
+          min: function(numbersArray){
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            return Math.min.apply(null, numbersArray);
+          },
+
+          max: function(numbersArray){
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            return Math.max.apply(null, numbersArray);
+          },
+
+          avg: function(numbersArray){
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            var sum = 0;
+            for(var i = 0; i < numbersArray.length; i++) { sum += numbersArray[i]; }
+            return (sum / numbersArray.length);
+          },
+
+
+
+
           //TODO: delete once backend APIs complete - function to add class for progress bars
           colorProgressBars: function(progress) {
             if (progress < 0.33) {
@@ -139,6 +211,8 @@ angular.module('dendrite.services', ['ngResource']).
               return 'success';
             }
           },
+
+
           parseGraphFile: function(text, format) {
             var keys = {vertices: {}, edges: {}};
             try {
