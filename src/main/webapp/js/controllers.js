@@ -1526,12 +1526,12 @@ angular.module('dendrite.controllers', []).
       $scope.projectId = $routeParams.projectId;
       $scope.queryProject = Project.query({projectId: $scope.projectId});
       $scope.communityMetrics = Community.metrics($scope.projectId);
-        //shennanigans    
-          
+        //shennanigans
+
       $scope.helpText = function(metricKey){
           return appConfig.communityMetricsHelp[metricKey].description;
       }
-      
+
       // calculate the range of [low,high] values for each metric
       for (var i=0; i<$scope.communityMetrics.communities.details.length; i++) {
         var community = $scope.communityMetrics.communities.details[i];

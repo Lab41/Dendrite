@@ -485,54 +485,79 @@ angular.module('dendrite.directives', [])
     return {
       restrict: 'E',
       link: function($scope, element, attrs) {
-        $scope.$watch('communitySelected', function(oldVal, newVal) {
-          var value = $scope.metricVal;
-          var valueHtml = value;
-          var fractionSize = 4;
-          var range = '';
-          var community = $scope.$parent.selected;
+        var metricValHtml,
+            rangeLow,
+            rangeHigh,
+            color,
+            odfCircle,
+            odfSizePixels = 50;
 
-          var color = $('#community-'+$scope.selected.id).css('background-color');
+        $scope.$watch('communitySelected', function(oldVal, newVal) {
+
+          // initialize color and range bounds
+          metricValHtml = '';
+          color = $('#community-'+$scope.selected.id).css('background-color');
+          rangeLow = $scope.communityMetrics.communities.metrics[$scope.metricKey].low;
+          rangeHigh = $scope.communityMetrics.communities.metrics[$scope.metricKey].high;
 
           // handle nested objects
-          if ((typeof value) === "object") {
-            valueHtml = '';
-            for (var key in value) {
-              valueHtml += '<div class="row-fluid">\
-                              <div class="span3">'+key+'</div>\
-                              <div class="span3">'+$scope.formatHTML(value[key])+'</div>\
+          if ((typeof $scope.metricVal) === "object") {
+            for (var key in $scope.metricVal) {
+              odfCircle = '<div class="circle-wrapper">\
+                                <div class="circle" style="background:'+color+'; width:'+odfSizePixels * $scope.metricVal[key]+'px; height:'+odfSizePixels * $scope.metricVal[key]+'px">\
+                                  <div class="text">\
+                                    <div>'+$scope.formatHTML($scope.metricVal[key], 2)+'</div>\
+                                  </div>\
+                                </div>\
+                              </div>';
+              metricValHtml += '<div class="span4 text-center">\
+                              <div class="row-fluid">\
+                                <div class="span12"><strong>'+$filter('capitalize')(key)+'</strong></div>\
+                              </div>\
+                              <div class="row-fluid">\
+                                <div class="span12">'+odfCircle+'</div>\
+                              </div>\
                             </div>';
             }
-
-            range = valueHtml;
           }
-          else {
-            if ((typeof $scope.communityMetrics.communities.metrics[$scope.metricKey].low) === "number") {
-              var progress = ($scope.metricVal - $scope.communityMetrics.communities.metrics[$scope.metricKey].low) / ($scope.communityMetrics.communities.metrics[$scope.metricKey].high - $scope.communityMetrics.communities.metrics[$scope.metricKey].low) * 100.0;
 
-              $scope.barProgress = progress+'%';
-              range =   '';
-              range = '<div class="row-fluid">\
-                          <div class="inline span2 align-right" ng-show="showCommunityProgressFields(selected)">{{formatHTML(communityMetrics.communities.metrics[metricKey].low)}}</div>\
-                          <div class="inline span8">'+range+'\
+          // single values
+          else {
+            if ((typeof rangeLow) !== "number") {
+              metricValHtml = $scope.metricVal;
+            }
+            else {
+              $scope.barProgress = 100.0 * (($scope.metricVal - rangeLow)
+                                                          /
+                                            (rangeHigh - rangeLow));
+
+              metricValHtml = '<div class="row-fluid">\
+                          <div class="inline span2 align-right" ng-show="showCommunityProgressFields(selected)">\
+                            {{formatHTML(communityMetrics.communities.metrics[metricKey].low)}}\
+                          </div>\
+                          \
+                          <div class="inline span8">\
                             <div class="ui-progressbar community-progressbar ui-corner-all">\
-                              <div class="ui-progressbar-value ui-widget-header ui-corner-left" style="width: {{barProgress}}; background-color:'+color+'">\
+                              <div class="ui-progressbar-value ui-widget-header ui-corner-left" style="width: {{barProgress}}%; background-color:'+color+'">\
                                 <div class="ui-progressbar-text">{{formatHTML(metricVal)}}\
                                 </div>\
                               </div>\
                             </div>\
                           </div>\
-                          <div class="inline span2" ng-show="showCommunityProgressFields(selected)">{{formatHTML(communityMetrics.communities.metrics[metricKey].high)}}</div>\
+                          \
+                          <div class="inline span2" ng-show="showCommunityProgressFields(selected)">\
+                            {{formatHTML(communityMetrics.communities.metrics[metricKey].high)}}\
+                          </div>\
                        </div>';
             }
-            else {
-              range = valueHtml;
-            }
-  //          range = '('+ $filter('number')($scope.communityMetrics.communities.metrics[$scope.metricKey].low, fractionSize) + ' - ' + $filter('number')($scope.communityMetrics.communities.metrics[$scope.metricKey].high, fractionSize) + ')';
           }
-          var template = '<div class="span3" ng-show="showCommunityFields(selected)"><strong>{{metricKey}}</strong></div>\
-                          <div class="span9">'+range+'</div>';
-//                           <div class="span3">{{formatHTML(metricVal)}}</div>\
+          var template = '<div class="span3" ng-show="showCommunityFields(selected)">\
+                            <strong>{{metricKey}}</strong>\
+                          </div>\
+                          <div class="span9">'
+                            +metricValHtml+
+                          '</div>';
+
           // requires recompile
           element.html($compile(template)($scope));
         });
@@ -543,16 +568,10 @@ angular.module('dendrite.directives', [])
     return {
       restrict: 'E',
       link: function($scope, element, attrs) {
+        var sizeMax = 80,
+            sizeMin = 10;
 
-        function shadeColor(color, percent) {
-            var num = parseInt(color,16),
-            amt = Math.round(2.55 * percent),
-            R = (num >> 16) + amt,
-            G = (num >> 8 & 0x00FF) + amt,
-            B = (num & 0x0000FF) + amt;
-            return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
-        }
-
+        // create random HSL color
         function rand(min, max) {
             return min + Math.random() * (max - min);
         }
@@ -563,29 +582,23 @@ angular.module('dendrite.directives', [])
             return 'hsl(' + h + ',' + s + '%,' + l + '%)';
         }
 
-        var sizeMax = 80,
-            sizeMin = 10;
-
-        var sizeRelative = ($scope.community.vertices - $scope.communityMetrics.communities.metrics.size.vertices.low) /($scope.communityMetrics.communities.metrics.size.vertices.high - $scope.communityMetrics.communities.metrics.size.vertices.low);
+        // size of sphere is relative to its number of vertices
+        var numVertices = $scope.community.vertices,
+            verticesLow = $scope.communityMetrics.communities.metrics.size.vertices.low,
+            verticesHigh = $scope.communityMetrics.communities.metrics.size.vertices.high;
+        var sizeRelative =  (numVertices - verticesLow)
+                                        /
+                            (verticesHigh - verticesLow);
         var sizeAdjusted = sizeMin + sizeRelative*(sizeMax - sizeMin);
 
-
-        var color = get_random_color();//Math.floor(Math.random()*16777215).toString(16);
-//        var border = shadeColor(color, -20);
-//        var colorText = shadeColor(color, -50);
+        // draw a circle of relative size using a random color
         var template = '<div class="circle-wrapper" ng-click="viewCommunity(community)" ng-class="communityIsSelectedClass(community)" style="height:'+sizeMax+'px;">\
-                          <div id="community-{{community.id}}" class="circle" style="background:'+color+'; width:'+sizeAdjusted+'px; height:'+sizeAdjusted+'px">\
+                          <div id="community-{{community.id}}" class="circle" style="background:'+get_random_color()+'; width:'+sizeAdjusted+'px; height:'+sizeAdjusted+'px">\
                             <div class="text">\
-                              <div>'+$scope.community.vertices+'</div>\
+                              <div>'+numVertices+'</div>\
                             </div>\
                           </div>\
                         </div>';
-
-        /*
-        label class="inline" ng-repeat="community in communityMetrics.communities.details">\
-        <input type="radio" ng-checked="communityIsSelected(community)" ng-click="viewCommunity(community)"> {{community.id}}
-      </label>';
-      */
 
         // requires recompile
         element.html($compile(template)($scope));
