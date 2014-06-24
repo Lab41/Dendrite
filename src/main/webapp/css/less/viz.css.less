@@ -90,3 +90,17 @@
     color: @color-community-progressbar-text;
   }
 }
+
+.card {
+  .rounded-corner(3px);
+  height: 125px;
+  border-bottom: 3px solid transparent;
+  .align-center;
+  background: darken(@color-background-stage, 10%);
+  padding: 10px;
+  margin: 10px;
+
+  &:hover {
+    border-bottom-color: @color-red-dark;
+  }
+}

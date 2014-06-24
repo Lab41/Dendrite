@@ -253,7 +253,7 @@
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   padding: 5px;
-  border-bottom: 1px solid #afb6bb;
+  border-bottom: 1px solid rgba(175, 182, 187, 0.75);
   color: #424a4a;
   font-family: Verdana;
 }
@@ -1181,6 +1181,29 @@
   left: 25%;
   color: #ecf0f1;
 }
+.card {
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  height: 125px;
+  border-bottom: 3px solid transparent;
+  text-align: center;
+  background: rgba(161, 170, 176, 0.75);
+  padding: 10px;
+  margin: 10px;
+}
+.card:hover {
+  border-bottom-color: #c0392b;
+}
 /*************************************************/
 /* colors */
 /*************************************************/
@@ -1413,7 +1436,7 @@ body {
   background-color: #1abc9c;
 }
 .content {
-  background-color: #bdc3c7;
+  background-color: rgba(189, 195, 199, 0.75);
   padding: 40px;
   margin: 0 -20px;
   /* negative indent the amount of the padding to maintain the grid system */

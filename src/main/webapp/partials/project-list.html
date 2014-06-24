@@ -2,11 +2,11 @@
 <div class="container-fluid">
   <div class="row-fluid">
     <div class="span12" style="margin-bottom:20px">
-      <ul ng-repeat="project in query.projects">
-        <li>
-          <a ng-click="showProject({{ project._id }})"><strong>{{ project.name }}</strong></a>
-        </li>
-      </ul>
+      <div class="card span3" ng-repeat="project in query.projects" ng-click="showProject({{ project._id }})">
+        <div><img class="logo" src="public/img/logo.png" height="30" width="30"></div>
+        <div><strong>{{ project.name }}</strong></div>
+        <div><small>{{ project.creationTime | date:'yyyy-MM-dd'}}</small></div>
+      </div>
     </div>
   </div>
 </div>
