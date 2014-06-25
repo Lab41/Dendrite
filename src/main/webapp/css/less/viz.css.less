@@ -19,6 +19,7 @@
 
 @color-community-progressbar: @color-navy-dark;
 @color-community-progressbar-text: @color-white-dark;
+@color-standard-deviation: darken(@color-background-stage, 5%);
 
 .ui-progressbar {
   height: 20px;
@@ -26,6 +27,11 @@
   margin: 0;
   padding: 0;
   display: block;
+
+  &.legend {
+    border-right: 1px dotted @color-typ-titlebar;
+    border-left: 1px dotted @color-typ-titlebar;
+  }
 }
 .ui-progressbar-value {
   display: block;
@@ -38,14 +44,13 @@
 }
 
 
-  .ui-progressbar-standard-deviation {
-    height: 20px;
-    top: -20px;
-    position: relative;
-    background: red;
-    width: 3px;
-    .inline-block;
-  }
+.ui-progressbar-standard-deviation {
+  height: 20px;
+  position: relative;
+  background: @color-standard-deviation;
+  width: 3px;
+  .inline-block;
+}
 
 
 .ui-progressbar-text {
@@ -57,6 +62,7 @@
   font-weight: bold;
   color: @color-community-progressbar-text;
   line-height: 20px;
+  .inline;
 
   &.text-dummy {
     color: @color-red-dark;
@@ -101,6 +107,20 @@
   margin: 10px;
 
   &:hover {
-    border-bottom-color: @color-red-dark;
+    border-bottom-color: @color-emphasis;
+  }
+}
+
+.card-community-metric {
+  .rounded-corner(3px);
+  .align-center;
+  height: 125px;
+  padding: 10px;
+  background: transparent;
+  margin: 10px 0;
+
+  h1,h2,h3,h4,h5,h6 {
+    color: @color-ui-tabs-dark;
+    text-decoration: underline;
   }
 }
