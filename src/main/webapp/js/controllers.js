@@ -1586,9 +1586,8 @@ angular.module('dendrite.controllers', []).
         $scope.communityMetrics.communities.metrics.size.edges.standardDeviation = Helpers.standardDeviation($scope.communityValues.edges, decimalPrecision);
       }
 
-
       $scope.formatHTML = function(val, fractionSize) {
-        if (fractionSize === undefined) fractionSize = 4;
+        if (fractionSize === undefined) fractionSize = 3;
         if (val === undefined || (typeof val) === "string") {
           return val;
         }
