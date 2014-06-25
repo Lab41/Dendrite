@@ -482,85 +482,161 @@ angular.module('dendrite.directives', [])
       templateUrl: 'partials/analytics/progress-bar.html'
     };
   })
-  .directive('graphCommunityMetric', function($compile, $filter) {
+  .directive('graphCommunityMetricLegend', function($compile, $filter) {
     return {
       restrict: 'E',
       link: function($scope, element, attrs) {
-        var metricValHtml,
-            rangeLow,
-            rangeHigh,
-            color,
-            odfCircle,
-            odfSizePixels = 50;
-
         $scope.$watch('communitySelected', function(oldVal, newVal) {
 
-          // initialize color and range bounds
-          metricValHtml = '';
-          color = $('#community-'+$scope.selected.id).css('background-color');
-          rangeLow = $scope.communityMetrics.communities.metrics[$scope.metricKey].low;
-          rangeHigh = $scope.communityMetrics.communities.metrics[$scope.metricKey].high;
+          // extract the selected communities' metric
+          var template = '';
+          var metricVal = $scope.communityMetrics.communities.details[0].metrics[$scope.metricName];
+          var odfSizePixels = 50;
 
-          // handle nested objects
-          if ((typeof $scope.metricVal) === "object") {
-            for (var key in $scope.metricVal) {
-              odfCircle = '<div class="circle-wrapper">\
-                                <div class="circle" style="background:'+color+'; width:'+odfSizePixels * $scope.metricVal[key]+'px; height:'+odfSizePixels * $scope.metricVal[key]+'px">\
-                                  <div class="text">\
-                                    <div>'+$scope.formatHTML($scope.metricVal[key], 2)+'</div>\
-                                  </div>\
+          // legend format depends on metric type
+          if ((typeof metricVal) === "object") {
+
+            // reference circles for max/avg/flake
+            for (var key in metricVal) {
+                template += '<div class="span4 circle-wrapper text-center">\
+                              <div class="circle"\
+                                   style="border: 1px dashed #666;\
+                                          width:'+odfSizePixels+'px;\
+                                          height:'+odfSizePixels+'px"\
+                              >\
+                                <div class="text" style="color: #666; left: 0">\
+                                  <small><strong>'+$filter('capitalize')(key)+'</strong></small>\
                                 </div>\
-                              </div>';
-              metricValHtml += '<div class="span4 text-center">\
-                              <div class="row-fluid">\
-                                <div class="span12"><strong>'+$filter('capitalize')(key)+'</strong></div>\
                               </div>\
-                              <div class="row-fluid">\
-                                <div class="span12">'+odfCircle+'</div>\
-                              </div>\
-                            </div>';
-            }
-          }
+                           </div>';
+             }
+           }
+           else {
+              var standardDeviationStart = 100 * ($scope.metric.avg - $scope.metric.standardDeviation - $scope.metric.low)
+                                                              /
+                                           ($scope.metric.high - $scope.metric.low);
+              var standardDeviationEnd = 100 * ($scope.metric.avg + $scope.metric.standardDeviation - $scope.metric.low)
+                                                              /
+                                           ($scope.metric.high - $scope.metric.low);
 
-          // single values
-          else {
-            if ((typeof rangeLow) !== "number") {
-              metricValHtml = $scope.metricVal;
-            }
-            else {
-              $scope.barProgress = 100.0 * (($scope.metricVal - rangeLow)
-                                                          /
-                                            (rangeHigh - rangeLow));
 
-              metricValHtml = '<div class="row-fluid">\
-                          <div class="inline span2 align-right" ng-show="showCommunityProgressFields(selected)">\
-                            {{formatHTML(communityMetrics.communities.metrics[metricKey].low)}}\
+              if (standardDeviationStart < 0) standardDeviationStart = 0;
+              if (standardDeviationEnd > 100) standardDeviationEnd = 100;
+              var standardDeviationWidth = standardDeviationEnd - standardDeviationStart;
+
+              template = '<div class="inline span2 align-right">\
+                            <small>low</small>\
                           </div>\
                           \
-                          <div class="inline span8">\
-                            <div class="ui-progressbar community-progressbar ui-corner-all">\
-                              <div class="ui-progressbar-value ui-widget-header ui-corner-left" style="width: {{barProgress}}%; background-color:'+color+'">\
-                                <div class="ui-progressbar-text">{{formatHTML(metricVal)}}\
+                          <div class="inline span8 titlebar">\
+                            <div class="ui-progressbar community-progressbar legend ui-corner-all">\
+                              <div class="ui-progressbar-standard-deviation ui-widget-header"\
+                                   style="left: '+standardDeviationStart+'%;\
+                                          width: '+standardDeviationWidth+'%"\
+                              >\
+                                <div class="ui-progressbar-text">\
+                                  <small>-1&sigma;</small>\
+                                </div>\
+                                \
+                                <div class="ui-progressbar-text"\
+                                     style="left: '+(standardDeviationWidth + 10)+'%"\
+                                >\
+                                  <small>1&sigma;</small>\
                                 </div>\
                               </div>\
                             </div>\
                           </div>\
                           \
-                          <div class="inline span2" ng-show="showCommunityProgressFields(selected)">\
-                            {{formatHTML(communityMetrics.communities.metrics[metricKey].high)}}\
-                          </div>\
-                       </div>';
-            }
+                          <div class="inline span2 align-left">\
+                            <small>high</small>\
+                          </div>';
           }
-          var template = '<div class="span3" ng-show="showCommunityFields(selected)">\
-                            <strong>{{metricKey}}</strong>\
-                          </div>\
-                          <div class="span9">'
-                            +metricValHtml+
-                          '</div>';
 
           // requires recompile
           element.html($compile(template)($scope));
+        });
+      }
+    };
+  })
+  .directive('graphCommunityMetric', function($compile, $filter) {
+    return {
+      restrict: 'E',
+      link: function($scope, element, attrs) {
+        var metricVal,
+            rangeLow,
+            rangeHigh,
+            color,
+            template,
+            odfSizePixels = 50;
+
+        $scope.$watch('communitySelected', function(oldVal, newVal) {
+
+          // initialize color
+          color = $('#community-'+$scope.selected.id).css('background-color');
+
+          // extract statistics from the selected metric
+          metricVal = $scope.selected.metrics[$scope.metricName];
+          rangeLow = $scope.metric.low;
+          rangeHigh = $scope.metric.high;
+          template = '';
+
+          if (metricVal !== undefined && metricVal !== "Not Implemented") {
+
+            // handle nested objects
+            if ((typeof metricVal) === "object") {
+              for (var key in metricVal) {
+
+                template += '<div class="span4 text-center">\
+                                <div class="circle-wrapper">\
+                                  <div class="circle"\
+                                       style="background:'+color+';\
+                                              width:'+odfSizePixels * metricVal[key]+'px;\
+                                              height:'+odfSizePixels * metricVal[key]+'px"\
+                                  >\
+                                    <div class="text">\
+                                      '+$scope.formatHTML(metricVal[key], 2)+'\
+                                    </div>\
+                                  </div>\
+                                </div>\
+                              </div>';
+              }
+            }
+
+            // single values
+            else {
+              if ((typeof rangeLow) !== "number") {
+                template = metricVal;
+              }
+              else {
+                var barProgress = 100.0 * ((metricVal - rangeLow)
+                                                            /
+                                              (rangeHigh - rangeLow));
+
+                template =   '<div class="inline span2 align-right">&nbsp;</div>\
+                              \
+                              <div class="inline span8">\
+                                <div class="ui-progressbar community-progressbar ui-corner-all">\
+                                  <div class="ui-progressbar-value ui-widget-header ui-corner-left"\
+                                       style="width:'+barProgress+'%;\
+                                              background-color:'+color+'"\
+                                  >\
+                                    <div class="ui-progressbar-text">\
+                                      '+$scope.formatHTML(metricVal)+'\
+                                    </div>\
+                                  </div>\
+                                </div>\
+                              </div>\
+                              \
+                              <div class="inline span2 align-left">&nbsp;</div>';
+              }
+            }
+
+            // requires recompile
+            element.html($compile(template)($scope));
+          }
+          else {
+            element.parent().parent().css('display', 'none')
+          }
         });
       }
     };
