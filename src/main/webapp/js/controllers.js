@@ -1610,13 +1610,19 @@ angular.module('dendrite.controllers', []).
       }
 
       $scope.viewCommunity = function(community) {
-        var maxCompare = 2;
         var idx = $scope.communitySelected.indexOf(community);
-        if (idx !== -1 || $scope.communitySelected.length === maxCompare) {
+        var sizeIncreaseDecrease = 50;
+        if (idx !== -1) {
           $scope.communitySelected.splice(idx, 1);
+          $('.card-community-metric').each(function() {
+            $(this).height($(this).height() - sizeIncreaseDecrease);
+          });
         }
         else {
           $scope.communitySelected.push(community);
+          $('.card-community-metric').each(function() {
+            $(this).height($(this).height() + sizeIncreaseDecrease);
+          });
         }
       };
 
@@ -1624,6 +1630,6 @@ angular.module('dendrite.controllers', []).
         return ($scope.communitySelected.indexOf(community)==0);
       };
       $scope.showCommunityProgressFields = function(community) {
-        return ($scope.communitySelected.length === 1 && $scope.communitySelected.indexOf(community)==0);
+        return ($scope.communitySelected.indexOf(community)==0);
       };
     });
