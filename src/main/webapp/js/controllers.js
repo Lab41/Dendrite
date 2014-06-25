@@ -1527,6 +1527,8 @@ angular.module('dendrite.controllers', []).
       $scope.queryProject = Project.query({projectId: $scope.projectId});
       $scope.communityMetrics = Community.metrics($scope.projectId);
 
+      $scope.communityVizType = "single";
+
       $scope.helpText = function(metricKey){
           return appConfig.communityMetricsHelp[metricKey].description;
       }
