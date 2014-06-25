@@ -565,23 +565,12 @@ angular.module('dendrite.directives', [])
       }
     };
   })
-  .directive('graphCommunityScaledSphere', function($compile) {
+  .directive('graphCommunityScaledSphere', function($compile, Helpers) {
     return {
       restrict: 'E',
       link: function($scope, element, attrs) {
         var sizeMax = 80,
             sizeMin = 10;
-
-        // create random HSL color
-        function rand(min, max) {
-            return min + Math.random() * (max - min);
-        }
-        function get_random_color() {
-            var h = rand(1, 360);
-            var s = rand(10, 40);
-            var l = rand(10, 40);
-            return 'hsl(' + h + ',' + s + '%,' + l + '%)';
-        }
 
         // size of sphere is relative to its number of vertices
         var numVertices = $scope.community.vertices,
@@ -593,8 +582,17 @@ angular.module('dendrite.directives', [])
         var sizeAdjusted = sizeMin + sizeRelative*(sizeMax - sizeMin);
 
         // draw a circle of relative size using a random color
-        var template = '<div class="circle-wrapper" ng-click="viewCommunity(community)" ng-class="communityIsSelectedClass(community)" style="height:'+sizeMax+'px;">\
-                          <div id="community-{{community.id}}" class="circle" style="background:'+get_random_color()+'; width:'+sizeAdjusted+'px; height:'+sizeAdjusted+'px">\
+        var template = '<div ng-click="viewCommunity(community)"\
+                             ng-class="communityIsSelectedClass(community)"\
+                             class="circle-wrapper"\
+                             style="height:'+sizeMax+'px;"\
+                        >\
+                          <div id="community-{{community.id}}"\
+                               class="circle"\
+                               style="background:'+Helpers.get_random_color()+';\
+                                      width:'+sizeAdjusted+'px;\
+                                      height:'+sizeAdjusted+'px"\
+                          >\
                             <div class="text">\
                               <div>'+numVertices+'</div>\
                             </div>\

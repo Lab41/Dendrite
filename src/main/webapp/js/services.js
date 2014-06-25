@@ -147,6 +147,10 @@ angular.module('dendrite.services', ['ngResource']).
           return numberWithPrecision((sum / numbersArray.length), precision);
         };
 
+        var rand = function(min, max) {
+            return min + Math.random() * (max - min);
+        };
+
         return {
 
           variance: function(numbersArray, precision){
@@ -196,8 +200,13 @@ angular.module('dendrite.services', ['ngResource']).
             return (sum / numbersArray.length);
           },
 
-
-
+          // create random HSL color
+          get_random_color: function() {
+              var h = rand(1, 360);
+              var s = rand(10, 40);
+              var l = rand(10, 40);
+              return 'hsl('+h+','+s+'%,'+l+'%)';
+          },
 
           //TODO: delete once backend APIs complete - function to add class for progress bars
           colorProgressBars: function(progress) {
