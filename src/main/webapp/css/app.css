@@ -209,7 +209,7 @@
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   padding: 5px;
-  border-bottom: 1px solid #afb6bb;
+  border-bottom: 1px solid rgba(175, 182, 187, 0.75);
   color: #d35400;
   font-family: Verdana;
 }
@@ -1042,6 +1042,26 @@
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
 }
+.card {
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  height: 125px;
+  border-bottom: 3px solid transparent;
+  text-align: center;
+  background: rgba(161, 170, 176, 0.75);
+  padding: 10px;
+  margin: 10px;
+}
+.card:hover {
+  border-bottom-color: #c0392b;
+}
 .analytics-example-wrapper {
   min-height: 180px !important;
 }
@@ -1085,7 +1105,7 @@ line.link {
   color: #bdc3c7;
 }
 .emphasis {
-  color: #d35400;
+  color: #c0392b;
 }
 .role-enabled {
   font-weight: bold;
@@ -1133,7 +1153,7 @@ line.link {
 .jumbotron h4,
 .jumbotron h5,
 .jumbotron h6 {
-  color: #d35400;
+  color: #c0392b;
 }
 h1,
 h2,
@@ -1141,7 +1161,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: #d35400;
+  color: #c0392b;
 }
 h1 small,
 h2 small,
@@ -1192,7 +1212,7 @@ body {
   background-color: #1abc9c;
 }
 .content {
-  background-color: #bdc3c7;
+  background-color: rgba(189, 195, 199, 0.75);
   padding: 40px;
   margin: 0 -20px;
   /* negative indent the amount of the padding to maintain the grid system */

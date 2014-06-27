@@ -55,7 +55,7 @@
 @color-btn-default-end:           @color-gray-dark;
 @color-btn-default-hsv:           hsla(hue(@color-btn-default-end), saturation(@color-btn-default-end), lightness(@color-btn-default-end), @btn-hsl-alpha);
 @color-btn-transparent:           @color-gray-dark;
-@color-btn-nostyle:               @color-blue-light;      
+@color-btn-nostyle:               @color-blue-light;
 
 @color-heading-light:             @color-blue-dark;
 @color-heading-dark:              @color-navy-dark;
@@ -64,16 +64,16 @@
 @color-navbar-to:                 @color-black-light;
 @color-navbar-primary:            @color-white-dark;
 @color-navbar-secondary:          @color-orange-dark;
-@color-navbar-caret-select:       @color-green-light;                
+@color-navbar-caret-select:       @color-green-light;
 
 @color-page-background-mysql:     @color-red-light;
 @color-page-background-mongo:     @color-yellow-light;
 @color-page-background-redis:     @color-blue-light;
 @color-page-background-hemlock:   @color-aqua-light;
 
-@color-background-stage:          @color-gray-light;
+@color-background-stage:          fade(@color-gray-light,75%);
 
-@color-emphasis:                  @color-orange-dark;
+@color-emphasis:                  @color-red-dark;
 @color-downplay:                  @color-gray-light;
 
 @color-link:                      @color-blue-dark;
@@ -224,6 +224,21 @@
   padding: 15px;
   .rounded-corner(3px);
 }
+
+.card {
+  .rounded-corner(3px);
+  height: 125px;
+  border-bottom: 3px solid transparent;
+  .align-center;
+  background: darken(@color-background-stage, 10%);
+  padding: 10px;
+  margin: 10px;
+
+  &:hover {
+    border-bottom-color: @color-emphasis;
+  }
+}
+
 
 .analytics-example-wrapper {
   min-height: 180px !important;
