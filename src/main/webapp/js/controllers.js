@@ -447,7 +447,14 @@ angular.module('dendrite.controllers', []).
             }
           }
 
+          // notify app to begin polling for job completion
           $rootScope.$broadcast("event:pollActiveAnalytics");
+
+          // manually refresh the page to ensure job polling
+          setTimeout(function() {
+            location.reload();
+          }, 500);
+
         };
     }).
     controller('AnalyticsListCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Analytics, Helpers, $timeout) {
