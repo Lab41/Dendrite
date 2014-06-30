@@ -150,62 +150,64 @@ angular.module('dendrite.directives', [])
         });
 
         function update() {
-          force
-            .nodes(nodes)
-            .links(links)
-            .start();
+          if (nodes !== undefined) {
+            force
+              .nodes(nodes)
+              .links(links)
+              .start();
 
-          // Update the links.
-          var link = svg.selectAll("line")
-            .data(links, function(d) { return d._id; });
+            // Update the links.
+            var link = svg.selectAll("line")
+              .data(links, function(d) { return d._id; });
 
-          // Enter any new links.
-          link.enter().insert("svg:line")
-            //.attr("class", "link")
-            .style("stroke", "#999")
-            .style("stroke-opacity", "0.6")
-            .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+            // Enter any new links.
+            link.enter().insert("svg:line")
+              //.attr("class", "link")
+              .style("stroke", "#999")
+              .style("stroke-opacity", "0.6")
+              .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-          // Exit any old links.
-          link.exit().remove();
+            // Exit any old links.
+            link.exit().remove();
 
-          // Update the nodes.
-          var node = svg.selectAll("circle")
-            .data(nodes, function(d) { return d._id; });
+            // Update the nodes.
+            var node = svg.selectAll("circle")
+              .data(nodes, function(d) { return d._id; });
 
-          // Enter any new nodes.
-          node.enter().append("circle")
-            //.attr("class", "node")
-            .attr("r", 7)
-            .attr("popover", function(d) {
-                if (d.name !== undefined) {
-                  return d.name;
-                }
-                else {
-                  return d._id;
-                }
-             })
-            .attr("popover-trigger", "mouseenter")
-            .attr("popover-append-to-body", "true")
-            .style("stroke", "#fff")
-            .style("stroke-width", "1.5px")
-            .style("fill", function(d) { return color(d._id); })
-            .call(force.drag);
+            // Enter any new nodes.
+            node.enter().append("circle")
+              //.attr("class", "node")
+              .attr("r", 7)
+              .attr("popover", function(d) {
+                  if (d.name !== undefined) {
+                    return d.name;
+                  }
+                  else {
+                    return d._id;
+                  }
+               })
+              .attr("popover-trigger", "mouseenter")
+              .attr("popover-append-to-body", "true")
+              .style("stroke", "#fff")
+              .style("stroke-width", "1.5px")
+              .style("fill", function(d) { return color(d._id); })
+              .call(force.drag);
 
-          // Exit any old nodes.
-          node.exit().remove();
+            // Exit any old nodes.
+            node.exit().remove();
 
-          node.append("title")
-            .text(function(d) { return d.name; });
+            node.append("title")
+              .text(function(d) { return d.name; });
 
 
-          // popover on svg elements requires recompile
-          element.removeAttr("force-directed-graph");
-          $compile(element)($scope);
+            // popover on svg elements requires recompile
+            element.removeAttr("force-directed-graph");
+            $compile(element)($scope);
 
-          // alert app to data in the project
-          if (nodes.length) {
-            $rootScope.$broadcast('event:projectHasData');
+            // alert app to data in the project
+            if (nodes.length) {
+              $rootScope.$broadcast('event:projectHasData');
+            }
           }
         }
 
