@@ -938,6 +938,11 @@ angular.module('dendrite.controllers', []).
                   $scope.vertex = res.resource.results;
                 });
 
+        // ensure age is numeric
+        $scope.$watch('vertex.age',function(val,old){
+           $scope.vertex.age = parseInt(val);
+        });
+
         $scope.save = function() {
             Vertex.update({graphId: $scope.graphId, vertexId: $scope.vertexId}, $scope.vertex)
                   .$then(function(data) {
