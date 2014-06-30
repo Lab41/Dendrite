@@ -1,6 +1,13 @@
 <div ng-controller="VizScatterplotCtrl">
+  <h4>Compare Analytics</h4>
+
+
   <div class="span12 well">
-    <form class="form-inline">
+    <div ng-show="searchFacets.length < 2">
+      To compare the results of analytic calculations, you must first run at least two analytic calculations (i.e. PageRank or Betweenness Centrality) via the People Explorer.
+    </div>
+
+    <form class="form-inline" ng-show="searchFacets.length >= 2">
       <p style="display:inline"> Filter: </p>
       <input ng-model="filter" type="text" class="input-small" placeholder="Query">
       <p style="display:inline"> Number of results: </p>
