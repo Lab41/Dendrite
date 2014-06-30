@@ -405,15 +405,37 @@ angular.module('dendrite.services', ['ngResource']).
             if (response === 200) {
               var results = json.hits.hits;
 
+              // construct the element selectors, depending on whether the
+              // viz is on the page or inside a modal popup
+              var selectorCanvas = '#viz-map-wrapper',
+                  selectorTitle = '#viz-map-title',
+                  selectorCanvasFull,
+                  selectorTitleFull,
+                  selectorBody,
+                  $element,
+                  $title,
+                  width;
+              if($('.modal').length) {
+                selectorBody = '.modal';
+              }
+              else {
+                selectorBody = 'body';
+              }
+              selectorCanvasFull = selectorBody+' '+selectorCanvas;
+              selectorTitleFull = selectorBody+' '+selectorTitle;
+              $element = $(selectorCanvasFull);
+              $title = $(selectorTitleFull);
+
               // remove existing svg on refresh
-              $("#viz-map-wrapper svg").remove();
+              $element.find('svg').remove();
 
               // add titlebar
-              $('#viz-map-title').html('Results for "' + queryString +'":');
+              $title.html('Results for "' + queryString +'":');
 
               var po = org.polymaps;
-              var svg = document.getElementById("viz-map-wrapper").appendChild(po.svg("svg")),
-                  defs = svg.appendChild(po.svg("defs")),
+              var svg = po.svg("svg");
+              $element.append(svg);
+              var defs = svg.appendChild(po.svg("defs")),
                   rg = defs.appendChild(po.svg("radialGradient")),
                   s0 = rg.appendChild(po.svg("stop")),
                   s1 = rg.appendChild(po.svg("stop"));
