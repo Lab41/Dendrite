@@ -505,22 +505,38 @@ angular.module('dendrite.services', ['ngResource']).
           })
           .success(function(json, response) {
             if (response === 200) {
-              var facets = json.facets.tags.terms;
+
+              // construct the element selectors, depending on whether the
+              // viz is on the page or inside a modal popup
+              var selectorCanvas = '#viz-histogram-wrapper',
+                  selectorTitle = '#viz-histogram-title',
+                  selectorCanvasFull,
+                  selectorTitleFull,
+                  selectorBody,
+                  $element,
+                  $title,
+                  width;
+              if($('.modal').length) {
+                selectorBody = '.modal';
+                width = $(selectorBody).width()*0.90;
+              }
+              else {
+                selectorBody = 'body';
+                width = $(selectorCanvas).closest('.column').width()*0.90;
+              }
+              selectorCanvasFull = selectorBody+' '+selectorCanvas;
+              selectorTitleFull = selectorBody+' '+selectorTitle;
+              $element = $(selectorCanvasFull);
+              $title = $(selectorTitleFull);
 
               // helper functions to extract properties of object array
-              var getCount, getTerm;
-              getCount = function(d) {
-                return d.count;
-              };
-              getTerm = function(d) {
-                return d.term;
-              };
+              var getCount = function(d) { return d.count; };
+              var getTerm = function(d) { return d.term; };
 
               // viz properties
               var names,scores,
                   x,y,height,
                   chart,
-                  width = $("#viz-histogram-wrapper").closest('.column').width()*0.90,
                   bar_height = 20,
                   padding_width = 40,
                   padding_height = 30,
@@ -528,19 +544,20 @@ angular.module('dendrite.services', ['ngResource']).
                   gap = 2;
 
               // extract names and scores
+              var facets = json.facets.tags.terms;
               names = facets.map(getTerm);
               scores = facets.map(getCount);
               height = bar_height;
 
-              $("#viz-histogram-wrapper").height("auto");
+              $element.height("auto");
               // remove existing svg on refresh
-              $("#viz-histogram-wrapper svg").remove();
+              $(selectorCanvasFull + ' svg').remove();
 
               // add titlebar
-              $('#viz-histogram-title').html('Results for facet "'+queryFacet+'" in query "' + queryTerm+'":');
+              $title.html('Results for facet "'+queryFacet+'" in query "' + queryTerm+'":');
 
               // add canvas
-              chart = d3.select("#viz-histogram-wrapper")
+              chart = d3.select(selectorCanvasFull)
                 .append('svg')
                 .attr('class', 'chart')
                 .attr('width', width)
@@ -556,7 +573,7 @@ angular.module('dendrite.services', ['ngResource']).
                 .domain(names)
                 .rangeBands([0, (bar_height + 2 * gap) * names.length]);
 
-              chart = d3.select("#viz-histogram-wrapper")
+              chart = d3.select(selectorCanvasFull)
                 .append('svg')
                 .attr('class', 'chart')
                 .attr('width', left_width + width + padding_width)
@@ -572,18 +589,6 @@ angular.module('dendrite.services', ['ngResource']).
                 .attr("y", function(d) { return y(d.term) + gap; })
                 .attr("width", function(d) { return Math.min(x(d.count), width) })
                 .attr("height", bar_height);
-
-              // display count
-//              chart.selectAll("text.score")
-//                .data(facets)
-//                .enter().append("text")
-//                .attr("x", function(d) { return x(d.count) + left_width; })
-//                .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
-//                .attr("dx", -5)
-//                .attr("dy", ".36em")
-//                .attr("text-anchor", "end")
-//                .attr('class', 'score')
-//                .text(function(d) { return d.count });
 
               // category label
               chart.selectAll("text.name")
