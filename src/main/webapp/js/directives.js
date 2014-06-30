@@ -100,8 +100,26 @@ angular.module('dendrite.directives', [])
 
         $scope.$watch(attrs.data, function(data) {
           if (data) {
-            $('#forceDirectedGraph').height(height);
-            width = $('#forceDirectedGraph').closest('.column').width()*0.90;
+
+            // construct the element selectors, depending on whether the
+            // viz is on the page or inside a modal popup
+            var selectorCanvas = '#forceDirectedGraph',
+                selectorCanvasFull,
+                selectorBody,
+                $element,
+                width;
+            if($('.modal').length) {
+              selectorBody = '.modal';
+              width = $(selectorBody).width()*0.90;
+            }
+            else {
+              selectorBody = 'body';
+              width = $(selectorCanvas).closest('.column').width()*0.90;
+            }
+            selectorCanvasFull = selectorBody+' '+selectorCanvas;
+            $element = $(selectorCanvasFull);
+
+            $element.height(height);
             height = 500;
 
             svg = d3.select(element[0])
