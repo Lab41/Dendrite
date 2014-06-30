@@ -11,7 +11,7 @@
 
 <div class="row row-padded">
 
-  <div class="span8">
+  <div class="span11">
     <div class="row row-padded">
       <div class="inline float-left">
         <a class="btn btn-primary" href="#/graphs/{{ graphId }}/create_edge">Add Edge</a>
@@ -30,13 +30,12 @@
             <i class="icon-random icon-white"></i>
             <span>Carve New Project</span>
           </button>
-
         </form>
       </div>
     </div>
 
     <div class="row">
-      <div class="span8">
+      <div ng-if="!hasSelectedItems">
         <div class="inline float-left">
           <strong>{{ totalServerItems }}</strong> {{ queryStyle }}
           <span ng-if="filterOptions.filterText">
@@ -47,59 +46,35 @@
           </span>
           :
         </div>
-        <div class="inline float-left" ng-if="searching">
-          {{ elasticSearchAction }}... <img src="img/icons/ajax-loader.gif">
+      </div>
+
+      <div ng-if="hasSelectedItems" class="inline float-left">
+        <h5 class="inline">{{ formatSelectedNames() }}</h5>
+
+        <!-- dropdown button -->
+        <div class="btn-group margin-bottom-none">
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
+            Modify <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <!--<li ng-if="selectedOne()"><a ng-click="editEdge()">Edit</a></li>-->
+            <!--<li ng-if="selectedOne()" class="divider"></li>-->
+            <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete<span ng-if="selectedMany()"> Selected</span></a></li>
+          </ul>
         </div>
-        <div class="inline float-right">
-          <button class="btn" ng-click="reload('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
-        </div>
+      </div>
+
+      <div class="inline float-left" ng-if="searching">
+        {{ elasticSearchAction }}... <img src="img/icons/ajax-loader.gif">
+      </div>
+      <div class="inline float-right">
+        <button class="btn" ng-click="reload('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
       </div>
     </div>
 
     <div class="row">
-      <div class="span8">
-        <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
-      </div>
+      <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
     </div>
   </div>
 
-  <div class="span3">
-      <!-- edit functions -->
-        <div>
-          <ul style="list-style:none">
-            <li ng-if="hasSelectedItems">
-
-              <h4 class="titlebar">
-                <span ng-if="hasSelectedItems">{{ formatSelectedNames()  }}</span>
-              </h4>
-
-              <!-- dropdown button -->
-              <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
-                  Modify <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                  <li ng-if="selectedOne()"><a ng-click="editEdge()">Edit</a></li>
-                  <li ng-if="selectedOne()" class="divider"></li>
-                  <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete<span ng-if="selectedMany()"> Selected</span></a></li>
-                </ul>
-              </div>
-
-
-              <div ng-if="selectedOne()">
-                <div class="row-fluid row-condensed" ng-repeat="(key, value) in selectedItems[0] track by $index">
-                  <div class="span6 align-right"><strong>{{ key }}</strong>:</div><div class="span6">{{ value | truncate }}</div>
-                </div>
-              </div>
-              <div ng-if="selectedMany()">
-                <ul>
-                  <li ng-repeat="edge in selectedItems">{{ edge._inV }}-{{ edge._label }}-{{ edge._outV }}</li>
-                </ul>
-              </div>
-
-            </li>
-          </ul>
-        </div>
-
-  </div>
 </div>
