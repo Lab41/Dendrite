@@ -150,7 +150,7 @@ angular.module('dendrite.directives', [])
         });
 
         function update() {
-          if (nodes !== undefined) {
+          if (nodes !== undefined && nodes.length) {
             force
               .nodes(nodes)
               .links(links)
