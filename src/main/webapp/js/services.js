@@ -674,6 +674,31 @@ angular.module('dendrite.services', ['ngResource']).
             if (response === 200) {
               var results = json.hits.hits;
 
+              // construct the element selectors, depending on whether the
+              // viz is on the page or inside a modal popup
+              var selectorCanvas = '#viz-scatterplot-wrapper',
+                  selectorTitle = '#viz-scatterplot-title',
+                  selectorCanvasFull,
+                  selectorTitleFull,
+                  selectorBody,
+                  $element,
+                  $title,
+                  width;
+              if($('.modal').length) {
+                selectorBody = '.modal';
+                width = $(selectorCanvas).parent().width()*0.90;
+              }
+              else {
+                selectorBody = 'body';
+                width = $(selectorCanvas).parent().width()*0.90;
+              }
+              selectorCanvasFull = selectorBody+' '+selectorCanvas;
+              selectorTitleFull = selectorBody+' '+selectorTitle;
+              $element = $(selectorCanvasFull);
+              $title = $(selectorTitleFull);
+
+              console.log(results);
+
               // helper functions to extract properties of object array
               var getX = function(d) {
                 if (d["_source"][queryFacet] !== undefined || d["_source"][queryFacet2] !== undefined) {
@@ -687,8 +712,7 @@ angular.module('dendrite.services', ['ngResource']).
               };
 
               var chart,
-                  height = 400,
-                  width = $("#viz-scatterplot-wrapper").parent().width()*0.90;
+                  height = 400;
 
               var randomData = function(groups, points, xval, yval) {
                 var data = [],
@@ -720,10 +744,10 @@ angular.module('dendrite.services', ['ngResource']).
               var yval = results.map(getY);
 
               // remove existing svg on refresh
-              $("#viz-scatterplot-wrapper svg").remove();
+              $element.find('svg').remove();
 
               // add titlebar
-              $('#viz-scatterplot-title').html('Results for "'+queryString+'":');
+              $title.html('Results for "'+queryString+'":');
 
               nv.addGraph(function() {
                 chart = nv.models.scatterChart()
@@ -742,7 +766,7 @@ angular.module('dendrite.services', ['ngResource']).
 
 
                 // add canvas
-                chart = d3.select("#viz-scatterplot-wrapper")
+                chart = d3.select(selectorCanvasFull)
                   .attr('width', width)
                   .attr('height', height)
                   .append('svg')
