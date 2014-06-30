@@ -196,9 +196,6 @@ angular.module('dendrite.controllers', []).
           if ($scope.sigmajsGraphData === undefined || !$scope.sigmajsGraphData.vertices.length) {
             $scope.sigmajsGraphData = GraphTransform.reloadSigmaGraph($scope.graphId);
           }
-
-          // let app know data is loaded into project
-          $scope.projectHasData = true;
         });
 
         // get project's branches
