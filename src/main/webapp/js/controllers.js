@@ -191,6 +191,14 @@ angular.module('dendrite.controllers', []).
         // tripwire to reload current graph
         $scope.$on('event:reloadGraph', function() {
           $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
+
+          // reload data as few times as possible (ideally once) to avoid wasted repetition
+          if ($scope.sigmajsGraphData === undefined || !$scope.sigmajsGraphData.vertices.length) {
+            $scope.sigmajsGraphData = GraphTransform.reloadSigmaGraph($scope.graphId);
+          }
+
+          // let app know data is loaded into project
+          $scope.projectHasData = true;
         });
 
         // get project's branches
