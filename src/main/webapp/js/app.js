@@ -391,6 +391,17 @@ angular.module('dendrite', [
       });
     });
 
+    scope.$on('$viewContentLoaded', function() {
+      scope.projectHasData = false;
+    });
+    scope.$on('event:projectHasData', function() {
+      scope.projectHasData = true;
+    });
+
+    scope.preventClose = function(event) {
+      event.stopPropagation();
+    };
+
     scope.back = function() {
       window.history.back();
     };

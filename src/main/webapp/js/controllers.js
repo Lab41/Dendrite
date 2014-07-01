@@ -111,13 +111,9 @@ angular.module('dendrite.controllers', []).
         };
     }).
     controller('ProjectDetailCtrl', function($rootScope, $modal, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
-        $scope.projectId = $routeParams.projectId;
         $scope.historyEnabled = appConfig.historyServer.enabled();
-        $scope.projectHasData = false;
-        $scope.$on('event:projectHasData', function() {
-          $scope.projectHasData = true;
-        });
-
+        $rootScope.projectId = $routeParams.projectId;
+console.log('ProjectDetailCtrl');
         $scope.panelFullScreen = function(title, url) {
           $scope.modalUrl = url;
           $scope.modalTitle = title;
@@ -146,8 +142,9 @@ angular.module('dendrite.controllers', []).
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
                     $scope.project = response.data.project;
-                    $scope.graphId = $scope.project.current_graph;
                     pollBranches();
+                    $rootScope.graphId = $scope.project.current_graph;
+                    $rootScope.$broadcast('event:reloadGraph');
                 });
 
 
@@ -189,7 +186,9 @@ angular.module('dendrite.controllers', []).
         });
 
         // tripwire to reload current graph
+        $rootScope.graphLoaded = false;
         $scope.$on('event:reloadGraph', function() {
+          $rootScope.graphLoaded = true;
           $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
 
           // reload data as few times as possible (ideally once) to avoid wasted repetition
@@ -207,7 +206,7 @@ angular.module('dendrite.controllers', []).
           Project.currentBranch({projectId: $routeParams.projectId})
                   .$then(function(response) {
                     $scope.queryCurrentBranch = response.data;
-                    $scope.graphId = $scope.queryCurrentBranch.branch.graphId;
+                    $rootScope.graphId = $scope.queryCurrentBranch.branch.graphId;
                     $scope.$broadcast('event:reloadGraph');
                     $scope.$broadcast('event:pollBranches');
                   });
@@ -225,9 +224,9 @@ angular.module('dendrite.controllers', []).
             });
         };
     }).
-    controller('GraphDetailCtrl', function($scope, $routeParams, $q, User, Graph, GraphTransform) {
+    controller('GraphDetailCtrl', function($rootScope, $scope, $routeParams, $q, User, Graph, GraphTransform) {
         $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
+        $rootScope.graphId = $routeParams.graphId;
         $scope.graph = Graph.get({graphId: $routeParams.graphId});
 
         // This can be removed after we upgrade to angular 1.2.
@@ -364,7 +363,7 @@ angular.module('dendrite.controllers', []).
     }).
     controller('AnalyticsFormCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // placeholder default attributes
-        $scope.graphId = $routeParams.graphId;
+        $rootScope.graphId = $routeParams.graphId;
         $scope.algorithms = appConfig.algorithms;
 
         $scope.setAnalyticType = function(t) {
@@ -564,9 +563,9 @@ angular.module('dendrite.controllers', []).
         // poll on page entry
         pollActive();
     }).
-    controller('VertexListCtrl', function($scope, $location, $timeout, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
+    controller('VertexListCtrl', function($rootScope, $scope, $location, $timeout, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
-      $scope.graphId = $routeParams.graphId;
+      $rootScope.graphId = $routeParams.graphId;
       $scope.isCollapsed = true;
       $scope.selectedItems = [];
       $scope.queryStyle = "vertices";
@@ -910,9 +909,9 @@ angular.module('dendrite.controllers', []).
       $scope.refresh();
 
     }).
-    controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {
+    controller('VertexDetailCtrl', function($rootScope, $scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
+        $rootScope.graphId = $routeParams.graphId;
         $scope.vertexId = $routeParams.vertexId;
         $scope.query = Vertex.get({graphId: $scope.graphId, vertexId: $scope.vertexId});
 
@@ -922,9 +921,9 @@ angular.module('dendrite.controllers', []).
             });
         }
     }).
-    controller('VertexCreateCtrl', function($scope, $routeParams, $location, User, Vertex) {
+    controller('VertexCreateCtrl', function($rootScope, $scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
+        $rootScope.graphId = $routeParams.graphId;
 
         $scope.save = function() {
             Vertex.save({graphId: $scope.graphId}, $scope.vertex)
@@ -933,9 +932,9 @@ angular.module('dendrite.controllers', []).
                   });
         };
     }).
-    controller('VertexEditCtrl', function($scope, $routeParams, $location, User, Vertex) {
+    controller('VertexEditCtrl', function($rootScope, $scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
+        $rootScope.graphId = $routeParams.graphId;
         $scope.vertexId = $routeParams.vertexId;
         $scope.query =
           Vertex.get({graphId: $scope.graphId, vertexId: $scope.vertexId})
@@ -955,9 +954,9 @@ angular.module('dendrite.controllers', []).
                   });
         };
     }).
-    controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
+    controller('EdgeListCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
-      $scope.graphId = $routeParams.graphId;
+      $rootScope.graphId = $routeParams.graphId;
       $scope.selectedItems = [];
       $scope.queryStyle = "edges";
       Graph.get({graphId: $routeParams.graphId})
@@ -1241,8 +1240,8 @@ angular.module('dendrite.controllers', []).
       $scope.refresh();
 
     }).
-    controller('EdgeDetailCtrl', function($scope, $routeParams, $location, Edge, Vertex) {
-        $scope.graphId = $routeParams.graphId;
+    controller('EdgeDetailCtrl', function($rootScope, $scope, $routeParams, $location, Edge, Vertex) {
+        $rootScope.graphId = $routeParams.graphId;
         $scope.edgeId = $routeParams.edgeId;
 
         // retrieve the edge and both vertices
@@ -1263,8 +1262,8 @@ angular.module('dendrite.controllers', []).
             });
         }
     }).
-    controller('EdgeCreateCtrl', function($scope, $routeParams, $location, Edge, Vertex) {
-        $scope.graphId = $routeParams.graphId;
+    controller('EdgeCreateCtrl', function($rootScope, $scope, $routeParams, $location, Edge, Vertex) {
+        $rootScope.graphId = $routeParams.graphId;
         $scope.query = Vertex.list({graphId: $scope.graphId});
         if ($routeParams.vertexId != undefined) {
           $scope.vertexId = $routeParams.vertexId;
@@ -1279,8 +1278,8 @@ angular.module('dendrite.controllers', []).
                 });
         };
     }).
-    controller('EdgeEditCtrl', function($scope, $routeParams, $location, User, Edge, Vertex) {
-        $scope.graphId = $routeParams.graphId;
+    controller('EdgeEditCtrl', function($rootScope, $scope, $routeParams, $location, User, Edge, Vertex) {
+        $rootScope.graphId = $routeParams.graphId;
         $scope.edgeId = $routeParams.edgeId;
         $scope.query = Vertex.list({graphId: $scope.graphId});
         $scope.query_edge =
@@ -1337,7 +1336,7 @@ angular.module('dendrite.controllers', []).
             $scope.fileUploaded = true;
             if (content.status === "ok") {
                 $scope.uploadMessage = "file uploaded";
-                $scope.$emit('event:reloadGraph');
+                $rootScope.$broadcast('event:reloadGraph');
                 $rootScope.$broadcast('event:graphFileImported');
             } else if (content.msg !== undefined) {
                 $scope.uploadMessage = "upload failed: " + content.msg;
