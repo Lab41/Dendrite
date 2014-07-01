@@ -1573,6 +1573,9 @@ body {
 .margin-bottom-large {
   margin-bottom: 30px;
 }
+.margin-bottom-none {
+  margin-bottom: 0 ! important;
+}
 .margin-top-large {
   margin-top: 30px;
 }

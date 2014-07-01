@@ -27,7 +27,7 @@
             <img src="img/icons/ajax-spinner.gif" ng-hide="!fullTextSearching">
           </button>
 
-          <button class="btn btn-primary" ng-if="gridOptions.filterOptions.filterText" bs-modal="'partials/project-carve.html'">
+          <button class="btn btn-attention" ng-if="gridOptions.filterOptions.filterText" bs-modal="'partials/project-carve.html'">
             <i class="icon-random icon-white"></i>
             <span>Carve New Project</span>
           </button>
@@ -94,8 +94,8 @@
         <h5 class="inline">{{ formatSelectedNames() }} :</h5>
 
         <!-- dropdown button -->
-        <div class="btn-group margin-bottom-none">
-          <button type="button" class="btn btn-sm btn-attention dropdown-toggle" data-toggle="dropdown">
+        <div class="margin-bottom-none btn-group">
+          <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
             Links <span class="caret"></span>
           </button>
           <ul class="dropdown-menu" role="menu">
@@ -108,8 +108,8 @@
         </div>
 
         <!-- dropdown button -->
-        <div class="btn-group margin-bottom-none">
-          <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
+        <div class="margin-bottom-none btn-group">
+          <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
             Modify <span class="caret"></span>
           </button>
           <ul class="dropdown-menu" role="menu">
