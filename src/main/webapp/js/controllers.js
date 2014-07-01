@@ -582,6 +582,7 @@ angular.module('dendrite.controllers', []).
       Graph.get({graphId: $routeParams.graphId})
             .$then(function(dataGraph) {
                 $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
+                $rootScope.$broadcast('event:projectHasData');
             });
 
       $scope.$on('event:reloadProjectNeeded', function() {
@@ -971,6 +972,7 @@ angular.module('dendrite.controllers', []).
       Graph.get({graphId: $routeParams.graphId})
             .$then(function(dataGraph) {
                 $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
+                $rootScope.$broadcast('event:projectHasData');
             });
 
       $scope.editEdge = function() {
