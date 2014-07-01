@@ -1,4 +1,4 @@
-<div class="row-fluid">
+<div class="row-fluid row-padded">
   <div class="span12">
     <label for="file-import-format">Upload a file to add to the network:</label>
     <div ng-controller="FileUploadCtrl">
@@ -6,7 +6,7 @@
 
         <input type="hidden" name="searchkeys" value="{{selectedCheckboxesList}}">
 
-        <select name="format" id="file-import-format" class="inline form-control">
+        <select name="format" id="file-import-format" class="inline form-control" ng-click="preventClose($event)">
             <option selected>Select Format</option>
             <option value="GraphSON">GraphSON</option>
             <option value="GraphML">GraphML</option>
@@ -43,12 +43,12 @@
   </div>
 </div>
 
-<div class="row-fluid" ng-show="projectHasData">
+<div class="row-fluid row-padded" ng-show="projectHasData">
     <div class="span12">
         <label for="file-export-format">Download this graph:</label>
         <div>
             <form action="api/graphs/{{graphId}}/file-export" method="POST">
-                <select name="format" id="file-export-format" class="inline form-control">
+                <select name="format" id="file-export-format" class="inline form-control" ng-click="preventClose($event)">
                     <option selected>Select Format</option>
                     <option value="GraphSON">GraphSON</option>
                     <option value="GraphML">GraphML</option>
@@ -61,7 +61,7 @@
     </div>
 </div>
 
-<div class="row-fluid" ng-show="projectHasData && historyEnabled">
+<div class="row-fluid row-padded" ng-show="projectHasData && historyEnabled">
     <div class="span12">
         <label for="checkpoint-format">Checkpoint this graph:</label>
         <div ng-controller="GraphSaveCtrl">

@@ -12,17 +12,9 @@
 <div class="container-fluid" ng-show="graphLoaded" ng-class="panelEditable()">
 
   <div panels class="panel">
-    <div class="row-fluid">
-      <div class="column" id="column1">
-        <div class="dragbox" id="item-import-data" >
-          <h2>Import/Export <panel-collapse-buttons></panel-collapse-buttons></h2>
-          <div class="dragbox-content" >
-              <div ng-include="'partials/graphs/import-export.html'"></div>
-          </div>
-        </div>
-      </div>
 
-      <div class="column" id="column2" >
+    <div class="row-fluid column-fullwidth">
+      <div class="column" id="column1" >
         <div class="dragbox" id="item-explore-data" ng-show="projectHasData">
           <h2>Explore <panel-collapse-buttons></panel-collapse-buttons></h2>
           <div class="dragbox-content" >
@@ -30,10 +22,10 @@
           </div>
         </div>
 
-        <div class="dragbox" id="item-view-branches" ng-show="projectHasData">
-          <h2>Branches <panel-collapse-buttons></panel-collapse-buttons></h2>
+        <div class="dragbox" id="item-import-data" ng-if="!projectHasData">
+          <h2>Import/Export <panel-collapse-buttons></panel-collapse-buttons></h2>
           <div class="dragbox-content" >
-              <div ng-include="'partials/graphs/branches.html'"></div>
+              <div ng-include="'partials/graphs/import-export.html'"></div>
           </div>
         </div>
       </div>

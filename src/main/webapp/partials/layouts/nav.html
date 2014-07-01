@@ -23,6 +23,24 @@
             </li>
           </ul>
         </div>
+
+        <!-- dropdown for history -->
+        <div id="tour-step-7" class="btn-group navbar-btn" ng-if="projectHasData">
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">Branches <span class="caret"></span></button>
+          <ul class="dropdown-menu padding">
+            <div ng-include="'partials/graphs/branches.html'"></div>
+          </ul>
+        </div>
+
+
+        <!-- dropdown for data import/export -->
+        <div class="btn-group navbar-btn" ng-if="projectHasData">
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">Data <span class="caret"></span></button>
+          <ul class="dropdown-menu padding">
+            <div ng-include="'partials/graphs/import-export.html'"></div>
+          </ul>
+        </div>
+
       </ul>
 
       <ul class="nav navbar-nav pull-right">
