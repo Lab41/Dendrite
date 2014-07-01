@@ -1553,6 +1553,12 @@ body {
 .align-left {
   text-align: left;
 }
+.padding {
+  padding: 10px;
+}
+.padding-bottom {
+  padding-bottom: 10px;
+}
 .margin-top {
   margin-top: 10px;
 }
