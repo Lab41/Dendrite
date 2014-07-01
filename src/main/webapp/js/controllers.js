@@ -111,7 +111,6 @@ angular.module('dendrite.controllers', []).
         };
     }).
     controller('ProjectDetailCtrl', function($rootScope, $modal, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
-        $scope.historyEnabled = appConfig.historyServer.enabled();
         $rootScope.projectId = $routeParams.projectId;
 console.log('ProjectDetailCtrl');
         $scope.panelFullScreen = function(title, url) {
@@ -142,48 +141,9 @@ console.log('ProjectDetailCtrl');
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
                     $scope.project = response.data.project;
-                    pollBranches();
                     $rootScope.graphId = $scope.project.current_graph;
                     $rootScope.$broadcast('event:reloadGraph');
                 });
-
-
-        // poll for branches
-        //    determine if current branch's graph conflicts with other graphs
-        //    (indicates branch has not yet switched/cloned)
-        //    FIXME: placeholder until backend lineage between branches complete
-        //    FIXME: need comparison: currentBranch.graph != currentBranch.parentBranch.graph
-        //    FIXME: alternative comparison: currentGraph.branch != currentGraph.ParentGraph.branch
-        var pollBranches = function() {
-          $scope.graphLoaded = false;
-          Project.branches({projectId: $routeParams.projectId})
-                .$then(function(responseAllBranches) {
-
-                    // calculate number of branches that point to current graph
-                    var numGraphInstances = 0;
-                    Array().forEach.call(responseAllBranches.data.branches, function(branch) {
-                      if ($scope.graphId === branch.graphId) {
-                        ++numGraphInstances;
-                      }
-                    });
-
-                    // if current branch's graph is unique, reload everything and
-                    // signal presentation layer
-                    if (numGraphInstances > 1) {
-                      $timeout(pollBranches, appConfig.branches.metadata.pollTimeout);
-                    }
-                    else {
-                      $scope.graphLoaded = true;
-                      $scope.graph = Graph.get({graphId: $scope.graphId});
-                      $scope.$broadcast('event:reloadGraph');
-                    }
-                });
-        }
-
-        // enable other controllers to call poll function
-        $scope.$on("event:pollBranches", function() {
-          pollBranches();
-        });
 
         // tripwire to reload current graph
         $rootScope.graphLoaded = false;
@@ -197,10 +157,6 @@ console.log('ProjectDetailCtrl');
           }
         });
 
-        // get project's branches
-        $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
-        $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
-
         // get the projects branches
         $scope.$on('event:reloadProjectNeeded', function() {
           Project.currentBranch({projectId: $routeParams.projectId})
@@ -208,7 +164,7 @@ console.log('ProjectDetailCtrl');
                     $scope.queryCurrentBranch = response.data;
                     $rootScope.graphId = $scope.queryCurrentBranch.branch.graphId;
                     $scope.$broadcast('event:reloadGraph');
-                    $scope.$broadcast('event:pollBranches');
+                    $rootScope.$broadcast('event:pollBranches');
                   });
           $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
         });
@@ -288,7 +244,8 @@ console.log('ProjectDetailCtrl');
 
 
     }).
-    controller('BranchEditCtrl', function($scope, $location, $modal, $routeParams, Branch, Project) {
+    controller('BranchEditCtrl', function($rootScope, $scope, $location, $modal, $routeParams, Branch, Project, Graph, appConfig) {
+        $scope.historyEnabled = appConfig.historyServer.enabled();
 
         // modals
         $scope.branchSwitch = true;
@@ -296,6 +253,60 @@ console.log('ProjectDetailCtrl');
           $scope.pivotBranch = branch;
           $modal({scope: $scope, template: 'partials/branches/create.html'});
         };
+
+        $scope.dropdownVisible = false;
+        $scope.dropdownShown = function() {
+          return ($scope.dropdownVisible) ? "inline-block" : "";
+        };
+        $scope.dropdownOpen = function() { $scope.dropdownVisible = true; };
+        $scope.dropdownClose = function() { $scope.dropdownVisible = false; };
+
+        // poll for branches
+        //    determine if current branch's graph conflicts with other graphs
+        //    (indicates branch has not yet switched/cloned)
+        //    FIXME: placeholder until backend lineage between branches complete
+        //    FIXME: need comparison: currentBranch.graph != currentBranch.parentBranch.graph
+        //    FIXME: alternative comparison: currentGraph.branch != currentGraph.ParentGraph.branch
+        var pollBranches = function() {
+          console.log('pollBranches');
+          $rootScope.graphLoaded = false;
+          Project.branches({projectId: $routeParams.projectId})
+                .$then(function(responseAllBranches) {
+
+                    // calculate number of branches that point to current graph
+                    var numGraphInstances = 0;
+                    Array().forEach.call(responseAllBranches.data.branches, function(branch) {
+                      if ($rootScope.graphId === branch.graphId) {
+                        ++numGraphInstances;
+                      }
+                    });
+
+                    // if current branch's graph is unique, reload everything and
+                    // signal presentation layer
+                    if (numGraphInstances > 1) {
+                      $timeout(pollBranches, appConfig.branches.metadata.pollTimeout);
+                    }
+                    else {
+                      $rootScope.graphLoaded = true;
+                      $rootScope.graph = Graph.get({graphId: $scope.graphId});
+                    }
+                });
+        }
+        pollBranches();
+
+        // enable other controllers to call poll function
+        $scope.$on("event:pollBranches", function() {
+          pollBranches();
+        });
+
+        // tripwire to reload current graph
+        $scope.$on('event:reloadGraph', function() {
+          pollBranches();
+        });
+
+        // get project's branches
+        $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
+        $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
 
         // create a new branch
         $scope.createBranch = function() {
