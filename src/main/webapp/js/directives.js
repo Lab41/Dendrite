@@ -294,9 +294,25 @@ angular.module('dendrite.directives', [])
 
         // render visualization, regardless of when displayed
         if ($scope.$parent.sigmaViz !== undefined) {
+          // construct the element selectors, depending on whether the
+          // viz is on the page or inside a modal popup
+          var selectorCanvas = '#container-graph-sigmajs',
+              selectorCanvasFull,
+              selectorBody,
+              $element,
+              width;
+          if($('.modal').length) {
+            selectorBody = '.modal';
+          }
+          else {
+            selectorBody = 'body';
+          }
+          selectorCanvasFull = selectorBody+' '+selectorCanvas;
+          $element = $(selectorCanvasFull);
+
           var r = $scope.$parent.sigmaViz.addRenderer({
             type: 'canvas',
-            container: document.getElementById('container-graph-sigmajs')
+            container: $element[0]
           });
           $scope.$parent.sigmaViz.refresh();
 
