@@ -112,7 +112,6 @@ angular.module('dendrite.controllers', []).
     }).
     controller('ProjectDetailCtrl', function($rootScope, $modal, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform) {
         $rootScope.projectId = $routeParams.projectId;
-console.log('ProjectDetailCtrl');
         $scope.panelFullScreen = function(title, url) {
           $scope.modalUrl = url;
           $scope.modalTitle = title;
@@ -268,7 +267,6 @@ console.log('ProjectDetailCtrl');
         //    FIXME: need comparison: currentBranch.graph != currentBranch.parentBranch.graph
         //    FIXME: alternative comparison: currentGraph.branch != currentGraph.ParentGraph.branch
         var pollBranches = function() {
-          console.log('pollBranches');
           $rootScope.graphLoaded = false;
           Project.branches({projectId: $routeParams.projectId})
                 .$then(function(responseAllBranches) {
@@ -1099,7 +1097,6 @@ console.log('ProjectDetailCtrl');
       $scope.refresh = function(elasticSearchAction) {
 
         if ($scope.queryStyle === "edges") {
-          console.log('refreshing');
 
           if (elasticSearchAction !== undefined){
             $scope.elasticSearchAction = elasticSearchAction;
@@ -1327,8 +1324,6 @@ console.log('ProjectDetailCtrl');
         };
 
         $scope.uploadFilePreview = function() {
-            console.log('preview...');
-            console.log($scope.filename);
             var reader = new FileReader();
             //reader.readAsDataURL(changeEvent.target.files[0]);
             return false;
@@ -1338,6 +1333,7 @@ console.log('ProjectDetailCtrl');
         $scope.actuallyUploading = false;
 
         $scope.uploadFile = function(content) {
+
             // See fixme above.
             if (!$scope.actuallyUploading) { return; }
 
@@ -1434,7 +1430,6 @@ console.log('ProjectDetailCtrl');
           $scope.actuallyUploading = true;
 
           // build the list of key-val pairs
-          console.log($scope.arrayShow.length);
           var selectedKeysJson = JSON.stringify(selected);
           angular.element('#form-file-upload input[name="searchkeys"]').val(selectedKeysJson);
 
@@ -1541,7 +1536,5 @@ console.log('ProjectDetailCtrl');
       // construct path to project history
       var config = appConfig.historyServer;
       var graphHistoryPath = config.storage + "/" + $scope.projectId;
-      console.log(History.serverUrl() + "/#/repository?path="+encodeURIComponent(graphHistoryPath));
-
       $scope.historyUrl = History.serverUrl() + "/#/repository?path="+encodeURIComponent(graphHistoryPath);
     });

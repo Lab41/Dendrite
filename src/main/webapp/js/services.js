@@ -697,8 +697,6 @@ angular.module('dendrite.services', ['ngResource']).
               $element = $(selectorCanvasFull);
               $title = $(selectorTitleFull);
 
-              console.log(results);
-
               // helper functions to extract properties of object array
               var getX = function(d) {
                 if (d["_source"][queryFacet] !== undefined || d["_source"][queryFacet2] !== undefined) {
