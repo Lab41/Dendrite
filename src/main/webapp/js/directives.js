@@ -114,7 +114,7 @@ angular.module('dendrite.directives', [])
             }
             else {
               selectorBody = 'body';
-              width = $(selectorCanvas).closest('.column').width()*0.90;
+              width = $('.content').width()*0.80;
             }
             selectorCanvasFull = selectorBody+' '+selectorCanvas;
             $element = $(selectorCanvasFull);
