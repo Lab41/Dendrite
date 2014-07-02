@@ -1,5 +1,6 @@
 package org.lab41.dendrite.services.analysis;
 
+import com.google.common.base.Charsets;
 import com.thinkaurelius.faunus.FaunusGraph;
 import com.thinkaurelius.faunus.FaunusPipeline;
 import com.thinkaurelius.faunus.formats.adjacency.AdjacencyFileOutputFormat;
@@ -8,9 +9,7 @@ import com.thinkaurelius.titan.core.TitanTransaction;
 import com.thinkaurelius.titan.core.attribute.FullDouble;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -27,8 +26,12 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class GraphLabService extends AnalysisService {
@@ -125,6 +128,7 @@ public class GraphLabService extends AnalysisService {
 
         fs.mkdirs(tmpDir);
         //fs.deleteOnExit(tmpDir);
+
         try {
             Path exportDir = new Path(tmpDir, "export");
             Path importDir = new Path(tmpDir, "import");
@@ -162,68 +166,36 @@ public class GraphLabService extends AnalysisService {
     }
 
     private void runGraphLab(FileSystem fs, Path exportDir, Path importDir, String algorithm) throws Exception {
-        File tmpFile = File.createTempFile("temp", "");
-
         exportDir = new Path(exportDir, "job-0");
         importDir = new Path(importDir, "output");
 
-        try {
-            // feed output to graphlab as input
-            // !! NOTE requires the mpiexec client be on the dendrite server
-            String cmd = "for i in `hadoop classpath | sed \"s/:/ /g\"` ;" +
-                    " do echo $i;" +
-                    " done | xargs | sed \"s/ /:/g\" > " +
-                    tmpFile + " && " +
-                    "export GRAPHLAB_CLASSPATH=`cat " +
-                    tmpFile + "` && "+
-                    "mpiexec " +
-                    "-n " + config.getString("metagraph.template.graphlab.cluster-size") +
-                    " -hostfile " + config.getString("metagraph.template.graphlab.hosts-file") +
-                    " -x CLASSPATH=$GRAPHLAB_CLASSPATH " +
-                    new Path(config.getString("metagraph.template.graphlab.algorithm-path"), algorithm) +
-                    " --format adj" +
-                    " --graph " + exportDir;
+        String clusterSize = config.getString("metagraph.template.graphlab.cluster-size");
+        String algorithmPath = config.getString("metagraph.template.graphlab.algorithm-path") + "/" + algorithm;
 
-            // simple coloring uses a different cli syntax to declare the output.
-            if (algorithm.equals("simple_coloring")) {
-                cmd += " --output " + importDir;
-            } else if (algorithm.equals("TSC")) {
-                // do nothing.
-            } else {
-                cmd += " --saveprefix " + importDir;
+        String[] args = new String[] {
+                "../graphlab-twill/bin/graphlab-twill",
+                "-i", clusterSize,
+                "localhost:2181",
+                algorithmPath.toString(),
+                exportDir.toString(),
+                "adj",
+                importDir.toString(),
+        };
+
+        ProcessBuilder processBuilder = new ProcessBuilder(args)
+                .redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charsets.US_ASCII))) {
+            String line = reader.readLine();
+            while (line != null) {
+                logger.info(line);
+                line = reader.readLine();
             }
-
-            logger.debug("running: " + cmd);
-
-            Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", cmd});
-
-            // TSC outputs the results to stdout, so copy the results back into hdfs.
-            if (algorithm.equals("TSC")) {
-                FSDataOutputStream os = fs.create(exportDir);
-                try {
-                    IOUtils.copy(p.getInputStream(), os);
-                } finally {
-                    os.close();
-                }
-            }
-
-            int exitStatus = p.waitFor();
-
-            logger.debug("graphlab finished with ", exitStatus);
-
-            if (exitStatus == 0) {
-                if (algorithm.equals("TSC")) {
-
-                }
-            } else {
-                String stdout = IOUtils.toString(p.getInputStream());
-                String stderr = IOUtils.toString(p.getErrorStream());
-
-                throw new Exception("GraphLab process failed: [" + exitStatus + "]:\n" + stdout + "\n" + stderr);
-            }
-        } finally {
-            tmpFile.delete();
         }
+
+        process.waitFor();
     }
 
     private void runImport(DendriteGraph graph, FileSystem fs, Path importDir, String algorithm) throws IOException {
