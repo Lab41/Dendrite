@@ -329,10 +329,10 @@ angular.module('dendrite.services', ['ngResource']).
           }
         };
     }).
-    factory('ElasticSearch', function($resource, $routeParams, $http, appConfig) {
+    factory('ElasticSearch', function($resource, $routeParams, $http, appConfig, $rootScope, $timeout) {
         return {
 
-          search: function(queryParams) {
+          search: function(queryParams, graphId) {
             var query;
 
             if (queryParams.queryTerm === "") {
@@ -354,15 +354,40 @@ angular.module('dendrite.services', ['ngResource']).
                     "filter" : { "type": { "value": queryParams.resultType } },
                     "sort" : queryParams.sortInfo
                 };
-
+              
             // query server
             return $http({
                 method: "POST",
-                url: '/dendrite/api/graphs/'+$routeParams.graphId+'/search',
+                url: '/dendrite/api/graphs/'+ graphId+'/search',
                 data: JSON.stringify(inputJson)
             });
 
           },
+
+          //polling for table refresh
+          verifyId: function(graphId, id, idType){
+            var p = {
+              queryTerm: "_id:" + id,
+              resultType: idType
+            };
+
+            var self = this;
+            var pollActive = function() {
+              self.search(p, graphId)
+              .success(function(data, status, headers, config) {
+                  if(data.hits.total === 0){
+                    $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
+                  }
+                  else{
+                    $rootScope.$broadcast('event:reloadProjectNeeded');
+                  }
+              });
+            };
+            pollActive();
+
+          },
+
+
           mapping: function(graphId) {
             return $http({
                 method: "GET",
@@ -976,6 +1001,8 @@ angular.module('dendrite.services', ['ngResource']).
           }
         };
     }).
+ 
+
     factory('Vertex', function($resource) {
         return $resource('rexster-resource/graphs/:graphId/vertices/:vertexId', {
             graphId: '@graphId',

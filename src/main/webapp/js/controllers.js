@@ -111,7 +111,23 @@ angular.module('dendrite.controllers', []).
         };
     }).
     controller('ProjectDetailCtrl', function($rootScope, $modal, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform, Community) {
+         
         $scope.projectId = $routeParams.projectId;
+
+        $scope.showExploreContext = function(val){
+          $scope.toggle = val;
+          return val;
+        };
+
+        //Updated projectId and graphId
+        Project.query({projectId: $routeParams.projectId})
+        .$then(function(dataProject){
+            $scope.project = dataProject.data.project;
+            $rootScope.graphId = $scope.project.current_graph;
+            $scope.projectName = dataProject.data.project.name;
+        });
+
+
         $scope.historyEnabled = appConfig.historyServer.enabled();
         $scope.projectHasData = false;
         $scope.$on('event:projectHasData', function() {
@@ -226,8 +242,7 @@ angular.module('dendrite.controllers', []).
     }).
     controller('GraphDetailCtrl', function($scope, $routeParams, $q, User, Graph, GraphTransform) {
         $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
-        $scope.graph = Graph.get({graphId: $routeParams.graphId});
+        $scope.graph = Graph.get({graphId: $scope.graphId});
 
         // This can be removed after we upgrade to angular 1.2.
         //$scope.forceDirectedGraphData = {
@@ -363,7 +378,7 @@ angular.module('dendrite.controllers', []).
     }).
     controller('AnalyticsFormCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // placeholder default attributes
-        $scope.graphId = $routeParams.graphId;
+      
         $scope.algorithms = appConfig.algorithms;
 
         $scope.setAnalyticType = function(t) {
@@ -390,64 +405,64 @@ angular.module('dendrite.controllers', []).
         $scope.calculate = function() {
           // Barycenter
           if ($scope.analyticType === "barycenterDistance") {
-            Analytics.createJungBarycenterDistance({graphId: $routeParams.graphId}, undefined);
+            Analytics.createJungBarycenterDistance({graphId: $scope.graphId}, undefined);
           }
           // BetweennessCentrality
           else if ($scope.analyticType === "betweennessCentrality") {
-            Analytics.createJungBetweennessCentrality({graphId: $routeParams.graphId}, undefined);
+            Analytics.createJungBetweennessCentrality({graphId: $scope.graphId}, undefined);
           }
           // ClosenessCentrality
           else if ($scope.analyticType === "closenessCentrality") {
-            Analytics.createJungClosenessCentrality({graphId: $routeParams.graphId}, undefined);
+            Analytics.createJungClosenessCentrality({graphId: $scope.graphId}, undefined);
           }
           // Eigenvector
           else if ($scope.analyticType === "eigenvectorCentrality") {
-            Analytics.createJungEigenvectorCentrality({graphId: $routeParams.graphId}, undefined);
+            Analytics.createJungEigenvectorCentrality({graphId: $scope.graphId}, undefined);
           }
           // PageRank
           else if ($scope.analyticType === "pagerank") {
             if ($scope.attr.analyticEngine === "jung") {
-              Analytics.createJungPageRank({graphId: $routeParams.graphId}, {alpha: 1-$scope.attr.dampingFactor});
+              Analytics.createJungPageRank({graphId: $scope.graphId}, {alpha: 1-$scope.attr.dampingFactor});
             }
             else {
-              Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+              Analytics.createGraphLab({graphId: $scope.graphId, algorithm: $scope.analyticType}, undefined);
             }
           }
           // Total Subgraph Communicability
           else if ($scope.analyticType === "TSC") {
-            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+            Analytics.createGraphLab({graphId: $scope.graphId, algorithm: $scope.analyticType}, undefined);
           }
           // Single source shortest path
           else if ($scope.analyticType === "sssp") {
-            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType, sourceVertex: $scope.sourceVertex}, undefined);
+            Analytics.createGraphLab({graphId: $sope.graphId, algorithm: $scope.analyticType, sourceVertex: $scope.sourceVertex}, undefined);
           }
           // connected component
           else if ($scope.analyticType === "connected_component") {
-            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+            Analytics.createGraphLab({graphId: $scope.graphId, algorithm: $scope.analyticType}, undefined);
           }
           // connected component histogram
           else if ($scope.analyticType === "connected_component_stats") {
-            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+            Analytics.createGraphLab({graphId: $scope.graphId, algorithm: $scope.analyticType}, undefined);
           }
           // graph coloring
           else if ($scope.analyticType === "simple_coloring") {
-            Analytics.createGraphLab({graphId: $routeParams.graphId, algorithm: $scope.analyticType}, undefined);
+            Analytics.createGraphLab({graphId: $scope.graphId, algorithm: $scope.analyticType}, undefined);
           }
           // SNAP
           else if ($scope.analyticType === "snapCentrality") {
-            Analytics.createSnap({graphId: $routeParams.graphId, algorithm: "centrality"}, undefined);
+            Analytics.createSnap({graphId: $scope.graphId, algorithm: "centrality"}, undefined);
           }
           // Snap
           else if ($scope.analyticType === "Snap") {
-            Analytics.createSnap({graphId: $routeParams.graphId, algorithm: $scope.attr.algorithm}, undefined);
+            Analytics.createSnap({graphId: $scope.graphId, algorithm: $scope.attr.algorithm}, undefined);
           }
           // Edge Degrees
           else if ($scope.analyticType === "edgeDegrees") {
             if ($scope.attr.analyticEngine === "faunus") {
-              Analytics.createEdgeDegreesFaunus({graphId: $routeParams.graphId}, undefined);
+              Analytics.createEdgeDegreesFaunus({graphId: $scope.graphId}, undefined);
             }
             else if ($scope.attr.analyticEngine === "titan") {
-              Analytics.createEdgeDegreesTitan({graphId: $routeParams.graphId}, undefined);
+              Analytics.createEdgeDegreesTitan({graphId: $scope.graphId}, undefined);
             }
           }
 
@@ -455,13 +470,14 @@ angular.module('dendrite.controllers', []).
         };
     }).
     controller('AnalyticsListCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Analytics, Helpers, $timeout) {
+        
         // config
         $scope.activeAnalytics = [];
         $scope.colorProgressBars = Helpers.colorProgressBars;
 
         // show result
         $scope.showAnalytic = function(id) {
-          $location.path('graphs/' + $routeParams.graphId + '/analytics/' + id);
+          $location.path('graphs/' + $scope.graphId + '/analytics/' + id);
         };
 
         $scope.setNumJobsTotal = function(val) {
@@ -497,9 +513,10 @@ angular.module('dendrite.controllers', []).
           var numJobsError = 0;
           var numJobsComplete = 0;
           var activeAnalytics = {jobs: []};
-          Graph.get({graphId: $routeParams.graphId})
+          //Changed graphId
+          Graph.get({graphId: $scope.graphId})
                 .$then(function(dataGraph) {
-                    Project.jobs({projectId: dataGraph.data.graph.projectId})
+                    Project.jobs({projectId: $routeParams.projectId})
                             .$then(function(dataJobs) {
 
                                 // determine if client should continue polling
@@ -556,18 +573,13 @@ angular.module('dendrite.controllers', []).
         // poll on page entry
         pollActive();
     }).
-    controller('VertexListCtrl', function($scope, $location, $timeout, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
+    controller('VertexListCtrl', function($scope,$rootScope, $location, $timeout, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
-      $scope.graphId = $routeParams.graphId;
       $scope.isCollapsed = true;
       $scope.selectedItems = [];
       $scope.queryStyle = "vertices";
-      $scope.vertexFrom = "";
-      Graph.get({graphId: $routeParams.graphId})
-            .$then(function(dataGraph) {
-                $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
-            });
-
+      $scope.vertexFrom = "";  
+    
       $scope.$on('event:reloadProjectNeeded', function() {
         $scope.refresh();
       });
@@ -595,13 +607,6 @@ angular.module('dendrite.controllers', []).
         return false; // prevent normal link behavior
       };
 
-      $scope.addVertexEdge = function() {
-        $location.path('graphs/' + $scope.graphId + '/create_edge/' + $scope.selectedItems[0]._id);
-      };
-
-      $scope.editVertex = function() {
-        $location.path('graphs/' + $scope.graphId + '/vertices/' + $scope.selectedItems[0]._id + '/edit_vertex');
-      };
 
       $scope.dynamicWidth = function() {
         return ($scope.hasSelectedItems) ? 'span7' : 'span11';
@@ -757,10 +762,10 @@ angular.module('dendrite.controllers', []).
               resultType: $scope.objectType
           };
 
-          ElasticSearch.search(p)
+          ElasticSearch.search(p, $scope.graphId)
             .success(function(data, status, headers, config) {
                 $scope.totalServerItems = data.hits.total;
-
+                
                 // update sort options
                 var sortFields = [];
                 var sortDirections = [];
@@ -904,58 +909,50 @@ angular.module('dendrite.controllers', []).
     }).
     controller('VertexDetailCtrl', function($scope, $routeParams, $location, User, Vertex) {
         $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
-        $scope.vertexId = $routeParams.vertexId;
+        $scope.vertexId = $scope.selectedItems[0]._id;
         $scope.query = Vertex.get({graphId: $scope.graphId, vertexId: $scope.vertexId});
 
         $scope.delete = function() {
             Vertex.delete({graphId: $scope.graphId, vertexId: $scope.query.results._id}, function() {
-                $location.path('graphs/' + $scope.graphId + '/vertices');
+                //TODO: Show something after delete
             });
         }
     }).
-    controller('VertexCreateCtrl', function($scope, $routeParams, $location, User, Vertex) {
+    controller('VertexCreateCtrl', function($rootScope,$scope,$routeParams, $location, User, Vertex, ElasticSearch, $timeout, appConfig) {
         $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
-
         $scope.save = function() {
             Vertex.save({graphId: $scope.graphId}, $scope.vertex)
                   .$then(function(data) {
-                    $location.path('graphs/' + $scope.graphId + '/vertices');
+                    
+                    ElasticSearch.verifyId($scope.graphId, data.data.results._id, "vertex");
                   });
         };
     }).
     controller('VertexEditCtrl', function($scope, $routeParams, $location, User, Vertex) {
+        
         $scope.User = User;
-        $scope.graphId = $routeParams.graphId;
-        $scope.vertexId = $routeParams.vertexId;
+        $scope.vertexId = $scope.selectedItems[0]._id;
         $scope.query =
           Vertex.get({graphId: $scope.graphId, vertexId: $scope.vertexId})
                 .$then(function(res) {
                   $scope.vertex = res.resource.results;
                 });
-
+        
         $scope.save = function() {
             Vertex.update({graphId: $scope.graphId, vertexId: $scope.vertexId}, $scope.vertex)
                   .$then(function(data) {
-                    $location.path('graphs/' + $scope.graphId + '/vertices');
+                    //TODO Should search for new object
+                    ElasticSearch.verifyId($scope.graphId, data.data.results._id, "vertex");
                   });
         };
     }).
     controller('EdgeListCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
-
-      $scope.graphId = $routeParams.graphId;
+      
       $scope.selectedItems = [];
       $scope.queryStyle = "edges";
-      Graph.get({graphId: $routeParams.graphId})
-            .$then(function(dataGraph) {
-                $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
-            });
+     
 
-      $scope.editEdge = function() {
-        $location.path('graphs/' + $scope.graphId + '/edges/' + $scope.selectedItems[0]._id + '/edit_edge');
-      };
-
+      
       // Delete the selected items.
       $scope.deleteSelectedItems = function() {
         $q.all(
@@ -1102,14 +1099,15 @@ angular.module('dendrite.controllers', []).
               pageSize: $scope.pagingOptions.pageSize,
               sortInfo: elasticSortOptions,
               resultType: $scope.objectType
+              
           };
 
           var ignoredKeys = [$scope.objectType+'Id', '_'+$scope.objectType+'Id', "_id", "_type"];
 
-          ElasticSearch.search(p)
+          ElasticSearch.search(p, $scope.graphId)
             .success(function(data, status, headers, config) {
                 $scope.totalServerItems = data.hits.total;
-
+                
                 // update sort options
                 var sortFields = [];
                 var sortDirections = [];
@@ -1189,6 +1187,7 @@ angular.module('dendrite.controllers', []).
 
                                 // store the results
                                 $scope.items = resultArray;
+
                                 $scope.searching = false;
                             }
                           });
@@ -1228,33 +1227,30 @@ angular.module('dendrite.controllers', []).
       $scope.refresh();
 
     }).
-    controller('EdgeDetailCtrl', function($scope, $routeParams, $location, Edge, Vertex) {
-        $scope.graphId = $routeParams.graphId;
+    controller('EdgeDetailCtrl', function($rootScope,$scope, $routeParams, $location, Edge, Vertex) {
+        
         $scope.edgeId = $routeParams.edgeId;
 
         // retrieve the edge and both vertices
-        Edge.get({graphId: $routeParams.graphId, edgeId: $scope.edgeId})
+        Edge.get({graphId: $scope.graphId, edgeId: $scope.edgeId})
             .$then(function(res) {
               $scope.query = res.resource;
-              $scope.vertexIn = Vertex.get({graphId: $routeParams.graphId, vertexId: $scope.query.results._inV});
-              $scope.vertexOut = Vertex.get({graphId: $routeParams.graphId, vertexId: $scope.query.results._outV});
+              $scope.vertexIn = Vertex.get({graphId: $scope.graphId, vertexId: $scope.query.results._inV});
+              $scope.vertexOut = Vertex.get({graphId: $scope.graphId, vertexId: $scope.query.results._outV});
             });
-
-        $scope.editEdge = function() {
-          $location.path('graphs/' + $scope.graphId + '/edges/' + $scope.query.results._id + '/edit_edge');
-        };
 
         $scope.delete = function() {
             Edge.delete({graphId: $scope.graphId, edgeId: $scope.edgeId}, function() {
-                $location.path('graphs/' + $scope.graphId + '/edges');
+                $rootScope.$broadcast('event:reloadProjectNeeded');
             });
         }
     }).
     controller('EdgeCreateCtrl', function($scope, $routeParams, $location, Edge, Vertex) {
-        $scope.graphId = $routeParams.graphId;
+        
         $scope.query = Vertex.list({graphId: $scope.graphId});
-        if ($routeParams.vertexId != undefined) {
-          $scope.vertexId = $routeParams.vertexId;
+  
+        if ($scope.vertexId != undefined) {
+          $scope.vertexId = $scope.selectedItems[0]._id;
           $scope.edge = new Edge();
           $scope.edge._inV = $scope.vertexId;
         }
@@ -1262,13 +1258,13 @@ angular.module('dendrite.controllers', []).
         $scope.save = function() {
             Edge.save({graphId: $scope.graphId, inV: $scope.edge._inV}, $scope.edge)
                 .$then(function(data) {
-                  $location.path('graphs/' + $scope.graphId + '/edges');
+                  ElasticSearch.verifyId($scope.graphId, data.data.results._id, "edge");  
                 });
         };
     }).
     controller('EdgeEditCtrl', function($scope, $routeParams, $location, User, Edge, Vertex) {
-        $scope.graphId = $routeParams.graphId;
-        $scope.edgeId = $routeParams.edgeId;
+      
+        $scope.edgeId = $scope.selectedItems[0]._id;
         $scope.query = Vertex.list({graphId: $scope.graphId});
         $scope.query_edge =
             Edge.get({graphId: $scope.graphId, edgeId: $scope.edgeId})
@@ -1281,8 +1277,8 @@ angular.module('dendrite.controllers', []).
         $scope.save = function() {
             console.log($scope.edge);
             Edge.update({graphId: $scope.graphId, edgeId: $scope.edgeId}, $scope.edge, function(data) {
-                console.log(data);
-                $location.path('graphs/' + $scope.graphId + '/edges');
+                ElasticSearch.verifyId($scope.graphId, data.data.results._id, "edge"); 
+                
             });
         };
     }).
@@ -1526,8 +1522,7 @@ angular.module('dendrite.controllers', []).
       $scope.projectId = $routeParams.projectId;
       $scope.queryProject = Project.query({projectId: $scope.projectId});
       $scope.communityMetrics = Community.metrics($scope.projectId);
-        //shennanigans    
-          
+      
       $scope.helpText = function(metricKey){
           return appConfig.communityMetricsHelp[metricKey].description;
       }
@@ -1573,7 +1568,7 @@ angular.module('dendrite.controllers', []).
           $scope.communityMetrics.communities.metrics.size.edges.high = community.edges;
         }
       }
-      console.log($scope.communityMetrics);
+      
 
       // ensure each metric has an avg
       var metricNames = Object.keys($scope.communityMetrics.communities.metrics);

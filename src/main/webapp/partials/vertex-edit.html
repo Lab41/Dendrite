@@ -1,8 +1,9 @@
-<h2>Edit {{vertex.name}}</h2>
+<div ng-controller="VertexEditCtrl">
+  <h2>Edit {{vertex.name}}</h2>
 
 <form>
 
-  <div class="row">
+  <div class="row-fluid">
     <div class="col-8">
 
       <div class="form-group">
@@ -12,10 +13,10 @@
 
       <div class="form-group">
         <label>Age</label>
-        <input type="number" ng-model="vertex.age" class="inline form-control" placeholder="Age" value="{{query.results.age}}"/><br />
+        <input type="text" ng-model="vertex.age" class="inline form-control" placeholder="Age" value="{{query.results.age }}"/><br />
       </div>
-      <button class="btn btn-primary" ng-click="save()">Update</button>
-      <button class="btn" ng-click="back()">Cancel</button>
+      <button class="btn btn-primary" ng-click="save();dismiss()">Update</button>
+      <button class="btn" ng-click="dismiss()">Cancel</button>
     </div>
 
     <div class="col-4">
@@ -25,3 +26,4 @@
   </div>
 
 </form>
+</div>
