@@ -186,7 +186,7 @@ public class GraphLabService extends AnalysisService {
         ProcessBuilder processBuilder = new ProcessBuilder(args)
                 .redirectErrorStream(true);
 
-        Map<String, String> environment = processBuilder.getEnvironment();
+        Map<String, String> environment = processBuilder.environment();
         enviornment.remove("JAVA_OPTS");
         environment.remove("LOGGER_MANAGER");
         Process process = processBuilder.start();
