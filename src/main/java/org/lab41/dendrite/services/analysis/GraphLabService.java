@@ -185,6 +185,9 @@ public class GraphLabService extends AnalysisService {
         ProcessBuilder processBuilder = new ProcessBuilder(args)
                 .redirectErrorStream(true);
 
+        Map<String, String> environment = processBuilder.getEnvironment();
+        enviornment.remove("JAVA_OPTS");
+        environment.remove("LOGGER_MANAGER");
         Process process = processBuilder.start();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charsets.US_ASCII))) {
