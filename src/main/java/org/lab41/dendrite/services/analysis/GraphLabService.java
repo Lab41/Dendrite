@@ -169,11 +169,12 @@ public class GraphLabService extends AnalysisService {
         exportDir = new Path(exportDir, "job-0");
         importDir = new Path(importDir, "output");
 
-        String clusterSize = config.getString("metagraph.template.graphlab.cluster-size");
-        String algorithmPath = config.getString("metagraph.template.graphlab.algorithm-path") + "/" + algorithm;
+        String graphlabTwillPath = config.getString("graphlab.twill.path") + "/bin/graphlab-twill";
+        String algorithmPath = config.getString("graphlab.algorithm-path") + "/" + algorithm;
+        String clusterSize = config.getString("graphlab.cluster-size");
 
         String[] args = new String[] {
-                "../graphlab-twill/bin/graphlab-twill",
+                graphlabTwillPath,
                 "-i", clusterSize,
                 "localhost:2181",
                 algorithmPath.toString(),
