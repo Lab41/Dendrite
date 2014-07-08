@@ -24,7 +24,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class DendriteGraph extends TitanBlueprintsGraph {
 
     public static final String INDEX_NAME = "search";
-    public static final String VERTEX_ID_KEY = "_vertexId";
+    public static final String VERTEX_ID_KEY = "_id";
 
     private Logger logger = LoggerFactory.getLogger(DendriteGraph.class);
 

@@ -91,8 +91,7 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
                 .setQuery(queryBuilder)
                 .setSize(SIZE)
                 .setSearchType(SearchType.SCAN)
-                .setScroll(new TimeValue(60000))
-                .addField("_vertexId");
+                .setScroll(new TimeValue(60000));
 
         TitanTransaction srcTx = srcGraph.newTransaction();
 
@@ -101,7 +100,7 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
 
             try {
                 for (SearchHit hit: scan(srcGraph.getElasticSearchClient(), srb)) {
-                    Vertex vertex = srcTx.getVertex(hit.field("_vertexId").value());
+                    Vertex vertex = srcTx.getVertex(hit.getId());
                     copyVertex(srcTx, dstTx, vertex, 0);
                 }
             } catch (Exception e) {
@@ -167,7 +166,9 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
 
     private void copyProperties(Element src, Element dst) {
         for (String key: src.getPropertyKeys()) {
-            dst.setProperty(key, src.getProperty(key));
+            if (!key.equals("_id")) {
+                dst.setProperty(key, src.getProperty(key));
+            }
         }
     }
 
