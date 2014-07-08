@@ -1,6 +1,7 @@
 package org.lab41.dendrite.services.analysis;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.thinkaurelius.faunus.FaunusGraph;
 import com.thinkaurelius.faunus.FaunusPipeline;
 import com.thinkaurelius.faunus.formats.adjacency.AdjacencyFileOutputFormat;
@@ -173,15 +174,17 @@ public class GraphLabService extends AnalysisService {
         String algorithmPath = config.getString("graphlab.algorithm-path") + "/" + algorithm;
         String clusterSize = config.getString("graphlab.cluster-size");
 
-        String[] args = new String[] {
+        List<String> args = Lists.newArrayList(
                 graphlabTwillPath,
                 "-i", clusterSize,
                 "localhost:2181",
-                algorithmPath.toString(),
+                algorithmPath,
                 exportDir.toString(),
                 "adj",
-                importDir.toString(),
-        };
+                importDir.toString()
+        );
+
+        logger.debug("executing: " + args);
 
         ProcessBuilder processBuilder = new ProcessBuilder(args)
                 .redirectErrorStream(true);
@@ -196,7 +199,9 @@ public class GraphLabService extends AnalysisService {
             }
         }
 
-        process.waitFor();
+        int exitCode = process.waitFor();
+
+        logger.debug("process exited with " + exitCode);
     }
 
     private void runImport(DendriteGraph graph, FileSystem fs, Path importDir, String algorithm) throws IOException {
