@@ -263,7 +263,8 @@ public class BranchController {
                 jobMetadata.getId(),
                 branchMetadata.getId());
 
-        taskExecutor.execute(branchCommitJob);
+        //taskExecutor.execute(branchCommitJob);
+        branchCommitJob.run();
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
@@ -405,7 +406,8 @@ public class BranchController {
                 jobMetadata.getId(),
                 branchMetadata.getId());
 
-        taskExecutor.execute(branchCommitJob);
+        //taskExecutor.execute(branchCommitJob);
+        branchCommitJob.run();
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
@@ -504,7 +506,8 @@ public class BranchController {
                 query,
                 steps);
 
-        taskExecutor.execute(branchCommitSubsetJob);
+        //taskExecutor.execute(branchCommitSubsetJob);
+        branchCommitSubsetJob.run();
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
@@ -573,7 +576,8 @@ public class BranchController {
                 query,
                 steps);
 
-        taskExecutor.execute(branchCommitSubsetJob);
+        //taskExecutor.execute(branchCommitSubsetJob);
+        branchCommitSubsetJob.run();
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
