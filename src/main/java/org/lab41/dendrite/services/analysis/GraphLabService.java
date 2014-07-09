@@ -172,7 +172,7 @@ public class GraphLabService extends AnalysisService {
         importDir = new Path(importDir, "output");
 
         String graphlabTwillPath = config.getString("graphlab.twill.path") + "/bin/graphlab-twill";
-        String algorithmPath = config.getString("graphlab.algorithm-path") + "/" + algorithm;
+        String algorithmPath = config.getString("graphlab.algorithm.path") + "/" + algorithm;
         String clusterSize = config.getString("graphlab.cluster-size");
 
         List<String> args = Lists.newArrayList(
