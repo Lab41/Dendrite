@@ -1,6 +1,7 @@
 package org.lab41.dendrite.services.analysis;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.thinkaurelius.faunus.FaunusGraph;
 import com.thinkaurelius.faunus.FaunusPipeline;
 import com.thinkaurelius.faunus.formats.adjacency.AdjacencyFileOutputFormat;
@@ -170,18 +171,21 @@ public class GraphLabService extends AnalysisService {
         exportDir = new Path(exportDir, "job-0");
         importDir = new Path(importDir, "output");
 
-        String clusterSize = config.getString("metagraph.template.graphlab.cluster-size");
-        String algorithmPath = config.getString("metagraph.template.graphlab.algorithm-path") + "/" + algorithm;
+        String graphlabTwillPath = config.getString("graphlab.twill.path") + "/bin/graphlab-twill";
+        String algorithmPath = config.getString("graphlab.algorithm-path") + "/" + algorithm;
+        String clusterSize = config.getString("graphlab.cluster-size");
 
-        String[] args = new String[] {
-                "../graphlab-twill/bin/graphlab-twill",
+        List<String> args = Lists.newArrayList(
+                graphlabTwillPath,
                 "-i", clusterSize,
                 "localhost:2181",
-                algorithmPath.toString(),
+                algorithmPath,
                 exportDir.toString(),
                 "adj",
-                importDir.toString(),
-        };
+                importDir.toString()
+        );
+
+        logger.debug("executing: " + args);
 
         ProcessBuilder processBuilder = new ProcessBuilder(args)
                 .redirectErrorStream(true);
@@ -199,7 +203,9 @@ public class GraphLabService extends AnalysisService {
             }
         }
 
-        process.waitFor();
+        int exitCode = process.waitFor();
+
+        logger.debug("process exited with " + exitCode);
     }
 
     private void runImport(DendriteGraph graph, FileSystem fs, Path importDir, String algorithm) throws IOException {
