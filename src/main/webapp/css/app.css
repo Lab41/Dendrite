@@ -1253,13 +1253,12 @@ body {
 .modal-large.fade.in {
   width: 90%;
   margin-left: -45%;
-  height: 70vh;
+  height: 80vh;
   top: 10vh;
 }
 .modal-large .modal-body {
   max-height: 100vh;
-  height: 60vh;
-  padding: 30px;
+  height: 70vh;
 }
 .modal-large .modal-header {
   background: #2980b9;
@@ -1477,10 +1476,20 @@ div.span6 div.span6 div.dataTables_length label {
 .ui-tabs-nav.ui-widget-header.tabs-dark {
   background: #424a4a;
 }
-.icon-faded {
+.ui-state-default a,
+.ui-state-default a:link,
+.ui-state-default a:visited {
+  color: #7f8c8d;
+}
+.ui-state-default .icon-faded {
   opacity: 0.5;
 }
-.active .icon-faded {
+.ui-state-active a,
+.ui-state-active a:link,
+.ui-state-active a:visited {
+  color: #424a4a;
+}
+.ui-state-active .icon-faded {
   opacity: 1;
 }
 .ui-corner-all,
