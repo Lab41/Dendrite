@@ -175,7 +175,7 @@ public class GraphLabService extends AnalysisService {
 
         String graphlabTwillPath = config.getString("graphlab.twill.path") + "/bin/graphlab-twill";
         String zookeeperPath = config.getString("graphlab.twill.zookeeper.url");
-        String algorithmPath = config.getString("graphlab.algorithm-path") + "/" + algorithm;
+        String algorithmPath = config.getString("graphlab.algorithm.path") + "/" + algorithm;
         String clusterSize = config.getString("graphlab.cluster-size");
 
         List<String> args = Lists.newArrayList(
