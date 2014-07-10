@@ -1,13 +1,20 @@
 <div ng-controller="VizMapCtrl">
   <div class="span12 well">
-    <form class="form-inline">
+    <form class="form-inline" ng-submit="visualize()">
       <p style="display:inline"> Filter: </p>
-      <input ng-model="filter" type="text" class="input-small" placeholder="Query">
+      <input ng-model="filter" type="text" class="form-control inline searchbar" placeholder="Filter Results">
+      <button type="submit" class="btn btn-default">
+        <i class="icon-search icon-white" ng-hide="fullTextSearching"></i>
+        <img src="img/icons/ajax-spinner.gif" ng-hide="!fullTextSearching">
+      </button>
+
       <p style="display:inline"> Number of results: </p>
       <input ng-model="size" type="number" class="input-small" placeholder="1000">
+       <!--
       <label><input ng-model="mapType" type="radio" value="day"> Day Map</label>
       <label><input ng-model="mapType" type="radio" value="night"> Night Map</label>
       <button type="submit" class="btn btn-default" ng-click="visualize()">Visualize</button>
+      -->
   </form>
   </div>
 
