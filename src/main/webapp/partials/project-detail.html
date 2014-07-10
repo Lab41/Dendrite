@@ -1,7 +1,23 @@
 <h2 class="titlebar">Project: {{ project.name }}
+  <!-- dropdown for history -->
+  <div id="tour-step-7" class="btn-group navbar-btn margin-bottom-none" ng-if="projectHasData">
+    <button class="btn btn-transparent dropdown-toggle" data-toggle="dropdown">Branches <span class="caret"></span></button>
+    <ul class="dropdown-menu padding">
+      <div ng-include="'partials/graphs/branches.html'"></div>
+    </ul>
+  </div>
+
+
+  <!-- dropdown for data import/export -->
+  <div class="btn-group navbar-btn margin-bottom-none" ng-if="projectHasData">
+    <button class="btn btn-transparent dropdown-toggle" data-toggle="dropdown">Data <span class="caret"></span></button>
+    <ul class="dropdown-menu padding">
+      <div ng-include="'partials/graphs/import-export.html'"></div>
+    </ul>
+  </div>
 
   <span class="titlebar-buttons">
-    <button ng-if="graphLoaded" ng-click="deleteItem(project)" ng-confirm-click="Really Delete?" class="btn btn-default"><i class="icon-white icon-trash"></i> Delete</button>
+    <button ng-if="graphLoaded" ng-click="deleteItem(project)" ng-confirm-click="Really Delete?" class="btn btn-transparent"><i class="icon-white icon-trash"></i> Delete</button>
     <label><input type="checkbox" ng-value="panelEdit" ng-click="panelEdit=!panelEdit"></input> Edit Layout</label>
   </span>
 </h2>
