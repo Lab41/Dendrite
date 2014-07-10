@@ -41,7 +41,15 @@
           <button type="button" class="btn btn-primary" modal-class="modal-large" data-animation="am-slide-bottom" bs-modal="'partials/analytics/form.html'" id="tour-step-11">Analytics <i class="icon-share icon-white"></i></button>
         </div>
         <div id="tour-step-14">
-          <a ng-click="isCollapsed = !isCollapsed"><span>( <span ng-if="numJobsError" class="text-error font-weight-bold">{{ numJobsError }} ERRORS! /</span> {{ numJobsPending }} pending / {{ numJobsTotal }} total ) &#x25BE;</span></a>
+          <a ng-click="isCollapsed = !isCollapsed">
+                  (
+                  <ng-pluralize class="text-error font-weight-bold"
+                                count="numJobsError"
+                                when="{'0': '', 'one': '1 ERROR! /', 'other': '{} ERRORS! /'}">
+                  </ng-pluralize>
+                  {{ numJobsPending }} pending / {{ numJobsTotal }} total
+                  ) &#x25BE;
+          </a>
         </div>
 
       </div>
