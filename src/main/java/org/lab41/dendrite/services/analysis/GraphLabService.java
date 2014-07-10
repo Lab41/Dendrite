@@ -14,6 +14,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsAction;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.lab41.dendrite.jobs.FaunusJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
@@ -129,6 +131,7 @@ public class GraphLabService extends AnalysisService {
                 UUID.randomUUID().toString());
 
         fs.mkdirs(tmpDir);
+        fs.setPermission(tmpDir, new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL, true));
         //fs.deleteOnExit(tmpDir);
 
         try {
@@ -172,13 +175,14 @@ public class GraphLabService extends AnalysisService {
         importDir = new Path(importDir, "output");
 
         String graphlabTwillPath = config.getString("graphlab.twill.path") + "/bin/graphlab-twill";
+        String zookeeperPath = config.getString("graphlab.twill.zookeeper.url");
         String algorithmPath = config.getString("graphlab.algorithm.path") + "/" + algorithm;
         String clusterSize = config.getString("graphlab.cluster-size");
 
         List<String> args = Lists.newArrayList(
                 graphlabTwillPath,
                 "-i", clusterSize,
-                "localhost:2181",
+                zookeeperPath,
                 algorithmPath,
                 exportDir.toString(),
                 "adj",
