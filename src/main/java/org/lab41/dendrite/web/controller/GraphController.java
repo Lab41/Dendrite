@@ -66,6 +66,9 @@ public class GraphController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
+        // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
+        metaGraphService.getGraph(graphMetadata.getId());
+
         response.put("graph", getGraphMap(graphMetadata));
 
         // Commit must come after all graph access.
@@ -257,6 +260,10 @@ public class GraphController {
         }
 
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
+
+        // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
+        metaGraphService.getGraph(graphMetadata.getId());
+
         response.put("graph", getGraphMap(graphMetadata));
 
         // Commit must come after all graph access.
