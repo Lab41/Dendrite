@@ -548,7 +548,7 @@ angular.module('dendrite.directives', [])
       },
       template:
         '<li ng-class="{active: selected}">' +
-          '<a href="" ng-click="select()">{{ title }}</a>' +
+          '<a href="" ng-click="select()"><span ng-bind-html-unsafe="title"></span></a>' +
         '</li>'
     };
   })

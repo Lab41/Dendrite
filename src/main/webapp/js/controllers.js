@@ -1480,6 +1480,8 @@ angular.module('dendrite.controllers', []).
                           };
                       });
                       $scope.searchFacets = elasticValueFields;
+
+                      $scope.visualize();
                   });
 
               $scope.visualize = function() {

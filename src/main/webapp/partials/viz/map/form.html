@@ -1,20 +1,24 @@
-<h5>Plot It</h5>
-<p>See where people are located (drawing on <a href="http://www.elasticsearch.org" target="_blank">ElasticSearch's</a> geocoordinate capabilities):</p>
-
 <div ng-controller="VizMapCtrl">
   <div class="span12 well">
-    <form class="form-inline">
+    <form class="form-inline" ng-submit="visualize()">
       <p style="display:inline"> Filter: </p>
-      <input ng-model="filter" type="text" class="input-small" placeholder="Query">
+      <input ng-model="filter" type="text" class="form-control inline searchbar" placeholder="Filter Results">
+      <button type="submit" class="btn btn-default">
+        <i class="icon-search icon-white" ng-hide="searching"></i>
+        <img src="img/icons/ajax-spinner.gif" ng-hide="!searching">
+      </button>
+
       <p style="display:inline"> Number of results: </p>
       <input ng-model="size" type="number" class="input-small" placeholder="1000">
-      <input ng-model="mapType" type="hidden" value="day">
+      <!--
+      <label><input ng-model="mapType" type="radio" value="day"> Day Map</label>
+      <label><input ng-model="mapType" type="radio" value="night"> Night Map</label>
       <button type="submit" class="btn btn-default" ng-click="visualize()">Visualize</button>
+      -->
   </form>
   </div>
 
   <h4 id="viz-map-title"></h4>
-  <div ng-hide="!searching"><img src="img/icons/ajax-loader.gif"></div>
   <div id="viz-map-wrapper" style="height: 600px"></div>
   <div id="footer">
     <a href="http://www.cloudmade.com/">CloudMade</a>,
