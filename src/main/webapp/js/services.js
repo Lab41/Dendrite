@@ -354,7 +354,7 @@ angular.module('dendrite.services', ['ngResource']).
                     "filter" : { "type": { "value": queryParams.resultType } },
                     "sort" : queryParams.sortInfo
                 };
-              
+
             // query server
             return $http({
                 method: "POST",
@@ -1078,7 +1078,7 @@ angular.module('dendrite.services', ['ngResource']).
           }
         };
     }).
- 
+
 
     factory('Vertex', function($resource) {
         return $resource('rexster-resource/graphs/:graphId/vertices/:vertexId', {

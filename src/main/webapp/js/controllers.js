@@ -146,7 +146,7 @@ angular.module('dendrite.controllers', []).
                     $scope.project = response.data.project;
                     $rootScope.graphId = $scope.project.current_graph;
                     $rootScope.$broadcast('event:reloadGraph');
-                    $scope.projectName = dataProject.data.project.name;
+                    $scope.projectName = response.data.project.name;
                 });
 
         // tripwire to reload current graph
@@ -377,7 +377,6 @@ angular.module('dendrite.controllers', []).
     }).
     controller('AnalyticsFormCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // placeholder default attributes
-        $rootScope.graphId = $routeParams.graphId;
         $scope.algorithms = appConfig.algorithms;
 
         $scope.setAnalyticType = function(t) {
@@ -519,7 +518,7 @@ angular.module('dendrite.controllers', []).
           var numJobsComplete = 0;
           var activeAnalytics = {jobs: []};
           //Changed graphId
-          Graph.get({graphId: $scope.graphId})
+          Graph.get({graphId: $rootScope.graphId})
                 .$then(function(dataGraph) {
                     Project.jobs({projectId: dataGraph.data.graph.projectId})
                             .$then(function(dataJobs) {
@@ -580,12 +579,10 @@ angular.module('dendrite.controllers', []).
     }).
     controller('VertexListCtrl', function($rootScope, $scope, $location, $timeout, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
-      $rootScope.graphId = $routeParams.graphId;
-      $scope.isCollapsed = true;
       $scope.selectedItems = [];
       $scope.queryStyle = "vertices";
       $scope.vertexFrom = "";
-      Graph.get({graphId: $routeParams.graphId})
+      Graph.get({graphId: $rootScope.graphId})
             .$then(function(dataGraph) {
                 $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
                 $rootScope.$broadcast('event:projectHasData');
@@ -595,6 +592,7 @@ angular.module('dendrite.controllers', []).
         $scope.refresh();
       });
 
+      $scope.isCollapsed = true;
       $scope.collapseJobs = function() {
         return $scope.isCollapsed;
       };
@@ -637,6 +635,7 @@ angular.module('dendrite.controllers', []).
           })
         ).then(function() {
           // Refresh the data once all the items are deleted.
+          //TODO poll ES server to gauge when item is deleted before refreshing
           $scope.refresh();
         });
 
@@ -949,7 +948,9 @@ angular.module('dendrite.controllers', []).
 
         // ensure age is numeric
         $scope.$watch('vertex.age',function(val,old){
-           $scope.vertex.age = parseInt(val);
+           if (val !== undefined) {
+             $scope.vertex.age = parseInt(val);
+           }
         });
 
         $scope.save = function() {
@@ -963,11 +964,16 @@ angular.module('dendrite.controllers', []).
 
       $scope.selectedItems = [];
       $scope.queryStyle = "edges";
-      Graph.get({graphId: $routeParams.graphId})
+      Graph.get({graphId: $rootScope.graphId})
             .$then(function(dataGraph) {
                 $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
                 $rootScope.$broadcast('event:projectHasData');
             });
+
+      $scope.isCollapsed = true;
+      $scope.collapseJobs = function() {
+        return $scope.isCollapsed;
+      };
 
       // Delete the selected items.
       $scope.deleteSelectedItems = function() {
@@ -1259,7 +1265,7 @@ angular.module('dendrite.controllers', []).
     }).
     controller('EdgeCreateCtrl', function($rootScope, $scope, $routeParams, $location, Edge, Vertex) {
         $scope.query = Vertex.list({graphId: $scope.graphId});
-  
+
         if ($scope.vertexId != undefined) {
           $scope.vertexId = $scope.selectedItems[0]._id;
           $scope.edge = new Edge();
@@ -1269,7 +1275,7 @@ angular.module('dendrite.controllers', []).
         $scope.save = function() {
             Edge.save({graphId: $scope.graphId, inV: $scope.edge._inV}, $scope.edge)
                 .$then(function(data) {
-                  ElasticSearch.verifyId($scope.graphId, data.data.results._id, "edge");  
+                  ElasticSearch.verifyId($scope.graphId, data.data.results._id, "edge");
                 });
         };
     }).
@@ -1287,7 +1293,7 @@ angular.module('dendrite.controllers', []).
         $scope.save = function() {
             console.log($scope.edge);
             Edge.update({graphId: $scope.graphId, edgeId: $scope.edgeId}, $scope.edge, function(data) {
-                ElasticSearch.verifyId($scope.graphId, data.data.results._id, "edge"); 
+                ElasticSearch.verifyId($scope.graphId, data.data.results._id, "edge");
             });
         };
     }).

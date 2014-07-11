@@ -3,7 +3,7 @@
   <div id="tour-step-7" class="btn-group navbar-btn margin-bottom-none" ng-if="projectHasData">
     <button class="btn btn-transparent dropdown-toggle" data-toggle="dropdown">Branches <span class="caret"></span></button>
     <ul class="dropdown-menu padding">
-      <div ng-include="'partials/graphs/branches.html'"></div>
+      <div ng-include="'partials/panels/branches.html'"></div>
     </ul>
   </div>
 
@@ -12,7 +12,7 @@
   <div class="btn-group navbar-btn margin-bottom-none" ng-if="projectHasData">
     <button class="btn btn-transparent dropdown-toggle" data-toggle="dropdown">Data <span class="caret"></span></button>
     <ul class="dropdown-menu padding">
-      <div ng-include="'partials/graphs/import-export.html'"></div>
+      <div ng-include="'partials/panels/import-export.html'"></div>
     </ul>
   </div>
 
@@ -31,17 +31,15 @@
 
     <div class="row-fluid column-fullwidth">
       <div class="column" id="column1" >
-        <div class="dragbox" id="item-explore-data" ng-show="projectHasData">
-          <h2>Explore <panel-collapse-buttons></panel-collapse-buttons></h2>
-          <div class="dragbox-content" >
-              <div ng-include="'partials/graphs/explore-data.html'"></div>
-          </div>
-        </div>
 
         <div class="dragbox" id="item-import-data" ng-if="!projectHasData">
-          <h2>Explore:  
+          <div ng-include="'partials/panels/import-export.html'"></div>
+        </div>
+
+        <div class="dragbox" id="item-import-data" ng-if="projectHasData">
+          <h2>Explore:
             <span ng-if='!hasSelectedItems'>People We Know</span>
-            <span ng-if='hasSelectedItems'>People Connected to {{ formatSelectedNames()  }}</span> 
+            <span ng-if='hasSelectedItems'>People Connected to {{ formatSelectedNames()  }}</span>
             <panel-collapse-buttons></panel-collapse-buttons>
           </h2>
           <div class="dragbox-content" >
