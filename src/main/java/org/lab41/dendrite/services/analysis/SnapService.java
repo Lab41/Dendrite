@@ -210,8 +210,8 @@ public class SnapService extends AnalysisService {
         try {
             // feed output to snap as input
             String cmd = new Path(config.getString("metagraph.template.snap.algorithm-path"), algorithm) +
-                         " -i:" + exportDir.toString().substring(5)+"/part-m-00000" +
-                         " -o:" + importDir.toString().substring(5) + "/graph";
+                         " -i:" + exportDir.toString() + "/part-m-00000" +
+                         " -o:" + importDir.toString() + "/graph";
 
             logger.debug("running: " + cmd);
 
