@@ -563,6 +563,9 @@
                     <url>${tomcat.url}</url>
                     <server>${tomcat.server}</server>
                     <path>/dendrite</path>
+                    <warSourceDirectory>
+                           ${project.build.directory}/${project.build.finalName}
+                    </warSourceDirectory>
                     <additionalClasspathDirs>
                         <additionalClasspathDir>${HADOOP_CONF_DIR}</additionalClasspathDir>
                     </additionalClasspathDirs>
