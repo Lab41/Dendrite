@@ -1,8 +1,9 @@
+<div ng-controller = "VertexCreateCtrl"> 
 <h2>Add Person</h2>
 
 <form>
 
-  <div class="row">
+  <div class="row-fluid">
     <div class="col-8">
 
       <div class="form-group">
@@ -14,8 +15,8 @@
         <label>Age</label>
         <input type="number" ng-model="vertex.age" class="inline form-control" placeholder="Age" /><br />
       </div>
-      <button class="btn btn-primary" ng-click="save()">Add Person</button>
-      <button class="btn" ng-click="back()">Cancel</button>
+      <button class="btn btn-primary" ng-click="save();dismiss()">Add Person</button>
+      <button class="btn" ng-click="dismiss()">Cancel</button>
     </div>
 
     <div class="col-4">
@@ -26,3 +27,4 @@
 
 
 </form>
+</div>

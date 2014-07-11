@@ -1,8 +1,9 @@
+<div ng-controller="EdgeEditCtrl">
 <h2>Edit A Link</h2>
 <p>Describe how two people are connected (i.e. parent, friend, colleague)</p>
 <form class="form-inline" role="form">
 
-  <div class="row">
+  <div class="row-fluid">
     <div class="col-8">
 
       <div class="form-group">
@@ -21,8 +22,8 @@
         <input type="text" ng-model="edge._label" class="inline form-control" placeholder="Attribute" style="width:90%"/><br />
       </div>
 
-      <button class="btn btn-primary" ng-click="save()">Update</button>
-      <button class="btn" ng-click="back()">Cancel</button>
+      <button class="btn btn-primary" ng-click="save();dismiss()">Update</button>
+      <button class="btn" ng-click="dismiss()">Cancel</button>
     </div>
 
     <div class="col-4">
@@ -32,3 +33,4 @@
   </div>
 
 </form>
+</div>

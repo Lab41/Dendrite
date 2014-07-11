@@ -1,23 +1,24 @@
-<div class="row-fluid">
-  <div class="span12">
-    <div class="titlebar margin-bottom margin-right-large">
-      <h3 class="margin-none">
-        <span ng-if='!hasSelectedItems'>People We Know</span>
-        <span ng-if='hasSelectedItems'>People Connected to {{ formatSelectedNames()  }}</span>
-      </h3>
-      <div>Project: <a href="#/projects/{{ queryProject.project._id }}">{{ queryProject.project.name }}</a></div>
-    </div>
-  </div>
-</div>
-
-<div class="row row-padded">
+<div ng-controller="VertexListCtrl">
+<div class="row-fluid row-padded">
 
   <div class="span11">
-    <div class="row row-padded">
+    <div class="row-fluid row-padded">
       <div class="inline float-left">
-        <a class="btn btn-primary" href="#/graphs/{{ graphId }}/create_vertex">Add Person</a>
-        <a href="#/graphs/{{ graphId }}/edges?mode=edge" class="btn btn-success">View Links</a>
+
+        <!-- dropdown button -->
+          <div class="btn-group margin-bottom-none">
+          <button ng-click="$parent.showExploreContext(false)" type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+            People <span><i class="icon-plus icon-white"></i></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a modal-class="modal-medium" data-animation="am-slide-bottom" bs-modal="'partials/vertex-create.html'">Add Person</a></li>
+          </ul>
+          </div>
+
+        <a ng-click="$parent.showExploreContext(true)" class="btn btn-success">Connections</a>
       </div>
+
+
       <!-- searchbar -->
       <div class="inline input-append">
         <form class="inline" ng-submit="refresh('Searching')">
@@ -35,27 +36,18 @@
         </form>
       </div>
 
-
       <div class="inline float-right">
         <div style="text-align:right">
           <button type="button" class="btn btn-primary" modal-class="modal-large" data-animation="am-slide-bottom" bs-modal="'partials/analytics/form.html'" id="tour-step-11">Analytics <i class="icon-share icon-white"></i></button>
         </div>
         <div id="tour-step-14">
-          <a ng-click="isCollapsed = !isCollapsed">
-                  (
-                  <ng-pluralize class="text-error font-weight-bold"
-                                count="numJobsError"
-                                when="{'0': '', 'one': '1 ERROR! /', 'other': '{} ERRORS! /'}">
-                  </ng-pluralize>
-                  {{ numJobsPending }} pending / {{ numJobsTotal }} total
-                  ) &#x25BE;
-          </a>
+          <a ng-click="isCollapsed = !isCollapsed"><span>( <span ng-if="numJobsError" class="text-error font-weight-bold">{{ numJobsError }} ERRORS! /</span> {{ numJobsPending }} pending / {{ numJobsTotal }} total ) &#x25BE;</span></a>
         </div>
 
       </div>
     </div>
 
-    <div class="row">
+    <div class="row-fluid">
       <div collapse="collapseJobs()">
         <div class="well well-lg">
           <div class="inline float-right">
@@ -81,10 +73,10 @@
       </div>
     </div>
 
-    <div class="row">
-      <div ng-if="!hasSelectedItems" >
+    <div class="row-fluid">
+      <div ng-class="dynamicWidth()">
         <div class="inline float-left">
-          <strong>{{ totalServerItems }}</strong> total {{ queryStyle }}
+          <strong>{{ totalServerItems }}</strong> {{ queryStyle }}
           <span ng-if="filterOptions.filterText">
              for '{{ filterOptions.filterText }}'
           </span>
@@ -96,50 +88,61 @@
         <div class="inline float-left" ng-if="searching">
           {{ elasticSearchAction }}... <img src="img/icons/ajax-loader.gif">
         </div>
-      </div>
-
-      <div ng-if="hasSelectedItems" class="inline float-left">
-        <h5 class="inline">{{ formatSelectedNames() }} :</h5>
-
-        <!-- dropdown button -->
-        <div class="margin-bottom-none btn-group">
-          <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-            Links <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu">
-            <li ng-if="selectedOne()"><a ng-click="addVertexEdge()">Add</a></li>
-            <li ng-if="selectedOne()" class="divider"></li>
-            <li><a ng-click="followEdges()" ng-show="hasSelectedItems">All To/From</a></li>
-            <li><a ng-click="followInEdges()" ng-show="hasSelectedItems">From Selected</a></li>
-            <li><a ng-click="followOutEdges()" ng-show="hasSelectedItems">To Selected</a></li>
-          </ul>
+        <div class="inline float-right">
+          <button class="btn" ng-click="reload('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
         </div>
-
-        <!-- dropdown button -->
-        <div class="margin-bottom-none btn-group">
-          <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-            Modify <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu">
-            <!--<li ng-if="selectedOne()"><a ng-click="editVertex()">Edit</a></li>-->
-            <!--<li ng-if="selectedOne()" class="divider"></li>-->
-            <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete<span ng-if="selectedMany()"> Selected</span></a></li>
-          </ul>
-        </div>
-
-      </div>
-
-      <div class="inline float-right">
-        <button class="btn" ng-click="reload('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
       </div>
     </div>
 
-
-    <div class="row" id="tour-step-10">
-      <div class="grid-container">
+    <div class="row-fluid" id="tour-step-10">
+      <div ng-class="dynamicWidth()" class="grid-container">
         <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
       </div>
+
+      <div class="span4" ng-show="hasSelectedItems">
+        <ul ng-if="hasSelectedItems" style="list-style:none" class="well well-lg">
+          <li>
+
+            <h4 class="titlebar">
+              <span ng-if="hasSelectedItems">{{ formatSelectedNames()  }}</span>
+            </h4>
+
+            <!-- dropdown button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-attention dropdown-toggle" data-toggle="dropdown">
+                Links <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li ng-if="selectedOne()"><a modal-class="modal-medium" data-animation="am-slide-bottom" bs-modal="'partials/edge-create.html'">Add</a></li>
+                <li ng-if="selectedOne()" class="divider"></li>
+                <li><a ng-click="followEdges()" ng-show="hasSelectedItems">All To/From</a></li>
+                <li><a ng-click="followInEdges()" ng-show="hasSelectedItems">From Selected</a></li>
+                <li><a ng-click="followOutEdges()" ng-show="hasSelectedItems">To Selected</a></li>
+              </ul>
+            </div>
+
+            <!-- dropdown button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
+                Modify <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li ng-if="selectedOne()"><a modal-class="modal-medium" data-animation="am-slide-bottom" bs-modal="'partials/vertex-edit.html'">Edit</a></li>
+                <li ng-if="selectedOne()" class="divider"></li>
+                <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete<span ng-if="selectedMany()"> Selected</span></a></li>
+              </ul>
+            </div>
+
+            <ul ng-if="selectedOne()">
+              <li><strong>Name</strong>: {{ selectedItems[0].name | capitalize  }}</li>
+              <li><strong>Age</strong>: {{ selectedItems[0].age }}</li>
+            </ul>
+
+          </li>
+        </ul>
+      <div>
     </div>
   </div>
 
+</div>
 </div>

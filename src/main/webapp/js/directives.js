@@ -485,7 +485,7 @@ angular.module('dendrite.directives', [])
   // </tabset>
   // tabset enables lazy loading of tab content to avoid unnecessary overhead, as well as
   // force refresh that AngularJS might otherwise not apply to DOM
-  .directive('tabset', function () {
+  .directive('tabset', function ($compile) {
     return {
       restrict: 'E',
       replace: true,
@@ -513,15 +513,30 @@ angular.module('dendrite.directives', [])
           tabs.push(tab);
         };
       },
-      template:
-        '<div class="row-fluid">' +
+      template: function(element, attrs){
+        var template = '<div class="row-fluid">' +
           '<div class="row-fluid">' +
             '<div class="nav nav-tabs" ng-transclude></div>' +
           '</div>' +
           '<div id="tabs-content" class="row-fluid">' +
             '<ng-include src="templateUrl">' +
           '</ng-include></div>' +
-        '</div>'
+        '</div>';
+
+
+        if (attrs.tabtype === "vertical") {
+          template =
+            '<div class="row-fluid">' +
+              '<div class="row-fluid tabs-vertical">' +
+                '<div class="nav nav-tabs span2" ng-transclude></div>' +
+                '<div id="tabs-content" class="span10">' +
+                  '<ng-include src="templateUrl"></ng-include>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+        }
+        return template;
+      }
     };
   })
   .directive('tab', function () {

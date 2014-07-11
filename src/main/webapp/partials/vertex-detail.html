@@ -1,6 +1,8 @@
+<div ng-controller="VertexDetailCtrl">
 <h3>People We Know</h3>
 <ul>
     <li ng-repeat="(key, value) in query.results track by $index">{{ key }}: {{ value }}</li>
 </ul>
 
 <button ng-click="delete()" class="btn">delete</button>
+</div>
