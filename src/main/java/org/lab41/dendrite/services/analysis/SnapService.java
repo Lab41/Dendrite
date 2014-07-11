@@ -161,6 +161,7 @@ public class SnapService extends AnalysisService {
                 UUID.randomUUID().toString());
 
         fs.mkdirs(tmpDir);
+        fs.setPermission(tmpDir, new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL, true));
         //fs.deleteOnExit(tmpDir);
         try {
             Path exportDir = new Path(tmpDir, "export");
@@ -168,6 +169,7 @@ public class SnapService extends AnalysisService {
 
             fs.mkdirs(exportDir);
             fs.mkdirs(importDir);
+            fs.setPermission(importDir, new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL, true));
 
             runExport(graph, jobId, exportDir);
             runSnap(fs, exportDir, importDir, algorithm);
