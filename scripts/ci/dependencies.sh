@@ -19,6 +19,13 @@ git checkout dendrite-hadoop2
 mvn install -DskipTests
 cd ..
 
+# build graphlab-twill
+git clone https://github.com/Lab41/graphlab-twill.git
+cd graphlab-twill
+git checkout master
+mvn install -DskipTests
+cd ..
+
 ## (optional) build wsdoc for REST api documentation
 git clone https://github.com/scottfrederick/springdoclet.git
 pushd springdoclet
