@@ -140,7 +140,8 @@ public class GraphLabService extends AnalysisService {
 
             fs.mkdirs(exportDir);
             fs.mkdirs(importDir);
-
+            fs.setPermission(importDir, new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL, true));
+            
             runExport(graph, jobId, exportDir);
             runGraphLab(fs, exportDir, importDir, algorithm);
 
