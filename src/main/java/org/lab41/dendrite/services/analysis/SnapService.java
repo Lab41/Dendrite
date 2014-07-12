@@ -30,6 +30,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 
 @Service
@@ -203,16 +204,22 @@ public class SnapService extends AnalysisService {
     }
 
     private void runSnap(FileSystem fs, Path exportDir, Path importDir, String algorithm) throws Exception {
-        File tmpFile = File.createTempFile("temp", "");
-
-        exportDir = new Path(exportDir, "job-0");
+        URI uriImport = URI.create("file:///tmp/" + UUID.randomUUID().toString());
+        URI uriExport = URI.create("file:///tmp/" + UUID.randomUUID().toString());
+        Path tmpImportFile = new Path(uriImport);
+        Path tmpExportFile = new Path(uriExport);
+ 
+        exportDir = new Path(exportDir, "job-0/part-m-00000");
+        importDir = new Path(importDir, "graph");
+ 
+        fs.copyToLocalFile(exportDir, tmpExportFile);
 
         try {
             // feed output to snap as input
             String cmd = new Path(config.getString("metagraph.template.snap.algorithm-path"), algorithm) +
-                         " -i:" + exportDir.toString() + "/part-m-00000" +
-                         " -o:" + importDir.toString() + "/graph";
-
+                         " -i:" + tmpExportFile.toString().substring(5) +
+                         " -o:" + tmpImportFile.toString().substring(5);
+                         
             logger.debug("running: " + cmd);
 
             Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", cmd});
@@ -227,8 +234,9 @@ public class SnapService extends AnalysisService {
 
                 throw new Exception("Snap process failed: [" + exitStatus + "]:\n" + stdout + "\n" + stderr);
             }
+            fs.copyFromLocalFile(tmpImportFile, importDir);
         } finally {
-            tmpFile.delete();
+            //tmpFile.delete();
         }
     }
 
