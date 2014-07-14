@@ -130,6 +130,11 @@
 @color-ui-state-default:          @color-gray-dark;
 @color-ui-state-active:           @color-black-light;
 
+@color-viz-example-link:          @color-gray-dark;
+@color-viz-example-node:          @color-blue-dark;
+@color-viz-example-node-collapsed:@color-red-dark;
+@color-viz-example-node-parent:   @color-navy-light;
+@color-viz-example-node-child:    @color-blue-dark;
 
 @font-size:                       12px;
 @margin-left:                     120px;
@@ -250,13 +255,26 @@ img.analytics-example {
 
 circle.node {
   cursor: pointer;
-  stroke: #3182bd;
+  fill: @color-viz-example-node;
+  stroke: @color-viz-example-link;
   stroke-width: 1.5px;
+
+  &.collapsed {
+    fill: @color-viz-example-node-collapsed;
+  }
+
+  &.parent {
+    fill: @color-viz-example-node-parent;
+  }
+
+  &.child {
+    fill: @color-viz-example-node-child;
+  }
 }
 
 line.link {
   fill: none;
-  stroke: #9ecae1;
+  stroke: @color-viz-example-link;
   stroke-width: 1.5px;
 }
 

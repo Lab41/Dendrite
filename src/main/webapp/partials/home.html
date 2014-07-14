@@ -67,15 +67,14 @@ function update() {
   // Update the nodes…
   node = vis.selectAll("circle.node")
       .data(nodes, function(d) { return d.id; })
-      .style("fill", color);
+      .attr("class", colorClass);
 
   // Enter any new nodes.
   node.enter().append("svg:circle")
-      .attr("class", "node")
+      .attr("class", colorClass)
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 4.5; })
-      .style("fill", color)
       .on("click", click)
       .call(force.drag);
 
@@ -94,8 +93,8 @@ function tick() {
 }
 
 // Color leaf nodes orange, and packages white or blue.
-function color(d) {
-  return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+function colorClass(d) {
+  return d._children ? "node collapsed" : d.children ? "node parent" : "node child";
 }
 
 // Toggle children on click.
