@@ -234,10 +234,13 @@ class Graph(Table):
     GET_KEY = 'graph'
     LIST_KEY = 'graphs'
 
-    def import_graph(self, format, file):
-        response = self.conn.post('{}{}/file-import'.format(self.URL_PATH, self.id),
-                data={ 'format': format },
-                files={ 'file': file })
+    def import_graph(self, graph_format, graph_file, graph_indices_file):
+        response = self.conn.post('{}/{}/file-import'.format(self.URL_PATH, self.id),
+                data={
+                    'format': graph_format,
+                    'searchkeys': graph_indices_file.read(),
+                },
+                files={ 'file': graph_file })
 
     def export_graph(self, format):
         response = self.conn.post('/api/graphs/{}/file-export'.format(self.id),
@@ -516,7 +519,10 @@ def import_graph(args):
         graph = Graph.get(conn, args.id)
 
         print 'Importing graph...'
-        graph.import_graph(format, file)
+        graph.import_graph(
+                args.graph_format,
+                args.graph_file,
+                args.graph_indices_file)
         print 'graph imported'
 
     return 0
@@ -745,10 +751,12 @@ def main():
     parser_import_graph = subparsers.add_parser('import-graph')
     parser_import_graph.add_argument('id',
             type=int)
-    parser_import_graph.add_argument('format',
+    parser_import_graph.add_argument('graph_format',
             type=lambda s: s.lower(),
             choices=['graphson', 'graphml', 'gml'])
-    parser_import_graph.add_argument('file',
+    parser_import_graph.add_argument('graph_file',
+            type=argparse.FileType('rb'))
+    parser_import_graph.add_argument('graph_indices_file',
             type=argparse.FileType('rb'))
     parser_import_graph.set_defaults(func=import_graph)
 
