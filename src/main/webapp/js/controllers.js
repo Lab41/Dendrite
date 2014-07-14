@@ -928,7 +928,7 @@ angular.module('dendrite.controllers', []).
             });
         }
     }).
-    controller('VertexCreateCtrl', function($rootScope, $scope, $routeParams, $location, User, Vertex) {
+    controller('VertexCreateCtrl', function($rootScope, $scope, $routeParams, $location, User, Vertex, ElasticSearch) {
         $scope.User = User;
         $scope.save = function() {
             Vertex.save({graphId: $scope.graphId}, $scope.vertex)
@@ -937,7 +937,7 @@ angular.module('dendrite.controllers', []).
                   });
         };
     }).
-    controller('VertexEditCtrl', function($rootScope, $scope, $routeParams, $location, User, Vertex) {
+    controller('VertexEditCtrl', function($rootScope, $scope, $routeParams, $location, User, Vertex, ElasticSearch) {
         $scope.User = User;
         $scope.vertexId = $scope.selectedItems[0]._id;
         $scope.query =
@@ -1263,7 +1263,7 @@ angular.module('dendrite.controllers', []).
             });
         }
     }).
-    controller('EdgeCreateCtrl', function($rootScope, $scope, $routeParams, $location, Edge, Vertex) {
+    controller('EdgeCreateCtrl', function($rootScope, $scope, $routeParams, $location, Edge, Vertex, ElasticSearch) {
         $scope.query = Vertex.list({graphId: $scope.graphId});
 
         if ($scope.vertexId != undefined) {
@@ -1279,7 +1279,7 @@ angular.module('dendrite.controllers', []).
                 });
         };
     }).
-    controller('EdgeEditCtrl', function($rootScope, $scope, $routeParams, $location, User, Edge, Vertex) {
+    controller('EdgeEditCtrl', function($rootScope, $scope, $routeParams, $location, User, Edge, Vertex, ElasticSearch) {
         $scope.edgeId = $scope.selectedItems[0]._id;
         $scope.query = Vertex.list({graphId: $scope.graphId});
         $scope.query_edge =
