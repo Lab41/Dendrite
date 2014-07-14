@@ -36,10 +36,10 @@
           <div ng-include="'partials/panels/import-export.html'"></div>
         </div>
 
-        <div class="dragbox" id="item-import-data" ng-if="projectHasData">
+        <div class="dragbox expand-full-visible" id="item-import-data" ng-if="projectHasData">
           <h2>Explore:
-            <span ng-if='!hasSelectedItems'>People We Know</span>
-            <span ng-if='hasSelectedItems'>People Connected to {{ formatSelectedNames()  }}</span>
+            <span ng-show='!toggle'>People We Know</span>
+            <span ng-show='toggle'>Connections </span>
             <panel-collapse-buttons></panel-collapse-buttons>
           </h2>
           <div class="dragbox-content">
