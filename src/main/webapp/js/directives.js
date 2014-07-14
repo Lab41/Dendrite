@@ -392,62 +392,68 @@ angular.module('dendrite.directives', [])
           }
         });
 
-        // regardless of panelEdit mode, enable panel resizing
-        $('.dragbox').each(function(){
+        // panel-edit mode controlled by view checkbox/variable
+        $scope.$watch('projectHasData', function () {
+          // regardless of panelEdit mode, enable panel resizing
+          $('.dragbox').each(function(){
 
-            $(this)
+              $(this)
 
-              // add temporary panel border for visual clue to panel size/state
-              .find('.collapse-buttons').hover(function(){
-                  $(this).closest('.dragbox').addClass('hover');
-              }, function(){
-                  $(this).closest('.dragbox').removeClass('hover');
-              })
-              .end()
+                // add temporary panel border for visual clue to panel size/state
+                .find('.collapse-buttons').hover(function(){
+                    $(this).closest('.dragbox').addClass('hover');
+                }, function(){
+                    $(this).closest('.dragbox').removeClass('hover');
+                })
+                .end()
 
-              // click handler for toggling show/hide of panel content
-              .find('.expand-vertical').click(function() {
+                // click handler for toggling show/hide of panel content
+                .find('.expand-vertical').click(function() {
 
-                  // if panel in shrink mode, expand to half width
-                  if (!$(this).closest('.column').hasClass('width-full')) {
-                    setWidth($(this), 'width-half', 'width-half');
-                  }
-
-                  // toggle visibility of content
-                  $(this).closest('h2').siblings('.dragbox-content').toggle();
-              })
-              .end()
-
-              //click handler for expanding panel horizontally
-              .find('.expand-horizontal').click(function() {
-
-                  // if not already full width, expand panel
-                  if (!$(this).closest('.column').hasClass('width-full')) {
-                    setWidth($(this), 'width-full', 'width-mini');
-                  }
-                  else {
-
-                    // if already full width and visible, toggle horizontally to half-width
-                    if ($(this).closest('.dragbox').find('.dragbox-content').is(":visible")) {
+                    // if panel in shrink mode, expand to half width
+                    if (!$(this).closest('.column').hasClass('width-full')) {
                       setWidth($(this), 'width-half', 'width-half');
                     }
-                  }
 
-                  // hide all other panels except expanded one
-                  $(this).closest('.row-fluid').find('.dragbox-content').hide();
-                  $(this).closest('.dragbox').find('.dragbox-content').show();
-              })
-              .end()
+                    // toggle visibility of content
+                    $(this).closest('h2').siblings('.dragbox-content').toggle();
+                })
+                .end()
 
-              //click handler for expanding panel to largest size
-              .find('.expand-full').click(function() {
-                var dragBox = $(this).closest('.dragbox');
-                var modalUrl = $(dragBox).find('div[ng-include]').attr('ng-include').replace(/'/g, '');
-                var modalTitle = $(dragBox).find('h2').text();
-                $scope.panelFullScreen(modalTitle, modalUrl);
-              })
-              .end()
+                //click handler for expanding panel horizontally
+                .find('.expand-horizontal').click(function() {
 
+                    // if not already full width, expand panel
+                    if (!$(this).closest('.column').hasClass('width-full')) {
+                      setWidth($(this), 'width-full', 'width-mini');
+                    }
+                    else {
+
+                      // if already full width and visible, toggle horizontally to half-width
+                      if ($(this).closest('.dragbox').find('.dragbox-content').is(":visible")) {
+                        setWidth($(this), 'width-half', 'width-half');
+                      }
+                    }
+
+                    // hide all other panels except expanded one
+                    $(this).closest('.row-fluid').find('.dragbox-content').hide();
+                    $(this).closest('.dragbox').find('.dragbox-content').show();
+                })
+                .end()
+
+                //click handler for expanding panel to largest size
+                .find('.expand-full').click(function() {
+                  var dragBox = $(this).closest('.dragbox');
+                  var modalUrl = $(dragBox).find('div[ng-include]').attr('ng-include').replace(/'/g, '');
+                  var modalTitle = $(dragBox).find('h2').text();
+                  $scope.panelFullScreen(modalTitle, modalUrl);
+                })
+                .end();
+
+                console.log($(this));
+                $scope.safeApply();
+
+          });
         });
 
         // helper function to set the width of a panel and sibling panels
