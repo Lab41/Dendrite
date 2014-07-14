@@ -204,7 +204,7 @@ var tour = new Tour({
     title: "Analytics",
     content: '<p>Dendrite makes it easy to perform a variety of graph analytics.\
               <p class="well">\
-                Click the <strong>Calculate</strong> button to begin the analytics process.\
+                Click the <strong>Analytics</strong> button to begin the analytics process.\
               </p>',
     reflex: true,
     onNext: function(tour) {
