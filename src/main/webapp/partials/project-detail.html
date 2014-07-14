@@ -42,9 +42,8 @@
             <span ng-if='hasSelectedItems'>People Connected to {{ formatSelectedNames()  }}</span>
             <panel-collapse-buttons></panel-collapse-buttons>
           </h2>
-          <div class="dragbox-content" >
-              <div ng-hide="toggle" ng-include="'partials/vertex-list.html'"></div>
-              <div ng-show="toggle" ng-include="'partials/edge-list.html'"></div>
+          <div class="dragbox-content">
+            <div ng-include="'partials/data-explore.html'"></div>
           </div>
         </div>
       </div>
@@ -55,7 +54,7 @@
         <div class="dragbox expand-full-visible" id="item-view-viz" ng-show="projectHasData">
           <h2><span id="tour-step-8">QuickViz</span> <panel-collapse-buttons></panel-collapse-buttons></h2>
           <div class="dragbox-content" >
-              <div ng-include="'partials/panels/viz.html'"></div>
+            <div ng-include="'partials/panels/viz.html'"></div>
           </div>
         </div>
       </div>
