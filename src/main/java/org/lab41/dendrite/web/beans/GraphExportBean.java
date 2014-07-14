@@ -24,6 +24,9 @@ public class GraphExportBean {
     @NotNull
     @NotEmpty
     private String format;
+
+    @NotNull
+    @NotEmpty
     private String projectId;
 
     public String getFormat() {
