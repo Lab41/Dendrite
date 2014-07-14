@@ -272,7 +272,6 @@ angular.module('dendrite.controllers', []).
         //    FIXME: need comparison: currentBranch.graph != currentBranch.parentBranch.graph
         //    FIXME: alternative comparison: currentGraph.branch != currentGraph.ParentGraph.branch
         var pollBranches = function() {
-          $rootScope.graphLoaded = false;
           Project.branches({projectId: $routeParams.projectId})
                 .$then(function(responseAllBranches) {
 
@@ -466,11 +465,6 @@ angular.module('dendrite.controllers', []).
 
           // notify app to begin polling for job completion
           $rootScope.$broadcast("event:pollActiveAnalytics");
-
-          // manually refresh the page to ensure job polling
-          setTimeout(function() {
-            location.reload();
-          }, 500);
 
         };
     }).
