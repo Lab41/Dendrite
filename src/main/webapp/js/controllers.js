@@ -290,6 +290,7 @@ angular.module('dendrite.controllers', []).
                     }
                     else {
                       $rootScope.graphLoaded = true;
+                      $rootScope.projectCommitting = false;
                       $rootScope.graph = Graph.get({graphId: $scope.graphId});
                     }
                 });
@@ -367,6 +368,7 @@ angular.module('dendrite.controllers', []).
 
         // commit the branch
         $scope.commitBranch = function(branch) {
+          $rootScope.projectCommitting = true;
           Project.commitBranch({projectId: $routeParams.projectId}, undefined)
                   .$then(function(response) {
                     $scope.branchMessage = "Committed branch: "+branch.name;

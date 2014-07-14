@@ -21,11 +21,11 @@
     <label><input type="checkbox" ng-value="panelEdit" ng-click="panelEdit=!panelEdit"></input> Edit Layout</label>
   </span>
 </h2>
-<div ng-hide="graphLoaded">
+<div ng-hide="graphLoaded && !projectCommitting">
   <h4>Creating branch...</h4>
   <img src="img/icons/ajax-loader.gif">
 </div>
-<div class="container-fluid" ng-show="graphLoaded" ng-class="panelEditable()">
+<div class="container-fluid" ng-show="graphLoaded && !projectCommitting" ng-class="panelEditable()">
 
   <div panels class="panel">
 
