@@ -1330,6 +1330,9 @@ h5 small,
 h6 small {
   color: #7f8c8d;
 }
+.dropdown-menu {
+  cursor: pointer;
+}
 .dropdown-menu a.link-disabled {
   color: #95a5a6;
 }
