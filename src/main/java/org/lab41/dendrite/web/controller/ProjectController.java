@@ -63,6 +63,9 @@ public class ProjectController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
+        // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
+        metaGraphService.getGraph(projectMetadata.getCurrentGraph().getId());
+
         response.put("project", getProjectMap(projectMetadata));
 
         // Commit must come after all graph access.
