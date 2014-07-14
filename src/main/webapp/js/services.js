@@ -440,8 +440,8 @@ angular.module('dendrite.services', ['ngResource']).
                   $element,
                   $title,
                   width;
-              if($('.modal').length) {
-                selectorBody = '.modal';
+              if($('.modal.in').length) {
+                selectorBody = '.modal.in';
               }
               else {
                 selectorBody = 'body';
@@ -563,8 +563,8 @@ angular.module('dendrite.services', ['ngResource']).
                   $element,
                   $title,
                   width;
-              if($('.modal').length) {
-                selectorBody = '.modal';
+              if($('.modal.in').length) {
+                selectorBody = '.modal.in';
                 width = $(selectorBody).width()*0.90;
               }
               else {
@@ -709,8 +709,8 @@ angular.module('dendrite.services', ['ngResource']).
                   $element,
                   $title,
                   width;
-              if($('.modal').length) {
-                selectorBody = '.modal';
+              if($('.modal.in').length) {
+                selectorBody = '.modal.in';
                 width = $(selectorCanvas).parent().width()*0.90;
               }
               else {
