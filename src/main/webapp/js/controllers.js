@@ -265,12 +265,16 @@ angular.module('dendrite.controllers', []).
           $modal({scope: $scope, template: 'partials/branches/create.html'});
         };
 
-        $scope.dropdownVisible = false;
-        $scope.dropdownShown = function() {
-          return ($scope.dropdownVisible) ? "inline-block" : "";
+        $scope.dropdownVisible = {};
+        $scope.dropdownShown = function(id) {
+          return ($scope.dropdownVisible[id]) ? "inline-block" : "";
         };
-        $scope.dropdownOpen = function() { $scope.dropdownVisible = true; };
-        $scope.dropdownClose = function() { $scope.dropdownVisible = false; };
+        $scope.dropdownOpen = function(id) {
+          $scope.dropdownVisible[id] = true;
+        };
+        $scope.dropdownClose = function(id) {
+          $scope.dropdownVisible[id] = false;
+        };
 
         // poll for branches
         //    determine if current branch's graph conflicts with other graphs

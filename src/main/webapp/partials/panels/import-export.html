@@ -62,7 +62,7 @@
         <label for="checkpoint-format">Checkpoint this graph:</label>
         <div ng-controller="GraphSaveCtrl">
           <form ng-submit="saveFile(content, completed)">
-            <select ng-model="format" name="format" id="checkpoint-format" class="inline form-control">
+            <select ng-model="format" name="format" id="checkpoint-format" class="inline form-control" ng-click="preventClose($event)">
               <option selected ng-selected="true">Select Format</option>
               <option value="GraphSON">GraphSON</option>
               <option value="GraphML">GraphML</option>
