@@ -278,7 +278,7 @@ class Graph(Table):
         return Job.get(self.conn, response['jobId'])
 
     def run_jung(self, algorithm, alpha=0.15):
-        url = '/api/graphs/{}/analysis/jung-{}'.format(self.id, algorithm)
+        url = '/api/graphs/{}/analysis/jung/{}'.format(self.id, algorithm)
         response = self.conn.post_json(url).json()
         if algorithm == "pagerank":
             data = { 'alpha': alpha }
@@ -603,7 +603,7 @@ def run_jung(args):
         graph = Graph.get(conn, args.id)
 
         print 'Running Jung ' + args.algorithm + ' analysis...'
-        job = graph.run_jung(algorith, args.alpha)
+        job = graph.run_jung(args.algorithm, args.alpha)
         job.wait_until_finished()
 
     return 0
