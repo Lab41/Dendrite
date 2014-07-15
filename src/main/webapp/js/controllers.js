@@ -781,12 +781,12 @@ angular.module('dendrite.controllers', []).
                 var resultKeys = {};
                 data.hits.hits.forEach(function(hit) {
                   if (hit._type === $scope.objectType) {
-                    hit._source._id = hit._source._vertexId;
+                    hit._source._id = hit._source._id;
                     resultArray.push(hit._source);
 
                     // extract all keys (to dynamically update table columns)
                     Object.keys(hit._source).forEach(function(k) {
-                      if (k !== ($scope.objectType+'Id') && k !== "_id" && k !== "_vertexId") {
+                      if (k !== ($scope.objectType+'Id') && k !== "_id") {
                         resultKeys[k] = true;
                       }
                     });
