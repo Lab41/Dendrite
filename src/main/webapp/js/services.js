@@ -986,15 +986,27 @@ angular.module('dendrite.services', ['ngResource']).
             return "http://"+appConfig.historyServer.host+":"+appConfig.historyServer.port;
           },
           createDir: function(projectId) {
-            if (appConfig.historyServer.enabled()) {
-              var url = this.serverUrl() + '/api/git/repo/mkdir/';
-              var json = { path: appConfig.historyServer.storage+'/'+projectId };
-              return $http({
-                  method: "POST",
-                  url: url,
-                  data: JSON.stringify(json)
-              });
-            }
+            var self = this;
+            self.enabled()
+                    .then(function(response) {
+                        if (response.status === 200) {
+                          var url = self.serverUrl() + '/api/git/repo/mkdir/';
+                          var json = { path: appConfig.historyServer.storage+'/'+projectId };
+                          return $http({
+                              method: "POST",
+                              url: url,
+                              data: JSON.stringify(json)
+                          });
+                        }
+                    });
+          },
+          enabled: function() {
+            var config = {
+                  method: 'GET',
+                  url:'http://'+appConfig.historyServer.host+':'+appConfig.historyServer.port,
+                  headers: {"X-Requested-With": ""}
+                };
+            return $http(config);
           }
 
         };

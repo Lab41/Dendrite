@@ -255,8 +255,14 @@ angular.module('dendrite.controllers', []).
 
 
     }).
-    controller('BranchEditCtrl', function($rootScope, $scope, $location, $modal, $routeParams, Branch, Project, Graph, appConfig) {
-        $scope.historyEnabled = appConfig.historyServer.enabled();
+    controller('BranchEditCtrl', function($rootScope, $scope, $location, $modal, $routeParams, $q, Branch, Project, Graph, History, appConfig) {
+        $rootScope.historyEnabled = false;
+        History.enabled()
+                .then(function(response) {
+                    if (response.status === 200) {
+                      $rootScope.historyEnabled = true;
+                    }
+                });
 
         // modals
         $scope.branchSwitch = true;
