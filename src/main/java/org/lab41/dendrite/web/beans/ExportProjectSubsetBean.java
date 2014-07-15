@@ -12,7 +12,8 @@ public class ExportProjectSubsetBean {
     @NotNull
     private String query;
 
-    private int steps;
+    @NotNull
+    private Integer steps;
 
     public String getName() {
         return name;

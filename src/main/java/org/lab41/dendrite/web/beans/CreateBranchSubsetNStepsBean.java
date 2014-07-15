@@ -7,9 +7,11 @@ import java.util.Map;
 
 public class CreateBranchSubsetNStepsBean {
     @NotNull
+    @NotEmpty
     private String query;
 
-    private int steps;
+    @NotNull
+    private Integer steps;
 
     public String getQuery() {
         return query;

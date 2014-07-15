@@ -26,6 +26,8 @@ public class GraphImportBean {
     @NotEmpty
     private String format;
 
+    @NotNull
+    @NotEmpty
     private String searchkeys;
 
     @NotNull
