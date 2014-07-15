@@ -162,13 +162,13 @@ public class GraphExportController {
                 String path;
 
                 if (format.equalsIgnoreCase("GraphSON")) {
-                    path = new File(git.getRepository().getDirectory(), graphId + ".json").getPath();
+                    path = new File(git.getRepository().getWorkTree(), graphId + ".json").getPath();
                     GraphSONWriter.outputGraph(tx, path);
                 } else if (format.equalsIgnoreCase("GraphML")) {
-                    path = new File(git.getRepository().getDirectory(), graphId + ".xml").getPath();
+                    path = new File(git.getRepository().getWorkTree(), graphId + ".xml").getPath();
                     GraphMLWriter.outputGraph(tx, path);
                 } else if (format.equalsIgnoreCase("GML")) {
-                    path = new File(git.getRepository().getDirectory(), graphId + ".gml").getPath();
+                    path = new File(git.getRepository().getWorkTree(), graphId + ".gml").getPath();
                     GMLWriter.outputGraph(tx, path);
                 } else {
                     tx.rollback();
