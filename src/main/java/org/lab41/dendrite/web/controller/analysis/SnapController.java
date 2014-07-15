@@ -67,7 +67,7 @@ public class SnapController {
 
         if (!algorithm.equals("centrality")) {
             response.put("status", "error");
-            response.put("msg", algorithm + "not implemented");
+            response.put("msg", algorithm + " not implemented");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
