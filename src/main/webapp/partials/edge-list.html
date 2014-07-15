@@ -1,105 +1,117 @@
-<div class="row-fluid">
-  <div class="span12">
-    <div class="titlebar margin-bottom margin-right-large">
-      <h3 class="margin-none">
-        <span>Things We Know About People</span>
-      </h3>
-      <div>Project: <a href="#/projects/{{ queryProject.project._id }}">{{ queryProject.project.name }}</a></div>
+<div ng-controller="EdgeListCtrl">
+  <div class="row-fluid row-padded">
+    <div class="inline float-left">
+
+      <!-- dropdown button -->
+      <div class="btn-group margin-bottom-none">
+        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+          Connections <span><i class="icon-plus icon-white"></i></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li><a modal-class="modal-medium" data-animation="am-slide-bottom" bs-modal="'partials/edge-create.html'">Add Link</a></li>
+        </ul>
+      </div>
+      <a ng-click="showExploreContext(false)" class="btn btn-success">People</a>
+    </div>
+
+    <!-- searchbar -->
+    <div class="inline input-append">
+      <form class="inline" ng-submit="refresh('Searching')">
+        <input type="text" class="form-control inline searchbar" placeholder="Filter Results" ng-model="gridOptions.filterOptions.filterText" id="filter">
+        <button type="submit" class="btn btn-default">
+          <i class="icon-search icon-white" ng-hide="fullTextSearching"></i>
+          <img src="img/icons/ajax-spinner.gif" ng-hide="!fullTextSearching">
+        </button>
+
+        <button class="btn btn-primary" ng-if="gridOptions.filterOptions.filterText" bs-modal="'partials/project-carve.html'">
+          <i class="icon-random icon-white"></i>
+          <span>Carve New Project</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="inline float-right">
+      <div style="text-align:right">
+        <button type="button" class="btn btn-primary" modal-class="modal-large" data-animation="am-slide-bottom" bs-modal="'partials/analytics/form.html'">Analytics <i class="icon-share icon-white"></i></button>
+      </div>
+      <div id="tour-step-14">
+        <a ng-click="isCollapsed = !isCollapsed">
+                (
+                <ng-pluralize class="text-error font-weight-bold"
+                              count="numJobsError"
+                              when="{'0': '', 'one': '1 ERROR! /', 'other': '{} ERRORS! /'}">
+                </ng-pluralize>
+                {{ numJobsPending }} pending / {{ numJobsTotal }} total
+                ) &#x25BE;
+        </a>
+      </div>
+
     </div>
   </div>
-</div>
 
-<div class="row row-padded">
-
-  <div class="span8">
-    <div class="row row-padded">
-      <div class="inline float-left">
-        <a class="btn btn-primary" href="#/graphs/{{ graphId }}/create_edge">Add Edge</a>
-        <a href="#/graphs/{{ graphId }}/vertices" class="btn btn-success">View People</a>
-      </div>
-      <!-- searchbar -->
-      <div class="inline input-append">
-        <form ng-submit="refresh('Searching')">
-          <input type="text" class="form-control inline searchbar" placeholder="Filter Results" ng-model="gridOptions.filterOptions.filterText" id="filter">
-          <button type="submit" class="btn btn-default">
-            <i class="icon-search icon-white" ng-hide="fullTextSearching"></i>
-            <img src="img/icons/ajax-spinner.gif" ng-hide="!fullTextSearching">
-          </button>
-
-          <button class="btn btn-primary" ng-if="gridOptions.filterOptions.filterText" bs-modal="'partials/project-carve.html'">
-            <i class="icon-random icon-white"></i>
-            <span>Carve New Project</span>
-          </button>
-
-        </form>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="span8">
-        <div class="inline float-left">
-          <strong>{{ totalServerItems }}</strong> {{ queryStyle }}
-          <span ng-if="filterOptions.filterText">
-             for '{{ filterOptions.filterText }}'
-          </span>
-          <span ng-if="vertexFrom">
-             connected to {{ formatSelectedNames() }}
-          </span>
-          :
-        </div>
-        <div class="inline float-left" ng-if="searching">
-          {{ elasticSearchAction }}... <img src="img/icons/ajax-loader.gif">
-        </div>
+  <div class="row-fluid">
+    <div collapse="collapseJobs()">
+      <div class="well well-lg">
         <div class="inline float-right">
-          <button class="btn" ng-click="reload('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
+          <a ng-click="isCollapsed = !isCollapsed">less &#x25B4;</a>
         </div>
-      </div>
-    </div>
+        <p>Calculate various properties:</p>
+        <ul>
+          <li><strong>Connectedness</strong>: Quantify the number and strength of connections</li>
+          <li><strong>Key Players</strong>: Identify central nodes </li>
+          <li><strong>Community</strong>: Find densely-connected groups</li>
+        </ul>
 
-    <div class="row">
-      <div class="span8">
-        <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
+
+        <div ng-controller="AnalyticsListCtrl">
+          <!-- list -->
+          <div ng-show="activeAnalytics.jobs.length">
+            <h4 class="titlebar" style="padding-top:20px">Calculations</h4>
+            <div ng-include="'partials/analytics/list.html'"></div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <div class="span3">
-      <!-- edit functions -->
-        <div>
-          <ul style="list-style:none">
-            <li ng-if="hasSelectedItems">
+  <div class="row-fluid">
+    <div ng-if="!hasSelectedItems">
+      <div class="inline float-left">
+        <strong>{{ totalServerItems }}</strong> {{ queryStyle }}
+        <span ng-if="filterOptions.filterText">
+           for '{{ filterOptions.filterText }}'
+        </span>
+        <span ng-if="vertexFrom">
+           connected to {{ formatSelectedNames() }}
+        </span>
+        :
+      </div>
+    </div>
 
-              <h4 class="titlebar">
-                <span ng-if="hasSelectedItems">{{ formatSelectedNames()  }}</span>
-              </h4>
+    <div ng-if="hasSelectedItems" class="inline float-left">
+      <h5 class="inline">{{ formatSelectedNames() }}</h5>
 
-              <!-- dropdown button -->
-              <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
-                  Modify <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                  <li ng-if="selectedOne()"><a ng-click="editEdge()">Edit</a></li>
-                  <li ng-if="selectedOne()" class="divider"></li>
-                  <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete<span ng-if="selectedMany()"> Selected</span></a></li>
-                </ul>
-              </div>
+      <!-- dropdown button -->
+      <div class="margin-bottom-none btn-group">
+        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+          Modify <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li><a ng-click="deleteSelectedItems()" ng-show="hasSelectedItems">Delete<span ng-if="selectedMany()"> Selected</span></a></li>
+        </ul>
+      </div>
+    </div>
 
+    <div class="inline float-left" ng-if="searching">
+      {{ elasticSearchAction }}... <img src="img/icons/ajax-loader.gif">
+    </div>
+    <div class="inline float-right">
+      <button class="btn" ng-click="reload('Refreshing')"><i class="icon-refresh"></i> Refresh</button>
+    </div>
+  </div>
 
-              <div ng-if="selectedOne()">
-                <div class="row-fluid row-condensed" ng-repeat="(key, value) in selectedItems[0] track by $index">
-                  <div class="span6 align-right"><strong>{{ key }}</strong>:</div><div class="span6">{{ value | truncate }}</div>
-                </div>
-              </div>
-              <div ng-if="selectedMany()">
-                <ul>
-                  <li ng-repeat="edge in selectedItems">{{ edge._inV }}-{{ edge._label }}-{{ edge._outV }}</li>
-                </ul>
-              </div>
-
-            </li>
-          </ul>
-        </div>
-
+  <div class="row-fluid">
+    <div class="gridStyle" ng-grid="gridOptions" style="height:500px"></div>
   </div>
 </div>

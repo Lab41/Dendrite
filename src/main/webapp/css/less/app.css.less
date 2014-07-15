@@ -17,15 +17,14 @@
 // base
 @import "ui-colors.css.less";
 @import "ui-mixins.css.less";
+@import "ui-fonts.css.less";
 
 // components
 @import "angular.css.less";
 @import "panels.css.less";
 @import "ng-grid.css.less";
 @import "bootstrap-tour.css.less";
-
-// fonts
-@import url("http://fonts.googleapis.com/css?family=Syncopate:400,700|Oxygen");
+@import "graph-sigmajs.css.less";
 
 //
 // PROJECT VARIABLES
@@ -54,8 +53,8 @@
 @color-btn-default-start:         @color-gray-dark;
 @color-btn-default-end:           @color-gray-dark;
 @color-btn-default-hsv:           hsla(hue(@color-btn-default-end), saturation(@color-btn-default-end), lightness(@color-btn-default-end), @btn-hsl-alpha);
-@color-btn-transparent:           @color-gray-dark;
-@color-btn-nostyle:               @color-blue-light;      
+@color-btn-transparent:           @color-black-light;
+@color-btn-nostyle:               @color-blue-light;
 
 @color-heading-light:             @color-blue-dark;
 @color-heading-dark:              @color-navy-dark;
@@ -64,16 +63,16 @@
 @color-navbar-to:                 @color-black-light;
 @color-navbar-primary:            @color-white-dark;
 @color-navbar-secondary:          @color-orange-dark;
-@color-navbar-caret-select:       @color-green-light;                
+@color-navbar-caret-select:       @color-green-light;
 
 @color-page-background-mysql:     @color-red-light;
 @color-page-background-mongo:     @color-yellow-light;
 @color-page-background-redis:     @color-blue-light;
 @color-page-background-hemlock:   @color-aqua-light;
 
-@color-background-stage:          @color-gray-light;
+@color-background-stage:          fade(@color-gray-light,75%);
 
-@color-emphasis:                  @color-orange-dark;
+@color-emphasis:                  @color-red-dark;
 @color-downplay:                  @color-gray-light;
 
 @color-link:                      @color-blue-dark;
@@ -131,6 +130,11 @@
 @color-ui-state-default:          @color-gray-dark;
 @color-ui-state-active:           @color-black-light;
 
+@color-viz-example-link:          @color-gray-dark;
+@color-viz-example-node:          @color-blue-dark;
+@color-viz-example-node-collapsed:@color-red-dark;
+@color-viz-example-node-parent:   @color-navy-light;
+@color-viz-example-node-child:    @color-blue-dark;
 
 @font-size:                       12px;
 @margin-left:                     120px;
@@ -225,6 +229,21 @@
   .rounded-corner(3px);
 }
 
+.card {
+  .rounded-corner(3px);
+  height: 125px;
+  border-bottom: 3px solid transparent;
+  .align-center;
+  background: darken(@color-background-stage, 10%);
+  padding: 10px;
+  margin: 10px;
+
+  &:hover {
+    border-bottom-color: @color-emphasis;
+  }
+}
+
+
 .analytics-example-wrapper {
   min-height: 180px !important;
 }
@@ -236,13 +255,26 @@ img.analytics-example {
 
 circle.node {
   cursor: pointer;
-  stroke: #3182bd;
+  fill: @color-viz-example-node;
+  stroke: @color-viz-example-link;
   stroke-width: 1.5px;
+
+  &.collapsed {
+    fill: @color-viz-example-node-collapsed;
+  }
+
+  &.parent {
+    fill: @color-viz-example-node-parent;
+  }
+
+  &.child {
+    fill: @color-viz-example-node-child;
+  }
 }
 
 line.link {
   fill: none;
-  stroke: #9ecae1;
+  stroke: @color-viz-example-link;
   stroke-width: 1.5px;
 }
 
@@ -337,6 +369,10 @@ h1,h2,h3,h4,h5,h6 {
   small {
     color: @color-typ-small;
   }
+}
+
+.dropdown-menu {
+  cursor: pointer;
 }
 
 .dropdown-menu  a.link-disabled {
@@ -490,6 +526,10 @@ body {
   margin-bottom: 10px;
 }
 
+.metric-icon {
+    padding-right: 3px;
+}
+
 /*************************************************/
 /* notifications */
 /*************************************************/
@@ -542,11 +582,14 @@ body {
 .align-right { text-align: right;}
 .align-left { text-align: left;}
 
+.padding { padding: @spacing-default;}
+.padding-bottom { padding-bottom: @spacing-default;}
 .margin-top { margin-top: @spacing-default;}
 .margin-bottom { margin-bottom: @spacing-default;}
 .margin-left-large { margin-left: @spacing-large;}
 .margin-right-large { margin-right: @spacing-large;}
 .margin-bottom-large { margin-bottom: @spacing-large;}
+.margin-bottom-none { margin-bottom: 0 ! important;}
 .margin-top-large { margin-top: @spacing-large;}
 .margin-none { margin: 0;}
 
@@ -625,6 +668,10 @@ div.span6 div.span6 div.dataTables_length label {
 
 .ui-widget-content a {
   color: @color-ui-content;
+}
+.ui-widget-content {
+  background: none;
+  border: none;
 }
 
 
@@ -747,6 +794,12 @@ label.inline {
 .navbar-nav form {
   margin-bottom: 0;
 }
+
+.nav-tabs li a {
+  color: @color-black-light;
+  font-weight: bold;
+}
+
 /*************************************************/
 /* buttons */
 /*************************************************/

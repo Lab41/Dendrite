@@ -329,10 +329,10 @@ angular.module('dendrite.services', ['ngResource']).
           }
         };
     }).
-    factory('ElasticSearch', function($resource, $routeParams, $http, appConfig) {
+    factory('ElasticSearch', function($resource, $routeParams, $http, appConfig, $rootScope, $timeout) {
         return {
 
-          search: function(queryParams) {
+          search: function(queryParams, graphId) {
             var query;
 
             if (queryParams.queryTerm === "") {
@@ -358,11 +358,36 @@ angular.module('dendrite.services', ['ngResource']).
             // query server
             return $http({
                 method: "POST",
-                url: '/dendrite/api/graphs/'+$routeParams.graphId+'/search',
+                url: '/dendrite/api/graphs/'+ graphId+'/search',
                 data: JSON.stringify(inputJson)
             });
 
           },
+
+          //polling for table refresh
+          verifyId: function(graphId, id, idType){
+            var p = {
+              queryTerm: "_id:" + id,
+              resultType: idType
+            };
+
+            var self = this;
+            var pollActive = function() {
+              self.search(p, graphId)
+              .success(function(data, status, headers, config) {
+                  if(data.hits.total === 0){
+                    $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
+                  }
+                  else{
+                    $rootScope.$broadcast('event:reloadProjectNeeded');
+                  }
+              });
+            };
+            pollActive();
+
+          },
+
+
           mapping: function(graphId) {
             return $http({
                 method: "GET",
@@ -405,15 +430,37 @@ angular.module('dendrite.services', ['ngResource']).
             if (response === 200) {
               var results = json.hits.hits;
 
+              // construct the element selectors, depending on whether the
+              // viz is on the page or inside a modal popup
+              var selectorCanvas = '#viz-map-wrapper',
+                  selectorTitle = '#viz-map-title',
+                  selectorCanvasFull,
+                  selectorTitleFull,
+                  selectorBody,
+                  $element,
+                  $title,
+                  width;
+              if($('.modal.in').length) {
+                selectorBody = '.modal.in';
+              }
+              else {
+                selectorBody = 'body';
+              }
+              selectorCanvasFull = selectorBody+' '+selectorCanvas;
+              selectorTitleFull = selectorBody+' '+selectorTitle;
+              $element = $(selectorCanvasFull);
+              $title = $(selectorTitleFull);
+
               // remove existing svg on refresh
-              $("#viz-map-wrapper svg").remove();
+              $element.find('svg').remove();
 
               // add titlebar
-              $('#viz-map-title').html('Results for "' + queryString +'":');
+              $title.html('Results for "' + queryString +'":');
 
               var po = org.polymaps;
-              var svg = document.getElementById("viz-map-wrapper").appendChild(po.svg("svg")),
-                  defs = svg.appendChild(po.svg("defs")),
+              var svg = po.svg("svg");
+              $element.append(svg);
+              var defs = svg.appendChild(po.svg("defs")),
                   rg = defs.appendChild(po.svg("radialGradient")),
                   s0 = rg.appendChild(po.svg("stop")),
                   s1 = rg.appendChild(po.svg("stop"));
@@ -505,22 +552,38 @@ angular.module('dendrite.services', ['ngResource']).
           })
           .success(function(json, response) {
             if (response === 200) {
-              var facets = json.facets.tags.terms;
+
+              // construct the element selectors, depending on whether the
+              // viz is on the page or inside a modal popup
+              var selectorCanvas = '#viz-histogram-wrapper',
+                  selectorTitle = '#viz-histogram-title',
+                  selectorCanvasFull,
+                  selectorTitleFull,
+                  selectorBody,
+                  $element,
+                  $title,
+                  width;
+              if($('.modal.in').length) {
+                selectorBody = '.modal.in';
+                width = $(selectorBody).width()*0.90;
+              }
+              else {
+                selectorBody = 'body';
+                width = $(selectorCanvas).closest('.column').width()*0.90;
+              }
+              selectorCanvasFull = selectorBody+' '+selectorCanvas;
+              selectorTitleFull = selectorBody+' '+selectorTitle;
+              $element = $(selectorCanvasFull);
+              $title = $(selectorTitleFull);
 
               // helper functions to extract properties of object array
-              var getCount, getTerm;
-              getCount = function(d) {
-                return d.count;
-              };
-              getTerm = function(d) {
-                return d.term;
-              };
+              var getCount = function(d) { return d.count; };
+              var getTerm = function(d) { return d.term; };
 
               // viz properties
               var names,scores,
                   x,y,height,
                   chart,
-                  width = $("#viz-histogram-wrapper").closest('.column').width()*0.90,
                   bar_height = 20,
                   padding_width = 40,
                   padding_height = 30,
@@ -528,19 +591,20 @@ angular.module('dendrite.services', ['ngResource']).
                   gap = 2;
 
               // extract names and scores
+              var facets = json.facets.tags.terms;
               names = facets.map(getTerm);
               scores = facets.map(getCount);
               height = bar_height;
 
-              $("#viz-histogram-wrapper").height("auto");
+              $element.height("auto");
               // remove existing svg on refresh
-              $("#viz-histogram-wrapper svg").remove();
+              $(selectorCanvasFull + ' svg').remove();
 
               // add titlebar
-              $('#viz-histogram-title').html('Results for facet "'+queryFacet+'" in query "' + queryTerm+'":');
+              $title.html('Results for facet "'+queryFacet+'" in query "' + queryTerm+'":');
 
               // add canvas
-              chart = d3.select("#viz-histogram-wrapper")
+              chart = d3.select(selectorCanvasFull)
                 .append('svg')
                 .attr('class', 'chart')
                 .attr('width', width)
@@ -556,7 +620,7 @@ angular.module('dendrite.services', ['ngResource']).
                 .domain(names)
                 .rangeBands([0, (bar_height + 2 * gap) * names.length]);
 
-              chart = d3.select("#viz-histogram-wrapper")
+              chart = d3.select(selectorCanvasFull)
                 .append('svg')
                 .attr('class', 'chart')
                 .attr('width', left_width + width + padding_width)
@@ -572,18 +636,6 @@ angular.module('dendrite.services', ['ngResource']).
                 .attr("y", function(d) { return y(d.term) + gap; })
                 .attr("width", function(d) { return Math.min(x(d.count), width) })
                 .attr("height", bar_height);
-
-              // display count
-//              chart.selectAll("text.score")
-//                .data(facets)
-//                .enter().append("text")
-//                .attr("x", function(d) { return x(d.count) + left_width; })
-//                .attr("y", function(d, i){ return y(d.term) + y.rangeBand()/2; } )
-//                .attr("dx", -5)
-//                .attr("dy", ".36em")
-//                .attr("text-anchor", "end")
-//                .attr('class', 'score')
-//                .text(function(d) { return d.count });
 
               // category label
               chart.selectAll("text.name")
@@ -647,6 +699,29 @@ angular.module('dendrite.services', ['ngResource']).
             if (response === 200) {
               var results = json.hits.hits;
 
+              // construct the element selectors, depending on whether the
+              // viz is on the page or inside a modal popup
+              var selectorCanvas = '#viz-scatterplot-wrapper',
+                  selectorTitle = '#viz-scatterplot-title',
+                  selectorCanvasFull,
+                  selectorTitleFull,
+                  selectorBody,
+                  $element,
+                  $title,
+                  width;
+              if($('.modal.in').length) {
+                selectorBody = '.modal.in';
+                width = $(selectorCanvas).parent().width()*0.90;
+              }
+              else {
+                selectorBody = 'body';
+                width = $(selectorCanvas).parent().width()*0.90;
+              }
+              selectorCanvasFull = selectorBody+' '+selectorCanvas;
+              selectorTitleFull = selectorBody+' '+selectorTitle;
+              $element = $(selectorCanvasFull);
+              $title = $(selectorTitleFull);
+
               // helper functions to extract properties of object array
               var getX = function(d) {
                 if (d["_source"][queryFacet] !== undefined || d["_source"][queryFacet2] !== undefined) {
@@ -660,8 +735,7 @@ angular.module('dendrite.services', ['ngResource']).
               };
 
               var chart,
-                  height = 400,
-                  width = $("#viz-scatterplot-wrapper").parent().width()*0.90;
+                  height = 400;
 
               var randomData = function(groups, points, xval, yval) {
                 var data = [],
@@ -693,10 +767,10 @@ angular.module('dendrite.services', ['ngResource']).
               var yval = results.map(getY);
 
               // remove existing svg on refresh
-              $("#viz-scatterplot-wrapper svg").remove();
+              $element.find('svg').remove();
 
               // add titlebar
-              $('#viz-scatterplot-title').html('Results for "'+queryString+'":');
+              $title.html('Results for "'+queryString+'":');
 
               nv.addGraph(function() {
                 chart = nv.models.scatterChart()
@@ -715,7 +789,7 @@ angular.module('dendrite.services', ['ngResource']).
 
 
                 // add canvas
-                chart = d3.select("#viz-scatterplot-wrapper")
+                chart = d3.select(selectorCanvasFull)
                   .attr('width', width)
                   .attr('height', height)
                   .append('svg')
@@ -973,9 +1047,39 @@ angular.module('dendrite.services', ['ngResource']).
             });
 
             return forceDirectedGraphData;
+          },
+          // load random graph data for Sigma.js visualization
+          reloadSigmaGraph: function(graphId) {
+            var vertices = $q.defer();
+            var edges = $q.defer();
+            var forceDirectedGraphData = {
+              vertices: [],
+              edges: [],
+            };
+
+            // extract random subset of graph
+            // since data will be used in directive, manually resolve vertices/edges
+            Vertex.random({graphId: graphId}, function(response) {
+              vertices.resolve(response.vertices);
+              edges.resolve(response.edges);
+              vertices.promise.then(function(responseVertices) {
+                edges.promise.then(function(responseEdges) {
+                  forceDirectedGraphData.vertices = responseVertices;
+                  forceDirectedGraphData.edges = responseEdges;
+                });
+              });
+
+            }, function() {
+              vertices.reject();
+              edges.reject();
+            });
+
+            return forceDirectedGraphData;
           }
         };
     }).
+
+
     factory('Vertex', function($resource) {
         return $resource('rexster-resource/graphs/:graphId/vertices/:vertexId', {
             graphId: '@graphId',

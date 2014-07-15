@@ -100,8 +100,26 @@ angular.module('dendrite.directives', [])
 
         $scope.$watch(attrs.data, function(data) {
           if (data) {
-            $('#forceDirectedGraph').height(height);
-            width = $('#forceDirectedGraph').closest('.column').width()*0.90;
+
+            // construct the element selectors, depending on whether the
+            // viz is on the page or inside a modal popup
+            var selectorCanvas = '#forceDirectedGraph',
+                selectorCanvasFull,
+                selectorBody,
+                $element,
+                width;
+            if($('.modal.in').length) {
+              selectorBody = '.modal.in';
+              width = $(selectorBody).width()*0.90;
+            }
+            else {
+              selectorBody = 'body';
+              width = $('.content').width()*0.80;
+            }
+            selectorCanvasFull = selectorBody+' '+selectorCanvas;
+            $element = $(selectorCanvasFull);
+
+            $element.height(height);
             height = 500;
 
             svg = d3.select(element[0])
@@ -150,62 +168,64 @@ angular.module('dendrite.directives', [])
         });
 
         function update() {
-          force
-            .nodes(nodes)
-            .links(links)
-            .start();
+          if (nodes !== undefined && nodes.length) {
+            force
+              .nodes(nodes)
+              .links(links)
+              .start();
 
-          // Update the links.
-          var link = svg.selectAll("line")
-            .data(links, function(d) { return d._id; });
+            // Update the links.
+            var link = svg.selectAll("line")
+              .data(links, function(d) { return d._id; });
 
-          // Enter any new links.
-          link.enter().insert("svg:line")
-            //.attr("class", "link")
-            .style("stroke", "#999")
-            .style("stroke-opacity", "0.6")
-            .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+            // Enter any new links.
+            link.enter().insert("svg:line")
+              //.attr("class", "link")
+              .style("stroke", "#444")
+              .style("stroke-opacity", "0.6")
+              .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-          // Exit any old links.
-          link.exit().remove();
+            // Exit any old links.
+            link.exit().remove();
 
-          // Update the nodes.
-          var node = svg.selectAll("circle")
-            .data(nodes, function(d) { return d._id; });
+            // Update the nodes.
+            var node = svg.selectAll("circle")
+              .data(nodes, function(d) { return d._id; });
 
-          // Enter any new nodes.
-          node.enter().append("circle")
-            //.attr("class", "node")
-            .attr("r", 7)
-            .attr("popover", function(d) {
-                if (d.name !== undefined) {
-                  return d.name;
-                }
-                else {
-                  return d._id;
-                }
-             })
-            .attr("popover-trigger", "mouseenter")
-            .attr("popover-append-to-body", "true")
-            .style("stroke", "#fff")
-            .style("stroke-width", "1.5px")
-            .style("fill", function(d) { return color(d._id); })
-            .call(force.drag);
+            // Enter any new nodes.
+            node.enter().append("circle")
+              //.attr("class", "node")
+              .attr("r", 7)
+              .attr("popover", function(d) {
+                  if (d.name !== undefined) {
+                    return d.name;
+                  }
+                  else {
+                    return d._id;
+                  }
+               })
+              .attr("popover-trigger", "mouseenter")
+              .attr("popover-append-to-body", "true")
+              .style("stroke", "#AAA")
+              .style("stroke-width", "1.5px")
+              .style("fill", function(d) { return color(d._id); })
+              .call(force.drag);
 
-          // Exit any old nodes.
-          node.exit().remove();
+            // Exit any old nodes.
+            node.exit().remove();
 
-          node.append("title")
-            .text(function(d) { return d.name; });
+            node.append("title")
+              .text(function(d) { return d.name; });
 
 
-          // popover on svg elements requires recompile
-          element.removeAttr("force-directed-graph");
-          $compile(element)($scope);
+            // popover on svg elements requires recompile
+            element.removeAttr("force-directed-graph");
+            $compile(element)($scope);
 
-          // alert app to data in the project
-          if (nodes.length) {
-            $rootScope.$broadcast('event:projectHasData');
+            // alert app to data in the project
+            if (nodes.length) {
+              $rootScope.$broadcast('event:projectHasData');
+            }
           }
         }
 
@@ -225,6 +245,79 @@ angular.module('dendrite.directives', [])
 
           node.attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; });
+        }
+      }
+    };
+  }])
+.directive('sigmajsGraph', ['$rootScope', '$q', '$compile', 'GraphTransform', function($rootScope, $q, $compile, GraphTransform) {
+    return {
+      restrict: 'A',
+      transclude: true,
+      link: function($scope, element, attrs) {
+
+        // only generate visualization one time
+        if ($scope.$parent.sigmaViz === undefined) {
+          $scope.sigmaGraph = {nodes: [], edges: []};
+
+          // build nodes into SigmaJS format
+          var vertexSize = 20/$scope.sigmajsGraphData.vertices.length;
+          var vertexColor = "#424a4a";
+          $scope.sigmajsGraphData.vertices.forEach(function(vertex) {
+            vertex.id = vertex._id;
+            vertex.x = Math.random();
+            vertex.y = Math.random();
+            vertex.color = vertexColor;
+            vertex.size = vertexSize;
+            vertex.label = vertex.name;
+
+            // push vertex
+            $scope.sigmaGraph.nodes.push(vertex);
+          });
+
+          // build edges into SigmaJS format
+          $scope.sigmajsGraphData.edges.forEach(function(edge) {
+            edge.id = edge._id;
+            edge.source = edge._inV;
+            edge.target = edge._outV;
+
+            // push edge
+            $scope.sigmaGraph.edges.push(edge);
+          });
+
+          // generate sigma visualization
+          // attach to parent scope to avoid future refreshes
+          $scope.$parent.sigmaViz = new sigma({
+            graph: $scope.sigmaGraph
+          })
+          .startForceAtlas2();
+        }
+
+        // render visualization, regardless of when displayed
+        if ($scope.$parent.sigmaViz !== undefined) {
+          // construct the element selectors, depending on whether the
+          // viz is on the page or inside a modal popup
+          var selectorCanvas = '#container-graph-sigmajs',
+              selectorCanvasFull,
+              selectorBody,
+              $element,
+              width;
+          if($('.modal.in').length) {
+            selectorBody = '.modal.in';
+          }
+          else {
+            selectorBody = 'body';
+          }
+          selectorCanvasFull = selectorBody+' '+selectorCanvas;
+          $element = $(selectorCanvasFull);
+
+          var r = $scope.$parent.sigmaViz.addRenderer({
+            type: 'canvas',
+            container: $element[0]
+          });
+          $scope.$parent.sigmaViz.refresh();
+
+          // alert app to data completion
+          $rootScope.$broadcast('event:reloadGraph');
         }
       }
     };
@@ -299,62 +392,68 @@ angular.module('dendrite.directives', [])
           }
         });
 
-        // regardless of panelEdit mode, enable panel resizing
-        $('.dragbox').each(function(){
+        // panel-edit mode controlled by view checkbox/variable
+        $scope.$watch('projectHasData', function () {
+          // regardless of panelEdit mode, enable panel resizing
+          $('.dragbox').each(function(){
 
-            $(this)
+              $(this)
 
-              // add temporary panel border for visual clue to panel size/state
-              .find('.collapse-buttons').hover(function(){
-                  $(this).closest('.dragbox').addClass('hover');
-              }, function(){
-                  $(this).closest('.dragbox').removeClass('hover');
-              })
-              .end()
+                // add temporary panel border for visual clue to panel size/state
+                .find('.collapse-buttons').hover(function(){
+                    $(this).closest('.dragbox').addClass('hover');
+                }, function(){
+                    $(this).closest('.dragbox').removeClass('hover');
+                })
+                .end()
 
-              // click handler for toggling show/hide of panel content
-              .find('.expand-vertical').click(function() {
+                // click handler for toggling show/hide of panel content
+                .find('.expand-vertical').click(function() {
 
-                  // if panel in shrink mode, expand to half width
-                  if (!$(this).closest('.column').hasClass('width-full')) {
-                    setWidth($(this), 'width-half', 'width-half');
-                  }
-
-                  // toggle visibility of content
-                  $(this).closest('h2').siblings('.dragbox-content').toggle();
-              })
-              .end()
-
-              //click handler for expanding panel horizontally
-              .find('.expand-horizontal').click(function() {
-
-                  // if not already full width, expand panel
-                  if (!$(this).closest('.column').hasClass('width-full')) {
-                    setWidth($(this), 'width-full', 'width-mini');
-                  }
-                  else {
-
-                    // if already full width and visible, toggle horizontally to half-width
-                    if ($(this).closest('.dragbox').find('.dragbox-content').is(":visible")) {
+                    // if panel in shrink mode, expand to half width
+                    if (!$(this).closest('.column').hasClass('width-full')) {
                       setWidth($(this), 'width-half', 'width-half');
                     }
-                  }
 
-                  // hide all other panels except expanded one
-                  $(this).closest('.row-fluid').find('.dragbox-content').hide();
-                  $(this).closest('.dragbox').find('.dragbox-content').show();
-              })
-              .end()
+                    // toggle visibility of content
+                    $(this).closest('h2').siblings('.dragbox-content').toggle();
+                })
+                .end()
 
-              //click handler for expanding panel to largest size
-              .find('.expand-full').click(function() {
-                var dragBox = $(this).closest('.dragbox');
-                var modalUrl = $(dragBox).find('div[ng-include]').attr('ng-include').replace(/'/g, '');
-                var modalTitle = $(dragBox).find('h2').text();
-                $scope.panelFullScreen(modalTitle, modalUrl);
-              })
-              .end()
+                //click handler for expanding panel horizontally
+                .find('.expand-horizontal').click(function() {
 
+                    // if not already full width, expand panel
+                    if (!$(this).closest('.column').hasClass('width-full')) {
+                      setWidth($(this), 'width-full', 'width-mini');
+                    }
+                    else {
+
+                      // if already full width and visible, toggle horizontally to half-width
+                      if ($(this).closest('.dragbox').find('.dragbox-content').is(":visible")) {
+                        setWidth($(this), 'width-half', 'width-half');
+                      }
+                    }
+
+                    // hide all other panels except expanded one
+                    $(this).closest('.row-fluid').find('.dragbox-content').hide();
+                    $(this).closest('.dragbox').find('.dragbox-content').show();
+                })
+                .end()
+
+                //click handler for expanding panel to largest size
+                .find('.expand-full').click(function() {
+                  var dragBox = $(this).closest('.dragbox');
+                  var modalUrl = $(dragBox).find('div[ng-include]').attr('ng-include').replace(/'/g, '');
+                  var modalTitle = $(dragBox).find('h2').text();
+                  $scope.panelFullScreen(modalTitle, modalUrl);
+                })
+                .end();
+
+                console.log($(this));
+                $scope.safeApply();
+
+          });
         });
 
         // helper function to set the width of a panel and sibling panels
@@ -392,7 +491,7 @@ angular.module('dendrite.directives', [])
   // </tabset>
   // tabset enables lazy loading of tab content to avoid unnecessary overhead, as well as
   // force refresh that AngularJS might otherwise not apply to DOM
-  .directive('tabset', function () {
+  .directive('tabset', function ($compile) {
     return {
       restrict: 'E',
       replace: true,
@@ -420,15 +519,30 @@ angular.module('dendrite.directives', [])
           tabs.push(tab);
         };
       },
-      template:
-        '<div class="row-fluid">' +
+      template: function(element, attrs){
+        var template = '<div class="row-fluid">' +
           '<div class="row-fluid">' +
             '<div class="nav nav-tabs" ng-transclude></div>' +
           '</div>' +
           '<div id="tabs-content" class="row-fluid">' +
             '<ng-include src="templateUrl">' +
           '</ng-include></div>' +
-        '</div>'
+        '</div>';
+
+
+        if (attrs.tabtype === "vertical") {
+          template =
+            '<div class="row-fluid">' +
+              '<div class="row-fluid tabs-vertical">' +
+                '<div class="nav nav-tabs span2" ng-transclude></div>' +
+                '<div id="tabs-content" class="span10">' +
+                  '<ng-include src="templateUrl"></ng-include>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+        }
+        return template;
+      }
     };
   })
   .directive('tab', function () {

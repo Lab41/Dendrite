@@ -1,39 +1,49 @@
 <h2 class="titlebar">Project: {{ project.name }}
+  <!-- dropdown for history -->
+  <div id="tour-step-7" class="btn-group navbar-btn margin-bottom-none" ng-if="projectHasData">
+    <button class="btn btn-transparent dropdown-toggle" data-toggle="dropdown">Branches <span class="caret"></span></button>
+    <ul class="dropdown-menu padding">
+      <div ng-include="'partials/panels/branches.html'"></div>
+    </ul>
+  </div>
+
+
+  <!-- dropdown for data import/export -->
+  <div class="btn-group navbar-btn margin-bottom-none" ng-if="projectHasData">
+    <button class="btn btn-transparent dropdown-toggle" data-toggle="dropdown">Data <span class="caret"></span></button>
+    <ul class="dropdown-menu padding">
+      <div ng-include="'partials/panels/import-export.html'"></div>
+    </ul>
+  </div>
 
   <span class="titlebar-buttons">
-    <button ng-if="graphLoaded" ng-click="deleteItem(project)" ng-confirm-click="Really Delete?" class="btn btn-default"><i class="icon-white icon-trash"></i> Delete</button>
+    <button ng-if="graphLoaded" ng-click="deleteItem(project)" ng-confirm-click="Really Delete?" class="btn btn-transparent"><i class="icon-white icon-trash"></i> Delete</button>
     <label><input type="checkbox" ng-value="panelEdit" ng-click="panelEdit=!panelEdit"></input> Edit Layout</label>
   </span>
 </h2>
-<div ng-hide="graphLoaded">
+<div ng-hide="graphLoaded && !projectCommitting">
   <h4>Creating branch...</h4>
   <img src="img/icons/ajax-loader.gif">
 </div>
-<div class="container-fluid" ng-show="graphLoaded" ng-class="panelEditable()">
+<div class="container-fluid" ng-show="graphLoaded && !projectCommitting" ng-class="panelEditable()">
 
   <div panels class="panel">
-    <div class="row-fluid">
-      <div class="column" id="column1">
-        <div class="dragbox" id="item-import-data" >
-          <h2>Import/Export <panel-collapse-buttons></panel-collapse-buttons></h2>
-          <div class="dragbox-content" >
-              <div ng-include="'partials/graphs/import-export.html'"></div>
-          </div>
-        </div>
-      </div>
 
-      <div class="column" id="column2" >
-        <div class="dragbox" id="item-explore-data" ng-show="projectHasData">
-          <h2>Explore <panel-collapse-buttons></panel-collapse-buttons></h2>
-          <div class="dragbox-content" >
-              <div ng-include="'partials/graphs/explore-data.html'"></div>
-          </div>
+    <div class="row-fluid column-fullwidth">
+      <div class="column" id="column1" >
+
+        <div class="dragbox" id="item-import-data" ng-if="!projectHasData">
+          <div ng-include="'partials/panels/import-export.html'"></div>
         </div>
 
-        <div class="dragbox" id="item-view-branches" ng-show="projectHasData">
-          <h2>Branches <panel-collapse-buttons></panel-collapse-buttons></h2>
-          <div class="dragbox-content" >
-              <div ng-include="'partials/graphs/branches.html'"></div>
+        <div class="dragbox expand-full-visible" id="item-import-data" ng-if="projectHasData">
+          <h2>Explore:
+            <span ng-show='!toggle'>People We Know</span>
+            <span ng-show='toggle'>Connections </span>
+            <panel-collapse-buttons></panel-collapse-buttons>
+          </h2>
+          <div class="dragbox-content">
+            <div ng-include="'partials/data-explore.html'"></div>
           </div>
         </div>
       </div>
@@ -44,7 +54,7 @@
         <div class="dragbox expand-full-visible" id="item-view-viz" ng-show="projectHasData">
           <h2><span id="tour-step-8">QuickViz</span> <panel-collapse-buttons></panel-collapse-buttons></h2>
           <div class="dragbox-content" >
-              <div ng-include="'partials/graphs/viz.html'"></div>
+            <div ng-include="'partials/panels/viz.html'"></div>
           </div>
         </div>
       </div>

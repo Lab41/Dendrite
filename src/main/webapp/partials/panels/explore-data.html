@@ -1,6 +1,11 @@
 <div class="row-fluid">
   <div class="span12" style="margin-bottom:20px">
+
+  	<!--
     <a id="tour-step-9" href="#/graphs/{{ graphId }}/vertices" class="btn btn-success">People</a>
-    <a href="#/graphs/{{ graphId }}/edges" class="btn btn-success">Connections</a>
+    <a href="#/graphs/{{ graphId }}/edges" class="btn btn-success">Connections</a> 
+
+	-->
+    <div ng-controller="VertexListCtrl" ng-include="'partials/vertex-list.html'"></div>
   </div>
 </div>

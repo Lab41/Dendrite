@@ -286,6 +286,7 @@ angular.module('dendrite', [
         }
       }
     },
+
     analytics: {
         metadata: {
           pollTimeout: 500
@@ -354,7 +355,6 @@ angular.module('dendrite', [
 
     // event:loggedIn - action immediately after login
     scope.$on('event:loggedIn', function() {
-      console.log('event:loggedIn');
       $location.path('/projects');
       $location.search({});
     });
@@ -390,6 +390,17 @@ angular.module('dendrite', [
         ping();
       });
     });
+
+    scope.$on('$viewContentLoaded', function() {
+      scope.projectHasData = false;
+    });
+    scope.$on('event:projectHasData', function() {
+      scope.projectHasData = true;
+    });
+
+    scope.preventClose = function(event) {
+      event.stopPropagation();
+    };
 
     scope.back = function() {
       window.history.back();
