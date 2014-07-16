@@ -408,7 +408,9 @@ angular.module('dendrite.directives', [])
                 .end()
 
                 // click handler for toggling show/hide of panel content
-                .find('.expand-vertical').click(function() {
+                .find('.expand-vertical')
+                .unbind()
+                .click(function() {
 
                     // if panel in shrink mode, expand to half width
                     if (!$(this).closest('.column').hasClass('width-full')) {
@@ -421,7 +423,9 @@ angular.module('dendrite.directives', [])
                 .end()
 
                 //click handler for expanding panel horizontally
-                .find('.expand-horizontal').click(function() {
+                .find('.expand-horizontal')
+                .unbind()
+                .click(function() {
 
                     // if not already full width, expand panel
                     if (!$(this).closest('.column').hasClass('width-full')) {
@@ -442,7 +446,9 @@ angular.module('dendrite.directives', [])
                 .end()
 
                 //click handler for expanding panel to largest size
-                .find('.expand-full').click(function() {
+                .find('.expand-full')
+                .unbind()
+                .click(function() {
                   var dragBox = $(this).closest('.dragbox');
                   var modalUrl = $(dragBox).find('div[ng-include]').attr('ng-include').replace(/'/g, '');
                   var modalTitle = $(dragBox).find('h2').text();
