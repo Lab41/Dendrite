@@ -94,8 +94,8 @@ angular.module('dendrite.controllers', []).
             Project.save({}, $scope.project)
                     .$then(function(response) {
                       var project = response.data.project;
-                      $rootScope.$broadcast('event:reloadProjectNeeded');
                       History.createDir(project._id);
+                      $rootScope.$broadcast('event:reloadProjectNeeded');
                       $location.path('projects/' + project._id);
                     });
         };
@@ -289,7 +289,13 @@ angular.module('dendrite.controllers', []).
         //    FIXME: need comparison: currentBranch.graph != currentBranch.parentBranch.graph
         //    FIXME: alternative comparison: currentGraph.branch != currentGraph.ParentGraph.branch
         var pollBranches = function() {
-          Project.branches({projectId: $routeParams.projectId})
+
+          // get project's branches
+          $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
+          $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
+
+          // poll for status of branches
+          $scope.queryBranches
                 .$then(function(responseAllBranches) {
 
                     // calculate number of branches that point to current graph
@@ -324,14 +330,11 @@ angular.module('dendrite.controllers', []).
           pollBranches();
         });
 
-        // get project's branches
-        $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
-        $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
-
         // create a new branch
         $scope.createBranch = function() {
           $rootScope.branchMessage = undefined;
           $rootScope.branchError = undefined;
+          $rootScope.projectCommitting = true;
 
           // check for name conflict
           Project.getBranch({projectId: $routeParams.projectId, branchName: $scope.branchName},
@@ -339,6 +342,7 @@ angular.module('dendrite.controllers', []).
             // notify on name conflict
             function(data) {
               $rootScope.branchError = "A branch already exists with name: "+$scope.branchName;
+              $rootScope.projectCommitting = false;
             },
 
             // create new branch
@@ -347,16 +351,30 @@ angular.module('dendrite.controllers', []).
                       .$then(function(response) {
 
                           // notify
+                          $rootScope.projectCommitting = false;
                           $rootScope.branchMessage = "Created branch: "+$scope.branchName;
                           $scope.safeApply();
                           if ($scope.branchSwitch) {
                             Project.switchBranch({projectId: $routeParams.projectId}, {branchName: $scope.branchName})
                                     .$then(function(response) {
-                                      $scope.$emit('event:reloadProjectNeeded');
+                                        $rootScope.branchMessage = "Now using branch: "+$scope.branchName;
+
+                                        // re-poll available branches
+                                        $scope.$emit('event:reloadProjectNeeded');
+                                        pollBranches();
+                                    }, function(error) {
+                                        console.log("ERROR switching branch: ", error);
+
+                                        // re-poll available branches
+                                        $scope.$emit('event:reloadProjectNeeded');
+                                        pollBranches();
                                     });
                           }
                           else {
                             $scope.$emit('event:reloadProjectNeeded');
+
+                            // re-poll available branches
+                            pollBranches();
                           }
 
                       });
@@ -371,15 +389,24 @@ angular.module('dendrite.controllers', []).
                       $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
                       $rootScope.branchMessage = "Deleted branch "+branch.name;
                       $scope.safeApply();
+                      pollBranches();
                   });
         };
 
         // switch to a different branch
         $scope.switchBranch = function(branch) {
+          $rootScope.projectCommitting = true;
           Project.switchBranch({projectId: $routeParams.projectId}, {branchName: branch.name})
                   .$then(function(response) {
                     $rootScope.branchMessage = "Now using branch: "+branch.name;
+                    $rootScope.projectCommitting = false;
                     $scope.$emit('event:reloadProjectNeeded');
+                    pollBranches();
+                  }, function(error) {
+                      console.log("ERROR switching branch: ", error);
+                      $rootScope.projectCommitting = false;
+                      $scope.$emit('event:reloadProjectNeeded');
+                      pollBranches();
                   });
         };
 
@@ -388,8 +415,10 @@ angular.module('dendrite.controllers', []).
           $rootScope.projectCommitting = true;
           Project.commitBranch({projectId: $routeParams.projectId}, undefined)
                   .$then(function(response) {
+                    $rootScope.projectCommitting = false;
                     $rootScope.branchMessage = "Committed branch: "+branch.name;
                     $scope.$emit('event:reloadProjectNeeded');
+                    pollBranches();
                   });
         };
     }).
