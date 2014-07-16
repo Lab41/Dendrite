@@ -14,8 +14,8 @@
             <option value="FaunusGraphSON">Faunus GraphSON</option>
         </select>
 
-        <div class="inline fileupload fileupload-new" data-provides="fileupload" ng-if="graphLoaded">
-          <span class="btn btn-file" id="tour-step-5">
+        <div class="inline fileupload fileupload-new" data-provides="fileupload">
+          <span class="btn btn-file" id="{{ tourStepId }}">
             <span class="fileupload-new">Select file</span>
             <span class="fileupload-exists">Change</span>
             <input file-parse-graph type="file" name="file" id="file" style="display:inline">

@@ -133,7 +133,7 @@ var tour = new Tour({
     template: tourTemplateNextOnly("End Tour", "Continue"),
     onNext: function(tour) {
       tourGoToNextStep();
-    },
+    }
   },
   {
     element: "#tour-step-5",
