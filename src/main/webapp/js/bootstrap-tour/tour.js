@@ -130,7 +130,10 @@ var tour = new Tour({
               </p>',
     backdrop: true,
     orphan: true,
-    template: tourTemplateNextOnly("End Tour", "Continue")
+    template: tourTemplateNextOnly("End Tour", "Continue"),
+    onNext: function(tour) {
+      tourGoToNextStep();
+    },
   },
   {
     element: "#tour-step-5",
