@@ -289,7 +289,13 @@ angular.module('dendrite.controllers', []).
         //    FIXME: need comparison: currentBranch.graph != currentBranch.parentBranch.graph
         //    FIXME: alternative comparison: currentGraph.branch != currentGraph.ParentGraph.branch
         var pollBranches = function() {
-          Project.branches({projectId: $routeParams.projectId})
+
+          // get project's branches
+          $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
+          $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
+
+          // poll for status of branches
+          $scope.queryBranches
                 .$then(function(responseAllBranches) {
 
                     // calculate number of branches that point to current graph
@@ -323,10 +329,6 @@ angular.module('dendrite.controllers', []).
         $scope.$on('event:reloadGraph', function() {
           pollBranches();
         });
-
-        // get project's branches
-        $scope.queryCurrentBranch = Project.currentBranch({projectId: $routeParams.projectId});
-        $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
 
         // create a new branch
         $scope.createBranch = function() {
