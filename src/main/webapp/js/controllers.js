@@ -357,7 +357,7 @@ angular.module('dendrite.controllers', []).
                           if ($scope.branchSwitch) {
                             Project.switchBranch({projectId: $routeParams.projectId}, {branchName: $scope.branchName})
                                     .$then(function(response) {
-                                        $rootScope.branchMessage = "Now using branch: "+branch.name;
+                                        $rootScope.branchMessage = "Now using branch: "+$scope.branchName;
 
                                         // re-poll available branches
                                         $scope.$emit('event:reloadProjectNeeded');
