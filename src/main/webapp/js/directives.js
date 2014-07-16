@@ -450,7 +450,6 @@ angular.module('dendrite.directives', [])
                 })
                 .end();
 
-                console.log($(this));
                 $scope.safeApply();
 
           });
