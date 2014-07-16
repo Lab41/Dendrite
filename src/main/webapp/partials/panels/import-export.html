@@ -21,10 +21,6 @@
             <input file-parse-graph type="file" name="file" id="file" style="display:inline">
           </span>
           <div>
-            <div class="alert alert-info" ng-hide="!fileParseError">
-                <button type="button" class="close" data-dismiss="alert">×</button>
-                {{ fileParseError }}
-            </div>
             <span ng-hide="fileUploaded || fileParseError">
               <span class="inline fileupload-preview"> </span>
               <a class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
@@ -66,7 +62,7 @@
         <label for="checkpoint-format">Checkpoint this graph:</label>
         <div ng-controller="GraphSaveCtrl">
           <form ng-submit="saveFile(content, completed)">
-            <select ng-model="format" name="format" id="checkpoint-format" class="inline form-control">
+            <select ng-model="format" name="format" id="checkpoint-format" class="inline form-control" ng-click="preventClose($event)">
               <option selected ng-selected="true">Select Format</option>
               <option value="GraphSON">GraphSON</option>
               <option value="GraphML">GraphML</option>
@@ -74,11 +70,6 @@
             </select>
 
             <input type="submit" class="inline btn btn-primary" value="Checkpoint" ng-click="saveFile"/>
-            <div ng-hide="!fileSaving"><img src="img/icons/ajax-loader.gif"></div>
-            <div class="alert alert-info" ng-hide="!fileSaved">
-                <button type="button" class="close" data-dismiss="alert">×</button>
-                {{ savedMessage }}
-            </div>
           </form>
         </div>
     </div>

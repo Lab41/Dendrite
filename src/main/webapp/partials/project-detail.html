@@ -27,6 +27,34 @@
 </div>
 <div class="container-fluid" ng-show="graphLoaded && !projectCommitting" ng-class="panelEditable()">
 
+  <!-- status messages -->
+  <div class="row-fluid">
+    <div class="span12" style="min-height:0">
+      <!-- file parse -->
+      <div class="alert alert-info" ng-hide="!fileParseError">
+          <button type="button" class="close" data-dismiss="alert">×</button>
+          {{ fileParseError }}
+      </div>
+
+      <!-- graph commit -->
+      <div ng-hide="!fileSaving"><img src="img/icons/ajax-loader.gif"></div>
+      <div class="alert alert-info" ng-hide="!fileSaved">
+          <button type="button" class="close" data-dismiss="alert">×</button>
+          {{ savedMessage }}
+      </div>
+
+      <!-- branch commit -->
+      <div class="alert alert-info" ng-show="branchMessage">
+          <button type="button" class="close" data-dismiss="alert">×</button>
+          {{ branchMessage }}
+      </div>
+      <div class="alert alert-error" ng-show="branchError">
+          <button type="button" class="close" data-dismiss="alert">×</button>
+          {{ branchError }}
+      </div>
+    </div>
+  </div>
+
   <div panels class="panel">
 
     <div class="row-fluid column-fullwidth">

@@ -102,9 +102,11 @@ angular.module('dendrite.controllers', []).
     }).
     controller('ProjectCarveCtrl', function($rootScope, $scope, $route, $location, Project) {
         $scope.projectCarve = function(projectId) {
+            $rootScope.projectCommitting = true;
             var params = {name: $scope.newProjectName, query: $scope.gridOptions.filterOptions.filterText, steps: $scope.newProjectSteps};
             Project.carveSubgraph({projectId: projectId}, params)
                     .$then(function(response) {
+                        $rootScope.projectCommitting = false;
                         angular.element('.modal-backdrop').hide();
                         $location.path('projects/' + response.data.projectId);
                     });
@@ -199,24 +201,29 @@ angular.module('dendrite.controllers', []).
           $scope.forceDirectedGraphData = GraphTransform.reloadRandomGraph($scope.graphId);
         });
     }).
-    controller('GraphSaveCtrl', function ($scope, $routeParams, $http, GraphTransform) {
-        $scope.fileSaved = false;
-        $scope.fileSaving = false;
+    controller('GraphSaveCtrl', function ($rootScope, $scope, $routeParams, $http, GraphTransform, appConfig) {
+        $rootScope.fileSaved = false;
+        $rootScope.fileSaving = false;
 
-        $scope.saveFile = function() {
-            $scope.fileSaving = true;
-            GraphTransform.saveFile($scope.graphId, $scope.projectId, this.format)
+        $scope.saveFile = function(format) {
+            var fileFormat = format;
+            if (fileFormat == undefined) {
+              fileFormat = this.format;
+            }
+            $rootScope.fileSaving = true;
+            GraphTransform.saveFile($scope.graphId, $scope.projectId, fileFormat)
                 .success(function(){
-                    $scope.fileSaving = false;
-                    $scope.fileSaved = true;
-                    $scope.savedMessage = "Graph "+$scope.graphId+" checkpointed";
+                    $rootScope.fileSaving = false;
+                    $rootScope.fileSaved = true;
+                    $rootScope.savedMessage = "Graph "+$scope.graphId+" checkpointed";
                 })
                 .error(function(response){
-                    $scope.fileSaved = true;
-                    $scope.fileSaving = false;
-                    $scope.savedMessage = "upload failed!";
+                    $rootScope.fileSaved = true;
+                    $rootScope.fileSaving = false;
+                    $rootScope.savedMessage = "upload failed!";
                 });
         };
+
     }).
     controller('AnalyticsDetailCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // config
@@ -248,8 +255,14 @@ angular.module('dendrite.controllers', []).
 
 
     }).
-    controller('BranchEditCtrl', function($rootScope, $scope, $location, $modal, $routeParams, Branch, Project, Graph, appConfig) {
-        $scope.historyEnabled = appConfig.historyServer.enabled();
+    controller('BranchEditCtrl', function($rootScope, $scope, $location, $modal, $routeParams, $q, Branch, Project, Graph, History, appConfig) {
+        $rootScope.historyEnabled = false;
+        History.enabled()
+                .then(function(response) {
+                    if (response.status === 200) {
+                      $rootScope.historyEnabled = true;
+                    }
+                });
 
         // modals
         $scope.branchSwitch = true;
@@ -258,12 +271,16 @@ angular.module('dendrite.controllers', []).
           $modal({scope: $scope, template: 'partials/branches/create.html'});
         };
 
-        $scope.dropdownVisible = false;
-        $scope.dropdownShown = function() {
-          return ($scope.dropdownVisible) ? "inline-block" : "";
+        $scope.dropdownVisible = {};
+        $scope.dropdownShown = function(id) {
+          return ($scope.dropdownVisible[id]) ? "inline-block" : "";
         };
-        $scope.dropdownOpen = function() { $scope.dropdownVisible = true; };
-        $scope.dropdownClose = function() { $scope.dropdownVisible = false; };
+        $scope.dropdownOpen = function(id) {
+          $scope.dropdownVisible[id] = true;
+        };
+        $scope.dropdownClose = function(id) {
+          $scope.dropdownVisible[id] = false;
+        };
 
         // poll for branches
         //    determine if current branch's graph conflicts with other graphs
@@ -313,15 +330,15 @@ angular.module('dendrite.controllers', []).
 
         // create a new branch
         $scope.createBranch = function() {
-          $scope.branchMessage = undefined;
-          $scope.branchError = undefined;
+          $rootScope.branchMessage = undefined;
+          $rootScope.branchError = undefined;
 
           // check for name conflict
           Project.getBranch({projectId: $routeParams.projectId, branchName: $scope.branchName},
 
             // notify on name conflict
             function(data) {
-              $scope.branchError = "A branch already exists with name: "+$scope.branchName;
+              $rootScope.branchError = "A branch already exists with name: "+$scope.branchName;
             },
 
             // create new branch
@@ -330,7 +347,7 @@ angular.module('dendrite.controllers', []).
                       .$then(function(response) {
 
                           // notify
-                          $scope.branchMessage = "Created branch: "+$scope.branchName;
+                          $rootScope.branchMessage = "Created branch: "+$scope.branchName;
                           $scope.safeApply();
                           if ($scope.branchSwitch) {
                             Project.switchBranch({projectId: $routeParams.projectId}, {branchName: $scope.branchName})
@@ -352,7 +369,7 @@ angular.module('dendrite.controllers', []).
           Branch.delete({branchId: branch._id})
                   .$then(function(data) {
                       $scope.queryBranches = Project.branches({projectId: $routeParams.projectId});
-                      $scope.branchMessage = "Deleted branch "+branch.name;
+                      $rootScope.branchMessage = "Deleted branch "+branch.name;
                       $scope.safeApply();
                   });
         };
@@ -361,7 +378,7 @@ angular.module('dendrite.controllers', []).
         $scope.switchBranch = function(branch) {
           Project.switchBranch({projectId: $routeParams.projectId}, {branchName: branch.name})
                   .$then(function(response) {
-                    $scope.branchMessage = "Now using branch: "+branch.name;
+                    $rootScope.branchMessage = "Now using branch: "+branch.name;
                     $scope.$emit('event:reloadProjectNeeded');
                   });
         };
@@ -371,7 +388,7 @@ angular.module('dendrite.controllers', []).
           $rootScope.projectCommitting = true;
           Project.commitBranch({projectId: $routeParams.projectId}, undefined)
                   .$then(function(response) {
-                    $scope.branchMessage = "Committed branch: "+branch.name;
+                    $rootScope.branchMessage = "Committed branch: "+branch.name;
                     $scope.$emit('event:reloadProjectNeeded');
                   });
         };
@@ -1367,14 +1384,14 @@ angular.module('dendrite.controllers', []).
           $scope.selectedKeys = {vertices: [], edges: []};
           if (!appConfig.fileUpload.parseGraphFile) {
             $scope.safeApply(function() {
-              $scope.fileParsed = true;
+              $rootScope.fileParsed = true;
             });
           }
           else {
-            $scope.fileParsed = false;
+            $rootScope.fileParsed = false;
             if ($scope.keysForGraph.vertices.length > 0) {
-              $scope.fileParsed = true;
-              $scope.fileParseError = false;
+              $rootScope.fileParsed = true;
+              $rootScope.fileParseError = false;
               $scope.keysForGraph.vertices.forEach(function(k) {
                   if (restrictedKeys.indexOf(k) == -1) {
                       $scope.selectedKeys.vertices.push({
@@ -1404,7 +1421,7 @@ angular.module('dendrite.controllers', []).
               });
             } else {
                 $scope.safeApply(function() {
-                  $scope.fileParseError = "Error: Unrecognized Format!";
+                  $rootScope.fileParseError = "Error: Unrecognized Format!";
                 });
             }
           }

@@ -121,6 +121,7 @@ angular.module('dendrite', [
     // add interceptor to app
     $httpProvider.responseInterceptors.push(interceptor);
     $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
+
   }]).
   constant('appConfig', {
     elasticSearch: {
@@ -130,24 +131,10 @@ angular.module('dendrite', [
       }
     },
     historyServer: {
-        enabled: function() {
-          $.ajax('http://'+this.host+':'+this.port, {
-            statusCode: {
-              404: function() {
-                return false;
-              },
-              200: function() {
-                return true;
-              },
-              0: function (response) {
-                return false;
-              }
-            }
-          });
-        },
         host: "localhost",
         port: 8448,
-        storage: "/tmp/dendrite/history"
+        storage: "/tmp/dendrite/history",
+        defaultFileFormat: 'GraphSON'
     },
     branches: {
       metadata: {
