@@ -1,6 +1,7 @@
 <div class="row-fluid row-padded">
   <div class="span12">
-    <label for="file-import-format">Upload a file to add to the network:</label>
+    <label for="file-import-format">Upload a file to add to the network: <div>(To get started, we provide a test dataset for you to <a target="_blank" href="https://raw.githubusercontent.com/Lab41/Dendrite/master/src/test/javascript/data/les-mis3.json">download</a>)</div>
+    </label>
     <div ng-controller="FileUploadCtrl">
       <form id="form-file-upload" ng-upload="uploadFile(content)" ng-upload-loading="uploading()" action="api/graphs/{{ graphId }}/file-import" upload-options-enable-controls>
 
@@ -15,7 +16,7 @@
         </select>
 
         <div class="inline fileupload fileupload-new" data-provides="fileupload">
-          <span class="btn btn-file" id="tour-step-5">
+          <span class="btn btn-file" id="{{ tourStepId }}">
             <span class="fileupload-new">Select file</span>
             <span class="fileupload-exists">Change</span>
             <input file-parse-graph type="file" name="file" id="file" style="display:inline">

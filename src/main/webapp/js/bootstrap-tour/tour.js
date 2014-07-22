@@ -86,8 +86,8 @@ var tour = new Tour({
       $('input[name="username"]').focus();
     },
     onNext: function(tour) {
-      var userIn = $('input[name="username"').val();
-      var passIn = $('input[name="password"').val();
+      var userIn = $("input[name='username']").val();
+      var passIn = $("input[name='password']").val();
       if (userIn !== "user" || passIn !== "password") {
         this.next = tour.getCurrentStep();
       }
@@ -130,7 +130,10 @@ var tour = new Tour({
               </p>',
     backdrop: true,
     orphan: true,
-    template: tourTemplateNextOnly("End Tour", "Continue")
+    template: tourTemplateNextOnly("End Tour", "Continue"),
+    onNext: function(tour) {
+      tourGoToNextStep();
+    }
   },
   {
     element: "#tour-step-5",

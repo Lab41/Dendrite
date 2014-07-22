@@ -1352,6 +1352,14 @@ angular.module('dendrite.controllers', []).
         ];
         $scope.keysForGraph = [];
 
+        $scope.tourStepId = '';
+        $scope.$watch('graphLoaded', function(newVal, oldVal) {
+          if ($scope.graphLoaded) {
+            $scope.tourStepId = 'tour-step-5';
+          }
+        });
+
+
         $scope.uploading = function() {
             $scope.fileUploading = true;
         };
