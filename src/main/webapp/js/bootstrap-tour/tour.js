@@ -89,7 +89,7 @@ var tour = new Tour({
                 <li>Identify key people through graph analytics</li>\
               </ul>\
               <p class="well">\
-                <strong>We will call out actions you need to take in this highlighted box.</strong>\
+                <strong>We will call out actions you need to take in this highlighted box.  Hit the "Esc" key anytime to exit this tour.</strong>\
               </p>',
     backdrop: true,
     orphan: true,
@@ -136,7 +136,7 @@ var tour = new Tour({
     title: "New Project",
     content: 'Project names help you track the type of data or purpose behind the project.\
               <p class="well">\
-                Give your new project a name.\
+                Give your new project a name and click <strong>Create</strong>.\
               </p>',
     template: tourTemplateNavOff(),
     reflex: true
@@ -216,12 +216,9 @@ var tour = new Tour({
   },
   {
     element: "#tour-step-10",
-    placement: 'bottom',
+    placement: 'top',
     title: "Data Explorer",
-    content: '<p>The data explorer organizes your graph in a familiar spreadsheet format. You can click on any column heading to sort that field.  You can also search for specific data.\
-              <p class="well">\
-                Go ahead and type <strong>Valj*</strong> into the search box to test search features.\
-              </p>',
+    content: '<p>The data explorer organizes your graph in a familiar spreadsheet format. You can click on any column heading to sort that field.  You can also search for specific data.'
   },
   {
     element: "#tour-step-11",
@@ -252,7 +249,7 @@ var tour = new Tour({
     element: "#tour-step-13",
     placement: 'top',
     title: "PageRank",
-    content: '<p>With the click of a button, Dendrite performs the calculation using the appropriate analytic engine, which could be GraphLab, JUNG, Faunus, or GraphX.\
+    content: '<p>With the click of a button, Dendrite performs the calculation using the appropriate analytic engine, which could be GraphLab, JUNG, Faunus, or SNAP.\
               <p class="well">\
                 Go ahead and submit the calculation.\
               </p>',
@@ -265,16 +262,48 @@ var tour = new Tour({
     title: "Analytic Results",
     content: '<p>The output of each calculation becomes part of your dataset.\
               <p class="well">\
-                Click on the <strong>PageRank</strong> column heading to sort the data according to each node\'s calculated score.\
-              </p>',
-    template: tourTemplateWithNav()
+                Once the calculation completes, click on the <strong>PageRank</strong> column heading to sort the data according to each node\'s calculated score.\
+              </p>'
   },
   {
-    title: "Congratulations!",
-    content: '<p>You\'re done with the tour!  We only walked you through a small subset of features, so be sure to continue exploring.</p>\
+    element: "#tour-step-15",
+    placement: 'bottom',
+    title: "Carve New Project",
+    content: '<p>You can also carve out a subset of the current graph into a new project.\
               <p class="well">\
+                Type <strong>Valj*</strong> into the Results Filter and then click the <strong>Carve New Project</strong> button.\
+              </p>',
+    template: tourTemplateNavOff(),
+    reflex: true,
+    onNext: function(tour) {
+      tourGoToNextStep();
+    },
+    onShown: function(tour) {
+      var offset = $("#tour-step-15").find("button").height();
+      $('.popover.tour').css({'margin-top':offset+'px'});
+    }
+  },
+  {
+    element: "#tour-step-16",
+    placement: 'top',
+    title: "Specify Carved Project",
+    content: '<p>Carve a new graph using your filter term(s) as a starting point. For example, specifying two steps would carve all nodes within two connections from nodes captured by your filter.\
+              <p class="well">\
+                Name your new project (i.e. <strong>Valjean Analysis</strong> and choose <strong>1</strong> step as the parameter.  Then click the "Create Project" button.\
+              </p>',
+    template: tourTemplateNavOff(),
+    reflex: true
+  },
+  {
+    title: "Analyze New Project",
+    content: '<p>Your carved project is being created, which will enable you to perform deeper calculations on the subset without disrupting your original graph.  Once complete, you can delete this project and/or switch to the original using the <strong>Projects</strong> list in the navigation bar.\
+              <p class="well">\
+                You\'re done with the tour!  We only walked you through a small subset of features, so be sure to continue exploring.\
+                <br>\
+                <br>\
                 Visit the <strong><a target="_blank" href="http://www.github.com/lab41/Dendrite">Dendrite</a></strong> project on GitHub if you want to contribute. Thanks!\
               </p>',
+    template: tourTemplateOnlyEnd(),
     backdrop: true,
     orphan: true
   }

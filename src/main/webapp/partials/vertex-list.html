@@ -18,15 +18,18 @@
     <div class="inline input-append">
       <form class="inline" ng-submit="refresh('Searching')">
         <input type="text" class="form-control inline searchbar" placeholder="Filter Results" ng-model="gridOptions.filterOptions.filterText" id="filter">
-        <button type="submit" class="btn btn-default">
-          <i class="icon-search icon-white" ng-hide="fullTextSearching"></i>
-          <img src="img/icons/ajax-spinner.gif" ng-hide="!fullTextSearching">
-        </button>
+        <div id="tour-step-15" class="inline">
+          <button type="submit" class="btn btn-default">
+            <i class="icon-search icon-white" ng-hide="fullTextSearching"></i>
+            <img src="img/icons/ajax-spinner.gif" ng-hide="!fullTextSearching">
+          </button>
 
-        <button class="btn btn-attention" ng-if="gridOptions.filterOptions.filterText" bs-modal="'partials/project-carve.html'">
-          <i class="icon-random icon-white"></i>
-          <span>Carve New Project</span>
-        </button>
+          <button class="btn btn-attention" ng-if="gridOptions.filterOptions.filterText" ng-click="modalCarve()">
+            <i class="icon-random icon-white"></i>
+            <span>Carve New Project</span>
+          </button>
+        </div>
+
       </form>
     </div>
 
