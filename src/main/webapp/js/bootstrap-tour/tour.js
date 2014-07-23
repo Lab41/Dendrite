@@ -289,7 +289,7 @@ var tourSelectorPrefix = function() {
 };
 
 // function necessary to sync JQuery tour with AngularJS $scope refreshes
-var tourGoToNextStep = function() {
+var tourGoToNextStep = function(stepNum) {
 
   // end the tour to prevent tour from continuing in the absence of a step's on-page selector
   tour.end();
@@ -297,7 +297,9 @@ var tourGoToNextStep = function() {
 
   // set the next step and calculate the on-page selector
   //  (IMPORTANT: this requires selectors of the format: id="tour-step-X"
-  var stepNum = tour.getCurrentStep()+1;
+  if (stepNum === undefined) {
+    stepNum = tour.getCurrentStep()+1;
+  }
   var el = tourSelectorPrefix() + stepNum;
 
   // block until element exists on page
