@@ -138,6 +138,10 @@ angular.module('dendrite.controllers', []).
           }
         };
 
+        $scope.tourEndId = function() {
+          return ($rootScope.projectCommitting) ? "" : "tour-step-17";
+        };
+
         // boolean function to determine whether to show tabbed visualization panel
         $scope.showTabs = function() {
           return ($scope.projectHasData && $scope.graphLoaded);
@@ -619,7 +623,7 @@ angular.module('dendrite.controllers', []).
         // poll on page entry
         pollActive();
     }).
-    controller('VertexListCtrl', function($rootScope, $scope, $location, $timeout, $routeParams, $filter, $q, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
+    controller('VertexListCtrl', function($rootScope, $scope, $location, $timeout, $routeParams, $filter, $q, $modal, appConfig, User, Graph, Project, Vertex, Edge, ElasticSearch) {
 
       $scope.selectedItems = [];
       $scope.queryStyle = "vertices";
@@ -633,6 +637,19 @@ angular.module('dendrite.controllers', []).
       $scope.$on('event:reloadProjectNeeded', function() {
         $scope.refresh();
       });
+
+      // click handler for modal popup for intro-tour compatability
+      $scope.tourCarveReady = false;
+      $scope.modalCarve = function() {
+        $scope.safeApply(function() {
+          $modal({
+            scope: $scope,
+            template: 'partials/project-carve.html'
+          }).then(function() {
+                $scope.tourCarveReady = true;
+          });
+        });
+      };
 
       $scope.isCollapsed = true;
       $scope.collapseJobs = function() {
@@ -1352,10 +1369,10 @@ angular.module('dendrite.controllers', []).
         ];
         $scope.keysForGraph = [];
 
-        $scope.tourStepId = '';
+        $scope.tourUploadStepId = '';
         $scope.$watch('graphLoaded', function(newVal, oldVal) {
           if ($scope.graphLoaded) {
-            $scope.tourStepId = 'tour-step-5';
+            $scope.tourUploadStepId = 'tour-step-5';
           }
         });
 

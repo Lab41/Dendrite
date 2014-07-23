@@ -1,4 +1,4 @@
-<h2 class="titlebar">Project: {{ project.name }}
+<h2 class="titlebar" id="{{tourEndId()}}">Project: {{ project.name }}
   <!-- dropdown for history -->
   <div id="tour-step-7" class="btn-group navbar-btn margin-bottom-none" ng-if="projectHasData">
     <button class="btn btn-transparent dropdown-toggle" data-toggle="dropdown">Branches <span class="caret"></span></button>
@@ -64,7 +64,7 @@
           <div ng-include="'partials/panels/import-export.html'"></div>
         </div>
 
-        <div class="dragbox expand-full-visible" id="item-import-data" ng-if="projectHasData">
+        <div class="dragbox expand-full-visible" id="item-explore-data" ng-if="projectHasData">
           <h2>Explore:
             <span ng-show='!toggle'>People We Know</span>
             <span ng-show='toggle'>Connections </span>

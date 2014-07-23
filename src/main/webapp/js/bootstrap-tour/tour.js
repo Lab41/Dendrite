@@ -1,42 +1,64 @@
-// Tour templates vary according to the presence/absence of navigation buttons,
-var tourTemplateDefault = function() {
-  return "<div class='popover tour'>\
-  <div class='arrow'></div>\
-  <h3 class='popover-title'></h3>\
-  <div class='popover-content'></div>\
-  <div class='popover-navigation'>\
-    <button class='btn btn-default' data-role='end'>End tour</button>\
-  </div>\
-</div>"
+// Tour templates vary according to the presence/absence of navigation buttons
+// base tour is same for all templates, each has varying nav elements
+var tourTemplateWrap = function(nav) {
+  return '<div class="popover tour">\
+            <div class="arrow"></div>\
+            <h3 class="popover-title"></h3>\
+            <div class="popover-content"></div>'+
+            nav+
+          '</div>';
 };
 
+// no navigation
+var tourTemplateNavOff = function() {
+  var nav = "<div class='popover-navigation'></div>";
+  return tourTemplateWrap(nav);
+};
+
+// full navigation
 var tourTemplateWithNav = function() {
-  return "<div class='popover tour'>\
-  <div class='arrow'></div>\
-  <h3 class='popover-title'></h3>\
-  <div class='popover-content'></div>\
-  <div class='popover-navigation'>\
-    <button class='btn btn-default' data-role='end'>End tour</button>\
-    <div class='prev-next-wrapper'>\
-      <button class='btn btn-primary' data-role='prev'>« Prev</button>\
-      <button class='btn btn-primary' data-role='next'>Next »</button>\
-    </div>\
-  </div>\
-</div>"
+  var nav =  "<div class='popover-navigation'>\
+                <button class='btn btn-default' data-role='end'>End tour</button>\
+                <div class='prev-next-wrapper'>\
+                  <button class='btn btn-primary' data-role='prev'>« Prev</button>\
+                  <button class='btn btn-primary' data-role='next'>Next »</button>\
+                </div>\
+              </div>";
+  return tourTemplateWrap(nav);
 };
 
-var tourTemplateNextOnly = function(labelStop, labelNext) {
-  return "<div class='popover tour'>\
-  <div class='arrow'></div>\
-  <h3 class='popover-title'></h3>\
-  <div class='popover-content'></div>\
-  <div class='popover-navigation'>\
-    <button class='btn btn-default' data-role='end'>"+labelStop+"</button>\
-    <div class='prev-next-wrapper'>\
-      <button class='btn btn-primary' data-role='next'>"+labelNext+"</button>\
-    </div>\
-  </div>\
-</div>"
+// end button
+var tourTemplateOnlyEnd = function() {
+  var nav =  "<div class='popover-navigation'>\
+                <button class='btn btn-default' data-role='end'>End tour</button>\
+              </div>";
+  return tourTemplateWrap(nav);
+};
+
+// end/next buttons
+var tourTemplateEndNext = function(labelStop, labelNext) {
+  var nav =  "<div class='popover-navigation'>\
+                <button class='btn btn-default' data-role='end'>"+labelStop+"</button>\
+                <div class='prev-next-wrapper'>\
+                  <button class='btn btn-primary' data-role='next'>"+labelNext+"</button>\
+                </div>\
+              </div>";
+  return tourTemplateWrap(nav);
+};
+
+// next button
+var tourTemplateOnlyNext = function(labelNext) {
+  var nav =  "<div class='popover-navigation'>\
+                <div class='prev-next-wrapper margin-bottom'>\
+                  <button class='btn btn-primary' data-role='next'>"+labelNext+"</button>\
+                </div>\
+              </div>";
+  return tourTemplateWrap(nav);
+};
+
+// default
+var tourTemplateDefault = function() {
+  return tourTemplateOnlyNext("Continue");
 };
 
 // catch-all function in case user restarts tour after logging in
@@ -67,11 +89,11 @@ var tour = new Tour({
                 <li>Identify key people through graph analytics</li>\
               </ul>\
               <p class="well">\
-                <strong>We will call out actions you need to take in this highlighted box.</strong>\
+                <strong>We will call out actions you need to take in this highlighted box.  Hit the "Esc" key anytime to exit this tour.</strong>\
               </p>',
     backdrop: true,
     orphan: true,
-    template: tourTemplateNextOnly("No Thanks", "Start")
+    template: tourTemplateEndNext("No Thanks", "Start")
   },
   {
     element: "#tour-step-1",
@@ -105,6 +127,7 @@ var tour = new Tour({
               <p class="well">\
                 Go ahead and <strong>Create</strong> a new project.\
               </p>',
+    template: tourTemplateNavOff(),
     reflex: true
   },
   {
@@ -113,8 +136,9 @@ var tour = new Tour({
     title: "New Project",
     content: 'Project names help you track the type of data or purpose behind the project.\
               <p class="well">\
-                Give your new project a name.\
+                Give your new project a name and click <strong>Create</strong>.\
               </p>',
+    template: tourTemplateNavOff(),
     reflex: true
   },
   {
@@ -130,7 +154,7 @@ var tour = new Tour({
               </p>',
     backdrop: true,
     orphan: true,
-    template: tourTemplateNextOnly("End Tour", "Continue"),
+    template: tourTemplateEndNext("End Tour", "Continue"),
     onNext: function(tour) {
       tourGoToNextStep();
     }
@@ -156,6 +180,7 @@ var tour = new Tour({
               <p class="well">\
                 Change the <strong>location</strong> field to a <strong>geocoordinate</strong> type before clicking the <strong>Load Graph</strong> button.\
               </p>',
+    template: tourTemplateNavOff(),
     reflex: true,
     onNext: function(tour) {
       tourGoToNextStep();
@@ -165,8 +190,7 @@ var tour = new Tour({
     element: "#tour-step-7",
     placement: 'bottom',
     title: "Project Versions",
-    content: '<p>You can organize your project into different versions (also called Branches).  These allow you to experiment with ideas, such as removing data or running different analytics, without affecting other versions.</p>',
-    template: tourTemplateWithNav()
+    content: '<p>You can organize your project into different versions (also called Branches).  These allow you to experiment with ideas, such as removing data or running different analytics, without affecting other versions.</p>'
   },
   {
     element: "#tour-step-8",
@@ -175,8 +199,7 @@ var tour = new Tour({
     content: '<p>You can also get a quick feel for your graph with several basic visualizations of the data.\
               <p class="well">\
                 Go ahead and click through the different tabs before continuing.\
-              </p>',
-    template: tourTemplateWithNav()
+              </p>'
   },
   {
     element: "#tour-step-9",
@@ -193,13 +216,9 @@ var tour = new Tour({
   },
   {
     element: "#tour-step-10",
-    placement: 'bottom',
+    placement: 'top',
     title: "Data Explorer",
-    content: '<p>The data explorer organizes your graph in a familiar spreadsheet format. You can click on any column heading to sort that field.  You can also search for specific data.\
-              <p class="well">\
-                Go ahead and type <strong>Valj*</strong> into the search box to test search features.\
-              </p>',
-    template: tourTemplateWithNav()
+    content: '<p>The data explorer organizes your graph in a familiar spreadsheet format. You can click on any column heading to sort that field.  You can also search for specific data.'
   },
   {
     element: "#tour-step-11",
@@ -209,6 +228,7 @@ var tour = new Tour({
               <p class="well">\
                 Click the <strong>Analytics</strong> button to begin the analytics process.\
               </p>',
+    template: tourTemplateNavOff(),
     reflex: true,
     onNext: function(tour) {
       tourGoToNextStep();
@@ -222,16 +242,18 @@ var tour = new Tour({
               <p class="well">\
                 Choose the <strong>PageRank</strong> calculation.  You can leave the default parameters or change them if you prefer.\
               </p>',
+    template: tourTemplateNavOff(),
     reflex: true
   },
   {
     element: "#tour-step-13",
     placement: 'top',
     title: "PageRank",
-    content: '<p>With the click of a button, Dendrite performs the calculation using the appropriate analytic engine, which could be GraphLab, JUNG, Faunus, or GraphX.\
+    content: '<p>With the click of a button, Dendrite performs the calculation using the appropriate analytic engine, which could be GraphLab, JUNG, Faunus, or SNAP.\
               <p class="well">\
                 Go ahead and submit the calculation.\
               </p>',
+    template: tourTemplateNavOff(),
     reflex: true
   },
   {
@@ -240,16 +262,48 @@ var tour = new Tour({
     title: "Analytic Results",
     content: '<p>The output of each calculation becomes part of your dataset.\
               <p class="well">\
-                Click on the <strong>PageRank</strong> column heading to sort the data according to each node\'s calculated score.\
-              </p>',
-    template: tourTemplateWithNav()
+                Once the calculation completes, click on the <strong>PageRank</strong> column heading to sort the data according to each node\'s calculated score.\
+              </p>'
   },
   {
-    title: "Congratulations!",
-    content: '<p>You\'re done with the tour!  We only walked you through a small subset of features, so be sure to continue exploring.</p>\
+    element: "#tour-step-15",
+    placement: 'bottom',
+    title: "Carve New Project",
+    content: '<p>You can also carve out a subset of the current graph into a new project.\
               <p class="well">\
+                Type <strong>Valj*</strong> into the Results Filter and then click the <strong>Carve New Project</strong> button.\
+              </p>',
+    template: tourTemplateNavOff(),
+    reflex: true,
+    onNext: function(tour) {
+      tourGoToNextStep();
+    },
+    onShown: function(tour) {
+      var offset = $("#tour-step-15").find("button").height();
+      $('.popover.tour').css({'margin-top':offset+'px'});
+    }
+  },
+  {
+    element: "#tour-step-16",
+    placement: 'top',
+    title: "Specify Carved Project",
+    content: '<p>Carve a new graph using your filter term(s) as a starting point. For example, specifying two steps would carve all nodes within two connections from nodes captured by your filter.\
+              <p class="well">\
+                Name your new project (i.e. <strong>Valjean Analysis</strong> and choose <strong>1</strong> step as the parameter.  Then click the "Create Project" button.\
+              </p>',
+    template: tourTemplateNavOff(),
+    reflex: true
+  },
+  {
+    title: "Analyze New Project",
+    content: '<p>Your carved project is being created, which will enable you to perform deeper calculations on the subset without disrupting your original graph.  Once complete, you can delete this project and/or switch to the original using the <strong>Projects</strong> list in the navigation bar.\
+              <p class="well">\
+                You\'re done with the tour!  We only walked you through a small subset of features, so be sure to continue exploring.\
+                <br>\
+                <br>\
                 Visit the <strong><a target="_blank" href="http://www.github.com/lab41/Dendrite">Dendrite</a></strong> project on GitHub if you want to contribute. Thanks!\
               </p>',
+    template: tourTemplateOnlyEnd(),
     backdrop: true,
     orphan: true
   }
@@ -264,7 +318,7 @@ var tourSelectorPrefix = function() {
 };
 
 // function necessary to sync JQuery tour with AngularJS $scope refreshes
-var tourGoToNextStep = function() {
+var tourGoToNextStep = function(stepNum) {
 
   // end the tour to prevent tour from continuing in the absence of a step's on-page selector
   tour.end();
@@ -272,7 +326,9 @@ var tourGoToNextStep = function() {
 
   // set the next step and calculate the on-page selector
   //  (IMPORTANT: this requires selectors of the format: id="tour-step-X"
-  var stepNum = tour.getCurrentStep()+1;
+  if (stepNum === undefined) {
+    stepNum = tour.getCurrentStep()+1;
+  }
   var el = tourSelectorPrefix() + stepNum;
 
   // block until element exists on page
