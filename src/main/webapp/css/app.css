@@ -47,19 +47,19 @@
   font-family: 'Oxygen';
   font-style: normal;
   font-weight: 400;
-  src: local('Oxygen'), local('Oxygen-Regular'), url(http://themes.googleusercontent.com/static/fonts/oxygen/v3/RzoNiRR1p2Mqyyz2RwqSMw.woff) format('woff');
+  src: url('fonts/oxygen-regular.woff') format('woff');
 }
 @font-face {
   font-family: 'Syncopate';
   font-style: normal;
   font-weight: 400;
-  src: local('Syncopate'), local('Syncopate-Regular'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/pDM9CVwNx1ufBHCEatJA3D8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+  src: url('fonts/syncopate-regular.woff') format('woff');
 }
 @font-face {
-  font-family: 'Syncopate';
+  font-family: 'Syncopate Bold';
   font-style: normal;
   font-weight: 700;
-  src: local('Syncopate Bold'), local('Syncopate-Bold'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/S5z8ixiOoC4WJ1im6jAlYHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+  src: url('fonts/syncopate-bold.woff') format('woff');
 }
 /**
  * Copyright 2014 In-Q-Tel/Lab41
@@ -156,19 +156,19 @@
   font-family: 'Oxygen';
   font-style: normal;
   font-weight: 400;
-  src: local('Oxygen'), local('Oxygen-Regular'), url(http://themes.googleusercontent.com/static/fonts/oxygen/v3/RzoNiRR1p2Mqyyz2RwqSMw.woff) format('woff');
+  src: url('fonts/oxygen-regular.woff') format('woff');
 }
 @font-face {
   font-family: 'Syncopate';
   font-style: normal;
   font-weight: 400;
-  src: local('Syncopate'), local('Syncopate-Regular'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/pDM9CVwNx1ufBHCEatJA3D8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+  src: url('fonts/syncopate-regular.woff') format('woff');
 }
 @font-face {
-  font-family: 'Syncopate';
+  font-family: 'Syncopate Bold';
   font-style: normal;
   font-weight: 700;
-  src: local('Syncopate Bold'), local('Syncopate-Bold'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/S5z8ixiOoC4WJ1im6jAlYHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+  src: url('fonts/syncopate-bold.woff') format('woff');
 }
 .titlebar-buttons {
   float: right;
