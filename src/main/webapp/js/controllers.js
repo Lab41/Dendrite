@@ -228,14 +228,14 @@ angular.module('dendrite.controllers', []).
         };
 
     }).
-    controller('AnalyticsDetailCtrl', function($scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
+    controller('AnalyticsDetailCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, User, Vertex, Edge, Analytics, Helpers, $timeout) {
         // config
         $scope.activeAnalytics = [];
         $scope.colorProgressBars = Helpers.colorProgressBars;
 
         // periodically poll for active calculations
         var pollActive = function() {
-          Analytics.getJob({jobId: $routeParams.analyticsId})
+          Analytics.getJob({jobId: $scope.analyticsId})
                       .$then(function(data) {
                           $scope.analytic = data.data.job;
                           if ($scope.analytic !== undefined && $scope.analytic.progress < 1.0) {
@@ -251,7 +251,10 @@ angular.module('dendrite.controllers', []).
             .$then(function(response) {
               var data = response.data;
               if (data.msg === "deleted") {
-                window.history.back();
+                $rootScope.$broadcast('event:pollActiveAnalytics');
+              }
+              else {
+                $rootScope.projectMsgInfo = data.msg;
               }
             });
         };
@@ -519,14 +522,21 @@ angular.module('dendrite.controllers', []).
 
         };
     }).
-    controller('AnalyticsListCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, appConfig, Project, Graph, Analytics, Helpers, $timeout) {
+    controller('AnalyticsListCtrl', function($rootScope, $scope, $location, $routeParams, $filter, $q, $modal, appConfig, Project, Graph, Analytics, Helpers, $timeout) {
         // config
         $scope.activeAnalytics = [];
         $scope.colorProgressBars = Helpers.colorProgressBars;
 
         // show result
         $scope.showAnalytic = function(id) {
-          $location.path('graphs/' + $scope.graphId + '/analytics/' + id);
+          $scope.analyticsId = id;
+          $scope.safeApply(function() {
+              $modal({
+                  scope: $scope,
+                  template: 'partials/analytics/show.html',//'#/graphs/' + $scope.graphId + '/analytics/' + id,
+                  backdrop: 'static'
+              })
+          });
         };
 
         $scope.setNumJobsTotal = function(val) {
