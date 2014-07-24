@@ -533,7 +533,7 @@ angular.module('dendrite.controllers', []).
           $scope.safeApply(function() {
               $modal({
                   scope: $scope,
-                  template: 'partials/analytics/show.html',//'#/graphs/' + $scope.graphId + '/analytics/' + id,
+                  template: 'partials/analytics/show.html',
                   backdrop: 'static'
               })
           });
