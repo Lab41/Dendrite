@@ -121,15 +121,14 @@ angular.module('dendrite.controllers', []).
         $scope.panelFullScreen = function(title, url) {
           $scope.modalUrl = url;
           $scope.modalTitle = title;
-                $scope.safeApply(function() {
-                    $modal({
-                        scope: $scope,
-                        template: "partials/layouts/panel-modal.html",
-                        modalClass: 'modal-large',
-                        backdrop: 'static'
-                    })
-                });
-
+          $scope.safeApply(function() {
+              $modal({
+                  scope: $scope,
+                  template: "partials/layouts/panel-modal.html",
+                  modalClass: 'modal-large',
+                  backdrop: 'static'
+              })
+          });
         };
 
         $scope.panelEditable = function() {
