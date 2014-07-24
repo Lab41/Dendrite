@@ -1,7 +1,21 @@
-<h4 class="titlebar" style="padding-top:20px">
-  Status for Analytic {{analytic._id}}
-  <button ng-click="deleteJob(analytic._id)" ng-confirm-click="Really Delete?" class="btn btn-default"><i class="icon-white icon-trash"></i> Delete</button>
-</h4>
-<div class="row-fluid">
-  <analytic-progress-bar></analytic-progress-bar>
-</div>
+<!-- Modal (external ./partials/modal.html or inline ng-template) -->
+<form ng-controller="AnalyticsDetailCtrl" ng-submit="dismiss()">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>Analytic Job Progress</h3>
+  </div>
+
+  <div class="modal-body">
+    <h4 class="titlebar" style="padding-top:20px">
+      Status for Analytic {{analytic._id}}
+      <button ng-click="deleteJob(analytic._id)" class="btn btn-default"><i class="icon-white icon-trash"></i> Delete</button>
+    </h4>
+    <div class="row-fluid">
+      <analytic-progress-bar></analytic-progress-bar>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="dismiss()">Close</button>
+  </div>
+</form>
