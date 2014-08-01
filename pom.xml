@@ -5,7 +5,7 @@
     <groupId>org.lab41</groupId>
     <artifactId>dendrite</artifactId>
     <packaging>war</packaging>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <name>lab41</name>
     <properties>
         <aspectj.version>1.7.0</aspectj.version>
