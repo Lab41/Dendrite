@@ -6,6 +6,17 @@
              xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
+    <global-method-security pre-post-annotations="enabled">
+        <expression-handler ref="expressionHandler"/>
+    </global-method-security>
+
+    <beans:bean id="graphPermissionEvaluator" class="org.lab41.dendrite.web.security.GraphPermissonHandler" />
+
+    <beans:bean id="expressionHandler" class=
+            "org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <beans:property name="permissionEvaluator" ref="graphPermissionEvaluator"/>
+    </beans:bean>
+
     <http auto-config='false' entry-point-ref="restAuthenticationEntryPoint">
         <intercept-url pattern="/index*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
