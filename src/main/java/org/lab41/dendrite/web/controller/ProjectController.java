@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -78,9 +79,12 @@ public class ProjectController {
     @RequestMapping(value = "/projects", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody CreateProjectBean item,
                                                              BindingResult result,
-                                                             UriComponentsBuilder builder) {
+                                                             UriComponentsBuilder builder,
+                                                             Principal principal) {
 
         Map<String, Object> response = new HashMap<>();
+
+        logger.debug("Principal" + principal.getName());
 
         if (result.hasErrors()) {
             response.put("status", "error");

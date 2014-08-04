@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class MetaGraphService {
     public Set<String> getGraphNames() {
         return metaGraph.getGraphNames();
     }
+
 
     public Collection<DendriteGraph> getGraphs() {
         return metaGraph.getGraphs();

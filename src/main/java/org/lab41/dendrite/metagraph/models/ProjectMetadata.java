@@ -32,6 +32,12 @@ public interface ProjectMetadata extends NamedMetadata {
     @JavaHandler
     public GraphMetadata getCurrentGraph();
 
+    @Adjacency(label = "userOwnsProject", direction = Direction.OUT)
+    public void setUserOwnsProject(UserMetadata user);
+
+    @Adjacency(label = "userOwnsProject", direction = Direction.OUT)
+    public UserMetadata getUserOwnsProject();
+
     @Adjacency(label = "ownsBranch", direction = Direction.OUT)
     public Iterable<BranchMetadata> getBranches();
 

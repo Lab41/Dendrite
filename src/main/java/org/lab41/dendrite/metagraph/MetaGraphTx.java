@@ -5,6 +5,8 @@ import org.lab41.dendrite.metagraph.models.*;
 import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.FramedTransactionalGraph;
 
+import java.security.Principal;
+
 public class MetaGraphTx {
 
     private FramedTransactionalGraph<DendriteGraphTx> tx = null;
@@ -25,19 +27,26 @@ public class MetaGraphTx {
         return getVertices("project", ProjectMetadata.class);
     }
 
+    public UserMetadata getUser(String name)
+    {
+        return getVertex(name, "user", UserMetadata.class);
+    }
+
     public ProjectMetadata getProject(String projectId) {
         return getVertex(projectId, "project", ProjectMetadata.class);
     }
 
-    public ProjectMetadata createProject(String name) {
-        return createProject(name, true);
+    public ProjectMetadata createProject(String name, Principal principal) {
+        return createProject(name, principal, true);
     }
 
-    public ProjectMetadata createProject(String name, boolean createBranch) {
+    public ProjectMetadata createProject(String name, Principal principle, boolean createBranch) {
         Preconditions.checkArgument(!name.isEmpty());
 
         ProjectMetadata projectMetadata = createVertex("project", ProjectMetadata.class);
         projectMetadata.setName(name);
+
+        UserMetadata userMetadata = createVertex("user", UserMetadata.class);
 
         if (createBranch) {
             BranchMetadata branchMetadata = createBranch("master", projectMetadata);
