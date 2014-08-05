@@ -116,7 +116,7 @@ angular.module('dendrite', [
             deferred: deferred
           }
           scope.requests401.push(req);
-          scope.projectMsgInfo = "Unauthorized Access";
+          scope.projectMsgError = "Unauthorized Access";
 
           //FIXME : Add a custom event that they can customize to do fancier error handling
           scope.$broadcast('event:loginRequired');
