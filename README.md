@@ -80,6 +80,19 @@ Install instructions
 4. After the webserver is up and running browse to http://server.fqdn:8000/dendrite
 5. Login as a user with user/password or as an admin with admin/password
 
+Building a WAR File
+---------------------------------
+
+1. Build the dependencies as specified in the Install Instructions.
+2. Build the WAR file:
+
+```
+% mvn package
+```
+
+WARNING: using `mvn war:war` does not actually run through the full build
+lifecycle, and can leave out critical files.
+
 Required Dependencies
 ---------------------
 
