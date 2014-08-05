@@ -4,10 +4,13 @@ import com.google.common.base.Preconditions;
 import org.lab41.dendrite.metagraph.models.*;
 import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.FramedTransactionalGraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.Principal;
 
 public class MetaGraphTx {
+    Logger logger = LoggerFactory.getLogger(MetaGraphTx.class);
 
     private FramedTransactionalGraph<DendriteGraphTx> tx = null;
 
@@ -32,6 +35,24 @@ public class MetaGraphTx {
         return getVertex(name, "user", UserMetadata.class);
     }
 
+    public UserMetadata getUserForProject(String projectId) {
+        ProjectMetadata projectMetadata = getProject(projectId);
+        return projectMetadata.getUserOwnsProject();
+    }
+
+    public UserMetadata getUserForGraph(String graphId)
+    {
+        GraphMetadata graphMetadata = getGraph(graphId);
+        return graphMetadata.getProject().getUserOwnsProject();
+
+    }
+
+    public UserMetadata getUserForBranch(String branchId)
+    {
+        BranchMetadata branchMetadata = getBranch(branchId);
+        return branchMetadata.getProject().getUserOwnsProject();
+    }
+
     public ProjectMetadata getProject(String projectId) {
         return getVertex(projectId, "project", ProjectMetadata.class);
     }
@@ -46,7 +67,12 @@ public class MetaGraphTx {
         ProjectMetadata projectMetadata = createVertex("project", ProjectMetadata.class);
         projectMetadata.setName(name);
 
-        UserMetadata userMetadata = createVertex("user", UserMetadata.class);
+        UserMetadata userMetadata = null;
+
+        if((userMetadata = getUser(principle.getName())) != null) {
+            userMetadata = createVertex("user", UserMetadata.class);
+            userMetadata.setName(principle.getName());
+        }
 
         if (createBranch) {
             BranchMetadata branchMetadata = createBranch("master", projectMetadata);

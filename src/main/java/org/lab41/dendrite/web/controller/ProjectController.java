@@ -96,7 +96,7 @@ public class ProjectController {
 
         MetaGraphTx tx = metaGraphService.newTransaction();
 
-        ProjectMetadata projectMetadata = tx.createProject(name, item.createGraph());
+        ProjectMetadata projectMetadata = tx.createProject(name, principal, item.createGraph());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(builder.path("/{projectId}").buildAndExpand(projectMetadata.getId()).toUri());

@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -520,6 +522,7 @@ public class BranchController {
     @RequestMapping(value = "/projects/{projectId}/current-branch/export-subset", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> exportSubset(@PathVariable String projectId,
                                                             @Valid @RequestBody ExportProjectSubsetBean item,
+                                                            Principal principal,
                                                             BindingResult result) {
         Map<String, Object> response = new HashMap<>();
 
@@ -558,7 +561,7 @@ public class BranchController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        ProjectMetadata dstProjectMetadata = tx.createProject(name, true);
+        ProjectMetadata dstProjectMetadata = tx.createProject(name, principal, true);
         BranchMetadata dstBranchMetadata = dstProjectMetadata.getCurrentBranch();
         GraphMetadata dstGraphMetadata = dstBranchMetadata.getGraph();
 
