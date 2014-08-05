@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
 
 public class DendriteGraphTest extends BaseMetaGraphTest {
 
@@ -17,7 +18,8 @@ public class DendriteGraphTest extends BaseMetaGraphTest {
         super.setUp();
 
         MetaGraphTx tx = metaGraph.newTransaction();
-        ProjectMetadata projectMetadata = tx.createProject("test");
+        UserMetadata userMetadata = tx.createUser("test");
+        ProjectMetadata projectMetadata = tx.createProject("test", userMetadata);
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
         tx.commit();
 

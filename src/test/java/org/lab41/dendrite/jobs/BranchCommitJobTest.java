@@ -9,10 +9,7 @@ import com.tinkerpop.blueprints.Vertex;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.lab41.dendrite.metagraph.*;
-import org.lab41.dendrite.metagraph.models.BranchMetadata;
-import org.lab41.dendrite.metagraph.models.GraphMetadata;
-import org.lab41.dendrite.metagraph.models.JobMetadata;
-import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.*;
 
 public class BranchCommitJobTest extends BaseMetaGraphTest {
 
@@ -21,7 +18,8 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         // Create the project.
         MetaGraphTx metaGraphTx = metaGraph.newTransaction();
 
-        ProjectMetadata projectMetadata = metaGraphTx.createProject("test");
+        UserMetadata userMetadata = metaGraphTx.createUser("test");
+        ProjectMetadata projectMetadata = metaGraphTx.createProject("test", userMetadata);
         BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
         GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
         JobMetadata jobMetadata = metaGraphTx.createJob(projectMetadata);

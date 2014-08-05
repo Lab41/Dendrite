@@ -11,15 +11,13 @@ import com.tinkerpop.frames.modules.typedgraph.TypeValue;
 @TypeValue("user")
 public interface UserMetadata  extends NamedMetadata {
 
-
     /**
      * Returns all the projects created by this user
      *
      * @return
      */
-    @Adjacency(label = "createdBy", direction = Direction.IN)
-    public Iterable<ProjectMetadata> getCreatedProjects();
-
+    @Adjacency(label = "ownsProject", direction = Direction.IN)
+    public Iterable<ProjectMetadata> getOwnedProjects();
 
 }
 
