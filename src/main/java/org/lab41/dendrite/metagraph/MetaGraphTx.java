@@ -52,26 +52,6 @@ public class MetaGraphTx {
                 .next();
     }
 
-    /*
-    public UserMetadata getUserForProject(String projectId) {
-        ProjectMetadata projectMetadata = getProject(projectId);
-        return projectMetadata.getUserOwnsProject();
-    }
-
-    public UserMetadata getUserForGraph(String graphId)
-    {
-        GraphMetadata graphMetadata = getGraph(graphId);
-        return graphMetadata.getProject().getUserOwnsProject();
-
-    }
-
-    public UserMetadata getUserForBranch(String branchId)
-    {
-        BranchMetadata branchMetadata = getBranch(branchId);
-        return branchMetadata.getProject().getUserOwnsProject();
-    }
-    */
-
     public Iterable<ProjectMetadata> getProjects() {
         return getVertices("project", ProjectMetadata.class);
     }

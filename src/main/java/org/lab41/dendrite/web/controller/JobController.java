@@ -7,6 +7,7 @@ import org.lab41.dendrite.services.MetaGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +42,7 @@ public class JobController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#jobId, 'project','admin')")
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getJob(@PathVariable String jobId) {
 
@@ -64,6 +66,7 @@ public class JobController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/jobs", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getJobs(@PathVariable String projectId) {
 
@@ -92,6 +95,7 @@ public class JobController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#jobId, 'job','admin')")
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteJob(@PathVariable String jobId) {
 

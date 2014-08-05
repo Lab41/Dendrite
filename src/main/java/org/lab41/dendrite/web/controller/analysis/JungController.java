@@ -11,6 +11,7 @@ import org.lab41.dendrite.web.beans.PageRankBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +44,7 @@ public class JungController {
     @Autowired
     PageRankService pageRankService;
 
+    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/barycenter-distance", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungBarycenterDistance(@PathVariable String graphId) throws Exception {
 
@@ -88,6 +90,7 @@ public class JungController {
     }
 
 
+    @PreAuthorize("hasPermission(#graphId, 'graphId','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/betweenness-centrality", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungBetweennessCentrality(@PathVariable String graphId) throws Exception {
 
@@ -132,6 +135,7 @@ public class JungController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/closeness-centrality", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungClosenessCentrality(@PathVariable String graphId) throws Exception {
 
@@ -176,6 +180,7 @@ public class JungController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/eigenvector-centrality", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungEigenvectorCentrality(@PathVariable String graphId) throws Exception {
 
@@ -220,6 +225,7 @@ public class JungController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/pagerank", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungPageRank(@PathVariable String graphId,
                                                             @Valid @RequestBody PageRankBean item,

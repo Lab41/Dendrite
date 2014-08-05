@@ -10,6 +10,7 @@ import org.lab41.dendrite.services.analysis.SnapService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ public class SnapController {
     @Autowired
     SnapService snapService;
 
+    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/snap/{algorithm}", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> startJob(@PathVariable String graphId, @PathVariable String algorithm) throws Exception {
 

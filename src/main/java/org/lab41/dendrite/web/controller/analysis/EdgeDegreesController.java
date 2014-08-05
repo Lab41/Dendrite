@@ -10,6 +10,7 @@ import org.lab41.dendrite.services.analysis.EdgeDegreesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,8 @@ public class EdgeDegreesController {
     @Autowired
     EdgeDegreesService edgeDegreesService;
 
+
+    @PreAuthorize("hasPermission(#graphId, 'project','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/titan-degrees", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> startJob(@PathVariable String graphId) throws Exception {
 
@@ -71,6 +74,7 @@ public class EdgeDegreesController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graphId','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/faunus-degrees", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> startFaunusJob(@PathVariable String graphId) throws Exception {
 

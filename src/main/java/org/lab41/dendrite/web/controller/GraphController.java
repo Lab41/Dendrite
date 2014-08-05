@@ -13,6 +13,7 @@ import org.lab41.dendrite.web.beans.CreateGraphBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,6 +52,7 @@ public class GraphController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graphId','admin')")
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getGraph(@PathVariable String graphId) {
 
@@ -77,6 +79,7 @@ public class GraphController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graphId','admin')")
     @RequestMapping(value = "/graphs/{graphId}/random", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getRandom(@PathVariable String graphId) {
 
@@ -152,6 +155,7 @@ public class GraphController {
         }
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) {
 
@@ -183,6 +187,7 @@ public class GraphController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getGraphs(@PathVariable String projectId) {
 
@@ -210,6 +215,7 @@ public class GraphController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createGraph(@PathVariable String projectId,
                                                            @Valid @RequestBody CreateGraphBean item,
@@ -245,6 +251,7 @@ public class GraphController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-graph", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId) {
 

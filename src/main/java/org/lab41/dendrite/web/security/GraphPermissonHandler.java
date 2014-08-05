@@ -11,12 +11,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 
 /**
  * Created by kramachandran on 8/4/14.
  */
+@Service
 public class GraphPermissonHandler implements PermissionEvaluator{
     Logger logger = LoggerFactory.getLogger("GraphPermissionHandler");
 
@@ -68,7 +70,7 @@ public class GraphPermissonHandler implements PermissionEvaluator{
     boolean checkUserForJob(Authentication authentication, Serializable targetId)
     {
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
-        ProjectMetadata projectMetadata = tx.getJob((String)targetId).getProject();
+        ProjectMetadata projectMetadata = tx.getJob((String) targetId).getProject();
         if (checkAuthAgainsUserOfProject(authentication, projectMetadata))
             return true;
         tx.commit();

@@ -15,6 +15,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -35,15 +37,18 @@ public class ProjectController {
     MetaGraphService metaGraphService;
 
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
-    public @ResponseBody Map<String, Object> getProjects() {
+    public @ResponseBody Map<String, Object> getProjects(Principal principal) {
 
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+
+        UserMetadata userMetadata = tx.getUser(principal.getName());
 
         Map<String, Object> response = new HashMap<>();
         ArrayList<Object> projects = new ArrayList<>();
         response.put("projects", projects);
 
-        for(ProjectMetadata projectMetadata: tx.getProjects()) {
+        Iterable<ProjectMetadata> itprojects = userMetadata.getOwnedProjects();
+        for(ProjectMetadata projectMetadata: itprojects) {
             projects.add(getProjectMap(projectMetadata));
         }
 
@@ -171,6 +176,7 @@ public class ProjectController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/users", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> addUser(@PathVariable String projectId,
                                                        @Valid @RequestBody AddUserToProject item,

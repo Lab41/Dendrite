@@ -7,10 +7,7 @@ import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.lab41.dendrite.jobs.BranchCommitJob;
 import org.lab41.dendrite.jobs.BranchCommitSubsetJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
-import org.lab41.dendrite.metagraph.models.BranchMetadata;
-import org.lab41.dendrite.metagraph.models.GraphMetadata;
-import org.lab41.dendrite.metagraph.models.JobMetadata;
-import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.*;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.services.HistoryService;
 import org.lab41.dendrite.services.MetaGraphService;
@@ -70,6 +67,7 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/branches/{branchId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getBranch(@PathVariable String branchId) {
 
@@ -93,6 +91,7 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#branchId, 'branchId','admin')")
     @RequestMapping(value = "/branches/{branchId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteBranch(@PathVariable String branchId) {
 
@@ -144,6 +143,7 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/branches", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getBranches(@PathVariable String projectId) {
 
@@ -171,6 +171,7 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/branches/{branchName}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getBranch(@PathVariable String projectId,
                                                          @PathVariable String branchName) {
@@ -203,6 +204,7 @@ public class BranchController {
     }
 
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/branches/{branchName}", method = RequestMethod.PUT)
     public ResponseEntity<Map<String, Object>> createBranch(@PathVariable String projectId,
                                                             @PathVariable String branchName,
@@ -277,6 +279,7 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getCurrentBranch(@PathVariable String projectId) {
 
@@ -307,6 +310,7 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch", method = RequestMethod.PUT)
     public ResponseEntity<Map<String, Object>> getCurrentBranch(@PathVariable String projectId,
                                                                @Valid @RequestBody UpdateCurrentBranchBean item,
@@ -358,6 +362,7 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> commitBranch(@PathVariable String projectId) throws GitAPIException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -464,6 +469,7 @@ public class BranchController {
     }
     */
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit-subset", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> commitSubsetBranch(@PathVariable String projectId,
                                                                   @Valid @RequestBody CreateBranchSubsetNStepsBean item,
@@ -519,6 +525,7 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/export-subset", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> exportSubset(@PathVariable String projectId,
                                                             @Valid @RequestBody ExportProjectSubsetBean item,
@@ -561,7 +568,10 @@ public class BranchController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        ProjectMetadata dstProjectMetadata = tx.createProject(name, principal, true);
+
+        //FIXME - Check for null users ;
+        UserMetadata userMetadata = tx.getUserByName(principal.getName());
+        ProjectMetadata dstProjectMetadata = tx.createProject(name, userMetadata);
         BranchMetadata dstBranchMetadata = dstProjectMetadata.getCurrentBranch();
         GraphMetadata dstGraphMetadata = dstBranchMetadata.getGraph();
 
