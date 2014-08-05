@@ -12,10 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.*;
 import org.lab41.dendrite.metagraph.*;
-import org.lab41.dendrite.metagraph.models.BranchMetadata;
-import org.lab41.dendrite.metagraph.models.GraphMetadata;
-import org.lab41.dendrite.metagraph.models.JobMetadata;
-import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -78,13 +75,16 @@ public class BranchCommitSubsetJobTest {
     @Before
     public void setUp() {
         MetaGraphTx metaGraphTx = metaGraph.newTransaction();
+
+        UserMetadata userMetadata;
         ProjectMetadata projectMetadata;
         BranchMetadata branchMetadata;
         GraphMetadata srcGraphMetadata;
         JobMetadata jobMetadata;
 
         try {
-            projectMetadata = metaGraphTx.createProject("test");
+            userMetadata = metaGraphTx.createUser("test");
+            projectMetadata = metaGraphTx.createProject("test", userMetadata);
             branchMetadata = projectMetadata.getCurrentBranch();
             srcGraphMetadata = branchMetadata.getGraph();
             jobMetadata = metaGraphTx.createJob(projectMetadata);

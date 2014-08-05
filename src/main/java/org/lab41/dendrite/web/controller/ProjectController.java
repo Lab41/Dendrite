@@ -4,7 +4,9 @@ import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
+import org.lab41.dendrite.web.beans.AddUserToProject;
 import org.lab41.dendrite.web.beans.CreateProjectBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +77,6 @@ public class ProjectController {
         tx.commit();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
     @RequestMapping(value = "/projects", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody CreateProjectBean item,
@@ -84,8 +85,6 @@ public class ProjectController {
                                                              Principal principal) {
 
         Map<String, Object> response = new HashMap<>();
-
-        logger.debug("Principal" + principal.getName());
 
         if (result.hasErrors()) {
             response.put("status", "error");
@@ -97,7 +96,14 @@ public class ProjectController {
 
         MetaGraphTx tx = metaGraphService.newTransaction();
 
-        ProjectMetadata projectMetadata = tx.createProject(name, principal, item.createGraph());
+        UserMetadata userMetadata = tx.getUserByName(principal.getName());
+        if (userMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "user is authenticated, but cannot find user record");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        ProjectMetadata projectMetadata = tx.createProject(name, userMetadata, item.createGraph());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(builder.path("/{projectId}").buildAndExpand(projectMetadata.getId()).toUri());
@@ -113,11 +119,18 @@ public class ProjectController {
 
     @PreAuthorize(value="hasPermissions(#projectId, 'project', 'read')")
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) {
-
-        MetaGraphTx tx = metaGraphService.newTransaction();
+    public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId,
+                                                             Principal principal) {
 
         Map<String, Object> response = new HashMap<>();
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        UserMetadata userMetadata = tx.getUserByName(principal.getName());
+        if (userMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "user is authenticated, but cannot find user record");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         ProjectMetadata projectMetadata = tx.getProject(projectId);
         if (projectMetadata == null) {
@@ -125,6 +138,20 @@ public class ProjectController {
             response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        boolean found = false;
+        for (UserMetadata u : projectMetadata.getUsers()) {
+            if (userMetadata == u) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            response.put("status", "error");
+            response.put("msg", "unauthenticated");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
 
         try {
@@ -137,6 +164,67 @@ public class ProjectController {
         }
 
         response.put("msg", "deleted");
+
+        // Commit must come after all graph access.
+        tx.commit();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{projectId}/users", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> addUser(@PathVariable String projectId,
+                                                       @Valid @RequestBody AddUserToProject item,
+                                                       BindingResult result,
+                                                       UriComponentsBuilder builder,
+                                                       Principal principal) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        if (result.hasErrors()) {
+            response.put("status", "error");
+            response.put("msg", result.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        UserMetadata userMetadata = tx.getUserByName(principal.getName());
+        if (userMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "user is authenticated, but cannot find user record");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        ProjectMetadata projectMetadata = tx.getProject(projectId);
+        if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "could not find project '" + projectId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        boolean found = false;
+        for (UserMetadata u : projectMetadata.getUsers()) {
+            if (userMetadata == u) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            response.put("status", "error");
+            response.put("msg", "unauthenticated");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        UserMetadata otherUserMetadata = tx.getUser(item.getUserId());
+        if (otherUserMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "unknown user '" + item.getUserId() + "'");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        projectMetadata.addUser(otherUserMetadata);
 
         // Commit must come after all graph access.
         tx.commit();

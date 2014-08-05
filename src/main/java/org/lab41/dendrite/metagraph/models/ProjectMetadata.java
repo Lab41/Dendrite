@@ -33,10 +33,10 @@ public interface ProjectMetadata extends NamedMetadata {
     public GraphMetadata getCurrentGraph();
 
     @Adjacency(label = "userOwnsProject", direction = Direction.OUT)
-    public void setUserOwnsProject(UserMetadata user);
+    public void addUser(UserMetadata user);
 
     @Adjacency(label = "userOwnsProject", direction = Direction.OUT)
-    public UserMetadata getUserOwnsProject();
+    public Iterable<UserMetadata> getUsers();
 
     @Adjacency(label = "ownsBranch", direction = Direction.OUT)
     public Iterable<BranchMetadata> getBranches();

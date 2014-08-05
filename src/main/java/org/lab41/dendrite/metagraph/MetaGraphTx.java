@@ -26,15 +26,33 @@ public class MetaGraphTx {
         tx.commit();
     }
 
-    public Iterable<ProjectMetadata> getProjects() {
-        return getVertices("project", ProjectMetadata.class);
+    public UserMetadata createUser(String name) {
+        Preconditions.checkArgument(!name.isEmpty());
+
+        UserMetadata userMetadata = createVertex("user", UserMetadata.class);
+        userMetadata.setName(name);
+
+        return userMetadata;
     }
 
-    public UserMetadata getUser(String name)
-    {
-        return getVertex(name, "user", UserMetadata.class);
+    public Iterable<UserMetadata> getUsers() {
+        return getVertices("user", UserMetadata.class);
     }
 
+    public UserMetadata getUser(String userId) {
+        return getVertex(userId, "user", UserMetadata.class);
+    }
+
+    public UserMetadata getUserByName(String userName) {
+        return tx.query()
+                .has("type", "user")
+                .has("name", userName)
+                .vertices(UserMetadata.class)
+                .iterator()
+                .next();
+    }
+
+    /*
     public UserMetadata getUserForProject(String projectId) {
         ProjectMetadata projectMetadata = getProject(projectId);
         return projectMetadata.getUserOwnsProject();
@@ -52,27 +70,26 @@ public class MetaGraphTx {
         BranchMetadata branchMetadata = getBranch(branchId);
         return branchMetadata.getProject().getUserOwnsProject();
     }
+    */
+
+    public Iterable<ProjectMetadata> getProjects() {
+        return getVertices("project", ProjectMetadata.class);
+    }
 
     public ProjectMetadata getProject(String projectId) {
         return getVertex(projectId, "project", ProjectMetadata.class);
     }
 
-    public ProjectMetadata createProject(String name, Principal principal) {
-        return createProject(name, principal, true);
+    public ProjectMetadata createProject(String name, UserMetadata userMetadata) {
+        return createProject(name, userMetadata, true);
     }
 
-    public ProjectMetadata createProject(String name, Principal principle, boolean createBranch) {
+    public ProjectMetadata createProject(String name, UserMetadata userMetadata, boolean createBranch) {
         Preconditions.checkArgument(!name.isEmpty());
 
         ProjectMetadata projectMetadata = createVertex("project", ProjectMetadata.class);
         projectMetadata.setName(name);
-
-        UserMetadata userMetadata = null;
-
-        if((userMetadata = getUser(principle.getName())) != null) {
-            userMetadata = createVertex("user", UserMetadata.class);
-            userMetadata.setName(principle.getName());
-        }
+        projectMetadata.addUser(userMetadata);
 
         if (createBranch) {
             BranchMetadata branchMetadata = createBranch("master", projectMetadata);

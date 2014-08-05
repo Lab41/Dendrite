@@ -9,13 +9,15 @@ import static org.junit.matchers.JUnitMatchers.hasItem;
 
 public class JobMetadataTest extends BaseMetadataTest {
 
+    UserMetadata userMetadata;
     ProjectMetadata projectMetadata;
     JobMetadata jobMetadata;
 
     @Before
     public void setUp() {
         super.setUp();
-        projectMetadata = tx.createProject("test");
+        userMetadata = tx.createUser("test");
+        projectMetadata = tx.createProject("test", userMetadata);
         jobMetadata = tx.createJob(projectMetadata);
     }
 
