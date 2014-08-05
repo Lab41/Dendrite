@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
 
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
@@ -28,12 +29,14 @@ public class MetaGraphTxTest extends BaseMetaGraphTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void createProjectShouldThrowWithEmptyName() {
-        tx.createProject("");
+        UserMetadata userMetadata = tx.createUser("test");
+        tx.createProject("", userMetadata);
     }
 
     @Test
     public void createProjectShouldMakeAProject() {
-        ProjectMetadata projectMetadata = tx.createProject("test");
+        UserMetadata userMetadata = tx.createUser("test");
+        ProjectMetadata projectMetadata = tx.createProject("test", userMetadata);
         Assert.assertNotNull(projectMetadata);
         Assert.assertEquals(projectMetadata.getName(), "test");
 
@@ -57,7 +60,8 @@ public class MetaGraphTxTest extends BaseMetaGraphTest {
 
     @Test
     public void createProjectShouldOptionallyNotMakeABranch() {
-        ProjectMetadata projectMetadata = tx.createProject("test", false);
+        UserMetadata userMetadata = tx.createUser("test");
+        ProjectMetadata projectMetadata = tx.createProject("test", userMetadata, false);
         Assert.assertNotNull(projectMetadata);
         Assert.assertNull(projectMetadata.getCurrentBranch());
         Assert.assertNull(projectMetadata.getCurrentGraph());
