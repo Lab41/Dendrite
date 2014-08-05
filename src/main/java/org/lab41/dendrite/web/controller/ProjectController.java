@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,7 @@ public class ProjectController {
         return response;
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getProject(@PathVariable String projectId) {
 
@@ -75,7 +77,6 @@ public class ProjectController {
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
-
     @RequestMapping(value = "/projects", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody CreateProjectBean item,
                                                              BindingResult result,
@@ -109,6 +110,8 @@ public class ProjectController {
         return new ResponseEntity<>(response, headers, HttpStatus.CREATED);
     }
 
+
+    @PreAuthorize(value="hasPermissions(#projectId, 'project', 'read')")
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) {
 
