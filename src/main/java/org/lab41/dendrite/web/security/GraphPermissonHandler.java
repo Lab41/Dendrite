@@ -14,11 +14,13 @@ public class GraphPermissonHandler implements PermissionEvaluator{
     Logger logger = LoggerFactory.getLogger("GraphPermissionHandler");
     @Override
     public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+        //TODO fill this out
         return false;
     }
 
     @Override
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+        logger.debug("In has permission"+targetId+targetType+permission);
         return false;
     }
 }
