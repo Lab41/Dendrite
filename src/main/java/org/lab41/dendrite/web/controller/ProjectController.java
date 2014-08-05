@@ -124,18 +124,10 @@ public class ProjectController {
 
     @PreAuthorize(value="hasPermissions(#projectId, 'project', 'read')")
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId,
-                                                             Principal principal) {
+    public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) {
 
         Map<String, Object> response = new HashMap<>();
         MetaGraphTx tx = metaGraphService.newTransaction();
-
-        UserMetadata userMetadata = tx.getUserByName(principal.getName());
-        if (userMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "user is authenticated, but cannot find user record");
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
 
         ProjectMetadata projectMetadata = tx.getProject(projectId);
         if (projectMetadata == null) {
@@ -143,20 +135,6 @@ public class ProjectController {
             response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        boolean found = false;
-        for (UserMetadata u : projectMetadata.getUsers()) {
-            if (userMetadata == u) {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            response.put("status", "error");
-            response.put("msg", "unauthenticated");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
 
         try {
@@ -181,8 +159,7 @@ public class ProjectController {
     public ResponseEntity<Map<String, Object>> addUser(@PathVariable String projectId,
                                                        @Valid @RequestBody AddUserToProject item,
                                                        BindingResult result,
-                                                       UriComponentsBuilder builder,
-                                                       Principal principal) {
+                                                       UriComponentsBuilder builder) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -194,33 +171,12 @@ public class ProjectController {
 
         MetaGraphTx tx = metaGraphService.newTransaction();
 
-        UserMetadata userMetadata = tx.getUserByName(principal.getName());
-        if (userMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "user is authenticated, but cannot find user record");
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
         ProjectMetadata projectMetadata = tx.getProject(projectId);
         if (projectMetadata == null) {
             response.put("status", "error");
             response.put("msg", "could not find project '" + projectId + "'");
             tx.rollback();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        boolean found = false;
-        for (UserMetadata u : projectMetadata.getUsers()) {
-            if (userMetadata == u) {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            response.put("status", "error");
-            response.put("msg", "unauthenticated");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
 
         UserMetadata otherUserMetadata = tx.getUser(item.getUserId());
