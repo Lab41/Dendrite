@@ -1,22 +1,18 @@
 package org.lab41.dendrite.web.controller;
 
-import com.sleepycat.je.tree.BIN;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoMessageException;
-import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.lab41.dendrite.jobs.BranchCommitJob;
 import org.lab41.dendrite.jobs.BranchCommitSubsetJob;
 import org.lab41.dendrite.metagraph.CannotDeleteCurrentBranchException;
-import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.models.*;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.services.HistoryService;
 import org.lab41.dendrite.services.MetaGraphService;
-import org.lab41.dendrite.web.beans.CreateBranchBean;
-import org.lab41.dendrite.web.beans.CreateBranchSubsetNStepsBean;
-import org.lab41.dendrite.web.beans.ExportProjectSubsetBean;
-import org.lab41.dendrite.web.beans.UpdateCurrentBranchBean;
+import org.lab41.dendrite.web.requests.CreateBranchRequest;
+import org.lab41.dendrite.web.requests.CreateBranchSubsetNStepsRequest;
+import org.lab41.dendrite.web.requests.ExportProjectSubsetRequest;
+import org.lab41.dendrite.web.requests.UpdateCurrentBranchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
@@ -236,7 +232,7 @@ public class BranchController {
     @ResponseBody
     public BranchResponse createBranch(@PathVariable String projectId,
                                        @PathVariable String branchName,
-                                       @Valid @RequestBody CreateBranchBean item,
+                                       @Valid @RequestBody CreateBranchRequest item,
                                        BindingResult result) throws GitAPIException, IOException, BindingException, NotFound {
 
         if (result.hasErrors()) {
@@ -327,7 +323,7 @@ public class BranchController {
     @RequestMapping(value = "/projects/{projectId}/current-branch", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<Map<String, Object>> setCurrentBranch(@PathVariable String projectId,
-                                                                @Valid @RequestBody UpdateCurrentBranchBean item,
+                                                                @Valid @RequestBody UpdateCurrentBranchRequest item,
                                                                 BindingResult result) throws GitAPIException, IOException {
 
         Map<String, Object> response = new HashMap<>();
@@ -493,7 +489,7 @@ public class BranchController {
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit-subset", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> commitSubsetBranch(@PathVariable String projectId,
-                                                                  @Valid @RequestBody CreateBranchSubsetNStepsBean item,
+                                                                  @Valid @RequestBody CreateBranchSubsetNStepsRequest item,
                                                                   BindingResult result) {
         Map<String, Object> response = new HashMap<>();
 
@@ -548,7 +544,7 @@ public class BranchController {
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/export-subset", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> exportSubset(@PathVariable String projectId,
-                                                            @Valid @RequestBody ExportProjectSubsetBean item,
+                                                            @Valid @RequestBody ExportProjectSubsetRequest item,
                                                             Principal principal,
                                                             BindingResult result) {
         Map<String, Object> response = new HashMap<>();

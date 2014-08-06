@@ -6,8 +6,8 @@ import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.models.UserMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
-import org.lab41.dendrite.web.beans.AddUserToProject;
-import org.lab41.dendrite.web.beans.CreateProjectBean;
+import org.lab41.dendrite.web.requests.AddUserToProjectRequest;
+import org.lab41.dendrite.web.requests.CreateProjectRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -84,7 +82,7 @@ public class ProjectController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @RequestMapping(value = "/projects", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody CreateProjectBean item,
+    public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody CreateProjectRequest item,
                                                              BindingResult result,
                                                              UriComponentsBuilder builder,
                                                              Principal principal) {
@@ -157,7 +155,7 @@ public class ProjectController {
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/users", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> addUser(@PathVariable String projectId,
-                                                       @Valid @RequestBody AddUserToProject item,
+                                                       @Valid @RequestBody AddUserToProjectRequest item,
                                                        BindingResult result,
                                                        UriComponentsBuilder builder) {
 

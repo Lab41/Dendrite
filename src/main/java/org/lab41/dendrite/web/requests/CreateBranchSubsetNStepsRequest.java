@@ -1,11 +1,10 @@
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.web.requests;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 
-public class CreateBranchSubsetNStepsBean {
+public class CreateBranchSubsetNStepsRequest {
     @NotNull
     @NotEmpty
     private String query;

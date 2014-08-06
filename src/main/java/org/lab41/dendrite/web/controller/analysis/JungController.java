@@ -7,7 +7,7 @@ import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.services.analysis.jung.*;
-import org.lab41.dendrite.web.beans.PageRankBean;
+import org.lab41.dendrite.web.requests.PageRankRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -228,7 +228,7 @@ public class JungController {
     @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/pagerank", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungPageRank(@PathVariable String graphId,
-                                                            @Valid @RequestBody PageRankBean item,
+                                                            @Valid @RequestBody PageRankRequest item,
                                                             BindingResult result) throws Exception {
 
         Map<String, Object> response = new HashMap<>();

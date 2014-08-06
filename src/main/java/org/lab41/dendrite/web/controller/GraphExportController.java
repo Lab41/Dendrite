@@ -28,7 +28,7 @@ import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.services.HistoryService;
 import org.lab41.dendrite.services.MetaGraphService;
-import org.lab41.dendrite.web.beans.GraphExportBean;
+import org.lab41.dendrite.web.requests.GraphExportRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +66,7 @@ public class GraphExportController {
     @PreAuthorize("hasPermission(#graphId, 'project','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/file-export", method = RequestMethod.POST)
     public ResponseEntity<byte[]> export(@PathVariable String graphId,
-                                         @Valid GraphExportBean item,
+                                         @Valid GraphExportRequest item,
                                          BindingResult result) {
 
         if (result.hasErrors()) {
@@ -120,7 +120,7 @@ public class GraphExportController {
 
     @RequestMapping(value = "/api/graphs/{graphId}/file-save", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> save(@PathVariable String graphId,
-                                                    @Valid GraphExportBean item,
+                                                    @Valid GraphExportRequest item,
                                                     BindingResult result) throws IOException, GitAPIException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

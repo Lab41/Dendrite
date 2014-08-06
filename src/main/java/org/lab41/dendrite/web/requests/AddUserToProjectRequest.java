@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 In-Q-Tel/Lab41
+/*
+ * Copyright 2014 In-Q-Tel/Lab41
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.web.requests;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 
-public class GraphExportBean {
+public class AddUserToProjectRequest {
     @NotNull
     @NotEmpty
-    private String format;
+    private String userId;
 
-    public String getFormat() {
-        return format;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

@@ -9,7 +9,7 @@ import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
-import org.lab41.dendrite.web.beans.CreateGraphBean;
+import org.lab41.dendrite.web.requests.CreateGraphRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -218,7 +218,7 @@ public class GraphController {
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createGraph(@PathVariable String projectId,
-                                                           @Valid @RequestBody CreateGraphBean item,
+                                                           @Valid @RequestBody CreateGraphRequest item,
                                                            BindingResult result,
                                                            UriComponentsBuilder builder) {
 
