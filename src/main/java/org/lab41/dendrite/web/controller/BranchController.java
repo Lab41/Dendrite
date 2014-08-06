@@ -34,13 +34,7 @@ import java.util.*;
 
 @Controller
 @RequestMapping("/api")
-public class BranchController {
-
-    @Autowired
-    MetaGraphService metaGraphService;
-
-    @Autowired
-    TaskExecutor taskExecutor;
+public class BranchController extends AbstractController {
 
     @Autowired
     HistoryService historyService;
@@ -567,70 +561,4 @@ public class BranchController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    class NotFound extends Exception {
-        private String type;
-        private String id;
-
-        public NotFound(String type) {
-            super("could not find " + type);
-            this.type = type;
-            this.id = null;
-        }
-
-        public NotFound(String type, String id) {
-            super("could not find " + type + " '" + id + "'");
-            this.type = type;
-            this.id = id;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public String getId() {
-            return id;
-        }
-    }
-
-    class BindingException extends Exception {
-        public BindingException(String msg) {
-            super(msg);
-        }
-    }
-
-    class ErrorInfo {
-        private String status;
-        private String msg;
-
-        public ErrorInfo(String msg) {
-            this.status = "error";
-            this.msg = msg;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public String getMsg() {
-            return msg;
-        }
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(NotFound.class)
-    public ErrorInfo handleNotFound(NotFound notFound) {
-        return new ErrorInfo(notFound.getLocalizedMessage());
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(BindingException.class)
-    public ErrorInfo handleBindingException(BindingException bindingException) {
-        return new ErrorInfo(bindingException.getLocalizedMessage());
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(CannotDeleteCurrentBranchException.class)
-    public ErrorInfo handleCannotDeleteCurrentBranch() {
-        return new ErrorInfo("cannot delete current branch");
-    }
 }

@@ -27,12 +27,9 @@ import java.util.*;
 
 @Controller
 @RequestMapping("/api")
-public class ProjectController {
+public class ProjectController extends AbstractController {
 
-    Logger logger = LoggerFactory.getLogger(ProjectController.class);
-
-    @Autowired
-    MetaGraphService metaGraphService;
+    private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
 
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
     public @ResponseBody Map<String, Object> getProjects(Principal principal) {

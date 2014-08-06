@@ -46,7 +46,6 @@ public class MetaGraphService {
         return metaGraph.getGraphNames();
     }
 
-
     public Collection<DendriteGraph> getGraphs() {
         return metaGraph.getGraphs();
     }
