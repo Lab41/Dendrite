@@ -17,12 +17,14 @@
 package org.lab41.dendrite.web.controller;
 
 import org.lab41.dendrite.metagraph.CannotDeleteCurrentBranchException;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.responses.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -35,40 +37,15 @@ public abstract class AbstractController {
     @Autowired
     TaskExecutor taskExecutor;
 
-    class NotFound extends Exception {
-        private String type;
-        private String id;
-
-        public NotFound(String type) {
-            super("could not find " + type);
-            this.type = type;
-            this.id = null;
-        }
-
-        public NotFound(String type, String id) {
-            super("could not find " + type + " '" + id + "'");
-            this.type = type;
-            this.id = id;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public String getId() {
-            return id;
-        }
-    }
-
     class BindingException extends Exception {
-        public BindingException(String msg) {
-            super(msg);
+        public BindingException(BindingResult result) {
+            super(result.toString());
         }
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(NotFound.class)
-    public ErrorResponse handleNotFound(NotFound notFound) {
+    @ExceptionHandler(MetaGraphTx.NotFound.class)
+    public ErrorResponse handleNotFound(MetaGraphTx.NotFound notFound) {
         return new ErrorResponse(notFound.getLocalizedMessage());
     }
 

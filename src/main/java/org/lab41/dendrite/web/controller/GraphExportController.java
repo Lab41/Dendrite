@@ -73,7 +73,7 @@ public class GraphExportController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -145,7 +145,7 @@ public class GraphExportController {
             throw t;
         }
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphId + "'");

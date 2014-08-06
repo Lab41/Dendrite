@@ -69,7 +69,7 @@ public class GraphController {
         }
 
         // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
-        metaGraphService.getGraph(graphMetadata.getId());
+        metaGraphService.getDendriteGraph(graphMetadata.getId());
 
         response.put("graph", getGraphMap(graphMetadata));
 
@@ -95,7 +95,7 @@ public class GraphController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
 
         DendriteGraphTx dendriteGraphTx = graph.buildTransaction().readOnly().start();
 
@@ -269,7 +269,7 @@ public class GraphController {
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
 
         // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
-        metaGraphService.getGraph(graphMetadata.getId());
+        metaGraphService.getDendriteGraph(graphMetadata.getId());
 
         response.put("graph", getGraphMap(graphMetadata));
 

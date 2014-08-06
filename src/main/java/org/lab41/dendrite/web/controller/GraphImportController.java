@@ -83,7 +83,7 @@ public class GraphImportController {
         logger.debug("file format: '" +  format + "'");
         logger.debug("search keys: '" + searchKeys + "'");
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphId + "'");

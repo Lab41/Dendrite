@@ -42,19 +42,11 @@ public class MetaGraphService {
         return metaGraph;
     }
 
-    public Set<String> getGraphNames() {
+    public Set<String> getDendriteGraphNames() {
         return metaGraph.getGraphNames();
     }
 
-    public Collection<DendriteGraph> getGraphs() {
-        return metaGraph.getGraphs();
-    }
-
-    public Collection<DendriteGraph> getGraphs(boolean includeSystemGraphs) {
-        return metaGraph.getGraphs(includeSystemGraphs);
-    }
-
-    public DendriteGraph getGraph(String id) {
+    public DendriteGraph getDendriteGraph(String id) {
         return metaGraph.getGraph(id);
     }
 

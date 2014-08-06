@@ -62,7 +62,7 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public RexsterApplicationGraph getApplicationGraph(String id) {
-        DendriteGraph graph = metaGraphService.getGraph(id);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(id);
         if (graph == null) {
             return null;
         }
@@ -81,7 +81,7 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public Set<String> getGraphNames() {
-        return metaGraphService.getGraphNames();
+        return metaGraphService.getDendriteGraphNames();
 
     }
 

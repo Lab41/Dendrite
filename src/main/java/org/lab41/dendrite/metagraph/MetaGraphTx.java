@@ -39,8 +39,25 @@ public class MetaGraphTx {
         return getVertices("user", UserMetadata.class);
     }
 
-    public UserMetadata getUser(String userId) {
+    public UserMetadata getUser(String userId) throws NotFound {
         return getVertex(userId, "user", UserMetadata.class);
+    }
+
+    /**
+     * Get or creates the user from an authentication principal.
+     *
+     * @param principal
+     * @return
+     */
+    public UserMetadata getOrCreateUser(Principal principal) {
+        String name = principal.getName();
+
+        UserMetadata userMetadata = getUserByName(name);
+        if (userMetadata == null) {
+            userMetadata = createUser(name);
+        }
+
+        return userMetadata;
     }
 
     public UserMetadata getUserByName(String userName) {
@@ -56,7 +73,7 @@ public class MetaGraphTx {
         return getVertices("project", ProjectMetadata.class);
     }
 
-    public ProjectMetadata getProject(String projectId) {
+    public ProjectMetadata getProject(String projectId) throws NotFound {
         return getVertex(projectId, "project", ProjectMetadata.class);
     }
 
@@ -101,7 +118,7 @@ public class MetaGraphTx {
         return getVertices("graph", GraphMetadata.class);
     }
 
-    public GraphMetadata getGraph(String graphId) {
+    public GraphMetadata getGraph(String graphId) throws NotFound {
         return getVertex(graphId, "graph", GraphMetadata.class);
     }
 
@@ -138,8 +155,8 @@ public class MetaGraphTx {
         return getVertices("branch", BranchMetadata.class);
     }
 
-    public BranchMetadata getBranch(String branchId) {
-        return tx.getVertex(branchId, BranchMetadata.class);
+    public BranchMetadata getBranch(String branchId) throws NotFound {
+        return getVertex(branchId, "branch", BranchMetadata.class);
     }
 
     /**
@@ -202,7 +219,7 @@ public class MetaGraphTx {
         return getVertices("job", JobMetadata.class);
     }
 
-    public JobMetadata getJob(String jobId) {
+    public JobMetadata getJob(String jobId) throws NotFound {
         return getVertex(jobId, "job", JobMetadata.class);
     }
 
@@ -236,7 +253,7 @@ public class MetaGraphTx {
         return tx.getVertices("type", type, kind);
     }
 
-    private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) {
+    private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) throws NotFound {
         Preconditions.checkNotNull(id);
         Preconditions.checkNotNull(type);
         Preconditions.checkNotNull(kind);
@@ -244,7 +261,7 @@ public class MetaGraphTx {
         F framedVertex = tx.getVertex(id, kind);
 
         if (framedVertex == null) {
-            return null;
+            throw new NotFound(kind, id);
         }
 
         Preconditions.checkArgument(type.equals(framedVertex.asVertex().getProperty("type")));
@@ -261,5 +278,30 @@ public class MetaGraphTx {
         framedVertex.asVertex().setProperty("type", type);
 
         return framedVertex;
+    }
+
+    public static class NotFound extends Exception {
+        private Class kind;
+        private String id;
+
+        public NotFound(Class kind) {
+            super("could not find " + kind.getSimpleName());
+            this.kind = kind;
+            this.id = null;
+        }
+
+        public NotFound(Class kind, String id) {
+            super("could not find " + kind.getSimpleName() + " '" + id + "'");
+            this.kind = kind;
+            this.id = id;
+        }
+
+        public Class getKind() {
+            return kind;
+        }
+
+        public String getId() {
+            return id;
+        }
     }
 }

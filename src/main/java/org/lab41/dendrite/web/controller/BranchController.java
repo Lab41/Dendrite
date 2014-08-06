@@ -8,16 +8,12 @@ import org.lab41.dendrite.metagraph.CannotDeleteCurrentBranchException;
 import org.lab41.dendrite.metagraph.models.*;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.services.HistoryService;
-import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.requests.CreateBranchRequest;
 import org.lab41.dendrite.web.requests.CreateBranchSubsetNStepsRequest;
 import org.lab41.dendrite.web.requests.ExportProjectSubsetRequest;
 import org.lab41.dendrite.web.requests.UpdateCurrentBranchRequest;
-import org.lab41.dendrite.web.responses.DeleteBranchResponse;
-import org.lab41.dendrite.web.responses.GetBranchResponse;
-import org.lab41.dendrite.web.responses.GetBranchesResponse;
+import org.lab41.dendrite.web.responses.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -61,14 +57,14 @@ public class BranchController extends AbstractController {
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/branches/{branchId}", method = RequestMethod.GET)
     @ResponseBody
-    public GetBranchResponse getBranch(@PathVariable String branchId) throws NotFound {
+    public GetBranchResponse getBranch(@PathVariable String branchId) throws MetaGraphTx.NotFound {
 
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         try {
             BranchMetadata branchMetadata = tx.getBranch(branchId);
             if (branchMetadata == null) {
-                throw new NotFound("branch", branchId);
+                throw new MetaGraphTx.NotFound(BranchMetadata.class, branchId);
             }
 
             return new GetBranchResponse(branchMetadata);
@@ -80,19 +76,19 @@ public class BranchController extends AbstractController {
     @PreAuthorize("hasPermission(#branchId, 'branchId','admin')")
     @RequestMapping(value = "/branches/{branchId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public DeleteBranchResponse deleteBranch(@PathVariable String branchId) throws IOException, GitAPIException, CannotDeleteCurrentBranchException, NotFound {
+    public DeleteBranchResponse deleteBranch(@PathVariable String branchId) throws IOException, GitAPIException, CannotDeleteCurrentBranchException, MetaGraphTx.NotFound {
 
         MetaGraphTx tx = metaGraphService.newTransaction();
 
         try {
             BranchMetadata branchMetadata = tx.getBranch(branchId);
             if (branchMetadata == null) {
-                throw new NotFound("branch", branchId);
+                throw new MetaGraphTx.NotFound(BranchMetadata.class, branchId);
             }
 
             ProjectMetadata projectMetadata = branchMetadata.getProject();
             if (projectMetadata == null) {
-                throw new NotFound("project");
+                throw new MetaGraphTx.NotFound(ProjectMetadata.class);
             }
 
             Git git = historyService.projectGitRepository(projectMetadata);
@@ -122,14 +118,14 @@ public class BranchController extends AbstractController {
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/branches", method = RequestMethod.GET)
     @ResponseBody
-    public GetBranchesResponse getBranches(@PathVariable String projectId) throws NotFound {
+    public GetBranchesResponse getBranches(@PathVariable String projectId) throws MetaGraphTx.NotFound {
 
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         try {
             ProjectMetadata projectMetadata = tx.getProject(projectId);
             if (projectMetadata == null) {
-                throw new NotFound("project", projectId);
+                throw new MetaGraphTx.NotFound(ProjectMetadata.class, projectId);
             }
 
             List<GetBranchResponse> branches = new ArrayList<>();
@@ -146,19 +142,19 @@ public class BranchController extends AbstractController {
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/branches/{branchName}", method = RequestMethod.GET)
     @ResponseBody
-    public GetBranchResponse getBranch(@PathVariable String projectId, @PathVariable String branchName) throws NotFound {
+    public GetBranchResponse getBranch(@PathVariable String projectId, @PathVariable String branchName) throws MetaGraphTx.NotFound {
 
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         try {
             ProjectMetadata projectMetadata = tx.getProject(projectId);
             if (projectMetadata == null) {
-                throw new NotFound("project", projectId);
+                throw new MetaGraphTx.NotFound(ProjectMetadata.class, projectId);
             }
 
             BranchMetadata branchMetadata = projectMetadata.getBranchByName(branchName);
             if (branchMetadata == null) {
-                throw new NotFound("branch", branchName);
+                throw new MetaGraphTx.NotFound(BranchMetadata.class, branchName);
             }
 
             return new GetBranchResponse(branchMetadata);
@@ -173,11 +169,13 @@ public class BranchController extends AbstractController {
     public GetBranchResponse createBranch(@PathVariable String projectId,
                                        @PathVariable String branchName,
                                        @Valid @RequestBody CreateBranchRequest item,
-                                       BindingResult result) throws GitAPIException, IOException, BindingException, NotFound {
+                                       BindingResult result) throws GitAPIException, IOException, BindingException, MetaGraphTx.NotFound {
 
         if (result.hasErrors()) {
-            throw new BindingException(result.toString());
+            throw new BindingException(result);
         }
+
+        String graphId = item.getGraphId();
 
         MetaGraphTx tx = metaGraphService.newTransaction();
         BranchCommitJob branchCommitJob;
@@ -186,10 +184,9 @@ public class BranchController extends AbstractController {
         try {
             ProjectMetadata projectMetadata = tx.getProject(projectId);
             if (projectMetadata == null) {
-                throw new NotFound("project", projectId);
+                throw new MetaGraphTx.NotFound(ProjectMetadata.class, projectId);
             }
 
-            String graphId = item.getGraphId();
             BranchMetadata branchMetadata;
 
             if (graphId == null) {
@@ -197,7 +194,7 @@ public class BranchController extends AbstractController {
             } else {
                 GraphMetadata graphMetadata = tx.getGraph(graphId);
                 if (graphMetadata == null) {
-                    throw new NotFound("graph", graphId);
+                    throw new MetaGraphTx.NotFound(GraphMetadata.class, graphId);
                 }
 
                 branchMetadata = tx.createBranch(branchName, graphMetadata);
@@ -238,19 +235,19 @@ public class BranchController extends AbstractController {
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch", method = RequestMethod.GET)
     @ResponseBody
-    public GetBranchResponse getCurrentBranch(@PathVariable String projectId) throws NotFound {
+    public GetBranchResponse getCurrentBranch(@PathVariable String projectId) throws MetaGraphTx.NotFound {
 
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
         try {
             ProjectMetadata projectMetadata = tx.getProject(projectId);
             if (projectMetadata == null) {
-                throw new NotFound("project", projectId);
+                throw new MetaGraphTx.NotFound(ProjectMetadata.class, projectId);
             }
 
             BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
             if (branchMetadata == null) {
-                throw new NotFound("branch");
+                throw new MetaGraphTx.NotFound(BranchController.class);
             }
 
             return new GetBranchResponse(branchMetadata);
@@ -262,83 +259,72 @@ public class BranchController extends AbstractController {
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> setCurrentBranch(@PathVariable String projectId,
-                                                                @Valid @RequestBody UpdateCurrentBranchRequest item,
-                                                                BindingResult result) throws GitAPIException, IOException, BindingException {
-
-        Map<String, Object> response = new HashMap<>();
+    public SetCurrentBranchResponse setCurrentBranch(@PathVariable String projectId,
+                                                     @Valid @RequestBody UpdateCurrentBranchRequest item,
+                                                     BindingResult result) throws GitAPIException, IOException, BindingException, MetaGraphTx.NotFound {
 
         if (result.hasErrors()) {
-            throw new BindingException(result.toString());
+            throw new BindingException(result);
         }
 
         String branchName = item.getBranchName();
 
         MetaGraphTx tx = metaGraphService.newTransaction();
 
-        ProjectMetadata projectMetadata = tx.getProject(projectId);
-        if (projectMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        BranchMetadata branchMetadata = projectMetadata.getBranchByName(branchName);
-        if (branchMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find branch '" + branchName + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        projectMetadata.setCurrentBranch(branchMetadata);
-
-        Git git = historyService.projectGitRepository(projectMetadata);
         try {
-            git.checkout()
-                    .setName(branchName)
-                    .call();
-        } finally {
-            git.close();
-        }
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new MetaGraphTx.NotFound(ProjectMetadata.class, projectId);
+            }
 
-        response.put("msg", "current branch changed");
+            BranchMetadata branchMetadata = projectMetadata.getBranchByName(branchName);
+            if (branchMetadata == null) {
+                throw new MetaGraphTx.NotFound(BranchController.class, branchName);
+            }
+
+            projectMetadata.setCurrentBranch(branchMetadata);
+
+            Git git = historyService.projectGitRepository(projectMetadata);
+            try {
+                git.checkout()
+                        .setName(branchName)
+                        .call();
+            } finally {
+                git.close();
+            }
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
+        }
 
         // Commit must come after all branch access.
         tx.commit();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new SetCurrentBranchResponse();
     }
 
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> commitBranch(@PathVariable String projectId) throws GitAPIException, IOException {
+    @ResponseBody
+    public BranchJobResponse commitBranch(@PathVariable String projectId) throws GitAPIException, IOException, MetaGraphTx.NotFound {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Map<String, Object> response = new HashMap<>();
-
         MetaGraphTx tx = metaGraphService.newTransaction();
-
-        ProjectMetadata projectMetadata = tx.getProject(projectId);
-        if (projectMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
-        if (branchMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find current branch");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        JobMetadata jobMetadata = tx.createJob(projectMetadata);
+        BranchCommitJob branchCommitJob;
 
         try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new MetaGraphTx.NotFound(ProjectMetadata.class, projectId);
+            }
+
+            BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
+            if (branchMetadata == null) {
+                throw new MetaGraphTx.NotFound(BranchMetadata.class);
+            }
+
+            JobMetadata jobMetadata = tx.createJob(projectMetadata);
+
             Git git = historyService.projectGitRepository(projectMetadata);
             try {
                 git.commit()
@@ -349,6 +335,12 @@ public class BranchController extends AbstractController {
                 git.close();
             }
 
+            // We can't pass the values directly because they'll live in a separate thread.
+            branchCommitJob = new BranchCommitJob(
+                    metaGraphService.getMetaGraph(),
+                    jobMetadata.getId(),
+                    branchMetadata.getId());
+
         } catch (Throwable t) {
             tx.rollback();
             throw t;
@@ -356,21 +348,10 @@ public class BranchController extends AbstractController {
 
         tx.commit();
 
-        // We can't pass the values directly because they'll live in a separate thread.
-        BranchCommitJob branchCommitJob = new BranchCommitJob(
-                metaGraphService.getMetaGraph(),
-                jobMetadata.getId(),
-                branchMetadata.getId());
-
         //taskExecutor.execute(branchCommitJob);
         branchCommitJob.run();
 
-        response.put("status", "ok");
-        response.put("msg", "job submitted");
-        response.put("jobId", jobMetadata.getId());
-        response.put("graphId", branchCommitJob.getDstGraphId());
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new BranchJobResponse(branchCommitJob);
     }
 
     /*
@@ -420,70 +401,65 @@ public class BranchController extends AbstractController {
 
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit-subset", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> commitSubsetBranch(@PathVariable String projectId,
-                                                                  @Valid @RequestBody CreateBranchSubsetNStepsRequest item,
-                                                                  BindingResult result) throws BindingException {
-        Map<String, Object> response = new HashMap<>();
+    @ResponseBody
+    public BranchJobResponse commitSubsetBranch(@PathVariable String projectId,
+                                                   @Valid @RequestBody CreateBranchSubsetNStepsRequest item,
+                                                   BindingResult result) throws BindingException, MetaGraphTx.NotFound {
 
         if (result.hasErrors()) {
-            throw new BindingException(result.toString());
+            throw new BindingException(result);
         }
 
         String query = item.getQuery();
         int steps = item.getSteps();
 
         MetaGraphTx tx = metaGraphService.newTransaction();
+        BranchCommitSubsetJob branchCommitSubsetJob;
 
-        ProjectMetadata projectMetadata = tx.getProject(projectId);
-        if (projectMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
+        try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new MetaGraphTx.NotFound(ProjectMetadata.class, projectId);
+            }
+
+            BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
+            if (branchMetadata == null) {
+                throw new MetaGraphTx.NotFound(BranchMetadata.class);
+            }
+
+            JobMetadata jobMetadata = tx.createJob(projectMetadata);
+
+            // We can't pass the values directly because they'll live in a separate thread.
+            branchCommitSubsetJob = new BranchCommitSubsetJob(
+                    metaGraphService.getMetaGraph(),
+                    projectId,
+                    jobMetadata.getId(),
+                    branchMetadata.getId(),
+                    query,
+                    steps);
+        } catch (Throwable t) {
             tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            throw t;
         }
-
-        BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
-        if (branchMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find current branch");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
-        JobMetadata jobMetadata = tx.createJob(projectMetadata);
 
         tx.commit();
-
-        // We can't pass the values directly because they'll live in a separate thread.
-        BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
-                metaGraphService.getMetaGraph(),
-                jobMetadata.getId(),
-                branchMetadata.getId(),
-                query,
-                steps);
 
         //taskExecutor.execute(branchCommitSubsetJob);
         branchCommitSubsetJob.run();
 
-        response.put("status", "ok");
-        response.put("msg", "job submitted");
-        response.put("jobId", jobMetadata.getId());
-        response.put("graphId", branchCommitSubsetJob.getDstGraphId());
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new BranchJobResponse(branchCommitSubsetJob);
     }
 
     @PreAuthorize("hasPermission(#projectId, 'project','admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/export-subset", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> exportSubset(@PathVariable String projectId,
-                                                            @Valid @RequestBody ExportProjectSubsetRequest item,
-                                                            Principal principal,
-                                                            BindingResult result) throws NotFound {
-        Map<String, Object> response = new HashMap<>();
+    @ResponseBody
+    public BranchJobResponse exportSubset(@PathVariable String projectId,
+                                          @Valid @RequestBody ExportProjectSubsetRequest item,
+                                          Principal principal,
+                                          BindingResult result) throws MetaGraphTx.NotFound, BindingException {
 
         if (result.hasErrors()) {
-            response.put("error", result.toString());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            throw new BindingException(result);
         }
 
         String name = item.getName();
@@ -491,46 +467,53 @@ public class BranchController extends AbstractController {
         int steps = item.getSteps();
 
         MetaGraphTx tx = metaGraphService.newTransaction();
-
-        String srcGraphId;
-        String dstProjectId;
-        String dstBranchId;
-        String dstGraphId;
-        String jobId;
+        BranchCommitSubsetJob branchCommitSubsetJob;
 
         try {
-            UserMetadata userMetadata = tx.getUserByName(principal.getName());
+            UserMetadata userMetadata = tx.getOrCreateUser(principal);
             if (userMetadata == null) {
-                throw new NotFound("user", principal.getName());
+                throw new MetaGraphTx.NotFound(UserMetadata.class, principal.getName());
             }
 
             ProjectMetadata srcProjectMetadata = tx.getProject(projectId);
             if (srcProjectMetadata == null) {
-                throw new NotFound("project", projectId);
+                throw new MetaGraphTx.NotFound(ProjectMetadata.class, projectId);
             }
 
             BranchMetadata srcBranchMetadata = srcProjectMetadata.getCurrentBranch();
             if (srcBranchMetadata == null) {
-                throw new NotFound("branch");
+                throw new MetaGraphTx.NotFound(BranchMetadata.class);
             }
 
             GraphMetadata srcGraphMetadata = srcBranchMetadata.getGraph();
             if (srcGraphMetadata == null) {
-                throw new NotFound("graph");
+                throw new MetaGraphTx.NotFound(GraphMetadata.class);
             }
-            srcGraphId = srcGraphMetadata.getId();
 
             ProjectMetadata dstProjectMetadata = tx.createProject(name, userMetadata);
-            dstProjectId = dstProjectMetadata.getId();
 
             BranchMetadata dstBranchMetadata = dstProjectMetadata.getCurrentBranch();
-            dstBranchId = dstBranchMetadata.getId();
+            if (dstBranchMetadata == null) {
+                throw new MetaGraphTx.NotFound(BranchMetadata.class);
+            }
 
             GraphMetadata dstGraphMetadata = dstBranchMetadata.getGraph();
-            dstGraphId = dstGraphMetadata.getId();
+            if (dstGraphMetadata == null) {
+                throw new MetaGraphTx.NotFound(GraphMetadata.class);
+            }
 
             JobMetadata jobMetadata = tx.createJob(srcProjectMetadata);
-            jobId = jobMetadata.getId();
+
+            // We can't pass the values directly because they'll live in a separate thread.
+            branchCommitSubsetJob = new BranchCommitSubsetJob(
+                    metaGraphService.getMetaGraph(),
+                    jobMetadata.getId(),
+                    dstProjectMetadata.getId(),
+                    dstBranchMetadata.getId(),
+                    srcGraphMetadata.getId(),
+                    dstGraphMetadata.getId(),
+                    query,
+                    steps);
 
         } catch (Exception e) {
             tx.rollback();
@@ -539,26 +522,10 @@ public class BranchController extends AbstractController {
 
         tx.commit();
 
-        // We can't pass the values directly because they'll live in a separate thread.
-        BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
-                metaGraphService.getMetaGraph(),
-                jobId,
-                dstBranchId,
-                srcGraphId,
-                dstGraphId,
-                query,
-                steps);
-
         //taskExecutor.execute(branchCommitSubsetJob);
         branchCommitSubsetJob.run();
 
-        response.put("status", "ok");
-        response.put("msg", "job submitted");
-        response.put("jobId", jobId);
-        response.put("graphId", dstGraphId);
-        response.put("projectId", dstProjectId);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new BranchJobResponse(branchCommitSubsetJob);
     }
 
 }

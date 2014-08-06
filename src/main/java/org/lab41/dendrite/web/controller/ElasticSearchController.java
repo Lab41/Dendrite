@@ -101,7 +101,7 @@ public class ElasticSearchController {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             JSONObject json = new JSONObject();
             json.put("status", "error");
@@ -166,7 +166,7 @@ public class ElasticSearchController {
 
         Map<String, Object> response = new HashMap<>();
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "unknown graph '" + graphId + "'");

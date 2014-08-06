@@ -23,17 +23,20 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
 
     private Logger logger = LoggerFactory.getLogger(AbstractGraphCommitJob.class);
 
+    String projectId;
     String branchId;
     String srcGraphId;
     String dstGraphId;
 
     protected AbstractGraphCommitJob(MetaGraph metaGraph,
                                      String jobId,
+                                     String projectId,
                                      String branchId,
                                      String srcGraphId,
                                      String dstGraphId) {
         super(metaGraph, jobId);
 
+        this.projectId = projectId;
         this.branchId = branchId;
         this.srcGraphId = srcGraphId;
         this.dstGraphId = dstGraphId;
@@ -41,7 +44,8 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
 
     protected AbstractGraphCommitJob(MetaGraph metaGraph,
                                      String jobId,
-                                     String branchId) {
+                                     String projectId,
+                                     String branchId) throws MetaGraphTx.NotFound {
         super(metaGraph, jobId);
 
         MetaGraphTx tx = metaGraph.newTransaction();
@@ -50,11 +54,16 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
         GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
         GraphMetadata dstGraphMetadata = tx.createGraph(srcGraphMetadata);
 
+        this.projectId = projectId;
         this.branchId = branchId;
         this.srcGraphId = srcGraphMetadata.getId();
         this.dstGraphId = dstGraphMetadata.getId();
 
         tx.commit();
+    }
+
+    public String getProjectId() {
+        return projectId;
     }
 
     public String getBranchId() {
@@ -101,10 +110,11 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
             setJobState(jobId, JobMetadata.DONE);
         } catch (Throwable t) {
             setJobState(jobId, JobMetadata.ERROR, t.getMessage());
-            throw t;
+            logger.error("error running job: " + t.getMessage());
+            return;
         }
 
-        logger.debug("snapshotGraph: finished job: " + jobId);
+        logger.debug("finished job: " + jobId);
     }
 
     protected void copyIndices(DendriteGraph srcGraph, DendriteGraph dstGraph) {

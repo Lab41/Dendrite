@@ -36,10 +36,11 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
 
     public BranchCommitSubsetJob(MetaGraph metaGraph,
                                  String jobId,
+                                 String projectId,
                                  String branchId,
                                  String query,
                                  int steps) {
-        super(metaGraph, jobId, branchId);
+        super(metaGraph, jobId, projectId, branchId);
 
         Preconditions.checkNotNull(query);
         Preconditions.checkArgument(steps >= 0);
@@ -50,11 +51,12 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
 
     public BranchCommitSubsetJob(MetaGraph metaGraph,
                                  String jobId,
+                                 String projectId,
                                  String branchId,
                                  String srcGraphId,
                                  String dstGraphId,
                                  String query, int steps) {
-        super(metaGraph, jobId, branchId, srcGraphId, dstGraphId);
+        super(metaGraph, jobId, projectId, branchId, srcGraphId, dstGraphId);
 
         Preconditions.checkNotNull(query);
         Preconditions.checkArgument(steps >= 0);

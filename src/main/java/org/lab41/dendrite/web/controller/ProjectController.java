@@ -5,12 +5,10 @@ import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.models.UserMetadata;
-import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.requests.AddUserToProjectRequest;
 import org.lab41.dendrite.web.requests.CreateProjectRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +67,7 @@ public class ProjectController extends AbstractController {
         }
 
         // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
-        metaGraphService.getGraph(projectMetadata.getCurrentGraph().getId());
+        metaGraphService.getDendriteGraph(projectMetadata.getCurrentGraph().getId());
 
         response.put("project", getProjectMap(projectMetadata));
 

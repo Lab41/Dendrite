@@ -34,7 +34,7 @@ public class GraphLabController {
 
         Map<String, Object> response = new HashMap<>();
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "missing graph metadata '" + graphId + "'");
