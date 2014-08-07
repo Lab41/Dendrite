@@ -29,20 +29,24 @@ public class MetaGraph {
     private DendriteGraph systemGraph;
     private FramedGraphFactory frameFactory;
 
-    private Map<String, DendriteGraph> graphs = new HashMap<>();
+    private Map<GraphMetadata.Id, DendriteGraph> graphs = new HashMap<>();
 
     public MetaGraph(Configuration config) {
         this.config = config;
 
         // Get or create the metadata graph.
         String systemGraphName = config.getString("metagraph.system.name", SYSTEM_GRAPH_NAME_DEFAULT);
+        GraphMetadata.Id systemGraphId = new GraphMetadata.Id(systemGraphName);
 
         // Allow the system to overload the properties.
         Properties systemProperties = new Properties();
-        loadGraphProperties(systemGraphName, config.subset("metagraph.system"), systemProperties);
+        loadGraphProperties(
+                systemGraphId,
+                config.subset("metagraph.system"),
+                systemProperties);
 
         logger.debug("loading system graph");
-        this.systemGraph = new DendriteGraph(systemGraphName, systemProperties);
+        this.systemGraph = new DendriteGraph(systemGraphId, systemProperties);
 
         // Create a FramedGraphFactory, which we'll use to wrap our metadata graph vertices and edges.
         this.frameFactory = new FramedGraphFactory(
@@ -64,7 +68,7 @@ public class MetaGraph {
 
         MetaGraphTx tx = newTransaction();
         for (GraphMetadata graphMetadata: tx.getGraphs()) {
-            graphNames.add(graphMetadata.getId());
+            graphNames.add(graphMetadata.getId().toString());
         }
 
         tx.commit();
@@ -122,8 +126,29 @@ public class MetaGraph {
      * @param id The graph id.
      * @return The graph.
      */
+    public DendriteGraph getGraph(GraphMetadata.Id id) {
+        return getGraph(id.toString());
+    }
+
+    /**
+     * Get a graph.
+     *
+     * @param id The graph id.
+     * @return The graph.
+     */
     public DendriteGraph getGraph(String id) {
         return getGraph(id, false);
+    }
+
+    /**
+     * Get a graph.
+     *
+     * @param id The graph id.
+     * @param includeSystemGraph Should we include the hidden system graph?
+     * @return The graph or null.
+     */
+    public DendriteGraph getGraph(GraphMetadata.Id id, boolean includeSystemGraph) {
+        return getGraph(id.toString(), includeSystemGraph);
     }
 
     /**
@@ -342,7 +367,7 @@ public class MetaGraph {
     synchronized private DendriteGraph loadGraph(GraphMetadata graphMetadata) {
         // We don't want to end up with the same graph opened multiple times, so we'll sit behind a mutex.
         // Because of this, we should check again if the graph has been opened up in another thread.
-        String id = graphMetadata.getId();
+        GraphMetadata.Id id = graphMetadata.getId();
         Properties properties = graphMetadata.getProperties();
 
         DendriteGraph graph = graphs.get(id);
@@ -370,13 +395,13 @@ public class MetaGraph {
      * @param id The graph id.
      * @return The configuration.
      */
-    private Properties getGraphProperties(String id) {
+    private Properties getGraphProperties(GraphMetadata.Id id) {
         Properties properties = new Properties();
         loadGraphProperties(id, config.subset("metagraph.template"), properties);
         return properties;
     }
 
-    private void loadGraphProperties(String id, Configuration config, Properties properties) {
+    private void loadGraphProperties(GraphMetadata.Id id, Configuration config, Properties properties) {
         // Add our prefix to the name so we can keep the databases organized.
         String name = config.getString("name-prefix", GRAPH_NAME_PREFIX_DEFAULT) + id;
 

@@ -39,6 +39,10 @@ public class MetaGraphTx {
         return getVertices("user", UserMetadata.class);
     }
 
+    public UserMetadata getUser(UserMetadata.Id userId) {
+        return getUser(userId.toString());
+    }
+
     public UserMetadata getUser(String userId) {
         return getVertex(userId, "user", UserMetadata.class);
     }
@@ -71,6 +75,10 @@ public class MetaGraphTx {
 
     public Iterable<ProjectMetadata> getProjects() {
         return getVertices("project", ProjectMetadata.class);
+    }
+
+    public ProjectMetadata getProject(ProjectMetadata.Id projectId) {
+        return getProject(projectId.toString());
     }
 
     public ProjectMetadata getProject(String projectId) {
@@ -118,6 +126,10 @@ public class MetaGraphTx {
         return getVertices("graph", GraphMetadata.class);
     }
 
+    public GraphMetadata getGraph(GraphMetadata.Id graphId) {
+        return getGraph(graphId.toString());
+    }
+
     public GraphMetadata getGraph(String graphId) {
         return getVertex(graphId, "graph", GraphMetadata.class);
     }
@@ -153,6 +165,10 @@ public class MetaGraphTx {
 
     public Iterable<? extends BranchMetadata> getBranches() {
         return getVertices("branch", BranchMetadata.class);
+    }
+
+    public BranchMetadata getBranch(BranchMetadata.Id branchId) {
+        return getBranch(branchId.toString());
     }
 
     public BranchMetadata getBranch(String branchId) {
@@ -217,6 +233,10 @@ public class MetaGraphTx {
 
     public Iterable<? extends JobMetadata> getJobs() {
         return getVertices("job", JobMetadata.class);
+    }
+
+    public JobMetadata getJob(JobMetadata.Id jobId) {
+        return getJob(jobId.toString());
     }
 
     public JobMetadata getJob(String jobId) {

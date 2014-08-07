@@ -16,6 +16,7 @@ import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
+import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,17 +24,17 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
 
     private Logger logger = LoggerFactory.getLogger(AbstractGraphCommitJob.class);
 
-    String projectId;
-    String branchId;
-    String srcGraphId;
-    String dstGraphId;
+    ProjectMetadata.Id projectId;
+    BranchMetadata.Id branchId;
+    GraphMetadata.Id srcGraphId;
+    GraphMetadata.Id dstGraphId;
 
     protected AbstractGraphCommitJob(MetaGraph metaGraph,
-                                     String jobId,
-                                     String projectId,
-                                     String branchId,
-                                     String srcGraphId,
-                                     String dstGraphId) {
+                                     JobMetadata.Id jobId,
+                                     ProjectMetadata.Id projectId,
+                                     BranchMetadata.Id branchId,
+                                     GraphMetadata.Id srcGraphId,
+                                     GraphMetadata.Id dstGraphId) {
         super(metaGraph, jobId);
 
         this.projectId = projectId;
@@ -43,9 +44,9 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
     }
 
     protected AbstractGraphCommitJob(MetaGraph metaGraph,
-                                     String jobId,
-                                     String projectId,
-                                     String branchId) {
+                                     JobMetadata.Id jobId,
+                                     ProjectMetadata.Id projectId,
+                                     BranchMetadata.Id branchId) {
         super(metaGraph, jobId);
 
         MetaGraphTx tx = metaGraph.newTransaction();
@@ -62,19 +63,19 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
         tx.commit();
     }
 
-    public String getProjectId() {
+    public ProjectMetadata.Id getProjectId() {
         return projectId;
     }
 
-    public String getBranchId() {
+    public BranchMetadata.Id getBranchId() {
         return branchId;
     }
 
-    public String getSrcGraphId() {
+    public GraphMetadata.Id getSrcGraphId() {
         return srcGraphId;
     }
 
-    public String getDstGraphId() {
+    public GraphMetadata.Id getDstGraphId() {
         return dstGraphId;
     }
 

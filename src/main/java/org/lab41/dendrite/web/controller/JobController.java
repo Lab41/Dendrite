@@ -45,7 +45,10 @@ public class JobController {
     @PreAuthorize("hasPermission(#jobId, 'project','admin')")
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getJob(@PathVariable String jobId) {
+        return getJob(new JobMetadata.Id(jobId));
+    }
 
+    private ResponseEntity<Map<String, Object>> getJob(JobMetadata.Id jobId) {
         Map<String, Object> response = new HashMap<>();
 
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
@@ -98,7 +101,10 @@ public class JobController {
     @PreAuthorize("hasPermission(#jobId, 'job','admin')")
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteJob(@PathVariable String jobId) {
+        return deleteJob(new JobMetadata.Id(jobId));
+    }
 
+    private ResponseEntity<Map<String, Object>> deleteJob(JobMetadata.Id jobId) {
         Map<String, Object> response = new HashMap<>();
         MetaGraphTx tx = metaGraphService.newTransaction();
         JobMetadata jobMetadata = tx.getJob(jobId);
@@ -123,8 +129,7 @@ public class JobController {
     private Map<String, Object> getJobMap(JobMetadata jobMetadata) {
         Map<String, Object> job = new HashMap<>();
 
-        String id = jobMetadata.getId();
-        job.put("_id", id);
+        job.put("_id", jobMetadata.getId().toString());
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));

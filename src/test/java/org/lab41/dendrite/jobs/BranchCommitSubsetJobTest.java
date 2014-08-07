@@ -22,9 +22,9 @@ import java.util.UUID;
 public class BranchCommitSubsetJobTest {
 
     static MetaGraph metaGraph;
-    String projectId;
-    String branchId;
-    String jobId;
+    ProjectMetadata.Id projectId;
+    BranchMetadata.Id branchId;
+    JobMetadata.Id jobId;
     DendriteGraph srcGraph;
 
     @BeforeClass

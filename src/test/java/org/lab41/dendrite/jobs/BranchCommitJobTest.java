@@ -58,8 +58,8 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
                 projectMetadata.getId(),
                 branchMetadata.getId());
 
-        String srcGraphId = branchCommitJob.getSrcGraphId();
-        String dstGraphId = branchCommitJob.getDstGraphId();
+        GraphMetadata.Id srcGraphId = branchCommitJob.getSrcGraphId();
+        GraphMetadata.Id dstGraphId = branchCommitJob.getDstGraphId();
 
         Assert.assertEquals(srcGraphId, srcGraph.getId());
 

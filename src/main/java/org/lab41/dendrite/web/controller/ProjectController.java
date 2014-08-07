@@ -190,8 +190,7 @@ public class ProjectController extends AbstractController {
     private Map<String, Object> getProjectMap(ProjectMetadata projectMetadata) {
         Map<String, Object> project = new HashMap<>();
 
-        String id = projectMetadata.getId();
-        project.put("_id", id);
+        project.put("_id", projectMetadata.getId().toString());
         project.put("name", projectMetadata.getName());
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");

@@ -17,6 +17,9 @@ import java.util.Iterator;
 @TypeValue("project")
 public interface ProjectMetadata extends NamedMetadata {
 
+    @JavaHandler
+    public Id getId();
+
     @Property("creationTime")
     public Date getCreationTime();
 
@@ -58,6 +61,18 @@ public interface ProjectMetadata extends NamedMetadata {
 
     @Adjacency(label = "ownsJob", direction = Direction.OUT)
     void addJob(JobMetadata jobMetadata);
+
+    public static class Id {
+        String id;
+
+        public Id(String id) {
+            this.id = id;
+        }
+
+        public String toString() {
+            return this.id;
+        }
+    }
 
     public abstract class Impl implements JavaHandlerContext<Vertex>, ProjectMetadata {
 

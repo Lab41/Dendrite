@@ -2,6 +2,7 @@ package org.lab41.dendrite.web.security;
 
 import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.models.UserMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
@@ -81,7 +82,8 @@ public class GraphPermissonHandler implements PermissionEvaluator {
         boolean authenticated;
 
         try {
-            ProjectMetadata projectMetadata = tx.getJob((String) targetId).getProject();
+            JobMetadata.Id jobId = new JobMetadata.Id((String) targetId);
+            ProjectMetadata projectMetadata = tx.getJob(jobId).getProject();
             authenticated = checkAuthAgainstUserOfProject(authentication, projectMetadata);
         } finally {
             tx.commit();

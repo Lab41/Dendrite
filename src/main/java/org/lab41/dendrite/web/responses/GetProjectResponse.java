@@ -38,7 +38,7 @@ public class GetProjectResponse {
     }
 
     public GetProjectResponse(BranchMetadata branchMetadata, JobMetadata jobMetadata) {
-        this._id = branchMetadata.getId();
+        this._id = branchMetadata.getId().toString();
         this.name = branchMetadata.getName();
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -51,16 +51,16 @@ public class GetProjectResponse {
 
         ProjectMetadata projectMetadata = branchMetadata.getProject();
         if (projectMetadata != null) {
-            this.projectId = branchMetadata.getProject().getId();
+            this.projectId = branchMetadata.getProject().getId().toString();
         }
 
         GraphMetadata graphMetadata = branchMetadata.getGraph();
         if (graphMetadata != null) {
-            this.graphId = branchMetadata.getGraph().getId();
+            this.graphId = branchMetadata.getGraph().getId().toString();
         }
 
         if (jobMetadata != null) {
-            this.jobId = jobMetadata.getId();
+            this.jobId = jobMetadata.getId().toString();
         }
     }
 }

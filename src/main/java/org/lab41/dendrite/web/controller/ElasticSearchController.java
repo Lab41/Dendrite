@@ -87,7 +87,7 @@ public class ElasticSearchController {
                 return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
             }
 
-            return graphSearch(graphMetadata.getId(), body);
+            return graphSearch(graphMetadata.getId().toString(), body);
         } finally {
             tx.rollback();
         }
@@ -163,6 +163,11 @@ public class ElasticSearchController {
     @PreAuthorize("hasPermission(#graphId, 'graphId','admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/search/mapping", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> graphMapping(@PathVariable String graphId) throws JSONException, IOException {
+        return graphMapping(new GraphMetadata.Id(graphId));
+    }
+
+
+    public ResponseEntity<Map<String, Object>> graphMapping(GraphMetadata.Id graphId) throws JSONException, IOException {
 
         Map<String, Object> response = new HashMap<>();
 

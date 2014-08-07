@@ -17,6 +17,10 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
+import org.lab41.dendrite.metagraph.models.BranchMetadata;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
+import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +39,9 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
     Set<Object> edges = new HashSet<>();
 
     public BranchCommitSubsetJob(MetaGraph metaGraph,
-                                 String jobId,
-                                 String projectId,
-                                 String branchId,
+                                 JobMetadata.Id jobId,
+                                 ProjectMetadata.Id projectId,
+                                 BranchMetadata.Id branchId,
                                  String query,
                                  int steps) {
         super(metaGraph, jobId, projectId, branchId);
@@ -50,11 +54,11 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
     }
 
     public BranchCommitSubsetJob(MetaGraph metaGraph,
-                                 String jobId,
-                                 String projectId,
-                                 String branchId,
-                                 String srcGraphId,
-                                 String dstGraphId,
+                                 JobMetadata.Id jobId,
+                                 ProjectMetadata.Id projectId,
+                                 BranchMetadata.Id branchId,
+                                 GraphMetadata.Id srcGraphId,
+                                 GraphMetadata.Id dstGraphId,
                                  String query, int steps) {
         super(metaGraph, jobId, projectId, branchId, srcGraphId, dstGraphId);
 

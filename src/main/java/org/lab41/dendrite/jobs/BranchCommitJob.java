@@ -6,6 +6,9 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
+import org.lab41.dendrite.metagraph.models.BranchMetadata;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
+import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +16,10 @@ public class BranchCommitJob extends AbstractGraphCommitJob {
 
     Logger logger = LoggerFactory.getLogger(BranchCommitJob.class);
 
-    public BranchCommitJob(MetaGraph metaGraph, String jobId, String projectId, String branchId) {
+    public BranchCommitJob(MetaGraph metaGraph,
+                           JobMetadata.Id jobId,
+                           ProjectMetadata.Id projectId,
+                           BranchMetadata.Id branchId) {
         super(metaGraph, jobId, projectId, branchId);
         setJobName(jobId, "commit-graph");
     }

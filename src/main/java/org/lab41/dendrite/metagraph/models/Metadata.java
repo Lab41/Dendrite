@@ -9,6 +9,7 @@ import com.tinkerpop.frames.modules.typedgraph.TypeField;
 @TypeField("type")
 public interface Metadata extends VertexFrame {
 
+    /*
     @JavaHandler
     public String getId();
 
@@ -20,4 +21,5 @@ public interface Metadata extends VertexFrame {
         }
 
     }
+    */
 }

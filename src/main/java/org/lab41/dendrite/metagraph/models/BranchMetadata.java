@@ -15,6 +15,9 @@ import java.util.Date;
 @TypeValue("branch")
 public interface BranchMetadata extends NamedMetadata {
 
+    @JavaHandler
+    public Id getId();
+
     @Property("creationTime")
     public Date getCreationTime();
 
@@ -36,6 +39,18 @@ public interface BranchMetadata extends NamedMetadata {
     @JavaHandler
     public void setGraph(GraphMetadata graphMetadata);
 
+    public static class Id {
+        String id;
+
+        public Id(String id) {
+            this.id = id;
+        }
+
+        public String toString() {
+            return this.id;
+        }
+    }
+
     public abstract class Impl implements JavaHandlerContext<Vertex>, BranchMetadata {
 
         @Initializer
@@ -43,6 +58,11 @@ public interface BranchMetadata extends NamedMetadata {
             Date date = new Date();
             setCreationTime(date);
             setModificationTime(date);
+        }
+
+        @Override
+        public Id getId() {
+            return new Id(asVertex().getId().toString());
         }
 
         @Override

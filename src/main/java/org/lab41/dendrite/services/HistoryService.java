@@ -43,7 +43,7 @@ public class HistoryService {
     }
 
     public Git projectGitRepository(ProjectMetadata projectMetadata) throws GitAPIException, IOException {
-        File gitDir = new File(historyStorage, projectMetadata.getId());
+        File gitDir = new File(historyStorage, projectMetadata.getId().toString());
 
         // Make the target directory.
         Git git;

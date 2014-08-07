@@ -56,7 +56,7 @@ public class SnapService extends AnalysisService {
     String pathToProperties;
 
     @Async
-    public void snapAlgorithm(DendriteGraph graph, String algorithm, String jobId) throws Exception {
+    public void snapAlgorithm(DendriteGraph graph, String algorithm, JobMetadata.Id jobId) throws Exception {
         try {
             if (!algorithms.contains(algorithm)) {
                 throw new Exception("invalid algorithm selected");
@@ -153,7 +153,7 @@ public class SnapService extends AnalysisService {
         tx.commit();
     }
 
-    private void run(DendriteGraph graph, String jobId, String algorithm) throws Exception {
+    private void run(DendriteGraph graph, JobMetadata.Id jobId, String algorithm) throws Exception {
         logger.debug("starting snap analysis of '" + graph.getId() + "'");
 
         FileSystem fs = FileSystem.get(new Configuration());
@@ -189,7 +189,7 @@ public class SnapService extends AnalysisService {
         }
     }
 
-    private void runExport(DendriteGraph graph, String jobId, Path exportDir) throws Exception {
+    private void runExport(DendriteGraph graph, JobMetadata.Id jobId, Path exportDir) throws Exception {
         FaunusGraph faunusGraph = new FaunusGraph();
         faunusGraph.setGraphInputFormat(TitanHBaseInputFormat.class);
         faunusGraph.setGraphOutputFormat(EdgeListOutputFormat.class);

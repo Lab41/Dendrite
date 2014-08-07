@@ -7,6 +7,7 @@ import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
 import org.lab41.dendrite.metagraph.MetaGraphTransactionBuilder;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,10 @@ public class MetaGraphService {
         return metaGraph.getGraphNames();
     }
 
+    public DendriteGraph getDendriteGraph(GraphMetadata.Id id) {
+        return metaGraph.getGraph(id);
+    }
+
     public DendriteGraph getDendriteGraph(String id) {
         return metaGraph.getGraph(id);
     }
@@ -60,5 +65,18 @@ public class MetaGraphService {
 
     public void stop() {
         metaGraph.stop();
+    }
+
+    public static class NotFound extends Exception {
+        Class cls;
+        String id;
+
+        public NotFound(Class cls) {
+            super("Could not find " + cls.getCanonicalName());
+        }
+
+        public NotFound(Class cls, String id) {
+            super("Could not find " + cls.getCanonicalName() + " '" + id + "'");
+        }
     }
 }

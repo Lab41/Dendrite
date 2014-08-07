@@ -8,13 +8,14 @@ import edu.uci.ics.jung.algorithms.scoring.PageRank;
 import org.lab41.dendrite.jobs.AbstractGraphUpdateJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 
 public class PageRankJob extends AbstractGraphUpdateJob {
 
     private static String PAGERANK_KEY = "jungPagerank";
     private double alpha;
 
-    public PageRankJob(MetaGraph metaGraph, String jobId, DendriteGraph graph, double alpha) {
+    public PageRankJob(MetaGraph metaGraph, JobMetadata.Id jobId, DendriteGraph graph, double alpha) {
         super(metaGraph, jobId, graph);
 
         this.alpha = alpha;

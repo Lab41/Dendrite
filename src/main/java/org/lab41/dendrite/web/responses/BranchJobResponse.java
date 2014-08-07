@@ -27,17 +27,17 @@ public class BranchJobResponse {
     private String jobId;
 
     public BranchJobResponse(BranchCommitJob job) {
-        projectId = job.getProjectId();
-        branchId = job.getBranchId();
-        graphId = job.getDstGraphId();
-        jobId = job.getJobId();
+        projectId = job.getProjectId().toString();
+        branchId = job.getBranchId().toString();
+        graphId = job.getDstGraphId().toString();
+        jobId = job.getJobId().toString();
     }
 
     public BranchJobResponse(BranchCommitSubsetJob job) {
-        projectId = job.getProjectId();
-        branchId = job.getBranchId();
-        graphId = job.getDstGraphId();
-        jobId = job.getJobId();
+        projectId = job.getProjectId().toString();
+        branchId = job.getBranchId().toString();
+        graphId = job.getDstGraphId().toString();
+        jobId = job.getJobId().toString();
     }
 
     public String getStatus() {
