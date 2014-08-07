@@ -45,7 +45,7 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
     protected AbstractGraphCommitJob(MetaGraph metaGraph,
                                      String jobId,
                                      String projectId,
-                                     String branchId) throws MetaGraphTx.NotFound {
+                                     String branchId) {
         super(metaGraph, jobId);
 
         MetaGraphTx tx = metaGraph.newTransaction();

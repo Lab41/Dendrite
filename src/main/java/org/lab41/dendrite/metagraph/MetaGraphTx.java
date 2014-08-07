@@ -39,7 +39,7 @@ public class MetaGraphTx {
         return getVertices("user", UserMetadata.class);
     }
 
-    public UserMetadata getUser(String userId) throws NotFound {
+    public UserMetadata getUser(String userId) {
         return getVertex(userId, "user", UserMetadata.class);
     }
 
@@ -73,7 +73,7 @@ public class MetaGraphTx {
         return getVertices("project", ProjectMetadata.class);
     }
 
-    public ProjectMetadata getProject(String projectId) throws NotFound {
+    public ProjectMetadata getProject(String projectId) {
         return getVertex(projectId, "project", ProjectMetadata.class);
     }
 
@@ -118,7 +118,7 @@ public class MetaGraphTx {
         return getVertices("graph", GraphMetadata.class);
     }
 
-    public GraphMetadata getGraph(String graphId) throws NotFound {
+    public GraphMetadata getGraph(String graphId) {
         return getVertex(graphId, "graph", GraphMetadata.class);
     }
 
@@ -155,7 +155,7 @@ public class MetaGraphTx {
         return getVertices("branch", BranchMetadata.class);
     }
 
-    public BranchMetadata getBranch(String branchId) throws NotFound {
+    public BranchMetadata getBranch(String branchId) {
         return getVertex(branchId, "branch", BranchMetadata.class);
     }
 
@@ -219,7 +219,7 @@ public class MetaGraphTx {
         return getVertices("job", JobMetadata.class);
     }
 
-    public JobMetadata getJob(String jobId) throws NotFound {
+    public JobMetadata getJob(String jobId) {
         return getVertex(jobId, "job", JobMetadata.class);
     }
 
@@ -253,7 +253,7 @@ public class MetaGraphTx {
         return tx.getVertices("type", type, kind);
     }
 
-    private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) throws NotFound {
+    private <F extends Metadata> F getVertex(String id, String type, Class<F> kind) {
         Preconditions.checkNotNull(id);
         Preconditions.checkNotNull(type);
         Preconditions.checkNotNull(kind);
@@ -261,7 +261,7 @@ public class MetaGraphTx {
         F framedVertex = tx.getVertex(id, kind);
 
         if (framedVertex == null) {
-            throw new NotFound(kind, id);
+            return null;
         }
 
         Preconditions.checkArgument(type.equals(framedVertex.asVertex().getProperty("type")));

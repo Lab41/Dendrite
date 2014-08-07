@@ -13,8 +13,8 @@ public class BranchCommitJob extends AbstractGraphCommitJob {
 
     Logger logger = LoggerFactory.getLogger(BranchCommitJob.class);
 
-    public BranchCommitJob(MetaGraph metaGraph, String jobId, String branchId) {
-        super(metaGraph, jobId, branchId);
+    public BranchCommitJob(MetaGraph metaGraph, String jobId, String projectId, String branchId) {
+        super(metaGraph, jobId, projectId, branchId);
         setJobName(jobId, "commit-graph");
     }
 

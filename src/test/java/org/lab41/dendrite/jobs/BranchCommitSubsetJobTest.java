@@ -22,6 +22,7 @@ import java.util.UUID;
 public class BranchCommitSubsetJobTest {
 
     static MetaGraph metaGraph;
+    String projectId;
     String branchId;
     String jobId;
     DendriteGraph srcGraph;
@@ -92,6 +93,7 @@ public class BranchCommitSubsetJobTest {
             metaGraphTx.commit();
         }
 
+        projectId = projectMetadata.getId();
         branchId = branchMetadata.getId();
         jobId = jobMetadata.getId();
         srcGraph = metaGraph.getGraph(srcGraphMetadata.getId());
@@ -144,6 +146,7 @@ public class BranchCommitSubsetJobTest {
     @After
     public void tearDown() throws IOException {
         srcGraph = null;
+        projectId = null;
         branchId = null;
         jobId = null;
     }
@@ -153,6 +156,7 @@ public class BranchCommitSubsetJobTest {
         BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
                 metaGraph,
                 jobId,
+                projectId,
                 branchId,
                 "name:A",
                 0);
@@ -185,6 +189,7 @@ public class BranchCommitSubsetJobTest {
         BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
                 metaGraph,
                 jobId,
+                projectId,
                 branchId,
                 "name:A",
                 1);
@@ -225,6 +230,7 @@ public class BranchCommitSubsetJobTest {
         BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
                 metaGraph,
                 jobId,
+                projectId,
                 branchId,
                 "name:A",
                 2);

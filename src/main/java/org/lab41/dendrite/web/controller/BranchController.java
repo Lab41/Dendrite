@@ -215,6 +215,7 @@ public class BranchController extends AbstractController {
             branchCommitJob = new BranchCommitJob(
                     metaGraphService.getMetaGraph(),
                     jobMetadata.getId(),
+                    projectId,
                     branchMetadata.getId());
 
             getBranchResponse = new GetBranchResponse(branchMetadata, jobMetadata);
@@ -339,6 +340,7 @@ public class BranchController extends AbstractController {
             branchCommitJob = new BranchCommitJob(
                     metaGraphService.getMetaGraph(),
                     jobMetadata.getId(),
+                    projectId,
                     branchMetadata.getId());
 
         } catch (Throwable t) {
