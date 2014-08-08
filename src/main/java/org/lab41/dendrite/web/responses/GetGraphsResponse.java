@@ -16,14 +16,17 @@
 
 package org.lab41.dendrite.web.responses;
 
-public class SetCurrentBranchResponse {
-    private String msg;
+import java.util.List;
 
-    public SetCurrentBranchResponse() {
-        this.msg = "current branch changed";
+public class GetGraphsResponse {
+    private List<GetGraphResponse> graphs;
+
+    public GetGraphsResponse(List<GetGraphResponse> graphs) {
+        this.graphs = graphs;
     }
 
-    public String getMsg() {
-        return msg;
+    public List<GetGraphResponse> getGraphs() {
+        return graphs;
     }
+
 }

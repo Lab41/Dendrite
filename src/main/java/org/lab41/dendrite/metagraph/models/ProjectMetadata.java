@@ -35,10 +35,10 @@ public interface ProjectMetadata extends NamedMetadata {
     @JavaHandler
     public GraphMetadata getCurrentGraph();
 
-    @Adjacency(label = "userOwnsProject", direction = Direction.OUT)
+    @Adjacency(label = "ownsProject", direction = Direction.IN)
     public void addUser(UserMetadata user);
 
-    @Adjacency(label = "userOwnsProject", direction = Direction.OUT)
+    @Adjacency(label = "ownsProject", direction = Direction.IN)
     public Iterable<UserMetadata> getUsers();
 
     @Adjacency(label = "ownsBranch", direction = Direction.OUT)
@@ -69,8 +69,19 @@ public interface ProjectMetadata extends NamedMetadata {
             this.id = id;
         }
 
+        @Override
         public String toString() {
             return this.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Id && id.equals(((Id) other).id);
         }
     }
 
@@ -79,6 +90,11 @@ public interface ProjectMetadata extends NamedMetadata {
         @Initializer
         public void init() {
             setCreationTime(new Date());
+        }
+
+        @Override
+        public Id getId() {
+            return new Id(asVertex().getId().toString());
         }
 
         @Override

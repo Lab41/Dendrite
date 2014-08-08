@@ -52,7 +52,7 @@ import java.io.InputStream;
 import java.util.*;
 
 @Controller
-public class GraphImportController {
+public class GraphImportController extends AbstractController {
 
     static Logger logger = LoggerFactory.getLogger(GraphImportController.class);
 
@@ -61,7 +61,7 @@ public class GraphImportController {
     @Autowired
     MetaGraphService metaGraphService;
 
-    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/file-import", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> importGraph(@PathVariable String graphId,
                                                            @Valid GraphImportRequest item,

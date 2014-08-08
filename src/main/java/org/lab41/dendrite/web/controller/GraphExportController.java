@@ -53,7 +53,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class GraphExportController {
+public class GraphExportController extends AbstractController {
 
     static Logger logger = LoggerFactory.getLogger(GraphExportController.class);
 
@@ -63,7 +63,7 @@ public class GraphExportController {
     @Autowired
     HistoryService historyService;
 
-    @PreAuthorize("hasPermission(#graphId, 'project','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/file-export", method = RequestMethod.POST)
     public ResponseEntity<byte[]> export(@PathVariable String graphId,
                                          @Valid GraphExportRequest item,
@@ -118,6 +118,7 @@ public class GraphExportController {
         return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), headers, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/file-save", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> save(@PathVariable String graphId,
                                                     @Valid GraphExportRequest item,

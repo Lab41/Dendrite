@@ -65,8 +65,19 @@ public interface GraphMetadata extends Metadata {
             this.id = id;
         }
 
+        @Override
         public String toString() {
             return this.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Id && id.equals(((Id) other).id);
         }
     }
 
@@ -75,6 +86,11 @@ public interface GraphMetadata extends Metadata {
         @Initializer
         public void init() {
             setCreationTime(new Date());
+        }
+
+        @Override
+        public Id getId() {
+            return new Id(asVertex().getId().toString());
         }
 
         @Override

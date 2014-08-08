@@ -16,11 +16,15 @@
 
 package org.lab41.dendrite.web.responses;
 
-public class SetCurrentBranchResponse {
+import org.lab41.dendrite.jobs.BranchCommitJob;
+import org.lab41.dendrite.jobs.BranchCommitSubsetJob;
+
+public class AddUserToProjectResponse {
+
     private String msg;
 
-    public SetCurrentBranchResponse() {
-        this.msg = "current branch changed";
+    public AddUserToProjectResponse() {
+        this.msg = "user added to project";
     }
 
     public String getMsg() {

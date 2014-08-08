@@ -16,14 +16,23 @@
 
 package org.lab41.dendrite.web.responses;
 
-public class SetCurrentBranchResponse {
-    private String msg;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
 
-    public SetCurrentBranchResponse() {
-        this.msg = "current branch changed";
+public class GetUserResponse {
+
+    private String _id;
+    private String name;
+
+    public GetUserResponse(UserMetadata userMetadata) {
+        this._id = userMetadata.getId().toString();
+        this.name = userMetadata.getName();
     }
 
-    public String getMsg() {
-        return msg;
+    public String get_id() {
+        return _id;
+    }
+
+    public String getName() {
+        return name;
     }
 }

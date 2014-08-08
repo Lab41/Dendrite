@@ -43,26 +43,6 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
         this.dstGraphId = dstGraphId;
     }
 
-    protected AbstractGraphCommitJob(MetaGraph metaGraph,
-                                     JobMetadata.Id jobId,
-                                     ProjectMetadata.Id projectId,
-                                     BranchMetadata.Id branchId) {
-        super(metaGraph, jobId);
-
-        MetaGraphTx tx = metaGraph.newTransaction();
-
-        BranchMetadata branchMetadata = tx.getBranch(branchId);
-        GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
-        GraphMetadata dstGraphMetadata = tx.createGraph(srcGraphMetadata);
-
-        this.projectId = projectId;
-        this.branchId = branchId;
-        this.srcGraphId = srcGraphMetadata.getId();
-        this.dstGraphId = dstGraphMetadata.getId();
-
-        tx.commit();
-    }
-
     public ProjectMetadata.Id getProjectId() {
         return projectId;
     }

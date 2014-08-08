@@ -6,119 +6,124 @@ import com.tinkerpop.blueprints.Vertex;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.NotFound;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.requests.CreateGraphRequest;
+import org.lab41.dendrite.web.responses.GetGraphResponse;
+import org.lab41.dendrite.web.responses.GetGraphsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.text.SimpleDateFormat;
+import java.security.Principal;
 import java.util.*;
 
 @Controller
 @RequestMapping("/api")
-public class GraphController {
+public class GraphController extends AbstractController {
 
     @Autowired
     MetaGraphService metaGraphService;
 
+    // Note this doesn't use @PreAuthorize on purpose because it'll only show the user's graphs.
     @RequestMapping(value = "/graphs", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getGraphs() {
+    @ResponseBody
+    public GetGraphsResponse getGraphs(Principal principal) {
 
-        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+        // This needs to be a read/write transaction as we might make a user.
+        MetaGraphTx tx = metaGraphService.buildTransaction().start();
+        List<GetGraphResponse> graphs = new ArrayList<>();
 
-        List<Map<String, Object>> graphs = new ArrayList<>();
-        for (GraphMetadata graphMetadata: tx.getGraphs()) {
-            graphs.add(getGraphMap(graphMetadata));
+        try {
+            UserMetadata userMetadata = tx.getOrCreateUser(principal);
+
+            for (ProjectMetadata projectMetadata : userMetadata.getProjects()) {
+                for (GraphMetadata graphMetadata : projectMetadata.getGraphs()) {
+                    graphs.add(new GetGraphResponse(graphMetadata));
+                }
+            }
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
         }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("graphs", graphs);
 
         // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new GetGraphsResponse(graphs);
     }
 
-    @PreAuthorize("hasPermission(#graphId, 'graphId','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getGraph(@PathVariable String graphId) {
+    @ResponseBody
+    public GetGraphResponse getGraph(@PathVariable String graphId) throws NotFound {
 
-        Map<String, Object> response = new HashMap<>();
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
-        GraphMetadata graphMetadata = tx.getGraph(graphId);
+        try {
+            GraphMetadata graphMetadata = tx.getGraph(graphId);
+            if (graphMetadata == null) {
+                throw new NotFound(GraphMetadata.class, graphId);
+            }
 
-        if (graphMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find graph '" + graphId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
+            metaGraphService.getDendriteGraph(graphMetadata.getId());
+
+            return new GetGraphResponse(graphMetadata);
+        } finally {
+            tx.commit();
         }
-
-        // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
-        metaGraphService.getDendriteGraph(graphMetadata.getId());
-
-        response.put("graph", getGraphMap(graphMetadata));
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#graphId, 'graphId','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/graphs/{graphId}/random", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getRandom(@PathVariable String graphId) {
+    public ResponseEntity<Map<String, Object>> getRandom(@PathVariable String graphId) throws NotFound {
 
         Map<String, Object> response = new HashMap<>();
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
-        GraphMetadata graphMetadata = tx.getGraph(graphId);
+        try {
+            GraphMetadata graphMetadata = tx.getGraph(graphId);
+            if (graphMetadata == null) {
+                throw new NotFound(GraphMetadata.class, graphId);
+            }
 
-        if (graphMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find graph '" + graphId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
+
+            DendriteGraphTx dendriteGraphTx = graph.buildTransaction().readOnly().start();
+
+            try {
+                Map<Object, Object> verticesMap = new HashMap<>();
+                Map<Object, Object> edgesMap = new HashMap<>();
+
+                for (Vertex vertex : dendriteGraphTx.query().limit(300).vertices()) {
+                    addVertex(verticesMap, vertex);
+                }
+
+                for (Edge edge : dendriteGraphTx.query().limit(300).edges()) {
+                    addEdge(verticesMap, edgesMap, edge);
+                }
+
+                response.put("vertices", new ArrayList<>(verticesMap.values()));
+                response.put("edges", new ArrayList<>(edgesMap.values()));
+            } finally {
+                dendriteGraphTx.commit();
+            }
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } finally {
+            tx.commit();
         }
-
-        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
-
-        DendriteGraphTx dendriteGraphTx = graph.buildTransaction().readOnly().start();
-
-        Map<Object, Object> verticesMap = new HashMap<>();
-        Map<Object, Object> edgesMap = new HashMap<>();
-
-        for (Vertex vertex: dendriteGraphTx.query().limit(300).vertices()) {
-            addVertex(verticesMap, vertex);
-        }
-
-        for (Edge edge: dendriteGraphTx.query().limit(300).edges()) {
-            addEdge(verticesMap, edgesMap, edge);
-        }
-
-        response.put("vertices", new ArrayList<>(verticesMap.values()));
-        response.put("edges", new ArrayList<>(edgesMap.values()));
-
-        dendriteGraphTx.commit();
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private void addVertex(Map<Object, Object> verticesMap, Vertex vertex) {
@@ -155,156 +160,119 @@ public class GraphController {
         }
     }
 
-    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) {
+    public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) throws NotFound {
 
         Map<String, Object> response = new HashMap<>();
         MetaGraphTx tx = metaGraphService.newTransaction();
-        GraphMetadata graphMetadata = tx.getGraph(graphId);
-
-        if (graphMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find graph '" + graphId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
 
         try {
-            tx.deleteGraph(graphMetadata);
-        } catch (Exception e) {
-            response.put("status", "error");
-            response.put("msg", e.toString());
-            tx.rollback();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            GraphMetadata graphMetadata = tx.getGraph(graphId);
+            if (graphMetadata == null) {
+                throw new NotFound(GraphMetadata.class, graphId);
+            }
+
+            try {
+                tx.deleteGraph(graphMetadata);
+            } catch (Exception e) {
+                response.put("status", "error");
+                response.put("msg", e.toString());
+                tx.rollback();
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            response.put("msg", "deleted");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } finally {
+            tx.commit();
         }
-
-        response.put("msg", "deleted");
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
+    @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getGraphs(@PathVariable String projectId) {
+    @ResponseBody
+    public GetGraphsResponse getGraphs(@PathVariable String projectId) throws NotFound {
 
-        Map<String, Object> response = new HashMap<>();
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
-        ProjectMetadata projectMetadata = tx.getProject(projectId);
 
-        if (projectMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new NotFound(ProjectMetadata.class, projectId);
+            }
+
+            List<GetGraphResponse> graphs = new ArrayList<>();
+            for (GraphMetadata graphMetadata : projectMetadata.getGraphs()) {
+                graphs.add(new GetGraphResponse(graphMetadata));
+            }
+
+            return new GetGraphsResponse(graphs);
+        } finally {
+            tx.commit();
         }
-
-        List<Map<String, Object>> graphs = new ArrayList<>();
-        for (GraphMetadata graphMetadata: projectMetadata.getGraphs()) {
-            graphs.add(getGraphMap(graphMetadata));
-        }
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        response.put("graphs", graphs);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
+    @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> createGraph(@PathVariable String projectId,
-                                                           @Valid @RequestBody CreateGraphRequest item,
-                                                           BindingResult result,
-                                                           UriComponentsBuilder builder) {
-
-        Map<String, Object> response = new HashMap<>();
+    @ResponseBody
+    public ResponseEntity<GetGraphResponse> createGraph(@PathVariable String projectId,
+                                                        @Valid @RequestBody CreateGraphRequest item,
+                                                        BindingResult result,
+                                                        UriComponentsBuilder builder) throws BindingException, NotFound {
 
         if (result.hasErrors()) {
-            response.put("status", "error");
-            response.put("msg", result.toString());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            throw new BindingException(result);
         }
 
         MetaGraphTx tx = metaGraphService.newTransaction();
-        ProjectMetadata projectMetadata = tx.getProject(projectId);
+        GetGraphResponse getGraphResponse;
+        HttpHeaders headers = new HttpHeaders();
 
-        if (projectMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
+        try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new NotFound(ProjectMetadata.class, projectId);
+            }
+
+            GraphMetadata graphMetadata = tx.createGraph(projectMetadata);
+            graphMetadata.setProperties(item.getProperties());
+
+            headers.setLocation(builder.path("/graphs/{graphId}").buildAndExpand(projectMetadata.getId()).toUri());
+
+            getGraphResponse = new GetGraphResponse(graphMetadata);
+        } catch (Throwable t) {
             tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            throw t;
         }
 
-        GraphMetadata graphMetadata = tx.createGraph(projectMetadata);
-        graphMetadata.setProperties(item.getProperties());
-
-        response.put("graph", getGraphMap(graphMetadata));
-
-        // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(getGraphResponse, headers, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasPermission(#projectId, 'project','admin')")
+    @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/current-graph", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getCurrentGraph(@PathVariable String projectId) {
+    @ResponseBody
+    public GetGraphResponse getCurrentGraph(@PathVariable String projectId) throws NotFound {
 
-        Map<String, Object> response = new HashMap<>();
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
-        ProjectMetadata projectMetadata = tx.getProject(projectId);
 
-        if (projectMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new NotFound(ProjectMetadata.class, projectId);
+            }
+
+            GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
+
+            // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
+            metaGraphService.getDendriteGraph(graphMetadata.getId());
+
+            return new GetGraphResponse(graphMetadata);
+        } finally {
+            tx.commit();
         }
-
-        GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
-
-        // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
-        metaGraphService.getDendriteGraph(graphMetadata.getId());
-
-        response.put("graph", getGraphMap(graphMetadata));
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    private Map<String, Object> getGraphMap(GraphMetadata graphMetadata) {
-        Map<String, Object> graph = new HashMap<>();
-
-        graph.put("_id", graphMetadata.getId());
-
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        Date creationTime = graphMetadata.getCreationTime();
-        if (creationTime != null) { graph.put("creationTime", df.format(creationTime)); }
-
-        Properties properties = graphMetadata.getProperties();
-        if (properties != null) {
-            graph.put("properties", properties);
-        }
-
-        ProjectMetadata projectMetadata = graphMetadata.getProject();
-        if (projectMetadata != null) {
-            graph.put("projectId", graphMetadata.getProject().getId());
-        }
-
-        GraphMetadata parentGraphMetadata = graphMetadata.getParentGraph();
-        if (parentGraphMetadata != null) {
-            graph.put("parentGraphId", parentGraphMetadata.getId());
-        }
-
-        return graph;
     }
 }

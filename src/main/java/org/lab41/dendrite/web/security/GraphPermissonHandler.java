@@ -1,10 +1,7 @@
 package org.lab41.dendrite.web.security;
 
 import org.lab41.dendrite.metagraph.MetaGraphTx;
-import org.lab41.dendrite.metagraph.models.BranchMetadata;
-import org.lab41.dendrite.metagraph.models.JobMetadata;
-import org.lab41.dendrite.metagraph.models.ProjectMetadata;
-import org.lab41.dendrite.metagraph.models.UserMetadata;
+import org.lab41.dendrite.metagraph.models.*;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,18 +28,31 @@ public class GraphPermissonHandler implements PermissionEvaluator {
 
         try {
             BranchMetadata branchMetadata = tx.getBranch((String) targetId);
+            if (branchMetadata == null) {
+                return false;
+            }
+
             ProjectMetadata projectMetadata = branchMetadata.getProject();
-            authenticated = checkAuthAgainstUserOfProject(authentication, projectMetadata);
-        } finally {
-            tx.commit();
+            if (projectMetadata == null) {
+                return false;
+            }
+
+            authenticated = checkAuthAgainstUserOfProject(tx, authentication, projectMetadata);
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
         }
+
+        tx.commit();
 
         return authenticated;
     }
 
-    private boolean checkAuthAgainstUserOfProject(Authentication authentication, ProjectMetadata projectMetadata) {
+    private boolean checkAuthAgainstUserOfProject(MetaGraphTx tx, Authentication authentication, ProjectMetadata projectMetadata) {
+        UserMetadata currentUser = tx.getOrCreateUser(authentication);
+
         for (UserMetadata user : projectMetadata.getUsers()) {
-            if (user.getName().equals(authentication.getName())) {
+            if (user.equals(currentUser)) {
                 return true;
             }
         }
@@ -50,44 +60,74 @@ public class GraphPermissonHandler implements PermissionEvaluator {
     }
 
     boolean checkUserForProject(Authentication authentication, Serializable targetId) {
-        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+        MetaGraphTx tx = metaGraphService.buildTransaction().start();
         boolean authenticated;
 
         try {
             ProjectMetadata projectMetadata = tx.getProject((String) targetId);
-            authenticated = checkAuthAgainstUserOfProject(authentication, projectMetadata);
-        } finally {
-            tx.commit();
+            if (projectMetadata == null) {
+                return false;
+            }
+
+            authenticated = checkAuthAgainstUserOfProject(tx, authentication, projectMetadata);
+        } catch (Throwable t){
+            tx.rollback();
+            throw t;
         }
+
+        tx.commit();
 
         return authenticated;
     }
 
     boolean checkUserForGraph(Authentication authentication, Serializable targetId) {
-        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+        MetaGraphTx tx = metaGraphService.buildTransaction().start();
         boolean authenticated;
 
         try {
-            ProjectMetadata projectMetadata = tx.getGraph((String) targetId).getProject();
-            authenticated = checkAuthAgainstUserOfProject(authentication, projectMetadata);
-        } finally {
-            tx.commit();
+            GraphMetadata graphMetadata = tx.getGraph((String) targetId);
+            if (graphMetadata == null) {
+                return false;
+            }
+
+            ProjectMetadata projectMetadata = graphMetadata.getProject();
+            if (projectMetadata == null) {
+                return false;
+            }
+
+            authenticated = checkAuthAgainstUserOfProject(tx, authentication, projectMetadata);
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
         }
+
+        tx.commit();
 
         return authenticated;
     }
 
     boolean checkUserForJob(Authentication authentication, Serializable targetId) {
-        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+        MetaGraphTx tx = metaGraphService.buildTransaction().start();
         boolean authenticated;
 
         try {
-            JobMetadata.Id jobId = new JobMetadata.Id((String) targetId);
-            ProjectMetadata projectMetadata = tx.getJob(jobId).getProject();
-            authenticated = checkAuthAgainstUserOfProject(authentication, projectMetadata);
-        } finally {
-            tx.commit();
+            JobMetadata jobMetadata = tx.getJob((String) targetId);
+            if (jobMetadata == null) {
+                return false;
+            }
+
+            ProjectMetadata projectMetadata = jobMetadata.getProject();
+            if (projectMetadata == null) {
+                return false;
+            }
+
+            authenticated = checkAuthAgainstUserOfProject(tx, authentication, projectMetadata);
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
         }
+
+        tx.commit();
 
         return authenticated;
     }

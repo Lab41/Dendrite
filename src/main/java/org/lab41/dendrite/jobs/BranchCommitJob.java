@@ -7,6 +7,7 @@ import com.tinkerpop.blueprints.Vertex;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
 import org.lab41.dendrite.metagraph.models.BranchMetadata;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.slf4j.Logger;
@@ -19,9 +20,10 @@ public class BranchCommitJob extends AbstractGraphCommitJob {
     public BranchCommitJob(MetaGraph metaGraph,
                            JobMetadata.Id jobId,
                            ProjectMetadata.Id projectId,
-                           BranchMetadata.Id branchId) {
-        super(metaGraph, jobId, projectId, branchId);
-        setJobName(jobId, "commit-graph");
+                           BranchMetadata.Id branchId,
+                           GraphMetadata.Id srcGraphId,
+                           GraphMetadata.Id dstGraphId) {
+        super(metaGraph, jobId, projectId, branchId, srcGraphId, dstGraphId);
     }
 
     @Override

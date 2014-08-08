@@ -14,14 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 @Service
 public class MetaGraphService {
@@ -67,16 +63,4 @@ public class MetaGraphService {
         metaGraph.stop();
     }
 
-    public static class NotFound extends Exception {
-        Class cls;
-        String id;
-
-        public NotFound(Class cls) {
-            super("Could not find " + cls.getCanonicalName());
-        }
-
-        public NotFound(Class cls, String id) {
-            super("Could not find " + cls.getCanonicalName() + " '" + id + "'");
-        }
-    }
 }

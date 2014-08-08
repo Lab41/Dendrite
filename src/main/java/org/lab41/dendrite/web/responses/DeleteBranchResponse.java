@@ -17,9 +17,13 @@
 package org.lab41.dendrite.web.responses;
 
 public class DeleteBranchResponse {
-    String msg;
+    private String msg;
 
     public DeleteBranchResponse() {
         this.msg = "deleted";
+    }
+
+    public String getMsg() {
+        return msg;
     }
 }

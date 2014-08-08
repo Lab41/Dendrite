@@ -16,41 +16,42 @@
 
 package org.lab41.dendrite.web.responses;
 
-import org.lab41.dendrite.metagraph.models.BranchMetadata;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.TimeZone;
 
-public class GetProjectResponse {
+public class GetGraphResponse {
     private String _id;
-    private String name;
     private String creationTime;
-    private String current_branch;
-    private String current_graph;
+    private Properties properties;
+    private String projectId;
+    private String parentGraphId;
 
-    public GetProjectResponse(ProjectMetadata projectMetadata) {
-        this._id = projectMetadata.getId().toString();
-        this.name = projectMetadata.getName();
+    public GetGraphResponse(GraphMetadata graphMetadata) {
+        this._id = graphMetadata.getId().toString();
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        Date creationTime = projectMetadata.getCreationTime();
+        Date creationTime = graphMetadata.getCreationTime();
         if (creationTime != null) {
             this.creationTime = df.format(creationTime);
         }
 
-        BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
-        if (branchMetadata != null) {
-            current_branch = branchMetadata.getId().toString();
+        this.properties = graphMetadata.getProperties();
 
-            GraphMetadata graphMetadata = branchMetadata.getGraph();
-            if (graphMetadata != null) {
-                this.current_graph = graphMetadata.getId().toString();
-            }
+        ProjectMetadata projectMetadata = graphMetadata.getProject();
+        if (projectMetadata != null) {
+            this.projectId = projectMetadata.getId().toString();
+        }
+
+        GraphMetadata parentGraphMetadata = graphMetadata.getParentGraph();
+        if (parentGraphMetadata != null) {
+            this.parentGraphId = parentGraphMetadata.getId().toString();
         }
     }
 
@@ -58,19 +59,19 @@ public class GetProjectResponse {
         return _id;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public String getCreationTime() {
         return creationTime;
     }
 
-    public String getCurrent_branch() {
-        return current_branch;
+    public Properties getProperties() {
+        return properties;
     }
 
-    public String getCurrent_graph() {
-        return current_graph;
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public String getParentGraphId() {
+        return parentGraphId;
     }
 }

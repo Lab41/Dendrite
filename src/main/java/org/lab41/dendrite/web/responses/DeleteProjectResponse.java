@@ -16,11 +16,11 @@
 
 package org.lab41.dendrite.web.responses;
 
-public class SetCurrentBranchResponse {
+public class DeleteProjectResponse {
     private String msg;
 
-    public SetCurrentBranchResponse() {
-        this.msg = "current branch changed";
+    public DeleteProjectResponse() {
+        this.msg = "deleted";
     }
 
     public String getMsg() {

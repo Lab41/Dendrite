@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package org.lab41.dendrite.web.responses;
+package org.lab41.dendrite.metagraph;
 
-public class SetCurrentBranchResponse {
-    private String msg;
+public class NotFound extends Exception {
+    private Class cls;
+    private String id;
 
-    public SetCurrentBranchResponse() {
-        this.msg = "current branch changed";
+    public NotFound(Class cls) {
+        super("Could not find " + cls.getCanonicalName());
     }
 
-    public String getMsg() {
-        return msg;
+    public NotFound(Class cls, String id) {
+        super("Could not find " + cls.getCanonicalName() + " '" + id + "'");
+    }
+
+    public Class getCls() {
+        return cls;
+    }
+
+    public String getId() {
+        return id;
     }
 }

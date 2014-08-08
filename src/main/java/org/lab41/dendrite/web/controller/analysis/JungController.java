@@ -7,6 +7,7 @@ import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.services.analysis.jung.*;
+import org.lab41.dendrite.web.controller.AbstractController;
 import org.lab41.dendrite.web.requests.PageRankRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class JungController {
+public class JungController extends AbstractController {
 
     @Autowired
     MetaGraphService metaGraphService;
@@ -44,7 +45,7 @@ public class JungController {
     @Autowired
     PageRankService pageRankService;
 
-    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/barycenter-distance", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungBarycenterDistance(@PathVariable String graphId) throws Exception {
 
@@ -79,7 +80,7 @@ public class JungController {
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
-        response.put("jobId", jobMetadata.getId());
+        response.put("jobId", jobMetadata.getId().toString());
 
         tx.commit();
 
@@ -90,7 +91,7 @@ public class JungController {
     }
 
 
-    @PreAuthorize("hasPermission(#graphId, 'graphId','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/betweenness-centrality", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungBetweennessCentrality(@PathVariable String graphId) throws Exception {
 
@@ -125,7 +126,7 @@ public class JungController {
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
-        response.put("jobId", jobMetadata.getId());
+        response.put("jobId", jobMetadata.getId().toString());
 
         tx.commit();
 
@@ -135,7 +136,7 @@ public class JungController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/closeness-centrality", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungClosenessCentrality(@PathVariable String graphId) throws Exception {
 
@@ -170,7 +171,7 @@ public class JungController {
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
-        response.put("jobId", jobMetadata.getId());
+        response.put("jobId", jobMetadata.getId().toString());
 
         tx.commit();
 
@@ -180,7 +181,7 @@ public class JungController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/eigenvector-centrality", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungEigenvectorCentrality(@PathVariable String graphId) throws Exception {
 
@@ -215,7 +216,7 @@ public class JungController {
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
-        response.put("jobId", jobMetadata.getId());
+        response.put("jobId", jobMetadata.getId().toString());
 
         tx.commit();
 
@@ -225,7 +226,7 @@ public class JungController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/jung/pagerank", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> jungPageRank(@PathVariable String graphId,
                                                             @Valid @RequestBody PageRankRequest item,
@@ -268,7 +269,7 @@ public class JungController {
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
-        response.put("jobId", jobMetadata.getId());
+        response.put("jobId", jobMetadata.getId().toString());
 
         tx.commit();
 

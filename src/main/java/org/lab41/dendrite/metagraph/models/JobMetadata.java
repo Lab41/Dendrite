@@ -80,8 +80,19 @@ public interface JobMetadata extends NamedMetadata {
             this.id = id;
         }
 
+        @Override
         public String toString() {
             return this.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Id && id.equals(((Id) other).id);
         }
     }
 
@@ -92,6 +103,11 @@ public interface JobMetadata extends NamedMetadata {
             setCreationTime(new Date());
             setState(PENDING );
             setProgress(0);
+        }
+
+        @Override
+        public Id getId() {
+            return new Id(asVertex().getId().toString());
         }
 
         @Override

@@ -19,9 +19,13 @@ package org.lab41.dendrite.web.responses;
 import java.util.List;
 
 public class GetBranchesResponse {
-    List<GetBranchResponse> branches;
+    private List<GetBranchResponse> branches;
 
     public GetBranchesResponse(List<GetBranchResponse> branches) {
         this.branches = branches;
+    }
+
+    public List<GetBranchResponse> getBranches() {
+        return branches;
     }
 }

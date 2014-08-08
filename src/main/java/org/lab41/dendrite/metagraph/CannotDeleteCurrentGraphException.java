@@ -14,16 +14,7 @@
  * limitations under the License.
  */
 
-package org.lab41.dendrite.web.responses;
+package org.lab41.dendrite.metagraph;
 
-public class SetCurrentBranchResponse {
-    private String msg;
-
-    public SetCurrentBranchResponse() {
-        this.msg = "current branch changed";
-    }
-
-    public String getMsg() {
-        return msg;
-    }
+class CannotDeleteCurrentGraphException extends Exception {
 }

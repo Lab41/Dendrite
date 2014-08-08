@@ -6,8 +6,10 @@ import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.FramedTransactionalGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 
 import java.security.Principal;
+import java.util.NoSuchElementException;
 
 public class MetaGraphTx {
     Logger logger = LoggerFactory.getLogger(MetaGraphTx.class);
@@ -48,6 +50,23 @@ public class MetaGraphTx {
     }
 
     /**
+     * Get or creates the user from an authentication.
+     *
+     * @param authentication
+     * @return
+     */
+    public UserMetadata getOrCreateUser(Authentication authentication) {
+        String name = authentication.getName();
+
+        UserMetadata userMetadata = getUserByName(name);
+        if (userMetadata == null) {
+            userMetadata = createUser(name);
+        }
+
+        return userMetadata;
+    }
+
+    /**
      * Get or creates the user from an authentication principal.
      *
      * @param principal
@@ -65,12 +84,16 @@ public class MetaGraphTx {
     }
 
     public UserMetadata getUserByName(String userName) {
-        return tx.query()
-                .has("type", "user")
-                .has("name", userName)
-                .vertices(UserMetadata.class)
-                .iterator()
-                .next();
+        try {
+            return tx.query()
+                    .has("type", "user")
+                    .has("name", userName)
+                    .vertices(UserMetadata.class)
+                    .iterator()
+                    .next();
+        } catch (NoSuchElementException ignored) {
+            return null;
+        }
     }
 
     public Iterable<ProjectMetadata> getProjects() {
@@ -104,7 +127,7 @@ public class MetaGraphTx {
         return projectMetadata;
     }
 
-    public void deleteProject(ProjectMetadata projectMetadata) throws Exception {
+    public void deleteProject(ProjectMetadata projectMetadata) throws CannotDeleteCurrentBranchException, CannotDeleteCurrentGraphException {
         projectMetadata.setCurrentBranch(null);
 
         for (BranchMetadata branchMetadata: projectMetadata.getBranches()) {
@@ -150,13 +173,13 @@ public class MetaGraphTx {
         return graphMetadata;
     }
 
-    public void deleteGraph(GraphMetadata graphMetadata) throws Exception {
+    public void deleteGraph(GraphMetadata graphMetadata) throws CannotDeleteCurrentGraphException {
         // We cannot delete the current graph.
         ProjectMetadata projectMetadata = graphMetadata.getProject();
         if (projectMetadata != null) {
             GraphMetadata currentGraphMetadata = projectMetadata.getCurrentGraph();
             if (currentGraphMetadata != null && graphMetadata.getId().equals(currentGraphMetadata.getId())) {
-                throw new Exception("cannot delete the current graph");
+                throw new CannotDeleteCurrentGraphException();
             }
         }
 
@@ -300,28 +323,4 @@ public class MetaGraphTx {
         return framedVertex;
     }
 
-    public static class NotFound extends Exception {
-        private Class kind;
-        private String id;
-
-        public NotFound(Class kind) {
-            super("could not find " + kind.getSimpleName());
-            this.kind = kind;
-            this.id = null;
-        }
-
-        public NotFound(Class kind, String id) {
-            super("could not find " + kind.getSimpleName() + " '" + id + "'");
-            this.kind = kind;
-            this.id = id;
-        }
-
-        public Class getKind() {
-            return kind;
-        }
-
-        public String getId() {
-            return id;
-        }
-    }
 }

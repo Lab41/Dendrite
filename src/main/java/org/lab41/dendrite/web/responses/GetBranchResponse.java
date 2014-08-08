@@ -26,12 +26,12 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class GetBranchResponse {
-    public String _id;
-    public String name;
-    public String creationTime;
-    public String projectId;
-    public String graphId;
-    public String jobId;
+    private String _id;
+    private String name;
+    private String creationTime;
+    private String projectId;
+    private String graphId;
+    private String jobId;
 
     public GetBranchResponse(BranchMetadata branchMetadata) {
         this(branchMetadata, null);
@@ -63,4 +63,29 @@ public class GetBranchResponse {
             this.jobId = jobMetadata.getId().toString();
         }
     }
+
+    public String get_id() {
+        return _id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCreationTime() {
+        return creationTime;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public String getGraphId() {
+        return graphId;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
 }

@@ -42,21 +42,6 @@ public class BranchCommitSubsetJob extends AbstractGraphCommitJob {
                                  JobMetadata.Id jobId,
                                  ProjectMetadata.Id projectId,
                                  BranchMetadata.Id branchId,
-                                 String query,
-                                 int steps) {
-        super(metaGraph, jobId, projectId, branchId);
-
-        Preconditions.checkNotNull(query);
-        Preconditions.checkArgument(steps >= 0);
-
-        this.query = query;
-        this.steps = steps;
-    }
-
-    public BranchCommitSubsetJob(MetaGraph metaGraph,
-                                 JobMetadata.Id jobId,
-                                 ProjectMetadata.Id projectId,
-                                 BranchMetadata.Id branchId,
                                  GraphMetadata.Id srcGraphId,
                                  GraphMetadata.Id dstGraphId,
                                  String query, int steps) {

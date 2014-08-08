@@ -18,6 +18,7 @@ package org.lab41.dendrite.web.controller;
 
 import org.lab41.dendrite.metagraph.CannotDeleteCurrentBranchException;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.NotFound;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.web.responses.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,8 @@ public abstract class AbstractController {
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(MetaGraphTx.NotFound.class)
-    public ErrorResponse handleNotFound(MetaGraphTx.NotFound notFound) {
+    @ExceptionHandler(NotFound.class)
+    public ErrorResponse handleNotFound(NotFound notFound) {
         return new ErrorResponse(notFound.getLocalizedMessage());
     }
 

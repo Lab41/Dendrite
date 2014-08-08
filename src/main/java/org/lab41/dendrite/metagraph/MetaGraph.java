@@ -127,7 +127,7 @@ public class MetaGraph {
      * @return The graph.
      */
     public DendriteGraph getGraph(GraphMetadata.Id id) {
-        return getGraph(id.toString());
+        return getGraph(id, false);
     }
 
     /**
@@ -148,17 +148,6 @@ public class MetaGraph {
      * @return The graph or null.
      */
     public DendriteGraph getGraph(GraphMetadata.Id id, boolean includeSystemGraph) {
-        return getGraph(id.toString(), includeSystemGraph);
-    }
-
-    /**
-     * Get a graph.
-     *
-     * @param id The graph id.
-     * @param includeSystemGraph Should we include the hidden system graph?
-     * @return The graph or null.
-     */
-    public DendriteGraph getGraph(String id, boolean includeSystemGraph) {
         DendriteGraph graph = graphs.get(id);
         if (graph == null) {
             // Is it the system graph?
@@ -173,6 +162,17 @@ public class MetaGraph {
         }
 
         return graph;
+    }
+
+    /**
+     * Get a graph.
+     *
+     * @param id The graph id.
+     * @param includeSystemGraph Should we include the hidden system graph?
+     * @return The graph or null.
+     */
+    public DendriteGraph getGraph(String id, boolean includeSystemGraph) {
+        return getGraph(new GraphMetadata.Id(id), includeSystemGraph);
     }
 
     /**
@@ -243,6 +243,13 @@ public class MetaGraph {
             if (tx.getType("currentBranch") == null) {
                 tx.makeLabel("currentBranch")
                         .oneToOne()
+                        .make();
+            }
+
+            if (tx.getType("ownsProject") == null) {
+                tx.makeLabel("ownsProject")
+                        .oneToMany()
+                        .sortKey(name)
                         .make();
             }
 
@@ -342,20 +349,20 @@ public class MetaGraph {
      * @param id The graph id.
      * @return The graph or null.
      */
-    private DendriteGraph loadGraph(String id) {
-        DendriteGraph graph = null;
-
+    private DendriteGraph loadGraph(GraphMetadata.Id id) {
         MetaGraphTx tx = newTransaction();
 
-        GraphMetadata graphMetadata = tx.getGraph(id);
+        try {
+            GraphMetadata graphMetadata = tx.getGraph(id);
 
-        if (graphMetadata != null) {
-            graph = loadGraph(graphMetadata);
+            if (graphMetadata == null) {
+                return null;
+            } else {
+                return loadGraph(graphMetadata);
+            }
+        } finally {
+            tx.commit();
         }
-
-        tx.commit();
-
-        return graph;
     }
 
     /**
