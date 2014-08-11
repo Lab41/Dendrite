@@ -65,7 +65,7 @@ public class BranchController extends AbstractController {
         return getBranchesResponse;
     }
 
-    @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
+    @PreAuthorize("hasPermission(#branchId, 'branch', 'admin')")
     @RequestMapping(value = "/branches/{branchId}", method = RequestMethod.GET)
     @ResponseBody
     public GetBranchResponse getBranch(@PathVariable String branchId) throws NotFound {
