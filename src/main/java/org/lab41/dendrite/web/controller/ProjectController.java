@@ -6,10 +6,7 @@ import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.metagraph.models.UserMetadata;
 import org.lab41.dendrite.web.requests.AddUserToProjectRequest;
 import org.lab41.dendrite.web.requests.CreateProjectRequest;
-import org.lab41.dendrite.web.responses.AddUserToProjectResponse;
-import org.lab41.dendrite.web.responses.DeleteProjectResponse;
-import org.lab41.dendrite.web.responses.GetProjectResponse;
-import org.lab41.dendrite.web.responses.GetProjectsResponse;
+import org.lab41.dendrite.web.responses.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -147,6 +144,31 @@ public class ProjectController extends AbstractController {
     }
 
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
+    @RequestMapping(value = "/projects/{projectId}/users", method = RequestMethod.GET)
+    @ResponseBody
+    public GetUsersResponse addUser(@PathVariable String projectId) throws NotFound {
+
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+
+        try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new NotFound(ProjectMetadata.class, projectId);
+            }
+
+            List<GetUserResponse> users = new ArrayList<>();
+
+            for (UserMetadata userMetadata : projectMetadata.getUsers()) {
+                users.add(new GetUserResponse(userMetadata));
+            }
+
+            return new GetUsersResponse(users);
+        } finally {
+            tx.commit();
+        }
+    }
+
+    @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/users", method = RequestMethod.POST)
     @ResponseBody
     public AddUserToProjectResponse addUser(@PathVariable String projectId,
@@ -165,7 +187,7 @@ public class ProjectController extends AbstractController {
                 throw new NotFound(ProjectMetadata.class, projectId);
             }
 
-            UserMetadata otherUserMetadata = tx.getUser(item.getUserId());
+            UserMetadata otherUserMetadata = tx.getUserByName(item.getName());
             if (otherUserMetadata == null) {
                 throw new NotFound(UserMetadata.class);
             }

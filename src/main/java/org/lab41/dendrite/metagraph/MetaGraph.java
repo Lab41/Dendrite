@@ -235,7 +235,7 @@ public class MetaGraph {
 
             if (tx.getType("ownsProject") == null) {
                 tx.makeLabel("ownsProject")
-                        .oneToMany()
+                        .manyToMany()
                         .sortKey(name)
                         .make();
             }
