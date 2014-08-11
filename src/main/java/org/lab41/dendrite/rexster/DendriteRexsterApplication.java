@@ -104,8 +104,23 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
     @Override
     public Set<String> getGraphNames() {
-        return metaGraphService.getDendriteGraphNames();
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Set<String> graphNames = new TreeSet<>();
+
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+
+        try {
+            UserMetadata userMetadata = tx.getOrCreateUser(authentication);
+
+            for (GraphMetadata graphMetadata: userMetadata.getGraphs()) {
+                graphNames.add(graphMetadata.getId().toString());
+            }
+        } finally {
+            tx.commit();
+        }
+        return graphNames;
     }
 
     @Override

@@ -63,19 +63,6 @@ public class MetaGraph {
         createMetadataGraphKeys();
     }
 
-    public Set<String> getGraphNames() {
-        Set<String> graphNames = new TreeSet<>();
-
-        MetaGraphTx tx = newTransaction();
-        for (GraphMetadata graphMetadata: tx.getGraphs()) {
-            graphNames.add(graphMetadata.getId().toString());
-        }
-
-        tx.commit();
-
-        return graphNames;
-    }
-
     /**
      * Return all the known graphs.
      *

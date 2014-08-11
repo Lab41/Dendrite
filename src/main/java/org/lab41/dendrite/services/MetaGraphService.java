@@ -39,10 +39,6 @@ public class MetaGraphService {
         return metaGraph;
     }
 
-    public Set<String> getDendriteGraphNames() {
-        return metaGraph.getGraphNames();
-    }
-
     public DendriteGraph getDendriteGraph(GraphMetadata.Id id) {
         return metaGraph.getGraph(id);
     }
