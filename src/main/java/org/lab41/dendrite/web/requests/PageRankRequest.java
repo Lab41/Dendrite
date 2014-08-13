@@ -1,6 +1,6 @@
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.web.requests;
 
-public class PageRankBean {
+public class PageRankRequest {
     private double alpha = 0.15d;
 
     public double getAlpha() {

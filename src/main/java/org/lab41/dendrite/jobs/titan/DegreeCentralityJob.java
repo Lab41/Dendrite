@@ -6,6 +6,7 @@ import com.tinkerpop.blueprints.Vertex;
 import org.lab41.dendrite.jobs.AbstractGraphUpdateJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 
 public class DegreeCentralityJob extends AbstractGraphUpdateJob {
 
@@ -13,7 +14,7 @@ public class DegreeCentralityJob extends AbstractGraphUpdateJob {
     private static String OUT_DEGREES_KEY = "titanOutDegrees";
     private static String DEGREES_KEY = "titanDegrees";
 
-    public DegreeCentralityJob(MetaGraph metaGraph, String jobId, DendriteGraph graph) {
+    public DegreeCentralityJob(MetaGraph metaGraph, JobMetadata.Id jobId, DendriteGraph graph) {
         super(metaGraph, jobId, graph);
     }
 

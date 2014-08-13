@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.metagraph;
 
-import org.hibernate.validator.constraints.NotEmpty;
+public class NotFound extends Exception {
+    private Class cls;
+    private String id;
 
-import javax.validation.constraints.NotNull;
-
-public class AddUserToProject {
-    @NotNull
-    @NotEmpty
-    private String userId;
-
-    public String getUserId() {
-        return userId;
+    public NotFound(Class cls) {
+        super("Could not find " + cls.getCanonicalName());
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public NotFound(Class cls, String id) {
+        super("Could not find " + cls.getCanonicalName() + " '" + id + "'");
+    }
+
+    public Class getCls() {
+        return cls;
+    }
+
+    public String getId() {
+        return id;
     }
 }

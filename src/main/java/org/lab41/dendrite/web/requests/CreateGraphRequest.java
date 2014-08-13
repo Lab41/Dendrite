@@ -1,9 +1,9 @@
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.web.requests;
 
 import javax.validation.constraints.NotNull;
 import java.util.Properties;
 
-public class CreateGraphBean {
+public class CreateGraphRequest {
     @NotNull
     private Properties properties;
 

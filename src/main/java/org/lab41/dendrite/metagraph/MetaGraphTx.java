@@ -6,8 +6,10 @@ import com.tinkerpop.frames.FramedGraphFactory;
 import com.tinkerpop.frames.FramedTransactionalGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 
 import java.security.Principal;
+import java.util.NoSuchElementException;
 
 public class MetaGraphTx {
     Logger logger = LoggerFactory.getLogger(MetaGraphTx.class);
@@ -39,21 +41,67 @@ public class MetaGraphTx {
         return getVertices("user", UserMetadata.class);
     }
 
+    public UserMetadata getUser(UserMetadata.Id userId) {
+        return getUser(userId.toString());
+    }
+
     public UserMetadata getUser(String userId) {
         return getVertex(userId, "user", UserMetadata.class);
     }
 
+    /**
+     * Get or creates the user from an authentication.
+     *
+     * @param authentication
+     * @return
+     */
+    public UserMetadata getOrCreateUser(Authentication authentication) {
+        String name = authentication.getName();
+
+        UserMetadata userMetadata = getUserByName(name);
+        if (userMetadata == null) {
+            userMetadata = createUser(name);
+        }
+
+        return userMetadata;
+    }
+
+    /**
+     * Get or creates the user from an authentication principal.
+     *
+     * @param principal
+     * @return
+     */
+    public UserMetadata getOrCreateUser(Principal principal) {
+        String name = principal.getName();
+
+        UserMetadata userMetadata = getUserByName(name);
+        if (userMetadata == null) {
+            userMetadata = createUser(name);
+        }
+
+        return userMetadata;
+    }
+
     public UserMetadata getUserByName(String userName) {
-        return tx.query()
-                .has("type", "user")
-                .has("name", userName)
-                .vertices(UserMetadata.class)
-                .iterator()
-                .next();
+        try {
+            return tx.query()
+                    .has("type", "user")
+                    .has("name", userName)
+                    .vertices(UserMetadata.class)
+                    .iterator()
+                    .next();
+        } catch (NoSuchElementException ignored) {
+            return null;
+        }
     }
 
     public Iterable<ProjectMetadata> getProjects() {
         return getVertices("project", ProjectMetadata.class);
+    }
+
+    public ProjectMetadata getProject(ProjectMetadata.Id projectId) {
+        return getProject(projectId.toString());
     }
 
     public ProjectMetadata getProject(String projectId) {
@@ -79,7 +127,7 @@ public class MetaGraphTx {
         return projectMetadata;
     }
 
-    public void deleteProject(ProjectMetadata projectMetadata) throws Exception {
+    public void deleteProject(ProjectMetadata projectMetadata) throws CannotDeleteCurrentBranchException, CannotDeleteCurrentGraphException {
         projectMetadata.setCurrentBranch(null);
 
         for (BranchMetadata branchMetadata: projectMetadata.getBranches()) {
@@ -99,6 +147,10 @@ public class MetaGraphTx {
 
     public Iterable<? extends GraphMetadata> getGraphs() {
         return getVertices("graph", GraphMetadata.class);
+    }
+
+    public GraphMetadata getGraph(GraphMetadata.Id graphId) {
+        return getGraph(graphId.toString());
     }
 
     public GraphMetadata getGraph(String graphId) {
@@ -121,13 +173,13 @@ public class MetaGraphTx {
         return graphMetadata;
     }
 
-    public void deleteGraph(GraphMetadata graphMetadata) throws Exception {
+    public void deleteGraph(GraphMetadata graphMetadata) throws CannotDeleteCurrentGraphException {
         // We cannot delete the current graph.
         ProjectMetadata projectMetadata = graphMetadata.getProject();
         if (projectMetadata != null) {
             GraphMetadata currentGraphMetadata = projectMetadata.getCurrentGraph();
             if (currentGraphMetadata != null && graphMetadata.getId().equals(currentGraphMetadata.getId())) {
-                throw new Exception("cannot delete the current graph");
+                throw new CannotDeleteCurrentGraphException();
             }
         }
 
@@ -138,8 +190,12 @@ public class MetaGraphTx {
         return getVertices("branch", BranchMetadata.class);
     }
 
+    public BranchMetadata getBranch(BranchMetadata.Id branchId) {
+        return getBranch(branchId.toString());
+    }
+
     public BranchMetadata getBranch(String branchId) {
-        return tx.getVertex(branchId, BranchMetadata.class);
+        return getVertex(branchId, "branch", BranchMetadata.class);
     }
 
     /**
@@ -202,6 +258,10 @@ public class MetaGraphTx {
         return getVertices("job", JobMetadata.class);
     }
 
+    public JobMetadata getJob(JobMetadata.Id jobId) {
+        return getJob(jobId.toString());
+    }
+
     public JobMetadata getJob(String jobId) {
         return getVertex(jobId, "job", JobMetadata.class);
     }
@@ -262,4 +322,5 @@ public class MetaGraphTx {
 
         return framedVertex;
     }
+
 }

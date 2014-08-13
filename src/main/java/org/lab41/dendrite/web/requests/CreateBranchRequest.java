@@ -1,10 +1,10 @@
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.web.requests;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 
-public class CreateBranchBean {
+public class CreateBranchRequest {
     @NotNull
     @NotEmpty
     private String graphId;

@@ -48,14 +48,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class ElasticSearchController {
+public class ElasticSearchController extends AbstractController {
 
     static Logger logger = LoggerFactory.getLogger(ElasticSearchController.class);
 
     @Autowired
     MetaGraphService metaGraphService;
 
-    @PreAuthorize("hasPermission(#brachId, 'branch','admin')")
+    @PreAuthorize("hasPermission(#branchId, 'branch', 'admin')")
     @RequestMapping(value = "/api/branches/{branchId}/search", method = RequestMethod.POST)
     public ResponseEntity<String> branchSearch(@PathVariable String branchId,
                                                @RequestBody String body) throws JSONException, UnsupportedEncodingException {
@@ -87,13 +87,13 @@ public class ElasticSearchController {
                 return new ResponseEntity<>(json.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
             }
 
-            return graphSearch(graphMetadata.getId(), body);
+            return graphSearch(graphMetadata.getId().toString(), body);
         } finally {
             tx.rollback();
         }
     }
 
-    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/search", method = RequestMethod.POST)
     public ResponseEntity<String> graphSearch(@PathVariable String graphId,
                                               @RequestBody String body) throws JSONException, UnsupportedEncodingException {
@@ -101,7 +101,7 @@ public class ElasticSearchController {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             JSONObject json = new JSONObject();
             json.put("status", "error");
@@ -128,7 +128,7 @@ public class ElasticSearchController {
     }
 
 
-    @PreAuthorize("hasPermission(#branchId, 'branch','admin')")
+    @PreAuthorize("hasPermission(#branchId, 'branch', 'admin')")
     @RequestMapping(value = "/api/branches/{branchId}/search/mapping", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> branchMapping(@PathVariable String branchId) throws JSONException, IOException {
 
@@ -160,13 +160,18 @@ public class ElasticSearchController {
     }
 
 
-    @PreAuthorize("hasPermission(#graphId, 'graphId','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/search/mapping", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> graphMapping(@PathVariable String graphId) throws JSONException, IOException {
+        return graphMapping(new GraphMetadata.Id(graphId));
+    }
+
+
+    public ResponseEntity<Map<String, Object>> graphMapping(GraphMetadata.Id graphId) throws JSONException, IOException {
 
         Map<String, Object> response = new HashMap<>();
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "unknown graph '" + graphId + "'");

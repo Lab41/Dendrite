@@ -2,6 +2,7 @@ package org.lab41.dendrite.services.analysis.jung;
 
 import org.lab41.dendrite.jobs.jung.ClosenessCentralityJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.services.analysis.AnalysisService;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ public class ClosenessCentralityService extends AnalysisService {
     MetaGraphService metaGraphService;
 
     @Async
-    public void run(DendriteGraph graph, String jobId) {
+    public void run(DendriteGraph graph, JobMetadata.Id jobId) {
         ClosenessCentralityJob job = new ClosenessCentralityJob(
                 metaGraphService.getMetaGraph(),
                 jobId,

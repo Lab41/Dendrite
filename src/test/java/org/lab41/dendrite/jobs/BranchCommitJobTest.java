@@ -22,6 +22,7 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         ProjectMetadata projectMetadata = metaGraphTx.createProject("test", userMetadata);
         BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
         GraphMetadata srcGraphMetadata = branchMetadata.getGraph();
+        GraphMetadata dstGraphMetadata = metaGraphTx.createGraph(srcGraphMetadata);
         JobMetadata jobMetadata = metaGraphTx.createJob(projectMetadata);
 
         metaGraphTx.commit();
@@ -36,7 +37,6 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         srcTx.makeKey("name").dataType(String.class).make();
         srcTx.makeLabel("friends").make();
         srcTx.commit();
-
 
         // Create a trivial graph.
         srcTx = srcGraph.newTransaction();
@@ -55,10 +55,13 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         BranchCommitJob branchCommitJob = new BranchCommitJob(
                 metaGraph,
                 jobMetadata.getId(),
-                branchMetadata.getId());
+                projectMetadata.getId(),
+                branchMetadata.getId(),
+                srcGraphMetadata.getId(),
+                dstGraphMetadata.getId());
 
-        String srcGraphId = branchCommitJob.getSrcGraphId();
-        String dstGraphId = branchCommitJob.getDstGraphId();
+        GraphMetadata.Id srcGraphId = branchCommitJob.getSrcGraphId();
+        GraphMetadata.Id dstGraphId = branchCommitJob.getDstGraphId();
 
         Assert.assertEquals(srcGraphId, srcGraph.getId());
 
@@ -70,7 +73,6 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
         // Make sure the branch pointer was changed.
         metaGraphTx = metaGraph.newTransaction();
 
-        GraphMetadata dstGraphMetadata = metaGraphTx.getGraph(dstGraphId);
         BranchMetadata updatedBranchMetadata = metaGraphTx.getBranch(branchMetadata.getId());
         Assert.assertEquals(updatedBranchMetadata.getGraph(), dstGraphMetadata);
         metaGraphTx.commit();

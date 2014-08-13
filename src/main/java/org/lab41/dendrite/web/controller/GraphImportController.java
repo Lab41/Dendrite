@@ -29,9 +29,8 @@ import org.lab41.dendrite.util.io.faunusgraphson.FaunusGraphSONReader;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.Edge;
 import org.lab41.dendrite.metagraph.DendriteGraph;
-import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.services.MetaGraphService;
-import org.lab41.dendrite.web.beans.GraphImportBean;
+import org.lab41.dendrite.web.requests.GraphImportRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,14 +48,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
 import java.util.*;
 
 @Controller
-public class GraphImportController {
+public class GraphImportController extends AbstractController {
 
     static Logger logger = LoggerFactory.getLogger(GraphImportController.class);
 
@@ -65,10 +61,10 @@ public class GraphImportController {
     @Autowired
     MetaGraphService metaGraphService;
 
-    @PreAuthorize("hasPermission(#graphId, 'graph','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/file-import", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> importGraph(@PathVariable String graphId,
-                                                           @Valid GraphImportBean item,
+                                                           @Valid GraphImportRequest item,
                                                            BindingResult result) {
 
         Map<String, Object> response = new HashMap<>();
@@ -87,7 +83,7 @@ public class GraphImportController {
         logger.debug("file format: '" +  format + "'");
         logger.debug("search keys: '" + searchKeys + "'");
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphId + "'");

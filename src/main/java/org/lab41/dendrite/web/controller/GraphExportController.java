@@ -28,7 +28,7 @@ import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.services.HistoryService;
 import org.lab41.dendrite.services.MetaGraphService;
-import org.lab41.dendrite.web.beans.GraphExportBean;
+import org.lab41.dendrite.web.requests.GraphExportRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class GraphExportController {
+public class GraphExportController extends AbstractController {
 
     static Logger logger = LoggerFactory.getLogger(GraphExportController.class);
 
@@ -63,17 +63,17 @@ public class GraphExportController {
     @Autowired
     HistoryService historyService;
 
-    @PreAuthorize("hasPermission(#graphId, 'project','admin')")
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/file-export", method = RequestMethod.POST)
     public ResponseEntity<byte[]> export(@PathVariable String graphId,
-                                         @Valid GraphExportBean item,
+                                         @Valid GraphExportRequest item,
                                          BindingResult result) {
 
         if (result.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -118,9 +118,10 @@ public class GraphExportController {
         return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), headers, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/file-save", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> save(@PathVariable String graphId,
-                                                    @Valid GraphExportBean item,
+                                                    @Valid GraphExportRequest item,
                                                     BindingResult result) throws IOException, GitAPIException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -145,7 +146,7 @@ public class GraphExportController {
             throw t;
         }
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "cannot find graph '" + graphId + "'");

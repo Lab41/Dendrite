@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 In-Q-Tel/Lab41
+/*
+ * Copyright 2014 In-Q-Tel/Lab41
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.web.responses;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import java.util.List;
 
-import javax.validation.constraints.NotNull;
+public class GetUsersResponse {
+    private List<GetUserResponse> users;
 
-public class GraphExportBean {
-    @NotNull
-    @NotEmpty
-    private String format;
-
-    public String getFormat() {
-        return format;
+    public GetUsersResponse(List<GetUserResponse> users) {
+        this.users = users;
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+    public List<GetUserResponse> getUsers() {
+        return users;
     }
 }

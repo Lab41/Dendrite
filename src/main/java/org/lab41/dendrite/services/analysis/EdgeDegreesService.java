@@ -47,7 +47,7 @@ public class EdgeDegreesService extends AnalysisService {
     FaunusPipelineService faunusPipelineService;
 
     @Async
-    public void titanCountDegrees(DendriteGraph graph, String jobId) throws Exception {
+    public void titanCountDegrees(DendriteGraph graph, JobMetadata.Id jobId) throws Exception {
         DegreeCentralityJob job = new DegreeCentralityJob(
                 metaGraphService.getMetaGraph(),
                 jobId,
@@ -57,7 +57,7 @@ public class EdgeDegreesService extends AnalysisService {
     }
 
     @Async
-    public void faunusCountDegrees(DendriteGraph graph, String jobId) throws Exception {
+    public void faunusCountDegrees(DendriteGraph graph, JobMetadata.Id jobId) throws Exception {
 
         logger.debug("Starting Faunus degree counting analysis on "
                 + graph.getId()
@@ -112,7 +112,7 @@ public class EdgeDegreesService extends AnalysisService {
         tx.commit();
     }
 
-    private void runFaunus(DendriteGraph graph, String jobId) throws Exception {
+    private void runFaunus(DendriteGraph graph, JobMetadata.Id jobId) throws Exception {
         // We do the edge counting in two passes. First, we count all the edges and write the graph to a sequence file.
         // Second, we load the graph back in filtering out all the edges. We do this because I haven't figured out a
         // way to count edges and filter them out at the same time.

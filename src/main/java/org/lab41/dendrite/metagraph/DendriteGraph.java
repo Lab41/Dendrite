@@ -13,6 +13,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
     /**
      * The graph id.
      */
-    private String id;
+    private GraphMetadata.Id id;
 
     /**
      * The graph properties.
@@ -70,7 +71,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
      * @param id the graph id.
      * @param properties the graph properties.
      */
-    public DendriteGraph(String id, Properties properties) {
+    public DendriteGraph(GraphMetadata.Id id, Properties properties) {
         this.id = id;
         this.properties = properties;
         this.titanGraph = TitanFactory.open(getConfiguration());
@@ -94,7 +95,7 @@ public class DendriteGraph extends TitanBlueprintsGraph {
      *
      * @return graph id.
      */
-    public String getId() {
+    public GraphMetadata.Id getId() {
         return id;
     }
 

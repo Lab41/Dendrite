@@ -69,7 +69,7 @@ public class MetaGraphTest extends BaseMetaGraphTest {
         tx.commit();
 
         tx = metaGraph.newTransaction();
-        tx.getJob(projectMetadata.getId());
+        tx.getJob(projectMetadata.getId().toString());
         tx.rollback();
     }
 }

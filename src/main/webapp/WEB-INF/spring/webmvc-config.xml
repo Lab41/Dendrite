@@ -5,10 +5,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:security="http://www.springframework.org/schema/security"
        xsi:schemaLocation="
-            http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
-            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
-            http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+            http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <!-- The controllers are autodetected POJOs labeled with the @Controller annotation. -->
     <context:component-scan base-package="org.lab41.dendrite" use-default-filters="false">
@@ -18,6 +18,7 @@
     <security:global-method-security pre-post-annotations="enabled">
         <security:expression-handler ref="expressionHandler"/>
     </security:global-method-security>
+
     <bean id="graphPermissionEvaluator" class="org.lab41.dendrite.web.security.GraphPermissonHandler" />
 
     <bean id="expressionHandler" class=

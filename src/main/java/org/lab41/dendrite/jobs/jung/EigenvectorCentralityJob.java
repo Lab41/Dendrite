@@ -8,12 +8,13 @@ import edu.uci.ics.jung.algorithms.scoring.EigenvectorCentrality;
 import org.lab41.dendrite.jobs.AbstractGraphUpdateJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 
 public class EigenvectorCentralityJob extends AbstractGraphUpdateJob {
 
     private static String EIGENVECTOR_KEY = "jungEigenvector";
 
-    public EigenvectorCentralityJob(MetaGraph metaGraph, String jobId, DendriteGraph graph) {
+    public EigenvectorCentralityJob(MetaGraph metaGraph, JobMetadata.Id jobId, DendriteGraph graph) {
         super(metaGraph, jobId, graph);
     }
 

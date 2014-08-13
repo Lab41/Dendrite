@@ -17,12 +17,12 @@
 package org.lab41.dendrite.web.controller;
 
 import org.lab41.dendrite.metagraph.MetaGraphTx;
-import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.NotFound;
 import org.lab41.dendrite.metagraph.models.UserMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
+import org.lab41.dendrite.web.responses.GetUserResponse;
+import org.lab41.dendrite.web.responses.GetUsersResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -33,10 +33,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@Controller("/api")
-public class UserController {
+@Controller
+@RequestMapping("/api")
+public class UserController extends AbstractController {
 
     @Autowired
     MetaGraphService metaGraphService;
@@ -45,60 +47,59 @@ public class UserController {
     public @ResponseBody Map<String,Object> userInformation() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Map<String, Object> response = new HashMap<String, Object>();
+        Map<String, Object> response = new HashMap<>();
         response.put("name", authentication.getName());
         response.put("authorities", authentication.getAuthorities());
+
+        MetaGraphTx tx = metaGraphService.buildTransaction().start();
+
+        // Make sure the user exists.
+        try {
+            tx.getOrCreateUser(authentication);
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
+        }
+
+        tx.commit();
 
         return response;
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-    public @ResponseBody Map<String, Object> getUsers() {
+    @ResponseBody
+    public GetUsersResponse getUsers() {
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
 
-        Map<String, Object> response = new HashMap<>();
-        ArrayList<Object> projects = new ArrayList<>();
-        response.put("users", projects);
+        try {
+            List<GetUserResponse> users = new ArrayList<>();
 
-        for(UserMetadata userMetadata: tx.getUsers()) {
-            projects.add(getUserMap(userMetadata));
+            for (UserMetadata userMetadata : tx.getUsers()) {
+                users.add(new GetUserResponse(userMetadata));
+            }
+
+            return new GetUsersResponse(users);
+        } finally {
+            tx.commit();
         }
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return response;
     }
 
     @RequestMapping(value = "/users/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getUser(@PathVariable String userId) {
+    @ResponseBody
+    public GetUserResponse getUser(@PathVariable String userId) throws NotFound {
 
-        Map<String, Object> response = new HashMap<>();
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
-        UserMetadata userMetadata = tx.getUser(userId);
 
-        if (userMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find user '" + userId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        try {
+            UserMetadata userMetadata = tx.getUser(userId);
+
+            if (userMetadata == null) {
+                throw new NotFound(UserMetadata.class, userId);
+            }
+
+            return new GetUserResponse(userMetadata);
+        } finally {
+            tx.commit();
         }
-
-        response.put("user", getUserMap(userMetadata));
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    private Map<String, Object> getUserMap(UserMetadata userMetadata) {
-        Map<String, Object> user = new HashMap<>();
-
-        user.put("_id", userMetadata.getId());
-        user.put("name", userMetadata.getName());
-
-        return user;
-    }
-
 }

@@ -9,9 +9,11 @@ import junit.framework.Assert;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.*;
-import org.lab41.dendrite.metagraph.*;
+import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.DendriteGraphTx;
+import org.lab41.dendrite.metagraph.MetaGraph;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
 import org.lab41.dendrite.metagraph.models.*;
 
 import java.io.IOException;
@@ -22,8 +24,11 @@ import java.util.UUID;
 public class BranchCommitSubsetJobTest {
 
     static MetaGraph metaGraph;
-    String branchId;
-    String jobId;
+    ProjectMetadata.Id projectId;
+    BranchMetadata.Id branchId;
+    GraphMetadata.Id srcGraphId;
+    GraphMetadata.Id dstGraphId;
+    JobMetadata.Id jobId;
     DendriteGraph srcGraph;
 
     @BeforeClass
@@ -80,6 +85,7 @@ public class BranchCommitSubsetJobTest {
         ProjectMetadata projectMetadata;
         BranchMetadata branchMetadata;
         GraphMetadata srcGraphMetadata;
+        GraphMetadata dstGraphMetadata;
         JobMetadata jobMetadata;
 
         try {
@@ -87,12 +93,17 @@ public class BranchCommitSubsetJobTest {
             projectMetadata = metaGraphTx.createProject("test", userMetadata);
             branchMetadata = projectMetadata.getCurrentBranch();
             srcGraphMetadata = branchMetadata.getGraph();
+            dstGraphMetadata = metaGraphTx.createGraph(srcGraphMetadata);
             jobMetadata = metaGraphTx.createJob(projectMetadata);
         } finally {
             metaGraphTx.commit();
         }
 
+        projectId = projectMetadata.getId();
         branchId = branchMetadata.getId();
+
+        srcGraphId = srcGraphMetadata.getId();
+        dstGraphId = dstGraphMetadata.getId();
         jobId = jobMetadata.getId();
         srcGraph = metaGraph.getGraph(srcGraphMetadata.getId());
 
@@ -144,7 +155,10 @@ public class BranchCommitSubsetJobTest {
     @After
     public void tearDown() throws IOException {
         srcGraph = null;
+        projectId = null;
         branchId = null;
+        srcGraphId = null;
+        dstGraphId = null;
         jobId = null;
     }
 
@@ -153,7 +167,10 @@ public class BranchCommitSubsetJobTest {
         BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
                 metaGraph,
                 jobId,
+                projectId,
                 branchId,
+                srcGraphId,
+                dstGraphId,
                 "name:A",
                 0);
 
@@ -185,7 +202,10 @@ public class BranchCommitSubsetJobTest {
         BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
                 metaGraph,
                 jobId,
+                projectId,
                 branchId,
+                srcGraphId,
+                dstGraphId,
                 "name:A",
                 1);
 
@@ -225,7 +245,10 @@ public class BranchCommitSubsetJobTest {
         BranchCommitSubsetJob branchCommitSubsetJob = new BranchCommitSubsetJob(
                 metaGraph,
                 jobId,
+                projectId,
                 branchId,
+                srcGraphId,
+                dstGraphId,
                 "name:A",
                 2);
 
