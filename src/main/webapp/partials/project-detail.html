@@ -10,7 +10,10 @@
   <img src="img/icons/ajax-loader.gif">
 </div>
 <div class="container-fluid" ng-show="graphLoaded" ng-class="panelEditable()">
-
+  <div class="alert alert-error" ng-hide="!projectMsgError">
+      <button type="button" class="close" data-dismiss="alert">×</button>
+      <div ng-bind-html="projectMsgError"></div>
+  </div>
   <div panels class="panel">
     <div class="row-fluid">
       <div class="column" id="column1">
