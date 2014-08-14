@@ -74,11 +74,16 @@
   display: inline-block;
   padding: 5px;
   border-bottom: 2px solid transparent;
+  .rounded-corner;
 
   &.active {
     border-color: @color-red-dark;
     .rounded-corner(5px);
     background: @color-gray-light;
+  }
+
+  &:hover {
+    background: darken(@color-gray-light, 5%);
   }
 }
 
@@ -124,3 +129,9 @@
     text-decoration: underline;
   }
 }
+
+.string { color: @color-gray-dark; }
+.number { color: @color-blue-dark; }
+.boolean { color: @color-aqua-dark; }
+.null { color: @color-red-dark; }
+.key { color: @color-black-light; font-weight: bold}

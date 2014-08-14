@@ -554,9 +554,20 @@ body {
 .margin-top-large { margin-top: @spacing-large;}
 .margin-none { margin: 0;}
 
+.position-fixed { position: fixed; }
 /*************************************************/
 /* forms */
 /*************************************************/
+label {
+  &.required {
+    font-weight: bold;
+    color: @color-emphasis;
+  }
+}
+.context-menu {
+  z-index: 1000;
+}
+
 input:focus:invalid:focus, textarea:focus:invalid:focus, select:focus:invalid:focus {
   border-color: @color-form-focus-border;
   .shadow(0, 0, 6px, 0, @color-form-focus-shadow);

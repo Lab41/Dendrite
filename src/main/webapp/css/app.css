@@ -1144,6 +1144,18 @@
   display: inline-block;
   padding: 5px;
   border-bottom: 2px solid transparent;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
 }
 .circle-wrapper.active {
   border-color: #c0392b;
@@ -1160,6 +1172,9 @@
   webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   background: #bdc3c7;
+}
+.circle-wrapper:hover {
+  background: #afb6bb;
 }
 .circle {
   border-radius: 50%;
@@ -1235,6 +1250,22 @@
 .card-community-metric h6 {
   color: #424a4a;
   text-decoration: underline;
+}
+.string {
+  color: #7f8c8d;
+}
+.number {
+  color: #2980b9;
+}
+.boolean {
+  color: #16a085;
+}
+.null {
+  color: #c0392b;
+}
+.key {
+  color: #424a4a;
+  font-weight: bold;
 }
 /*************************************************/
 /* colors */
@@ -1691,9 +1722,19 @@ body {
 .margin-none {
   margin: 0;
 }
+.position-fixed {
+  position: fixed;
+}
 /*************************************************/
 /* forms */
 /*************************************************/
+label.required {
+  font-weight: bold;
+  color: #c0392b;
+}
+.context-menu {
+  z-index: 1000;
+}
 input:focus:invalid:focus,
 textarea:focus:invalid:focus,
 select:focus:invalid:focus {
