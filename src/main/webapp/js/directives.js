@@ -658,13 +658,16 @@ angular.module('dendrite.directives', [])
         var sizeAdjusted = sizeMin + sizeRelative*(sizeMax - sizeMin);
 
         // draw a circle of relative size using a random color
-        var template = '<div ng-click="viewCommunity(community)"\
-                             ng-class="communityIsSelectedClass(community)"\
-                             class="circle-wrapper"\
+        var template = '<div ng-transclude\
+                             ng-click="$parent.viewCommunity($parent.community)"\
+                             ng-class="communityIsSelectedClass($parent.community)"\
+                             class="circle-wrapper panel panel-default"\
+                             context-menu="onRightClick(message);"\
+                             target-menu="community-menu{{community.id}}"\
                              style="height:'+sizeMax+'px;"\
                         >\
                           <div id="community-{{community.id}}"\
-                               class="circle"\
+                               class="circle panel-body"\
                                style="background:'+Helpers.get_random_color()+';\
                                       width:'+sizeAdjusted+'px;\
                                       height:'+sizeAdjusted+'px"\
@@ -673,6 +676,16 @@ angular.module('dendrite.directives', [])
                               <div>'+numVertices+'</div>\
                             </div>\
                           </div>\
+                        </div>\
+                        <div class="context-menu dropdown position-fixed" id="community-menu{{ community.id }}">\
+                          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu{{ community.id }}">\
+                            <li>\
+                              <a class="pointer" role="menuitem" tabindex="1" ng-click="carveProjectFromCommunity({{community}})">Carve Community into New Project </a>\
+                            </li>\
+                            <li>\
+                              <a class="pointer" role="menuitem" tabindex="2" ng-click="deleteCommunity({{community}})" ng-confirm-click="Are you sure you want to delete this community?">Delete Community from Graph</a>\
+                            </li>\
+                          </ul>\
                         </div>';
 
         // requires recompile

@@ -109,6 +109,15 @@ angular.module('dendrite.controllers', []).
                         $location.path('projects/' + response.data.projectId);
                     });
         };
+
+        $scope.projectCarveCommunity = function() {
+            var params = {name: $scope.newProjectName, community: $scope.community.id};
+            Project.carveCommunity({projectId: $scope.projectId}, params)
+                    .$then(function(response) {
+                        angular.element('.modal-backdrop').hide();
+                        $location.path('projects/' + response.data.projectId);
+                    });
+        };
     }).
     controller('ProjectDetailCtrl', function($rootScope, $modal, $scope, $timeout, $routeParams, $route, $location, $q, appConfig, Project, Graph, GraphTransform, Community) {
         $scope.projectId = $routeParams.projectId;
@@ -1522,7 +1531,7 @@ angular.module('dendrite.controllers', []).
 
       $scope.historyUrl = History.serverUrl() + "/#/repository?path="+encodeURIComponent(graphHistoryPath);
     }).
-    controller('CommunityListCtrl', function($scope, $routeParams, $filter, appConfig, Project, Graph, Community, Helpers) {
+    controller('CommunityListCtrl', function($rootScope, $scope, $routeParams, $filter, $modal, appConfig, Project, Graph, Community, Helpers) {
       $scope.projectId = $routeParams.projectId;
       $scope.queryProject = Project.query({projectId: $scope.projectId});
       $scope.communityMetrics = Community.metrics($scope.projectId);
@@ -1630,5 +1639,28 @@ angular.module('dendrite.controllers', []).
       };
       $scope.showCommunityProgressFields = function(community) {
         return ($scope.communitySelected.indexOf(community)==0);
+      };
+
+
+      $scope.carveProjectFromCommunity = function(community) {
+        $scope.community = community;
+        $scope.safeApply(function() {
+            $modal({
+                scope: $scope,
+                template: "partials/project-carve-community.html",
+                modalClass: 'modal-large',
+                backdrop: 'static'
+            })
+        });
+      };
+      $scope.deleteCommunity = function(community) {
+        var params = {};
+        Project.deleteCommunity({projectId: $scope.projectId, communityId: community.id}, params)
+                .$then(function(response) {
+                    $rootScope.$broadcast('event:reloadProjectNeeded');
+                },
+                function(error) {
+                  $rootScope.projectMsgError = error.data;
+                });
       };
     });

@@ -954,7 +954,20 @@ angular.module('dendrite.services', ['ngResource']).
               url: 'api/projects/:projectId/current-branch/export-subset',
               method: 'POST',
               isArray: false
+            },
+            //TODO: implement backend API
+            carveCommunity: {
+              url: 'api/projects/:projectId/current-branch/export-community',
+              method: 'POST',
+              isArray: false
+            },
+            //TODO: implement backend API
+            deleteCommunity: {
+              url: 'api/projects/:projectId/communities/:communityId',
+              method: 'DELETE',
+              isArray: false
             }
+
         });
     }).
     factory('Branch', function($resource) {
