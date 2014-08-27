@@ -144,6 +144,7 @@ angular.module('dendrite', [
     algorithms: {
       'edgeDegrees': {
         'category': 'connectedness',
+        'destructive': true,
         'description': 'The <a href="http://en.wikipedia.org/wiki/Degree_(graph_theory)">degree</a> of a graph vertex v of a graph G is the number of graph edges which touch v.',
         'form': 'partials/analytics/connectedness/edge_degrees/form.html',
         'defaults': {
@@ -156,7 +157,8 @@ angular.module('dendrite', [
       },
       'sssp': {
         'category': 'connectedness',
-        'description': '<a href="http://en.wikipedia.org/wiki/File:Shortest_path_with_direct_weights.svg">Shortest Path</a> computes the shortest path to a single source from all vertices in the graph',
+        'destructive': true,
+          'description': '<a href="http://en.wikipedia.org/wiki/File:Shortest_path_with_direct_weights.svg">Shortest Path</a> computes the shortest path to a single source from all vertices in the graph',
         'form': 'partials/analytics/connectedness/shortest_path/form.html',
         'defaults': {
           'sourceVertex': 'emptyValue'
@@ -168,6 +170,7 @@ angular.module('dendrite', [
       },
       'pagerank': {
         'category': 'key_players',
+        'destructive': true,
         'description': '<a href="http://en.wikipedia.org/wiki/PageRank">PageRank</a> is a link analysis algorithm that assigns a numerical weighting to each element of a hyperlinked set of documents, such as the World Wide Web, with the purpose of "measuring" its relative importance within the set. The algorithm may be applied to any collection of entities with reciprocal quotations and references.\
         <p class="margin-top">The damping factor represents the probability that a user will continue following links connected to the current page instead of navigating to a random URL.  For example, a damping factor of 0.85 indicates a 15% chance for the user to visit a random URL instead of clicking a link on the current page.</p>',
         'form': 'partials/analytics/key_players/pagerank/form.html',
@@ -182,6 +185,7 @@ angular.module('dendrite', [
       },
       'betweennessCentrality': {
         'category': 'key_players',
+        'destructive': true,
         'description': '<a href="http://en.wikipedia.org/wiki/Centrality#Betweenness_centrality">Betweenness centrality</a> is a measure of a node\'s centrality in a network. It is equal to the number of shortest paths from all vertices to all others that pass through that node. Betweenness centrality is a more useful measure (than just connectivity) of both the load and importance of a node.\
         <p class="margin-top"><strong>Note</strong>: This does not scale with large graphs as the complexity of the algorithm is O(n^2 + nm).</p>',
         'form': 'partials/analytics/key_players/betweenness_centrality/form.html',
@@ -193,6 +197,7 @@ angular.module('dendrite', [
       },
       'closenessCentrality': {
         'category': 'key_players',
+        'destructive': false,
         'description': '<a href="http://en.wikipedia.org/wiki/Centrality#Closeness_centrality">Closeness centrality</a> is the measure of the inverse of the sum of the distance to all other nodes. Closeness can be regarded as the measure of how long it will take for information to propogate from one node through the network.\
         <p class="margin-top"><strong>Note</strong>: This does not scale with large graphs as the complexity of the algorithm is O(n^2 + nm).</p>',
         'form': 'partials/analytics/key_players/closeness_centrality/form.html',
@@ -204,6 +209,7 @@ angular.module('dendrite', [
       },
       'eigenvectorCentrality': {
         'category': 'key_players',
+        'destructive': false,
         'description': '<a href="http://en.wikipedia.org/wiki/Centrality#Eigenvector_centrality">Eigenvector centrality</a> is a measure of the influence of a node in a network. It assigns relative scores to all nodes in the network based on the concept that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes.',
         'form': 'partials/analytics/key_players/eigenvector_centrality/form.html',
         'defaults': {},
@@ -214,6 +220,7 @@ angular.module('dendrite', [
       },
       'barycenterDistance': {
         'category': 'key_players',
+        'destructive': true,
         'description': 'The barycenter scorer assigns a score to each vertex that is the sum of distances to all other vertexes.',
         'form': 'partials/analytics/key_players/barycenter_distance/form.html',
         'defaults': {},
@@ -224,6 +231,7 @@ angular.module('dendrite', [
       },
       'TSC': {
         'category': 'key_players',
+        'destructive': true,
         'description': 'The Total Subgraph Communicability is a measurement of how well each node communicates with the other nodes of the network.  It represents the ease at which a node can send information across the network.',
         'form': 'partials/analytics/key_players/total_subgraph_communicability/form.html',
         'defaults': {},
@@ -234,6 +242,7 @@ angular.module('dendrite', [
       },
       'snapCentrality': {
         'category': 'key_players',
+        'destructive': true,
         'description': 'The <a href="http://snap.stanford.edu">Stanford Network Analysis Platform (SNAP)</a> has a wide variety of Graph Analytic Algorithms, including Centrality.  SNAP\'s centrality will calculate Degree, Closeness, Betweenness, EigenVector, NetworkConstraint, ClusteringCoefficient, PageRank, HubScore, and AuthorityScore.',
         'form': 'partials/analytics/key_players/snap_centrality/form.html',
         'defaults': {},
@@ -244,6 +253,7 @@ angular.module('dendrite', [
       },
       'connected_component': {
         'category': 'community',
+        'destructive': true,
         'description': 'A <a href="http://en.wikipedia.org/wiki/Connected_component_(graph_theory)">connected component</a> is a group of vertices such that there is a path between each vertex in the component and all other vertices in the group. If two vertices are in different connected components there is no path between them.',
         'form': 'partials/analytics/community/connected_component/form.html',
         'defaults': {},
@@ -254,6 +264,7 @@ angular.module('dendrite', [
       },
       'connected_component_stats': {
         'category': 'community',
+        'destructive': true,
         'description': 'Calculates a histogram of component sizes.  A connected component is a group of vertices such that there is a path between each vertex in the component and all other vertices in the group. If two vertices are in different connected components there is no path between them.',
         'form': 'partials/analytics/community/connected_component_stats/form.html',
         'defaults': {},
@@ -264,6 +275,7 @@ angular.module('dendrite', [
       },
       'simple_coloring': {
         'category': 'community',
+        'destructive': false,
         'description': '<a href="http://en.wikipedia.org/wiki/Graph_coloring">Graph coloring</a> is a special case of graph labeling; it is an assignment of labels traditionally called "colors" to elements of a graph subject to certain constraints. In its simplest form, it is a way of coloring the vertices of a graph such that no two adjacent vertices share the same color; this is called a vertex coloring.',
         'form': 'partials/analytics/community/simple_coloring/form.html',
         'defaults': {},

@@ -445,6 +445,7 @@ angular.module('dendrite.controllers', []).
               if (newVal === 'sssp') {
                 $scope.allVertices = Vertex.list({graphId: $scope.graphId});
               }
+              $scope.dest = appConfig.algorithms[$scope.analyticType].destructive;
             }
         }, true);
 
