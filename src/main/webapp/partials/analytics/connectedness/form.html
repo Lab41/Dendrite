@@ -1,3 +1,9 @@
+<div ng-show="isAnalyticType('connectedness')">
+  <div class="alert alert-error" ng-if="dest">
+     Warning: {{analyticType}} is a Destructive algorithm
+  </div>
+</div>
+
 <fieldset>
   <div class="row-fluid">
     <h3><strong>Connectedness</strong> <small>Quantify the number and strength of connections</small></h3>
