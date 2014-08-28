@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 In-Q-Tel/Lab41
+/*
+ * Copyright 2014 In-Q-Tel/Lab41
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.metagraph;
 
-import org.hibernate.validator.constraints.NotEmpty;
+public class NotFound extends Exception {
+    private Class cls;
+    private String id;
 
-import javax.validation.constraints.NotNull;
-
-public class GraphExportBean {
-    @NotNull
-    @NotEmpty
-    private String format;
-
-    public String getFormat() {
-        return format;
+    public NotFound(Class cls) {
+        super("Could not find " + cls.getCanonicalName());
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+    public NotFound(Class cls, String id) {
+        super("Could not find " + cls.getCanonicalName() + " '" + id + "'");
+    }
+
+    public Class getCls() {
+        return cls;
+    }
+
+    public String getId() {
+        return id;
     }
 }

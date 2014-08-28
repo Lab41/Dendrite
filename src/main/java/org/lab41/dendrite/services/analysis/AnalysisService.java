@@ -17,7 +17,7 @@ public abstract class AnalysisService {
     @Autowired
     MetaGraphService metaGraphService;
 
-    protected void setJobName(String jobId, String name) {
+    protected void setJobName(JobMetadata.Id jobId, String name) {
         MetaGraphTx tx = metaGraphService.newTransaction();
         try {
             JobMetadata jobMetadata = tx.getJob(jobId);
@@ -29,11 +29,11 @@ public abstract class AnalysisService {
         }
     }
 
-    protected void setJobState(String jobId, String state) {
+    protected void setJobState(JobMetadata.Id jobId, String state) {
         setJobState(jobId, state, null);
     }
 
-    protected void setJobState(String jobId, String state, String msg) {
+    protected void setJobState(JobMetadata.Id jobId, String state, String msg) {
         MetaGraphTx tx = metaGraphService.newTransaction();
         try {
             JobMetadata jobMetadata = tx.getJob(jobId);
@@ -51,7 +51,7 @@ public abstract class AnalysisService {
         }
     }
 
-    protected void setJobProgress(String jobId, float progress) {
+    protected void setJobProgress(JobMetadata.Id jobId, float progress) {
         MetaGraphTx tx = metaGraphService.newTransaction();
         try {
             JobMetadata jobMetadata = tx.getJob(jobId);

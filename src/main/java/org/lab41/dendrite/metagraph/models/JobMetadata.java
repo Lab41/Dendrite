@@ -22,6 +22,9 @@ public interface JobMetadata extends NamedMetadata {
     public static String DONE = "DONE";
     public static String ERROR = "ERROR";
 
+    @JavaHandler
+    public Id getId();
+
     @Property("creationTime")
     public Date getCreationTime();
 
@@ -70,6 +73,29 @@ public interface JobMetadata extends NamedMetadata {
     @Adjacency(label = "childJob", direction = Direction.IN)
     public JobMetadata getParentJob();
 
+    public static class Id {
+        String id;
+
+        public Id(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String toString() {
+            return this.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Id && id.equals(((Id) other).id);
+        }
+    }
+
     public abstract class Impl implements JavaHandlerContext<Vertex>, JobMetadata {
 
         @Initializer
@@ -77,6 +103,11 @@ public interface JobMetadata extends NamedMetadata {
             setCreationTime(new Date());
             setState(PENDING );
             setProgress(0);
+        }
+
+        @Override
+        public Id getId() {
+            return new Id(asVertex().getId().toString());
         }
 
         @Override
@@ -88,6 +119,5 @@ public interface JobMetadata extends NamedMetadata {
                 setDoneTime(new Date());
             }
         }
-
     }
 }

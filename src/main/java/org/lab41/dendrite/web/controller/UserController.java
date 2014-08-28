@@ -16,27 +16,90 @@
 
 package org.lab41.dendrite.web.controller;
 
+import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.NotFound;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
+import org.lab41.dendrite.services.MetaGraphService;
+import org.lab41.dendrite.web.responses.GetUserResponse;
+import org.lab41.dendrite.web.responses.GetUsersResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
-public class UserController {
+@RequestMapping("/api")
+public class UserController extends AbstractController {
 
-    @RequestMapping(value = "/api/user", method = RequestMethod.GET)
+    @Autowired
+    MetaGraphService metaGraphService;
+
+    @RequestMapping(value = "/user", method = RequestMethod.GET)
     public @ResponseBody Map<String,Object> userInformation() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Map<String, Object> response = new HashMap<String, Object>();
+        Map<String, Object> response = new HashMap<>();
         response.put("name", authentication.getName());
         response.put("authorities", authentication.getAuthorities());
 
+        MetaGraphTx tx = metaGraphService.buildTransaction().start();
+
+        // Make sure the user exists.
+        try {
+            tx.getOrCreateUser(authentication);
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
+        }
+
+        tx.commit();
+
         return response;
+    }
+
+    @RequestMapping(value = "/users", method = RequestMethod.GET)
+    @ResponseBody
+    public GetUsersResponse getUsers() {
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+
+        try {
+            List<GetUserResponse> users = new ArrayList<>();
+
+            for (UserMetadata userMetadata : tx.getUsers()) {
+                users.add(new GetUserResponse(userMetadata));
+            }
+
+            return new GetUsersResponse(users);
+        } finally {
+            tx.commit();
+        }
+    }
+
+    @RequestMapping(value = "/users/{userId}", method = RequestMethod.GET)
+    @ResponseBody
+    public GetUserResponse getUser(@PathVariable String userId) throws NotFound {
+
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+
+        try {
+            UserMetadata userMetadata = tx.getUser(userId);
+
+            if (userMetadata == null) {
+                throw new NotFound(UserMetadata.class, userId);
+            }
+
+            return new GetUserResponse(userMetadata);
+        } finally {
+            tx.commit();
+        }
     }
 }

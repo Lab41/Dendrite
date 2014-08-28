@@ -7,6 +7,7 @@ import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
 import org.lab41.dendrite.metagraph.MetaGraphTransactionBuilder;
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 @Service
 public class MetaGraphService {
@@ -41,19 +39,11 @@ public class MetaGraphService {
         return metaGraph;
     }
 
-    public Set<String> getGraphNames() {
-        return metaGraph.getGraphNames();
+    public DendriteGraph getDendriteGraph(GraphMetadata.Id id) {
+        return metaGraph.getGraph(id);
     }
 
-    public Collection<DendriteGraph> getGraphs() {
-        return metaGraph.getGraphs();
-    }
-
-    public Collection<DendriteGraph> getGraphs(boolean includeSystemGraphs) {
-        return metaGraph.getGraphs(includeSystemGraphs);
-    }
-
-    public DendriteGraph getGraph(String id) {
+    public DendriteGraph getDendriteGraph(String id) {
         return metaGraph.getGraph(id);
     }
 
@@ -68,4 +58,5 @@ public class MetaGraphService {
     public void stop() {
         metaGraph.stop();
     }
+
 }

@@ -8,12 +8,13 @@ import edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality;
 import org.lab41.dendrite.jobs.AbstractGraphUpdateJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.MetaGraph;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 
 public class ClosenessCentralityJob extends AbstractGraphUpdateJob {
 
     private static String CLOSENESS_KEY = "jungCloseness";
 
-    public ClosenessCentralityJob(MetaGraph metaGraph, String jobId, DendriteGraph graph) {
+    public ClosenessCentralityJob(MetaGraph metaGraph, JobMetadata.Id jobId, DendriteGraph graph) {
         super(metaGraph, jobId, graph);
     }
 

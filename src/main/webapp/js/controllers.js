@@ -93,7 +93,7 @@ angular.module('dendrite.controllers', []).
         $scope.save = function() {
             Project.save({}, $scope.project)
                     .$then(function(response) {
-                      var project = response.data.project;
+                      var project = response.data;
                       History.createDir(project._id);
                       $rootScope.$broadcast('event:reloadProjectNeeded');
                       $location.path('projects/' + project._id);
@@ -148,10 +148,10 @@ angular.module('dendrite.controllers', []).
 
         Project.query({projectId: $routeParams.projectId})
                 .$then(function(response) {
-                    $scope.project = response.data.project;
+                    $scope.project = response.data;
                     $rootScope.graphId = $scope.project.current_graph;
                     $rootScope.$broadcast('event:reloadGraph');
-                    $scope.projectName = response.data.project.name;
+                    $scope.projectName = $scope.project.name;
                 });
 
         // tripwire to reload current graph
@@ -171,7 +171,7 @@ angular.module('dendrite.controllers', []).
           Project.currentBranch({projectId: $routeParams.projectId})
                   .$then(function(response) {
                     $scope.queryCurrentBranch = response.data;
-                    $rootScope.graphId = $scope.queryCurrentBranch.branch.graphId;
+                    $rootScope.graphId = $scope.queryCurrentBranch.graphId;
                     $scope.$broadcast('event:reloadGraph');
                     $rootScope.$broadcast('event:pollBranches');
                   });
@@ -237,7 +237,7 @@ angular.module('dendrite.controllers', []).
         var pollActive = function() {
           Analytics.getJob({jobId: $scope.analyticsId})
                       .$then(function(data) {
-                          $scope.analytic = data.data.job;
+                          $scope.analytic = data.data;
                           if ($scope.analytic !== undefined && $scope.analytic.progress < 1.0) {
                             $timeout(pollActive, appConfig.analytics.metadata.pollTimeout);
                           }
@@ -576,7 +576,7 @@ angular.module('dendrite.controllers', []).
           //Changed graphId
           Graph.get({graphId: $rootScope.graphId})
                 .$then(function(dataGraph) {
-                    Project.jobs({projectId: dataGraph.data.graph.projectId})
+                    Project.jobs({projectId: dataGraph.data.projectId})
                             .$then(function(dataJobs) {
 
                                 // determine if client should continue polling
@@ -640,7 +640,7 @@ angular.module('dendrite.controllers', []).
       $scope.vertexFrom = "";
       Graph.get({graphId: $rootScope.graphId})
             .$then(function(dataGraph) {
-                $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
+                $scope.queryProject = Project.get({projectId: dataGraph.data.projectId});
                 $rootScope.$broadcast('event:projectHasData');
             });
 
@@ -1035,7 +1035,7 @@ angular.module('dendrite.controllers', []).
       $scope.queryStyle = "edges";
       Graph.get({graphId: $rootScope.graphId})
             .$then(function(dataGraph) {
-                $scope.queryProject = Project.get({projectId: dataGraph.data.graph.projectId});
+                $scope.queryProject = Project.get({projectId: dataGraph.data.projectId});
                 $rootScope.$broadcast('event:projectHasData');
             });
 

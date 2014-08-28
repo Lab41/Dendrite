@@ -107,6 +107,21 @@ angular.module('dendrite', [
           scope.$broadcast('event:loginRequired');
           return deferred.promise;
         }
+        else if (status === 403)
+        {
+          //FIXME : Kathik's lame ass attempt to handle a 403.
+          var deferred = $q.defer();
+          var req = {
+            config: response.config,
+            deferred: deferred
+          }
+          scope.requests401.push(req);
+          scope.projectMsgError = "Unauthorized Access";
+
+          //FIXME : Add a custom event that they can customize to do fancier error handling
+          scope.$broadcast('event:loginRequired');
+          return deferred.promise;
+        }
         // otherwise
         return $q.reject(response);
 

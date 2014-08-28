@@ -24,10 +24,15 @@ import com.tinkerpop.rexster.protocol.EngineController;
 import com.tinkerpop.rexster.server.RexsterApplication;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.models.GraphMetadata;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -61,28 +66,61 @@ public class DendriteRexsterApplication implements RexsterApplication {
     }
 
     @Override
-    public RexsterApplicationGraph getApplicationGraph(String id) {
-        DendriteGraph graph = metaGraphService.getGraph(id);
-        if (graph == null) {
-            return null;
+    public RexsterApplicationGraph getApplicationGraph(String graphId) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        try {
+            UserMetadata userMetadata = tx.getOrCreateUser(authentication);
+
+            // Make sure we have permission to access this graph.
+            GraphMetadata graphMetadata = userMetadata.getGraph(new GraphMetadata.Id(graphId));
+            if (graphMetadata == null) {
+                return null;
+            }
+
+            DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
+            if (graph == null) {
+                return null;
+            }
+
+            List<String> allowableNamespaces = new ArrayList<>();
+            allowableNamespaces.add("tp:gremlin");
+
+            List<HierarchicalConfiguration> extensionConfigurations = new ArrayList<>();
+
+            return new RexsterApplicationGraph(
+                    graphId,
+                    graph,
+                    allowableNamespaces,
+                    extensionConfigurations);
+
+        } finally {
+            tx.commit();
         }
-
-        List<String> allowableNamespaces = new ArrayList<>();
-        allowableNamespaces.add("tp:gremlin");
-
-        List<HierarchicalConfiguration> extensionConfigurations = new ArrayList<>();
-
-        return new RexsterApplicationGraph(
-                id,
-                graph,
-                allowableNamespaces,
-                extensionConfigurations);
     }
 
     @Override
     public Set<String> getGraphNames() {
-        return metaGraphService.getGraphNames();
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Set<String> graphNames = new TreeSet<>();
+
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+
+        try {
+            UserMetadata userMetadata = tx.getOrCreateUser(authentication);
+
+            for (GraphMetadata graphMetadata: userMetadata.getGraphs()) {
+                graphNames.add(graphMetadata.getId().toString());
+            }
+        } finally {
+            tx.commit();
+        }
+        return graphNames;
     }
 
     @Override

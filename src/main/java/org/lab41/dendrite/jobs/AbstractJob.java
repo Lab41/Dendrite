@@ -13,18 +13,18 @@ public abstract class AbstractJob {
     static Logger logger = LoggerFactory.getLogger(AbstractJob.class);
 
     protected MetaGraph metaGraph;
-    protected String jobId;
+    protected JobMetadata.Id jobId;
 
-    public AbstractJob(MetaGraph metaGraph, String jobId) {
+    public AbstractJob(MetaGraph metaGraph, JobMetadata.Id jobId) {
         this.metaGraph = metaGraph;
         this.jobId = jobId;
     }
 
-    public String getJobId() {
+    public JobMetadata.Id getJobId() {
         return jobId;
     }
 
-    protected void setJobName(String jobId, String name) {
+    protected void setJobName(JobMetadata.Id jobId, String name) {
         MetaGraphTx tx = metaGraph.newTransaction();
         try {
             JobMetadata jobMetadata = tx.getJob(jobId);
@@ -36,11 +36,11 @@ public abstract class AbstractJob {
         }
     }
 
-    protected void setJobState(String jobId, String state) {
+    protected void setJobState(JobMetadata.Id jobId, String state) {
         setJobState(jobId, state, null);
     }
 
-    protected void setJobState(String jobId, String state, String msg) {
+    protected void setJobState(JobMetadata.Id jobId, String state, String msg) {
         MetaGraphTx tx = metaGraph.newTransaction();
         try {
             JobMetadata jobMetadata = tx.getJob(jobId);
@@ -58,7 +58,7 @@ public abstract class AbstractJob {
         }
     }
 
-    protected void setJobProgress(String jobId, float progress) {
+    protected void setJobProgress(JobMetadata.Id jobId, float progress) {
         MetaGraphTx tx = metaGraph.newTransaction();
         try {
             JobMetadata jobMetadata = tx.getJob(jobId);

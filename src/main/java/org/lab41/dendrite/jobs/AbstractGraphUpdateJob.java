@@ -20,7 +20,7 @@ public abstract class AbstractGraphUpdateJob extends AbstractJob {
 
     protected DendriteGraph graph;
 
-    public AbstractGraphUpdateJob(MetaGraph metaGraph, String jobId, DendriteGraph graph) {
+    public AbstractGraphUpdateJob(MetaGraph metaGraph, JobMetadata.Id jobId, DendriteGraph graph) {
         super(metaGraph, jobId);
 
         this.graph = graph;

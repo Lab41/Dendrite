@@ -16,6 +16,9 @@ import java.util.*;
 @TypeValue("graph")
 public interface GraphMetadata extends Metadata {
 
+    @JavaHandler
+    public Id getId();
+
     @Property("creationTime")
     public Date getCreationTime();
 
@@ -55,11 +58,39 @@ public interface GraphMetadata extends Metadata {
     @Adjacency(label = "childGraph", direction = Direction.IN)
     public GraphMetadata getParentGraph();
 
+    public static class Id {
+        String id;
+
+        public Id(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String toString() {
+            return this.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Id && id.equals(((Id) other).id);
+        }
+    }
+
     public abstract class Impl implements JavaHandlerContext<Vertex>, GraphMetadata {
 
         @Initializer
         public void init() {
             setCreationTime(new Date());
+        }
+
+        @Override
+        public Id getId() {
+            return new Id(asVertex().getId().toString());
         }
 
         @Override

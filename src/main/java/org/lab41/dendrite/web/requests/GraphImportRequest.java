@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.web.requests;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import javax.validation.constraints.NotNull;
 
-public class GraphImportBean {
+public class GraphImportRequest {
     @NotNull
     @NotEmpty
     private String format;

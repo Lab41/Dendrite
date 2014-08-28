@@ -1,10 +1,10 @@
-package org.lab41.dendrite.web.beans;
+package org.lab41.dendrite.web.requests;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 
-public class CreateProjectBean {
+public class CreateProjectRequest {
     @NotNull
     @NotEmpty
     private String name;

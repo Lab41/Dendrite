@@ -7,9 +7,11 @@ import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.services.analysis.SnapService;
+import org.lab41.dendrite.web.controller.AbstractController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class SnapController {
+public class SnapController extends AbstractController {
 
     @Autowired
     MetaGraphService metaGraphService;
@@ -27,12 +29,13 @@ public class SnapController {
     @Autowired
     SnapService snapService;
 
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/analysis/snap/{algorithm}", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> startJob(@PathVariable String graphId, @PathVariable String algorithm) throws Exception {
 
         Map<String, Object> response = new HashMap<>();
 
-        DendriteGraph graph = metaGraphService.getGraph(graphId);
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
         if (graph == null) {
             response.put("status", "error");
             response.put("msg", "missing graph metadata '" + graphId + "'");
@@ -61,7 +64,7 @@ public class SnapController {
 
         response.put("status", "ok");
         response.put("msg", "job submitted");
-        response.put("jobId", jobMetadata.getId());
+        response.put("jobId", jobMetadata.getId().toString());
 
         tx.commit();
 

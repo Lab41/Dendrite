@@ -1,165 +1,206 @@
 package org.lab41.dendrite.web.controller;
 
 import org.lab41.dendrite.metagraph.MetaGraphTx;
-import org.lab41.dendrite.metagraph.models.BranchMetadata;
-import org.lab41.dendrite.metagraph.models.GraphMetadata;
+import org.lab41.dendrite.metagraph.NotFound;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
-import org.lab41.dendrite.services.MetaGraphService;
-import org.lab41.dendrite.web.beans.CreateProjectBean;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
+import org.lab41.dendrite.web.requests.AddUserToProjectRequest;
+import org.lab41.dendrite.web.requests.CreateProjectRequest;
+import org.lab41.dendrite.web.responses.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.text.SimpleDateFormat;
+import java.security.Principal;
 import java.util.*;
 
 @Controller
 @RequestMapping("/api")
-public class ProjectController {
+public class ProjectController extends AbstractController {
 
-    Logger logger = LoggerFactory.getLogger(ProjectController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
 
-    @Autowired
-    MetaGraphService metaGraphService;
-
+    // Note this doesn't use @PreAuthorize on purpose because it'll only show the user's projects.
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
-    public @ResponseBody Map<String, Object> getProjects() {
+    @ResponseBody
+    public GetProjectsResponse getProjects(Principal principal) {
 
-        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+        // This needs to be a read/write transaction as we might make a user.
+        MetaGraphTx tx = metaGraphService.buildTransaction().start();
+        GetProjectsResponse getProjectsResponse;
 
-        Map<String, Object> response = new HashMap<>();
-        ArrayList<Object> projects = new ArrayList<>();
-        response.put("projects", projects);
+        try {
+            UserMetadata userMetadata = tx.getOrCreateUser(principal);
 
-        for(ProjectMetadata projectMetadata: tx.getProjects()) {
-            projects.add(getProjectMap(projectMetadata));
-        }
+            List<GetProjectResponse> projects = new ArrayList<>();
+            for (ProjectMetadata projectMetadata : userMetadata.getProjects()) {
+                projects.add(new GetProjectResponse(projectMetadata));
+            }
 
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return response;
-    }
-
-    @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getProject(@PathVariable String projectId) {
-
-        Map<String, Object> response = new HashMap<>();
-        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
-        ProjectMetadata projectMetadata = tx.getProject(projectId);
-
-        if (projectMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
+            getProjectsResponse = new GetProjectsResponse(projects);
+        } catch (Throwable t) {
             tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            throw t;
         }
 
-        // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
-        metaGraphService.getGraph(projectMetadata.getCurrentGraph().getId());
-
-        response.put("project", getProjectMap(projectMetadata));
-
-        // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-
+        return getProjectsResponse;
     }
 
-    @RequestMapping(value = "/projects", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> createProject(@Valid @RequestBody CreateProjectBean item,
-                                                             BindingResult result,
-                                                             UriComponentsBuilder builder) {
+    @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
+    @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.GET)
+    @ResponseBody
+    public GetProjectResponse getProject(@PathVariable String projectId) throws NotFound {
 
-        Map<String, Object> response = new HashMap<>();
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+        try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new NotFound(ProjectMetadata.class, projectId);
+            }
+
+            // FIXME: Temporary hack to force loading the graph until the UI can handle it occurring asynchronously.
+            metaGraphService.getDendriteGraph(projectMetadata.getCurrentGraph().getId());
+
+            return new GetProjectResponse(projectMetadata);
+        } finally {
+            tx.commit();
+        }
+    }
+
+    //@PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
+    // FIXME: Right now any authenticated user can create a project.
+    @RequestMapping(value = "/projects", method = RequestMethod.POST)
+    public ResponseEntity<GetProjectResponse> createProject(@Valid @RequestBody CreateProjectRequest item,
+                                                             BindingResult result,
+                                                             UriComponentsBuilder builder,
+                                                             Principal principal) throws BindingException, NotFound {
 
         if (result.hasErrors()) {
-            response.put("status", "error");
-            response.put("msg", result.toString());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            throw new BindingException(result);
         }
 
         String name = item.getName();
+        boolean createGraph = item.createGraph();
 
         MetaGraphTx tx = metaGraphService.newTransaction();
-
-        ProjectMetadata projectMetadata = tx.createProject(name, item.createGraph());
-
+        GetProjectResponse getProjectResponse;
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(builder.path("/{projectId}").buildAndExpand(projectMetadata.getId()).toUri());
-
-        response.put("project", getProjectMap(projectMetadata));
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, headers, HttpStatus.CREATED);
-    }
-
-    @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteProject(@PathVariable String projectId) {
-
-        MetaGraphTx tx = metaGraphService.newTransaction();
-
-        Map<String, Object> response = new HashMap<>();
-
-        ProjectMetadata projectMetadata = tx.getProject(projectId);
-        if (projectMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
 
         try {
-            tx.deleteProject(projectMetadata);
-        } catch (Exception e) {
-            response.put("status", "error");
-            response.put("msg", e.toString());
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
+            UserMetadata userMetadata = tx.getOrCreateUser(principal);
+            if (userMetadata == null) {
+                throw new NotFound(UserMetadata.class, principal.getName());
+            }
 
-        response.put("msg", "deleted");
+            ProjectMetadata projectMetadata = tx.createProject(name, userMetadata, createGraph);
+
+            headers.setLocation(builder.path("/projects/{projectId}").buildAndExpand(projectMetadata.getId()).toUri());
+
+            getProjectResponse = new GetProjectResponse(projectMetadata);
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
+        }
 
         // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(getProjectResponse, headers, HttpStatus.CREATED);
     }
 
-    private Map<String, Object> getProjectMap(ProjectMetadata projectMetadata) {
-        Map<String, Object> project = new HashMap<>();
 
-        String id = projectMetadata.getId();
-        project.put("_id", id);
-        project.put("name", projectMetadata.getName());
+    @PreAuthorize("hasPermissions(#projectId, 'project', 'read')")
+    @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public DeleteProjectResponse deleteProject(@PathVariable String projectId) throws Exception {
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        MetaGraphTx tx = metaGraphService.newTransaction();
 
-        Date creationTime = projectMetadata.getCreationTime();
-        if (creationTime != null) { project.put("creationTime", df.format(creationTime)); }
-
-        BranchMetadata branchMetadata = projectMetadata.getCurrentBranch();
-        if (branchMetadata != null) {
-            project.put("current_branch", branchMetadata.getId());
-
-            GraphMetadata graphMetadata = branchMetadata.getGraph();
-            if (graphMetadata != null) {
-                project.put("current_graph", graphMetadata.getId());
+        try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new NotFound(ProjectMetadata.class, projectId);
             }
+
+            tx.deleteProject(projectMetadata);
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
         }
 
-        return project;
+        tx.commit();
+
+        return new DeleteProjectResponse();
+    }
+
+    @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
+    @RequestMapping(value = "/projects/{projectId}/users", method = RequestMethod.GET)
+    @ResponseBody
+    public GetUsersResponse addUser(@PathVariable String projectId) throws NotFound {
+
+        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+
+        try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new NotFound(ProjectMetadata.class, projectId);
+            }
+
+            List<GetUserResponse> users = new ArrayList<>();
+
+            for (UserMetadata userMetadata : projectMetadata.getUsers()) {
+                users.add(new GetUserResponse(userMetadata));
+            }
+
+            return new GetUsersResponse(users);
+        } finally {
+            tx.commit();
+        }
+    }
+
+    @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
+    @RequestMapping(value = "/projects/{projectId}/users", method = RequestMethod.POST)
+    @ResponseBody
+    public AddUserToProjectResponse addUser(@PathVariable String projectId,
+                                            @Valid @RequestBody AddUserToProjectRequest item,
+                                            BindingResult result) throws BindingException, NotFound {
+
+        if (result.hasErrors()) {
+            throw new BindingException(result);
+        }
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        try {
+            ProjectMetadata projectMetadata = tx.getProject(projectId);
+            if (projectMetadata == null) {
+                throw new NotFound(ProjectMetadata.class, projectId);
+            }
+
+            UserMetadata otherUserMetadata = tx.getUserByName(item.getName());
+            if (otherUserMetadata == null) {
+                throw new NotFound(UserMetadata.class);
+            }
+
+            projectMetadata.addUser(otherUserMetadata);
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
+        }
+
+        // Commit must come after all graph access.
+        tx.commit();
+
+        return new AddUserToProjectResponse();
     }
 }

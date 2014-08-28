@@ -20,14 +20,14 @@ public class FaunusJob extends AbstractJob implements Callable<Object> {
 
     private enum State { ACTIVE, DONE, ERROR }
 
-    private Map<JobID, String> jobMap = new HashMap<>();
+    private Map<JobID, JobMetadata.Id> jobMap = new HashMap<>();
     private Set<JobID> doneJobs = new HashSet<>();
     private FaunusPipeline faunusPipeline;
     private Lock lock = new ReentrantLock();
     private Condition finished = lock.newCondition();
     private State state = State.ACTIVE;
 
-    public FaunusJob(MetaGraph metaGraph, String jobId, FaunusPipeline faunusPipeline) {
+    public FaunusJob(MetaGraph metaGraph, JobMetadata.Id jobId, FaunusPipeline faunusPipeline) {
         super(metaGraph, jobId);
 
         this.faunusPipeline = faunusPipeline;
@@ -156,7 +156,7 @@ public class FaunusJob extends AbstractJob implements Callable<Object> {
                 jobMap.put(hadoopJobId, childJobMetadata.getId());
             }
 
-            String jobMetadataId = jobMap.get(hadoopJobId);
+            JobMetadata.Id jobMetadataId = jobMap.get(hadoopJobId);
             setJobProgress(jobMetadataId, progress);
             totalProgress += (progress / ((float) jobsInProgress.size()));
 

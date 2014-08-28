@@ -7,10 +7,10 @@ jdk:
 before_install:
   - source ./scripts/ci/dependencies.sh
 
-install: mvn install
+install: mvn -q install
 
 after_success:
-  - mvn cobertura:cobertura coveralls:cobertura 
+  - mvn -q cobertura:cobertura coveralls:cobertura
 
 branches:
   except:

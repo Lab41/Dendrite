@@ -2,6 +2,7 @@ package org.lab41.dendrite.services.analysis.jung;
 
 import org.lab41.dendrite.jobs.jung.PageRankJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
+import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
 import org.lab41.dendrite.services.analysis.AnalysisService;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ public class PageRankService extends AnalysisService {
     MetaGraphService metaGraphService;
 
     @Async
-    public void run(DendriteGraph graph, String jobId, double alpha) {
+    public void run(DendriteGraph graph, JobMetadata.Id jobId, double alpha) {
         PageRankJob job = new PageRankJob(
                 metaGraphService.getMetaGraph(),
                 jobId,

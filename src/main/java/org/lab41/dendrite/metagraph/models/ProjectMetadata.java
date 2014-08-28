@@ -17,6 +17,9 @@ import java.util.Iterator;
 @TypeValue("project")
 public interface ProjectMetadata extends NamedMetadata {
 
+    @JavaHandler
+    public Id getId();
+
     @Property("creationTime")
     public Date getCreationTime();
 
@@ -31,6 +34,12 @@ public interface ProjectMetadata extends NamedMetadata {
 
     @JavaHandler
     public GraphMetadata getCurrentGraph();
+
+    @Adjacency(label = "ownsProject", direction = Direction.IN)
+    public void addUser(UserMetadata user);
+
+    @Adjacency(label = "ownsProject", direction = Direction.IN)
+    public Iterable<UserMetadata> getUsers();
 
     @Adjacency(label = "ownsBranch", direction = Direction.OUT)
     public Iterable<BranchMetadata> getBranches();
@@ -53,11 +62,39 @@ public interface ProjectMetadata extends NamedMetadata {
     @Adjacency(label = "ownsJob", direction = Direction.OUT)
     void addJob(JobMetadata jobMetadata);
 
+    public static class Id {
+        String id;
+
+        public Id(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String toString() {
+            return this.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Id && id.equals(((Id) other).id);
+        }
+    }
+
     public abstract class Impl implements JavaHandlerContext<Vertex>, ProjectMetadata {
 
         @Initializer
         public void init() {
             setCreationTime(new Date());
+        }
+
+        @Override
+        public Id getId() {
+            return new Id(asVertex().getId().toString());
         }
 
         @Override

@@ -9,11 +9,11 @@
         <!-- split button -->
         <div class="padding-bottom" ng-mouseenter="dropdownOpen({{graphId}})" ng-mouseleave="dropdownClose({{graphId}})">
           <div class="btn-group navbar-btn btn-branch" class="display-inline" >
-            <button class="btn btn-medium btn-primary dropdown-toggle" data-toggle="dropdown">{{ queryCurrentBranch.branch.name | truncate }} <span class="caret"></span></button>
+            <button class="btn btn-medium btn-primary dropdown-toggle" data-toggle="dropdown">{{ queryCurrentBranch.name | truncate }} <span class="caret"></span></button>
             <ul class="dropdown-menu" ng-class="dropdownShown({{graphId}})">
-              <li><a href="" ng-click="showModalCreate(queryCurrentBranch.branch)">New branch from {{ queryCurrentBranch.branch.name }}</a></li>
+              <li><a href="" ng-click="showModalCreate(queryCurrentBranch)">New branch from {{ queryCurrentBranch.name }}</a></li>
                 <li class="divider"></li>
-              <li><a href="" ng-click="commitBranch(queryCurrentBranch.branch)" ng-confirm-click="Are you sure?" >Commit {{ queryCurrentBranch.branch.name }}</a></li>
+              <li><a href="" ng-click="commitBranch(queryCurrentBranch.branch)" ng-confirm-click="Are you sure?" >Commit {{ queryCurrentBranch.name }}</a></li>
             </ul>
           </div>
         </div>
@@ -25,7 +25,7 @@
       <div class="span12">Additional:</div>
     </div>
     <ul ng-repeat="branch in queryBranches.branches">
-      <li ng-if="branch._id != queryCurrentBranch.branch._id">
+      <li ng-if="branch._id != queryCurrentBranch._id">
 
         <!-- split button -->
         <div class="padding-bottom" ng-mouseenter="dropdownOpen({{branch._id}})" ng-mouseleave="dropdownClose({{branch._id}})">

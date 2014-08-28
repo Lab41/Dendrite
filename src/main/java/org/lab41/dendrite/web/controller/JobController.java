@@ -1,146 +1,132 @@
 package org.lab41.dendrite.web.controller;
 
 import org.lab41.dendrite.metagraph.MetaGraphTx;
+import org.lab41.dendrite.metagraph.NotFound;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
+import org.lab41.dendrite.web.responses.DeleteJobResponse;
+import org.lab41.dendrite.web.responses.GetJobResponse;
+import org.lab41.dendrite.web.responses.GetJobsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/api")
-public class JobController {
+public class JobController extends AbstractController {
 
     @Autowired
     MetaGraphService metaGraphService;
 
+    // Note this doesn't use @PreAuthorize on purpose because it'll only show the user's projects.
     @RequestMapping(value = "/jobs", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getJobs() {
+    @ResponseBody
+    public GetJobsResponse getJobs(Principal principal) {
 
-        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+        // This needs to be a read/write transaction as we might make a user.
+        MetaGraphTx tx = metaGraphService.buildTransaction().start();
+        GetJobsResponse getJobsResponse;
 
-        List<Map<String, Object>> jobs = new ArrayList<>();
-        for (JobMetadata jobMetadata: tx.getJobs()) {
-            jobs.add(getJobMap(jobMetadata));
+        try {
+            UserMetadata userMetadata = tx.getOrCreateUser(principal);
+
+            List<GetJobResponse> jobs = new ArrayList<>();
+
+            for (ProjectMetadata projectMetadata : userMetadata.getProjects()) {
+                for (JobMetadata jobMetadata : projectMetadata.getJobs()) {
+                    jobs.add(new GetJobResponse(jobMetadata));
+                }
+            }
+
+            getJobsResponse = new GetJobsResponse(jobs);
+        } catch (Throwable t) {
+            tx.rollback();
+            throw t;
         }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("jobs", jobs);
 
         // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return getJobsResponse;
     }
 
+    @PreAuthorize("hasPermission(#jobId, 'job', 'admin')")
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getJob(@PathVariable String jobId) {
-
-        Map<String, Object> response = new HashMap<>();
+    @ResponseBody
+    public GetJobResponse getJob(@PathVariable String jobId) throws NotFound {
 
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
-        JobMetadata jobMetadata = tx.getJob(jobId);
 
-        if (jobMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find job '" + jobId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        try {
+            JobMetadata jobMetadata = tx.getJob(jobId);
+            if (jobMetadata == null) {
+                throw new NotFound(JobMetadata.class, jobId);
+            }
+
+            return new GetJobResponse(jobMetadata);
+        } finally {
+            tx.commit();
         }
-
-        response.put("job", getJobMap(jobMetadata));
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/jobs", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getJobs(@PathVariable String projectId) {
-
-        Map<String, Object> response = new HashMap<>();
+    @ResponseBody
+    public GetJobsResponse getJobs(@PathVariable String projectId) throws NotFound {
 
         MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
-        ProjectMetadata project = tx.getProject(projectId);
 
-        if (project == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find project '" + projectId + "'");
-            tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        try {
+            ProjectMetadata project = tx.getProject(projectId);
+            if (project == null) {
+                throw new NotFound(ProjectMetadata.class, projectId);
+            }
+
+            List<GetJobResponse> jobs = new ArrayList<>();
+            for (JobMetadata jobMetadata : project.getJobs()) {
+                jobs.add(new GetJobResponse(jobMetadata));
+            }
+
+            return new GetJobsResponse(jobs);
+        } finally {
+            tx.commit();
         }
-
-        List<Map<String, Object>> jobs = new ArrayList<>();
-        for (JobMetadata jobMetadata: project.getJobs()) {
-            jobs.add(getJobMap(jobMetadata));
-        }
-
-        response.put("jobs", jobs);
-
-        // Commit must come after all graph access.
-        tx.commit();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#jobId, 'job', 'admin')")
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String, Object>> deleteJob(@PathVariable String jobId) {
-
-        Map<String, Object> response = new HashMap<>();
+    @ResponseBody
+    public DeleteJobResponse deleteJob(@PathVariable String jobId) throws NotFound {
         MetaGraphTx tx = metaGraphService.newTransaction();
-        JobMetadata jobMetadata = tx.getJob(jobId);
+        DeleteJobResponse deleteJobResponse;
 
-        if (jobMetadata == null) {
-            response.put("status", "error");
-            response.put("msg", "could not find job '" + jobId + "'");
+        try {
+            JobMetadata jobMetadata = tx.getJob(jobId);
+            if (jobMetadata == null) {
+                throw new NotFound(JobMetadata.class, jobId);
+            }
+
+            tx.deleteJob(jobMetadata);
+
+            deleteJobResponse = new DeleteJobResponse();
+        } catch (Throwable t) {
             tx.rollback();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            throw t;
         }
-
-        tx.deleteJob(jobMetadata);
-
-        response.put("msg", "deleted");
 
         // Commit must come after all graph access.
         tx.commit();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    private Map<String, Object> getJobMap(JobMetadata jobMetadata) {
-        Map<String, Object> job = new HashMap<>();
-
-        String id = jobMetadata.getId();
-        job.put("_id", id);
-
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        Date creationTime = jobMetadata.getCreationTime();
-        if (creationTime != null) { job.put("creationTime", df.format(creationTime)); }
-
-        Date doneTime = jobMetadata.getDoneTime();
-        if (doneTime != null) { job.put("doneTime", df.format(doneTime)); }
-
-        JobMetadata parentJobMetadata = jobMetadata.getParentJob();
-        if (parentJobMetadata != null) {
-            job.put("parentJob", parentJobMetadata.getId());
-        }
-        job.put("name", jobMetadata.getName());
-        job.put("state", jobMetadata.getState());
-        job.put("progress", jobMetadata.getProgress());
-        job.put("msg", jobMetadata.getMessage());
-        job.put("mapreduceJobId", jobMetadata.getMapreduceJobId());
-
-        return job;
+        return deleteJobResponse;
     }
 }

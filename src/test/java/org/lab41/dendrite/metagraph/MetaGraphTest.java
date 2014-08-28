@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.lab41.dendrite.metagraph.models.GraphMetadata;
 import org.lab41.dendrite.metagraph.models.ProjectMetadata;
+import org.lab41.dendrite.metagraph.models.UserMetadata;
 
 public class MetaGraphTest extends BaseMetaGraphTest {
 
@@ -26,7 +27,10 @@ public class MetaGraphTest extends BaseMetaGraphTest {
         // Create a graph.
         MetaGraphTx tx = metaGraph.newTransaction();
 
-        ProjectMetadata projectMetadata = tx.createProject("test");
+        UserMetadata userMetadata = tx.createUser("test");
+        Assert.assertNotNull(userMetadata);
+
+        ProjectMetadata projectMetadata = tx.createProject("test", userMetadata);
         Assert.assertNotNull(projectMetadata);
 
         GraphMetadata graphMetadata = projectMetadata.getCurrentGraph();
@@ -46,7 +50,9 @@ public class MetaGraphTest extends BaseMetaGraphTest {
 
         // Create a graph.
         MetaGraphTx tx = metaGraph.newTransaction();
-        tx.createProject("test");
+
+        UserMetadata userMetadata = tx.createUser("test");
+        tx.createProject("test", userMetadata);
         tx.commit();
 
         // Now there should now be two graphs.
@@ -57,11 +63,13 @@ public class MetaGraphTest extends BaseMetaGraphTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGettingInvalidVertexType() {
         MetaGraphTx tx = metaGraph.newTransaction();
-        ProjectMetadata projectMetadata = tx.createProject("test");
+
+        UserMetadata userMetadata = tx.createUser("test");
+        ProjectMetadata projectMetadata = tx.createProject("test", userMetadata);
         tx.commit();
 
         tx = metaGraph.newTransaction();
-        tx.getJob(projectMetadata.getId());
+        tx.getJob(projectMetadata.getId().toString());
         tx.rollback();
     }
 }

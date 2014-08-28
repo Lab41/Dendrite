@@ -10,12 +10,14 @@ import static org.junit.matchers.JUnitMatchers.hasItem;
 
 public class ProjectMetadataTest extends BaseMetadataTest {
 
+    UserMetadata userMetadata;
     ProjectMetadata projectMetadata;
 
     @Before
     public void setUp() {
         super.setUp();
-        projectMetadata = tx.createProject("test");
+        userMetadata = tx.createUser("test");
+        projectMetadata = tx.createProject("test", userMetadata);
     }
 
     @After
