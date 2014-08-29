@@ -1,0 +1,15 @@
+<h2 class="titlebar">Project: {{ projectName }} </h2>
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span12" style="margin-bottom:20px">
+      <div class="card span3" ng-repeat="branches in queryBranches.branches" ng-click="showBranch({{branches._id}})">
+        <div><img class="logo" src="public/img/logo.png" height="30" width="30"></div>
+        <div><strong>{{ branches.name }}</strong></div>
+        <div><small>{{ branches.creationTime | date:'yyyy-MM-dd'}}</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
