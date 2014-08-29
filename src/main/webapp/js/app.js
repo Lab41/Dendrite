@@ -62,6 +62,7 @@ angular.module('dendrite', [
         when('/projects/create', {templateUrl: 'partials/project-create.html', controller: 'ProjectCreateCtrl', access: access.ROLE_USER}).
         when('/projects/:projectId', {templateUrl: 'partials/project-detail.html', controller: 'ProjectDetailCtrl', access: access.ROLE_USER}).
         when('/projects/:projectId/history', {templateUrl: 'partials/history/show.html', controller: 'HistoryDetailCtrl', access: access.ROLE_USER}).
+        when('/projects/:projectId/branches', {templateUrl: 'partials/project-branches.html', controller: 'BranchListCtrl', access: access.ROLE_USER}).
         otherwise({redirectTo: '/home'});
   }]).
   config([

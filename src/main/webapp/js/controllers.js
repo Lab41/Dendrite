@@ -88,6 +88,17 @@ angular.module('dendrite.controllers', []).
           $location.path('projects/'+id);
         };
     }).
+    controller('BranchListCtrl', function($scope, $modal, $location, $routeParams, User, Project) {
+        $scope.User = User;
+        
+        Project.query({projectId: $routeParams.projectId})
+                .$then(function(response) {
+                    $scope.project = response.data.project;
+                    $scope.projectName = response.data.project.name;
+                   }); 
+        $scope.queryBranches = Project.branches({projectId: $routeParams.projectId})
+  //TODO needs the showBranch call to check if currentBranch is equal to clicked branch, if not then switch branch. Else, go back to project detail page.
+    }).
     controller('ProjectCreateCtrl', function($rootScope, $scope, $location, User, Project, History) {
         $scope.User = User;
         $scope.save = function() {
