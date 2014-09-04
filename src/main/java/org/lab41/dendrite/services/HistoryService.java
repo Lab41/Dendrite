@@ -58,6 +58,11 @@ public class HistoryService {
                     .setDirectory(gitDir)
                     .setBare(false)
                     .call();
+
+            git.commit()
+                    .setAuthor("", "")
+                    .setMessage("commit")
+                    .call();
         }
 
         return git;
