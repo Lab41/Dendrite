@@ -109,7 +109,7 @@ public class DendriteRexsterApplication implements RexsterApplication {
 
         Set<String> graphNames = new TreeSet<>();
 
-        MetaGraphTx tx = metaGraphService.buildTransaction().readOnly().start();
+        MetaGraphTx tx = metaGraphService.buildTransaction().start();
 
         try {
             UserMetadata userMetadata = tx.getOrCreateUser(authentication);
