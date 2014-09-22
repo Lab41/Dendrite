@@ -51,6 +51,10 @@ import javax.validation.Valid;
 import java.io.InputStream;
 import java.util.*;
 
+/**
+ * The {@code GraphImportController} represents the user interface for importing a graph from a
+ * variety of file formats.
+ */
 @Controller
 public class GraphImportController extends AbstractController {
 
