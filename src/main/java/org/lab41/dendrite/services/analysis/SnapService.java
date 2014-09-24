@@ -4,6 +4,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.lab41.dendrite.jobs.snap.CentralityJob;
+import org.lab41.dendrite.jobs.snap.CommunityJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.lab41.dendrite.services.MetaGraphService;
@@ -50,7 +51,20 @@ public class SnapService extends AnalysisService {
         job.call();
     }
 
+    @Async
+    public void snapCommunity(DendriteGraph graph, JobMetadata.Id jobId) throws Exception {
+        // load configuration
+        Resource resource = resourceLoader.getResource(pathToProperties);
+        Configuration config = new PropertiesConfiguration(resource.getFile());
 
+        Path pathToSnap = Paths.get(config.getString("metagraph.template.snap.algorithm-path"));
 
+        CommunityJob job = new CommunityJob(
+                metaGraphService.getMetaGraph(),
+                jobId,
+                graph,
+                pathToSnap);
+
+        job.call();
     }
 }
