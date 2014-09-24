@@ -57,7 +57,7 @@ public abstract class AbstractGraphUpdateJob extends AbstractJob<Void> {
         return null;
     }
 
-    protected abstract void updateGraph();
+    protected abstract void updateGraph() throws Exception;
 
     protected void createIndices() { }
 

@@ -30,8 +30,8 @@ public class SnapController extends AbstractController {
     SnapService snapService;
 
     @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
-    @RequestMapping(value = "/api/graphs/{graphId}/analysis/snap/{algorithm}", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> startJob(@PathVariable String graphId, @PathVariable String algorithm) throws Exception {
+    @RequestMapping(value = "/api/graphs/{graphId}/analysis/snap/centrality", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> startJob(@PathVariable String graphId) throws Exception {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -68,14 +68,8 @@ public class SnapController extends AbstractController {
 
         tx.commit();
 
-        if (!algorithm.equals("centrality")) {
-            response.put("status", "error");
-            response.put("msg", algorithm + " not implemented");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
         // We can't pass the values directly because they'll live in a separate thread.
-        snapService.snapAlgorithm(graph, algorithm, jobMetadata.getId());
+        snapService.snapCentrality(graph, jobMetadata.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
