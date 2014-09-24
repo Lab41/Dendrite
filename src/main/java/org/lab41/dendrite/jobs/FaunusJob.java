@@ -16,7 +16,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class FaunusJob extends AbstractJob implements Callable<Object> {
+public class FaunusJob extends AbstractJob<Void> {
 
     private enum State { ACTIVE, DONE, ERROR }
 
@@ -34,7 +34,7 @@ public class FaunusJob extends AbstractJob implements Callable<Object> {
     }
 
     @Override
-    public Object call() throws Exception {
+    public Void call() throws Exception {
         FaunusCompiler compiler = faunusPipeline.getCompiler();
         FaunusJobControl jobControl = new FaunusJobControl(faunusPipeline.getGraph(), compiler.getJobs());
 

@@ -20,7 +20,7 @@ import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractGraphCommitJob extends AbstractJob implements Runnable {
+public abstract class AbstractGraphCommitJob extends AbstractJob<Void> {
 
     private Logger logger = LoggerFactory.getLogger(AbstractGraphCommitJob.class);
 
@@ -60,7 +60,7 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
     }
 
     @Override
-    public void run() {
+    public Void call() {
         logger.debug("Starting commit on "
                 + srcGraphId
                 + " to "
@@ -92,10 +92,12 @@ public abstract class AbstractGraphCommitJob extends AbstractJob implements Runn
         } catch (Throwable t) {
             setJobState(jobId, JobMetadata.ERROR, t.getMessage());
             logger.error("error running job: " + t.getMessage());
-            return;
+            return null;
         }
 
         logger.debug("finished job: " + jobId);
+
+        return null;
     }
 
     protected void copyIndices(DendriteGraph srcGraph, DendriteGraph dstGraph) {

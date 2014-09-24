@@ -20,12 +20,12 @@ public class BetweennessCentralityService extends AnalysisService {
     MetaGraphService metaGraphService;
 
     @Async
-    public void run(DendriteGraph graph, JobMetadata.Id jobId) {
+    public void run(DendriteGraph graph, JobMetadata.Id jobId) throws Exception {
         BetweennessCentralityJob job = new BetweennessCentralityJob(
                 metaGraphService.getMetaGraph(),
                 jobId,
                 graph);
 
-        job.run();
+        job.call();
     }
 }

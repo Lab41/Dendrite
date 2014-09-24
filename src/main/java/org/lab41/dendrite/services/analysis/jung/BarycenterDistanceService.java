@@ -20,12 +20,12 @@ public class BarycenterDistanceService extends AnalysisService {
     MetaGraphService metaGraphService;
 
     @Async
-    public void run(DendriteGraph graph, JobMetadata.Id jobId) {
+    public void run(DendriteGraph graph, JobMetadata.Id jobId) throws Exception {
         BarycenterDistanceJob job = new BarycenterDistanceJob(
                 metaGraphService.getMetaGraph(),
                 jobId,
                 graph);
 
-        job.run();
+        job.call();
     }
 }

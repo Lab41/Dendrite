@@ -20,12 +20,12 @@ public class EigenvectorCentralityService extends AnalysisService {
     MetaGraphService metaGraphService;
 
     @Async
-    public void run(DendriteGraph graph, JobMetadata.Id jobId) {
+    public void run(DendriteGraph graph, JobMetadata.Id jobId) throws Exception {
         EigenvectorCentralityJob job = new EigenvectorCentralityJob(
                 metaGraphService.getMetaGraph(),
                 jobId,
                 graph);
 
-        job.run();
+        job.call();
     }
 }

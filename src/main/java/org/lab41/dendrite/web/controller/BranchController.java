@@ -302,7 +302,7 @@ public class BranchController extends AbstractController {
         tx.commit();
 
         //taskExecutor.execute(branchCommitJob);
-        branchCommitJob.run();
+        branchCommitJob.call();
 
         return getBranchResponse;
     }
@@ -461,7 +461,7 @@ public class BranchController extends AbstractController {
         tx.commit();
 
         //taskExecutor.execute(branchCommitJob);
-        branchCommitJob.run();
+        branchCommitJob.call();
 
         return new BranchJobResponse(branchCommitJob);
     }
@@ -575,7 +575,7 @@ public class BranchController extends AbstractController {
         tx.commit();
 
         //taskExecutor.execute(branchCommitSubsetJob);
-        branchCommitSubsetJob.run();
+        branchCommitSubsetJob.call();
 
         return new BranchJobResponse(branchCommitSubsetJob);
     }
@@ -663,7 +663,7 @@ public class BranchController extends AbstractController {
         tx.commit();
 
         //taskExecutor.execute(branchCommitSubsetJob);
-        branchCommitSubsetJob.run();
+        branchCommitSubsetJob.call();
 
         return new BranchJobResponse(branchCommitSubsetJob);
     }

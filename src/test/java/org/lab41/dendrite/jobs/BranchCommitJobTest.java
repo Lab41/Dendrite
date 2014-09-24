@@ -65,7 +65,7 @@ public class BranchCommitJobTest extends BaseMetaGraphTest {
 
         Assert.assertEquals(srcGraphId, srcGraph.getId());
 
-        branchCommitJob.run();
+        branchCommitJob.call();
 
         DendriteGraph dstGraph = metaGraph.getGraph(dstGraphId);
         Assert.assertNotNull(dstGraph);

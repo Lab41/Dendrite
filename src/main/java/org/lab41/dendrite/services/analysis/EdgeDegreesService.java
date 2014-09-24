@@ -53,7 +53,7 @@ public class EdgeDegreesService extends AnalysisService {
                 jobId,
                 graph);
 
-        job.run();
+        job.call();
     }
 
     @Async
