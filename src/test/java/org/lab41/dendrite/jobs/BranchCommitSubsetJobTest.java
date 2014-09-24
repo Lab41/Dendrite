@@ -174,7 +174,7 @@ public class BranchCommitSubsetJobTest {
                 "name:A",
                 0);
 
-        branchCommitSubsetJob.run();
+        branchCommitSubsetJob.call();
 
         DendriteGraph dstGraph = metaGraph.getGraph(branchCommitSubsetJob.getDstGraphId());
         Assert.assertNotNull(dstGraph);
@@ -209,7 +209,7 @@ public class BranchCommitSubsetJobTest {
                 "name:A",
                 1);
 
-        branchCommitSubsetJob.run();
+        branchCommitSubsetJob.call();
 
         DendriteGraph dstGraph = metaGraph.getGraph(branchCommitSubsetJob.getDstGraphId());
         Assert.assertNotNull(dstGraph);
@@ -252,7 +252,7 @@ public class BranchCommitSubsetJobTest {
                 "name:A",
                 2);
 
-        branchCommitSubsetJob.run();
+        branchCommitSubsetJob.call();
 
         DendriteGraph dstGraph = metaGraph.getGraph(branchCommitSubsetJob.getDstGraphId());
         Assert.assertNotNull(dstGraph);

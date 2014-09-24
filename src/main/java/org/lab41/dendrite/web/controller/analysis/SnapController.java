@@ -30,8 +30,8 @@ public class SnapController extends AbstractController {
     SnapService snapService;
 
     @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
-    @RequestMapping(value = "/api/graphs/{graphId}/analysis/snap/{algorithm}", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> startJob(@PathVariable String graphId, @PathVariable String algorithm) throws Exception {
+    @RequestMapping(value = "/api/graphs/{graphId}/analysis/snap/centrality", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> startCentrality(@PathVariable String graphId) throws Exception {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -68,16 +68,54 @@ public class SnapController extends AbstractController {
 
         tx.commit();
 
-        if (!algorithm.equals("centrality")) {
-            response.put("status", "error");
-            response.put("msg", algorithm + " not implemented");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-
         // We can't pass the values directly because they'll live in a separate thread.
-        snapService.snapAlgorithm(graph, algorithm, jobMetadata.getId());
+        snapService.snapCentrality(graph, jobMetadata.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
+    @RequestMapping(value = "/api/graphs/{graphId}/analysis/snap/community", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> startCommunity(@PathVariable String graphId) throws Exception {
+
+        Map<String, Object> response = new HashMap<>();
+
+        DendriteGraph graph = metaGraphService.getDendriteGraph(graphId);
+        if (graph == null) {
+            response.put("status", "error");
+            response.put("msg", "missing graph metadata '" + graphId + "'");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        MetaGraphTx tx = metaGraphService.newTransaction();
+
+        GraphMetadata graphMetadata = tx.getGraph(graphId);
+        if (graphMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "missing graph metadata '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        ProjectMetadata projectMetadata = graphMetadata.getProject();
+        if (projectMetadata == null) {
+            response.put("status", "error");
+            response.put("msg", "missing project metadata for graph '" + graphId + "'");
+            tx.rollback();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        JobMetadata jobMetadata = tx.createJob(projectMetadata);
+
+        response.put("status", "ok");
+        response.put("msg", "job submitted");
+        response.put("jobId", jobMetadata.getId().toString());
+
+        tx.commit();
+
+        // We can't pass the values directly because they'll live in a separate thread.
+        snapService.snapCommunity(graph, jobMetadata.getId());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

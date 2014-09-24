@@ -27,6 +27,9 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
 
+/**
+ * The {@code BranchController} implements the user interface for manipulating a graph's branches.
+ */
 @Controller
 @RequestMapping("/api")
 public class BranchController extends AbstractController {
@@ -34,6 +37,12 @@ public class BranchController extends AbstractController {
     @Autowired
     HistoryService historyService;
 
+    /**
+     * Return all branches tracked by dendrite that this user is allowed to see.
+     *
+     * @param principal the authentication principal.
+     * @return the response.
+     */
     // Note this doesn't use @PreAuthorize on purpose because it'll only show the user's projects.
     @RequestMapping(value = "/branches", method = RequestMethod.GET)
     @ResponseBody
@@ -65,6 +74,13 @@ public class BranchController extends AbstractController {
         return getBranchesResponse;
     }
 
+    /**
+     * Get a specific branch if this user is allowed to see this branch.
+     *
+     * @param branchId the id of the branch
+     * @return The branch response.
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#branchId, 'branch', 'admin')")
     @RequestMapping(value = "/branches/{branchId}", method = RequestMethod.GET)
     @ResponseBody
@@ -84,6 +100,16 @@ public class BranchController extends AbstractController {
         }
     }
 
+    /**
+     * Delete a branch.
+     *
+     * @param branchId the id of the branch.
+     * @return The delete branch response.
+     * @throws IOException
+     * @throws GitAPIException
+     * @throws CannotDeleteCurrentBranchException
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#branchId, 'branch', 'admin')")
     @RequestMapping(value = "/branches/{branchId}", method = RequestMethod.DELETE)
     @ResponseBody
@@ -126,6 +152,13 @@ public class BranchController extends AbstractController {
         return new DeleteBranchResponse();
     }
 
+    /**
+     * Get all the branches in a project.
+     *
+     * @param projectId the project id
+     * @return the branches
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/branches", method = RequestMethod.GET)
     @ResponseBody
@@ -150,6 +183,14 @@ public class BranchController extends AbstractController {
         }
     }
 
+    /**
+     * Get a branch named {@code branchName} in the project.
+     *
+     * @param projectId the project id
+     * @param branchName the branch name
+     * @return the branch
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/branches/{branchName}", method = RequestMethod.GET)
     @ResponseBody
@@ -174,19 +215,32 @@ public class BranchController extends AbstractController {
         }
     }
 
+    /**
+     * Create a branch named @{code branchName} in the project.
+     *
+     * @param projectId The id of the project.
+     * @param branchName The name of the branch.
+     * @param createBranchRequest The branch creation metadata.
+     * @param result
+     * @return the branch.
+     * @throws GitAPIException
+     * @throws IOException
+     * @throws BindingException
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/branches/{branchName}", method = RequestMethod.PUT)
     @ResponseBody
     public GetBranchResponse createBranch(@PathVariable String projectId,
                                        @PathVariable String branchName,
-                                       @Valid @RequestBody CreateBranchRequest item,
+                                       @Valid @RequestBody CreateBranchRequest createBranchRequest,
                                        BindingResult result) throws GitAPIException, IOException, BindingException, NotFound {
 
         if (result.hasErrors()) {
             throw new BindingException(result);
         }
 
-        String graphId = item.getGraphId();
+        String graphId = createBranchRequest.getGraphId();
 
         MetaGraphTx tx = metaGraphService.newTransaction();
         BranchCommitJob branchCommitJob;
@@ -248,11 +302,18 @@ public class BranchController extends AbstractController {
         tx.commit();
 
         //taskExecutor.execute(branchCommitJob);
-        branchCommitJob.run();
+        branchCommitJob.call();
 
         return getBranchResponse;
     }
 
+    /**
+     * Get the current branch of a project.
+     *
+     * @param projectId the project id
+     * @return the branch
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch", method = RequestMethod.GET)
     @ResponseBody
@@ -277,6 +338,18 @@ public class BranchController extends AbstractController {
         }
     }
 
+    /**
+     * Set the current project's branch.
+     *
+     * @param projectId the project id
+     * @param item
+     * @param result
+     * @return
+     * @throws GitAPIException
+     * @throws IOException
+     * @throws BindingException
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch", method = RequestMethod.PUT)
     @ResponseBody
@@ -324,6 +397,14 @@ public class BranchController extends AbstractController {
         return new SetCurrentBranchResponse();
     }
 
+    /**
+     * Commit the current branch.
+     * @param projectId
+     * @return
+     * @throws GitAPIException
+     * @throws IOException
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit", method = RequestMethod.POST)
     @ResponseBody
@@ -380,7 +461,7 @@ public class BranchController extends AbstractController {
         tx.commit();
 
         //taskExecutor.execute(branchCommitJob);
-        branchCommitJob.run();
+        branchCommitJob.call();
 
         return new BranchJobResponse(branchCommitJob);
     }
@@ -430,6 +511,15 @@ public class BranchController extends AbstractController {
     }
     */
 
+    /**
+     * Commit a subset of the graph.
+     * @param projectId
+     * @param item
+     * @param result
+     * @return
+     * @throws BindingException
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/commit-subset", method = RequestMethod.POST)
     @ResponseBody
@@ -485,11 +575,21 @@ public class BranchController extends AbstractController {
         tx.commit();
 
         //taskExecutor.execute(branchCommitSubsetJob);
-        branchCommitSubsetJob.run();
+        branchCommitSubsetJob.call();
 
         return new BranchJobResponse(branchCommitSubsetJob);
     }
 
+    /**
+     * Export a subset of the project into a new project.
+     * @param projectId
+     * @param item
+     * @param principal
+     * @param result
+     * @return
+     * @throws NotFound
+     * @throws BindingException
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/current-branch/export-subset", method = RequestMethod.POST)
     @ResponseBody
@@ -563,7 +663,7 @@ public class BranchController extends AbstractController {
         tx.commit();
 
         //taskExecutor.execute(branchCommitSubsetJob);
-        branchCommitSubsetJob.run();
+        branchCommitSubsetJob.call();
 
         return new BranchJobResponse(branchCommitSubsetJob);
     }

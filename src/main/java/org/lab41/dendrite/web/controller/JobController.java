@@ -21,6 +21,9 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The {@code JobController} is the user interface for creating and monitoring jobs.
+ */
 @Controller
 @RequestMapping("/api")
 public class JobController extends AbstractController {

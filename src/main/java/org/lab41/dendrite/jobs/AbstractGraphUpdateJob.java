@@ -1,20 +1,13 @@
 package org.lab41.dendrite.jobs;
 
-import com.thinkaurelius.titan.core.TitanTransaction;
-import com.thinkaurelius.titan.core.attribute.FullDouble;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.oupls.jung.GraphJung;
-import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
-import org.lab41.dendrite.jobs.AbstractJob;
 import org.lab41.dendrite.metagraph.DendriteGraph;
-import org.lab41.dendrite.metagraph.DendriteGraphBatchWrapper;
-import org.lab41.dendrite.metagraph.DendriteGraphTx;
 import org.lab41.dendrite.metagraph.MetaGraph;
 import org.lab41.dendrite.metagraph.models.JobMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractGraphUpdateJob extends AbstractJob {
+public abstract class AbstractGraphUpdateJob extends AbstractJob<Void> {
 
     static Logger logger = LoggerFactory.getLogger(AbstractGraphUpdateJob.class);
 
@@ -26,7 +19,8 @@ public abstract class AbstractGraphUpdateJob extends AbstractJob {
         this.graph = graph;
     }
 
-    public void run() {
+    @Override
+    public Void call() throws Exception {
         logger.debug("Starting " + getClass().getSimpleName() + " analysis on "
                 + graph.getId()
                 + " job " + jobId
@@ -59,9 +53,11 @@ public abstract class AbstractGraphUpdateJob extends AbstractJob {
         }
 
         logger.debug("Finished analysis on " + jobId);
+
+        return null;
     }
 
-    protected abstract void updateGraph();
+    protected abstract void updateGraph() throws Exception;
 
     protected void createIndices() { }
 

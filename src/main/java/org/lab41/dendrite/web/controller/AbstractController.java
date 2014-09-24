@@ -29,6 +29,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ * The abstract class {@code AbstractController} is the superclass of all controllers.
+ * It provides error handling when known exceptions.
+ */
 @Controller
 public abstract class AbstractController {
 

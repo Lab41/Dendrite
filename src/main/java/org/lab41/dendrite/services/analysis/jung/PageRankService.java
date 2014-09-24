@@ -20,13 +20,13 @@ public class PageRankService extends AnalysisService {
     MetaGraphService metaGraphService;
 
     @Async
-    public void run(DendriteGraph graph, JobMetadata.Id jobId, double alpha) {
+    public void run(DendriteGraph graph, JobMetadata.Id jobId, double alpha) throws Exception {
         PageRankJob job = new PageRankJob(
                 metaGraphService.getMetaGraph(),
                 jobId,
                 graph,
                 alpha);
 
-        job.run();
+        job.call();
     }
 }

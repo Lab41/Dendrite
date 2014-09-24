@@ -55,6 +55,15 @@ public class ElasticSearchController extends AbstractController {
     @Autowired
     MetaGraphService metaGraphService;
 
+    /**
+     * Search a branch.
+     *
+     * @param branchId
+     * @param body
+     * @return
+     * @throws JSONException
+     * @throws UnsupportedEncodingException
+     */
     @PreAuthorize("hasPermission(#branchId, 'branch', 'admin')")
     @RequestMapping(value = "/api/branches/{branchId}/search", method = RequestMethod.POST)
     public ResponseEntity<String> branchSearch(@PathVariable String branchId,
@@ -93,6 +102,15 @@ public class ElasticSearchController extends AbstractController {
         }
     }
 
+    /**
+     * Search a graph.
+     *
+     * @param graphId
+     * @param body
+     * @return
+     * @throws JSONException
+     * @throws UnsupportedEncodingException
+     */
     @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/search", method = RequestMethod.POST)
     public ResponseEntity<String> graphSearch(@PathVariable String graphId,
@@ -127,7 +145,14 @@ public class ElasticSearchController extends AbstractController {
         return new ResponseEntity<>(response.toString(), responseHeaders, HttpStatus.OK);
     }
 
-
+    /**
+     * Return the index mapping for a branch.
+     *
+     * @param branchId
+     * @return
+     * @throws JSONException
+     * @throws IOException
+     */
     @PreAuthorize("hasPermission(#branchId, 'branch', 'admin')")
     @RequestMapping(value = "/api/branches/{branchId}/search/mapping", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> branchMapping(@PathVariable String branchId) throws JSONException, IOException {
@@ -159,7 +184,14 @@ public class ElasticSearchController extends AbstractController {
         }
     }
 
-
+    /**
+     * Get the index mapping for the graph.
+     *
+     * @param graphId
+     * @return
+     * @throws JSONException
+     * @throws IOException
+     */
     @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/api/graphs/{graphId}/search/mapping", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> graphMapping(@PathVariable String graphId) throws JSONException, IOException {
@@ -167,7 +199,7 @@ public class ElasticSearchController extends AbstractController {
     }
 
 
-    public ResponseEntity<Map<String, Object>> graphMapping(GraphMetadata.Id graphId) throws JSONException, IOException {
+    private ResponseEntity<Map<String, Object>> graphMapping(GraphMetadata.Id graphId) throws JSONException, IOException {
 
         Map<String, Object> response = new HashMap<>();
 

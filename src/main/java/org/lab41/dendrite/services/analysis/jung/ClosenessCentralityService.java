@@ -20,12 +20,12 @@ public class ClosenessCentralityService extends AnalysisService {
     MetaGraphService metaGraphService;
 
     @Async
-    public void run(DendriteGraph graph, JobMetadata.Id jobId) {
+    public void run(DendriteGraph graph, JobMetadata.Id jobId) throws Exception {
         ClosenessCentralityJob job = new ClosenessCentralityJob(
                 metaGraphService.getMetaGraph(),
                 jobId,
                 graph);
 
-        job.run();
+        job.call();
     }
 }

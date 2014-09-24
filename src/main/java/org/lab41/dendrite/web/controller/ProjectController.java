@@ -22,6 +22,9 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.util.*;
 
+/**
+ * The {@code ProjectController} is the main user interface for creating and manipulating projects.
+ */
 @Controller
 @RequestMapping("/api")
 public class ProjectController extends AbstractController {

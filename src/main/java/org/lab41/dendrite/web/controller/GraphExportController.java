@@ -52,6 +52,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The {@code GraphExportController} represents the user interface for exporting a graph into a file format.
+ */
 @Controller
 public class GraphExportController extends AbstractController {
 

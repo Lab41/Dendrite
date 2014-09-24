@@ -8,7 +8,9 @@ import org.lab41.dendrite.metagraph.models.ProjectMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractJob {
+import java.util.concurrent.Callable;
+
+public abstract class AbstractJob<V> implements Callable<V> {
 
     static Logger logger = LoggerFactory.getLogger(AbstractJob.class);
 

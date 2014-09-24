@@ -36,6 +36,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The {@code UserController} is the main user interface for creating and manipulating users.
+ */
 @Controller
 @RequestMapping("/api")
 public class UserController extends AbstractController {

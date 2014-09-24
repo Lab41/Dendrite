@@ -28,6 +28,9 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.util.*;
 
+/**
+ * The {@code GraphController} represents the user interface for accessing the metadata about a graph.
+ */
 @Controller
 @RequestMapping("/api")
 public class GraphController extends AbstractController {
@@ -35,6 +38,12 @@ public class GraphController extends AbstractController {
     @Autowired
     MetaGraphService metaGraphService;
 
+    /**
+     * Return all the graphs.
+     *
+     * @param principal
+     * @return
+     */
     // Note this doesn't use @PreAuthorize on purpose because it'll only show the user's graphs.
     @RequestMapping(value = "/graphs", method = RequestMethod.GET)
     @ResponseBody
@@ -63,6 +72,13 @@ public class GraphController extends AbstractController {
         return new GetGraphsResponse(graphs);
     }
 
+    /**
+     * Return a specific graph.
+     *
+     * @param graphId
+     * @return
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.GET)
     @ResponseBody
@@ -85,6 +101,14 @@ public class GraphController extends AbstractController {
         }
     }
 
+    /**
+     * Return a random subset of nodes and edges of a graph. This is used to render a
+     * subset of the graph in the UI.
+     *
+     * @param graphId
+     * @return
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/graphs/{graphId}/random", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getRandom(@PathVariable String graphId) throws NotFound {
@@ -160,6 +184,13 @@ public class GraphController extends AbstractController {
         }
     }
 
+    /**
+     * Delete a graph.
+     *
+     * @param graphId
+     * @return
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#graphId, 'graph', 'admin')")
     @RequestMapping(value = "/graphs/{graphId}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, Object>> deleteGraph(@PathVariable String graphId) throws NotFound {
@@ -190,6 +221,13 @@ public class GraphController extends AbstractController {
         }
     }
 
+    /**
+     * Get all of a project's graphs.
+     *
+     * @param projectId
+     * @return
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.GET)
     @ResponseBody
@@ -214,6 +252,17 @@ public class GraphController extends AbstractController {
         }
     }
 
+    /**
+     * Create a graph in a project.
+     *
+     * @param projectId
+     * @param item
+     * @param result
+     * @param builder
+     * @return
+     * @throws BindingException
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/graphs", method = RequestMethod.POST)
     @ResponseBody
@@ -252,6 +301,13 @@ public class GraphController extends AbstractController {
         return new ResponseEntity<>(getGraphResponse, headers, HttpStatus.CREATED);
     }
 
+    /**
+     * Return a project's current graph.
+     *
+     * @param projectId
+     * @return
+     * @throws NotFound
+     */
     @PreAuthorize("hasPermission(#projectId, 'project', 'admin')")
     @RequestMapping(value = "/projects/{projectId}/current-graph", method = RequestMethod.GET)
     @ResponseBody
