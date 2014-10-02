@@ -1,31 +1,26 @@
-<div class="container-fluid">
-  <h4>Community Metrics</h4>
+<div>
   <div class="well">
     <div>Communities</div>
         <graph-community-scaled-sphere ng-repeat="community in communityMetrics.communities.details"></graph-community-scaled-sphere>
   </div>
 
-  <div ng-repeat="selected in communitySelected">
-    <div class="span6 inline-block">
-      <div class="row-fluid">
-        <div class="span3 align-center titlebar" ng-show="showCommunityFields(selected)"></div>
-        <div class="span9">
-          <div class="row-fluid">
-            <div class="span2 align-right" ng-show="showCommunityProgressFields(selected)">(low)</div>
-            <div class="span6">
-              <div class="ui-progressbar">
-                <div class="ui-progressbar-value ui-widget-header ui-corner-left" style="width: 0%">
-                  <div class="ui-progressbar-text text-dummy">Community{{selected.id}}</div>
-                </div>
-              </div>
-            </div>
-            <div class="span2" ng-show="showCommunityProgressFields(selected)">(high)</div>
-          </div>
-        </div>
-      </div>
-      <div class="row-fluid" ng-repeat="(metricKey, metricVal) in selected.metrics track by $index">
-        <graph-community-metric></graph-community-metric>
+  <div class="margin-left-none span6 card-community-metric" ng-repeat="(metricName, metric) in communityMetrics.communities.metrics" ng-show="communitySelected.length > 0">
+
+    <div class="row-fluid">
+      <div class="span12">
+        <h5 class="margin-bottom-none">
+          {{metricName}} <i popover="{{helpText(metricName)}}" popover-placement="left" popover-trigger="mouseenter" class="icon-info-sign metric-icon"></i>
+        </h5>
       </div>
     </div>
+
+    <div class="row-fluid">
+      <graph-community-metric-legend></graph-community-metric-legend>
+    </div>
+
+    <div class="row-fluid" ng-repeat="selected in communitySelected">
+      <graph-community-metric></graph-community-metric>
+    </div>
+
   </div>
 </div>

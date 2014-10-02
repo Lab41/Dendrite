@@ -122,6 +122,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@font-face {
+  font-family: 'Oxygen';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Oxygen'), local('Oxygen-Regular'), url(http://themes.googleusercontent.com/static/fonts/oxygen/v3/RzoNiRR1p2Mqyyz2RwqSMw.woff) format('woff');
+}
+@font-face {
+  font-family: 'Syncopate';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Syncopate'), local('Syncopate-Regular'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/pDM9CVwNx1ufBHCEatJA3D8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+}
+@font-face {
+  font-family: 'Syncopate';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Syncopate Bold'), local('Syncopate-Bold'), url(http://themes.googleusercontent.com/static/fonts/syncopate/v4/S5z8ixiOoC4WJ1im6jAlYHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+}
 .titlebar-buttons {
   float: right;
   font-size: 12px;
@@ -177,6 +225,15 @@
   border-radius: 5px;
   webkit-border-radius: 5px;
   -moz-border-radius: 5px;
+  border-radius: 5px;
+  webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   border: 2px solid transparent;
 }
 .panel .column .dragbox h2 {
@@ -186,8 +243,17 @@
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
   padding: 5px;
-  border-bottom: 1px solid #afb6bb;
+  border-bottom: 1px solid rgba(175, 182, 187, 0.75);
   color: #424a4a;
   font-family: Verdana;
 }
@@ -204,27 +270,127 @@
 }
 .panel .column .dragbox h2 .collapse-buttons i {
   /* IE 8 */
+
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
   /* IE 5-7 */
+
   filter: alpha(opacity=50);
   /* Netscape */
+
   -moz-opacity: 0.5;
   /* Safari 1.x */
+
   -khtml-opacity: 0.5;
   /* Good browsers */
+
+  opacity: 0.5;
+  /* IE 8 */
+
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+  /* IE 5-7 */
+
+  filter: alpha(opacity=50);
+  /* Netscape */
+
+  -moz-opacity: 0.5;
+  /* Safari 1.x */
+
+  -khtml-opacity: 0.5;
+  /* Good browsers */
+
+  opacity: 0.5;
+  /* IE 8 */
+
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+  /* IE 5-7 */
+
+  filter: alpha(opacity=50);
+  /* Netscape */
+
+  -moz-opacity: 0.5;
+  /* Safari 1.x */
+
+  -khtml-opacity: 0.5;
+  /* Good browsers */
+
+  opacity: 0.5;
+  /* IE 8 */
+
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+  /* IE 5-7 */
+
+  filter: alpha(opacity=50);
+  /* Netscape */
+
+  -moz-opacity: 0.5;
+  /* Safari 1.x */
+
+  -khtml-opacity: 0.5;
+  /* Good browsers */
+
   opacity: 0.5;
 }
 .panel .column .dragbox h2 .collapse-buttons i:hover {
   cursor: pointer;
   /* IE 8 */
+
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   /* IE 5-7 */
-  filter: alpha(opacity=100);
+
+  filter: alpha(opacity=50);
   /* Netscape */
+
   -moz-opacity: 1;
   /* Safari 1.x */
+
   -khtml-opacity: 1;
   /* Good browsers */
+
+  opacity: 1;
+  /* IE 8 */
+
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  /* IE 5-7 */
+
+  filter: alpha(opacity=50);
+  /* Netscape */
+
+  -moz-opacity: 1;
+  /* Safari 1.x */
+
+  -khtml-opacity: 1;
+  /* Good browsers */
+
+  opacity: 1;
+  /* IE 8 */
+
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  /* IE 5-7 */
+
+  filter: alpha(opacity=50);
+  /* Netscape */
+
+  -moz-opacity: 1;
+  /* Safari 1.x */
+
+  -khtml-opacity: 1;
+  /* Good browsers */
+
+  opacity: 1;
+  /* IE 8 */
+
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  /* IE 5-7 */
+
+  filter: alpha(opacity=50);
+  /* Netscape */
+
+  -moz-opacity: 1;
+  /* Safari 1.x */
+
+  -khtml-opacity: 1;
+  /* Good browsers */
+
   opacity: 1;
 }
 .panel .column .dragbox h2 .configure {
@@ -259,8 +425,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 .ngGrid {
   background-color: #bdc3c7;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -304,6 +509,18 @@
   font-weight: bold;
   background-color: #2c3e50;
   color: #ecf0f1;
+  -webkit-border-radius: 6px 6px 0 0;
+  -moz-border-radius: 6px 6px 0 0;
+  -khtml-border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 0 0;
+  -webkit-border-radius: 6px 6px 0 0;
+  -moz-border-radius: 6px 6px 0 0;
+  -khtml-border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 0 0;
+  -webkit-border-radius: 6px 6px 0 0;
+  -moz-border-radius: 6px 6px 0 0;
+  -khtml-border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 0 0;
   -webkit-border-radius: 6px 6px 0 0;
   -moz-border-radius: 6px 6px 0 0;
   -khtml-border-radius: 6px 6px 0 0;
@@ -649,6 +866,18 @@
   -moz-border-radius: 0 0 6px 6px;
   -khtml-border-radius: 0 0 6px 6px;
   border-radius: 0 0 6px 6px;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
 }
 .ngFooterPanel {
   background-color: #7f8c8d;
@@ -656,6 +885,18 @@
   border-top: 1px solid #7f8c8d;
   color: #ecf0f1;
   position: relative;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  -khtml-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
   -webkit-border-radius: 0 0 6px 6px;
   -moz-border-radius: 0 0 6px 6px;
   -khtml-border-radius: 0 0 6px 6px;
@@ -826,15 +1067,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Copyright 2014 In-Q-Tel/Lab41
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 .ui-progressbar {
   height: 20px;
   width: 100%;
-  border: 1px solid transparent;
   margin: 0;
   padding: 0;
-  display: inline-block;
+  display: block;
+}
+.ui-progressbar.legend {
+  border-right: 1px dotted #7f8c8d;
+  border-left: 1px dotted #7f8c8d;
 }
 .ui-progressbar-value {
+  display: block;
   height: 20px;
   margin: 0;
   padding: 0;
@@ -842,15 +1117,24 @@
   background: #2c3e50;
   border: 1px solid #2c3e50;
 }
+.ui-progressbar-standard-deviation {
+  height: 20px;
+  position: relative;
+  background: rgba(175, 182, 187, 0.75);
+  width: 3px;
+  display: inline-block;
+}
 .ui-progressbar-text {
   position: relative;
   /*  top: -3px;*/
+
   left: 0;
   padding: 0 5px;
   font-size: 85%;
   font-weight: bold;
   color: #ecf0f1;
   line-height: 20px;
+  display: inline;
 }
 .ui-progressbar-text.text-dummy {
   color: #c0392b;
@@ -860,15 +1144,48 @@
   display: inline-block;
   padding: 5px;
   border-bottom: 2px solid transparent;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
 }
 .circle-wrapper.active {
   border-color: #c0392b;
   border-radius: 5px;
   webkit-border-radius: 5px;
   -moz-border-radius: 5px;
+  border-radius: 5px;
+  webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   background: #bdc3c7;
 }
+.circle-wrapper:hover {
+  background: #afb6bb;
+}
 .circle {
+  border-radius: 50%;
+  webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
   border-radius: 50%;
   webkit-border-radius: 50%;
   -moz-border-radius: 50%;
@@ -882,6 +1199,73 @@
   top: 25%;
   left: 25%;
   color: #ecf0f1;
+}
+.card {
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  height: 125px;
+  border-bottom: 3px solid transparent;
+  text-align: center;
+  background: rgba(161, 170, 176, 0.75);
+  padding: 10px;
+  margin: 10px;
+}
+.card:hover {
+  border-bottom-color: #c0392b;
+}
+.card-community-metric {
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  text-align: center;
+  height: 125px;
+  padding: 10px;
+  background: transparent;
+  margin: 10px 0;
+}
+.card-community-metric h1,
+.card-community-metric h2,
+.card-community-metric h3,
+.card-community-metric h4,
+.card-community-metric h5,
+.card-community-metric h6 {
+  color: #424a4a;
+  text-decoration: underline;
+}
+.string {
+  color: #7f8c8d;
+}
+.number {
+  color: #2980b9;
+}
+.boolean {
+  color: #16a085;
+}
+.null {
+  color: #c0392b;
+}
+.key {
+  color: #424a4a;
+  font-weight: bold;
 }
 /*************************************************/
 /* colors */
@@ -955,6 +1339,15 @@
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
 }
 .analytics-example-wrapper {
   min-height: 180px !important;
@@ -999,7 +1392,7 @@ line.link {
   color: #bdc3c7;
 }
 .emphasis {
-  color: #d35400;
+  color: #c0392b;
 }
 .role-enabled {
   font-weight: bold;
@@ -1015,7 +1408,6 @@ line.link {
 .heading {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  font-family: 'NoticiaBold', 'Times New Roman', serif;
   text-decoration: none;
   color: #2c3e50;
   border-bottom: 1px solid #7f8c8d;
@@ -1047,7 +1439,7 @@ line.link {
 .jumbotron h4,
 .jumbotron h5,
 .jumbotron h6 {
-  color: #d35400;
+  color: #c0392b;
 }
 h1,
 h2,
@@ -1055,7 +1447,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: #d35400;
+  color: #c0392b;
 }
 h1 small,
 h2 small,
@@ -1106,13 +1498,32 @@ body {
   background-color: #1abc9c;
 }
 .content {
-  background-color: #bdc3c7;
+  background-color: rgba(189, 195, 199, 0.75);
   padding: 40px;
   margin: 0 -20px;
   /* negative indent the amount of the padding to maintain the grid system */
+
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
@@ -1124,6 +1535,15 @@ body {
 }
 .container-comments {
   border: 1px dashed #bdc3c7;
+  border-radius: 10px;
+  webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
   border-radius: 10px;
   webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -1189,6 +1609,15 @@ body {
 .sidepane-analytics {
   background-color: #ecf0f1;
   background-color: rgba(236, 240, 241, 0.5);
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
   border-radius: 6px;
   webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -1272,14 +1701,20 @@ body {
 .margin-bottom {
   margin-bottom: 10px;
 }
+.margin-bottom-large {
+  margin-bottom: 30px;
+}
+.margin-bottom-none {
+  margin-bottom: 0px ! important;
+}
+.margin-left-none {
+  margin-left: 0px ! important;
+}
 .margin-left-large {
   margin-left: 30px;
 }
 .margin-right-large {
   margin-right: 30px;
-}
-.margin-bottom-large {
-  margin-bottom: 30px;
 }
 .margin-top-large {
   margin-top: 30px;
@@ -1287,13 +1722,32 @@ body {
 .margin-none {
   margin: 0;
 }
+.position-fixed {
+  position: fixed;
+}
 /*************************************************/
 /* forms */
 /*************************************************/
+label.required {
+  font-weight: bold;
+  color: #c0392b;
+}
+.context-menu {
+  z-index: 1000;
+}
 input:focus:invalid:focus,
 textarea:focus:invalid:focus,
 select:focus:invalid:focus {
   border-color: #1abc9c;
+  -webkit-box-shadow: 0 0 6px 0 #16a085;
+  -moz-box-shadow: 0 0 6px 0 #16a085;
+  box-shadow: 0 0 6px 0 #16a085;
+  -webkit-box-shadow: 0 0 6px 0 #16a085;
+  -moz-box-shadow: 0 0 6px 0 #16a085;
+  box-shadow: 0 0 6px 0 #16a085;
+  -webkit-box-shadow: 0 0 6px 0 #16a085;
+  -moz-box-shadow: 0 0 6px 0 #16a085;
+  box-shadow: 0 0 6px 0 #16a085;
   -webkit-box-shadow: 0 0 6px 0 #16a085;
   -moz-box-shadow: 0 0 6px 0 #16a085;
   box-shadow: 0 0 6px 0 #16a085;
@@ -1352,6 +1806,9 @@ div.span6 div.span6 div.dataTables_length label {
 .row-padded {
   padding: 0 5px 10px 5px ;
 }
+.row-fluid [class*="span"] {
+  min-height: 0 ! important;
+}
 .ui-widget-content a {
   color: #2980b9;
 }
@@ -1364,6 +1821,7 @@ div.span6 div.span6 div.dataTables_length label {
 }
 .tabs-vertical {
   /*  .nav-tabs {*/
+
 }
 .tabs-vertical .nav-tabs {
   border-bottom: none;
@@ -1373,14 +1831,43 @@ div.span6 div.span6 div.dataTables_length label {
   background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
   background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
   background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background-color: rgba(236, 240, 241, 0.3);
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
+  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background-color: rgba(236, 240, 241, 0.3);
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
+  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background-color: rgba(236, 240, 241, 0.3);
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(236, 240, 241, 0.3)), to(transparent));
+  background: -webkit-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -moz-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -ms-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
+  background: -o-linear-gradient(top, rgba(236, 240, 241, 0.3), transparent);
   min-height: 300px;
   /*    background: rgba(0,0,0,0.1);*/
+
   /*    border-right: 1px solid #ddd;*/
+
 }
 .tabs-vertical .nav-tabs li {
   float: none;
 }
 .tabs-vertical .nav-tabs li a {
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1422,10 +1909,12 @@ div.span6 div.span6 div.dataTables_length label {
 .nav-tabs > li > a:focus,
 .nav-tabs > li > a:hover {
   /*    color: #555555;*/
+
   cursor: pointer;
   background: transparent;
   border: 1px dotted #ecf0f1;
   /*    border-bottom-color: transparent;*/
+
 }
 .ui-tabs-nav.ui-widget-header {
   background: #bdc3c7;
@@ -1501,14 +1990,32 @@ div.span6 div.span6 div.dataTables_length label {
   background-image: -o-linear-gradient(top, #424a4a, #424a4a);
   background-image: linear-gradient(to bottom, #424a4a, #424a4a);
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#424a4a, #424a4a, GradientType=0);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr=#424a4a, #424a4a, GradientType=0);
   border: 1px solid #D4D4D4;
+  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065);
 }
 .navbar .nav .active a {
   background-color: #ecf0f1;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
   border-radius: 3px;
   webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1571,7 +2078,7 @@ label.inline {
 .btn {
   background-color: #edf1f2 !important;
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-start", endColorstr="@color-btn-end");
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-start", endColorstr="@color-btn-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#ecf0f1), to(#ecf0f1));
   background-image: -moz-linear-gradient(top, #ecf0f1, #ecf0f1);
   background-image: -ms-linear-gradient(top, #ecf0f1, #ecf0f1);
@@ -1586,7 +2093,7 @@ label.inline {
 .btn-primary {
   background-color: #287fb8 !important;
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-primary-start", endColorstr="@color-btn-primary-end");
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-primary-start", endColorstr="@color-btn-primary-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#2980b9), to(#2980b9));
   background-image: -moz-linear-gradient(top, #2980b9, #2980b9);
   background-image: -ms-linear-gradient(top, #2980b9, #2980b9);
@@ -1602,7 +2109,7 @@ label.inline {
 .btn-file {
   background-color: #808d8e !important;
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-file-start", endColorstr="@color-btn-file-end");
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-file-start", endColorstr="@color-btn-file-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#7f8c8d), to(#7f8c8d));
   background-image: -moz-linear-gradient(top, #7f8c8d, #7f8c8d);
   background-image: -ms-linear-gradient(top, #7f8c8d, #7f8c8d);
@@ -1618,7 +2125,7 @@ label.inline {
 .btn-success {
   background-color: #16a286 !important;
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-success-start", endColorstr="@color-btn-success-end");
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-success-start", endColorstr="@color-btn-success-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#16a085), to(#16a085));
   background-image: -moz-linear-gradient(top, #16a085, #16a085);
   background-image: -ms-linear-gradient(top, #16a085, #16a085);
@@ -1634,7 +2141,7 @@ label.inline {
 .btn-attention {
   background-color: #d15400 !important;
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-attention-start", endColorstr="@color-btn-attention-end");
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-attention-start", endColorstr="@color-btn-attention-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#d35400), to(#d35400));
   background-image: -moz-linear-gradient(top, #d35400, #d35400);
   background-image: -ms-linear-gradient(top, #d35400, #d35400);
@@ -1650,7 +2157,7 @@ label.inline {
 .btn-default {
   background-color: #808d8e !important;
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="@color-btn-default-start", endColorstr="@color-btn-default-end");
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="@color-btn-default-start", endColorstr="@color-btn-default-end");
   background-image: -khtml-gradient(linear, left top, left bottom, from(#7f8c8d), to(#7f8c8d));
   background-image: -moz-linear-gradient(top, #7f8c8d, #7f8c8d);
   background-image: -ms-linear-gradient(top, #7f8c8d, #7f8c8d);

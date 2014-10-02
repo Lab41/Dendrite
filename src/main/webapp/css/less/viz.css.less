@@ -19,16 +19,22 @@
 
 @color-community-progressbar: @color-navy-dark;
 @color-community-progressbar-text: @color-white-dark;
+@color-standard-deviation: darken(@color-background-stage, 5%);
 
 .ui-progressbar {
   height: 20px;
   width: 100%;
-  border: 1px solid transparent;
   margin: 0;
   padding: 0;
-  display: inline-block;
+  display: block;
+
+  &.legend {
+    border-right: 1px dotted @color-typ-titlebar;
+    border-left: 1px dotted @color-typ-titlebar;
+  }
 }
 .ui-progressbar-value {
+  display: block;
   height: 20px;
   margin: 0;
   padding: 0;
@@ -36,6 +42,17 @@
   background: @color-community-progressbar;
   border: 1px solid @color-community-progressbar;
 }
+
+
+.ui-progressbar-standard-deviation {
+  height: 20px;
+  position: relative;
+  background: @color-standard-deviation;
+  width: 3px;
+  .inline-block;
+}
+
+
 .ui-progressbar-text {
   position: relative;
 /*  top: -3px;*/
@@ -45,6 +62,7 @@
   font-weight: bold;
   color: @color-community-progressbar-text;
   line-height: 20px;
+  .inline;
 
   &.text-dummy {
     color: @color-red-dark;
@@ -56,11 +74,16 @@
   display: inline-block;
   padding: 5px;
   border-bottom: 2px solid transparent;
+  .rounded-corner;
 
   &.active {
     border-color: @color-red-dark;
     .rounded-corner(5px);
     background: @color-gray-light;
+  }
+
+  &:hover {
+    background: darken(@color-gray-light, 5%);
   }
 }
 
@@ -78,3 +101,37 @@
     color: @color-community-progressbar-text;
   }
 }
+
+.card {
+  .rounded-corner(3px);
+  height: 125px;
+  border-bottom: 3px solid transparent;
+  .align-center;
+  background: darken(@color-background-stage, 10%);
+  padding: 10px;
+  margin: 10px;
+
+  &:hover {
+    border-bottom-color: @color-emphasis;
+  }
+}
+
+.card-community-metric {
+  .rounded-corner(3px);
+  .align-center;
+  height: 125px;
+  padding: 10px;
+  background: transparent;
+  margin: 10px 0;
+
+  h1,h2,h3,h4,h5,h6 {
+    color: @color-ui-tabs-dark;
+    text-decoration: underline;
+  }
+}
+
+.string { color: @color-gray-dark; }
+.number { color: @color-blue-dark; }
+.boolean { color: @color-aqua-dark; }
+.null { color: @color-red-dark; }
+.key { color: @color-black-light; font-weight: bold}

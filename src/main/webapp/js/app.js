@@ -28,7 +28,8 @@ angular.module('dendrite', [
         'ngSanitize',
         '$strap.directives',
         'ui.bootstrap.popover',
-        'ui.bootstrap.collapse'
+        'ui.bootstrap.collapse',
+        'ng-context-menu'
     ]).
   config(['$routeProvider', function($routeProvider) {
     var access = routingConfig.accessLevels;
@@ -310,7 +311,7 @@ angular.module('dendrite', [
         'Avg Degree': {'description': 'FILL ME OUT'},
         'size': {'description': 'FILL ME OUT'}
     },
-           
+
     analytics: {
         metadata: {
           pollTimeout: 500

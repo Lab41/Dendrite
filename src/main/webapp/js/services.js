@@ -126,7 +126,88 @@ angular.module('dendrite.services', ['ngResource']).
         //TODO: delete once backend APIs complete - dummy result array
         var analyticResults = [];
 
+        var defaultPrecision = 6;
+
+        var isArray = function (obj) {
+          return Object.prototype.toString.call(obj) === "[object Array]";
+        };
+
+        var numberWithPrecision = function(num, precision){
+          var pow10s = Math.pow(10, precision || 0);
+          return (precision) ? Math.round(pow10s * num) / pow10s : num;
+        };
+
+        var getAverageFromNumbersArray = function(numbersArray, precision){
+          if(!isArray(numbersArray)){ return false;  }
+          var i = numbersArray.length;
+          var sum = 0;
+          while(i--){
+            sum += numbersArray[i];
+          }
+          return numberWithPrecision((sum / numbersArray.length), precision);
+        };
+
+        var rand = function(min, max) {
+            return min + Math.random() * (max - min);
+        };
+
         return {
+
+          variance: function(numbersArray, precision){
+            if (precision === undefined) precision = defaultPrecision;
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            console.log('numbersArray=');
+            console.log(numbersArray);
+            var avg = this.avg(numbersArray);
+            var i = numbersArray.length;
+            var v = 0;
+
+            console.log('avg='+avg);
+
+            while(i--){
+              v += Math.pow((numbersArray[i] - avg), 2);
+            }
+            v /= numbersArray.length;
+            console.log('v='+v);
+            console.log('numberWithPrecision='+numberWithPrecision(v, precision));
+            return numberWithPrecision(v, precision);
+          },
+
+          standardDeviation: function(numbersArray, precision){
+            if (precision === undefined) precision = defaultPrecision;
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            var variance = this.variance(numbersArray, precision);
+            console.log('variance='+variance);
+            var stdDev = Math.sqrt(variance);
+            console.log('stdDev='+stdDev);
+            return numberWithPrecision(stdDev, precision);
+          },
+
+          min: function(numbersArray){
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            return Math.min.apply(null, numbersArray);
+          },
+
+          max: function(numbersArray){
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            return Math.max.apply(null, numbersArray);
+          },
+
+          avg: function(numbersArray){
+            if(!isArray(numbersArray) || (typeof numbersArray[0]) !== "number"){ return false; }
+            var sum = 0;
+            for(var i = 0; i < numbersArray.length; i++) { sum += numbersArray[i]; }
+            return (sum / numbersArray.length);
+          },
+
+          // create random HSL color
+          get_random_color: function() {
+              var h = rand(1, 360);
+              var s = rand(10, 40);
+              var l = rand(10, 40);
+              return 'hsl('+h+','+s+'%,'+l+'%)';
+          },
+
           //TODO: delete once backend APIs complete - function to add class for progress bars
           colorProgressBars: function(progress) {
             if (progress < 0.33) {
@@ -139,6 +220,8 @@ angular.module('dendrite.services', ['ngResource']).
               return 'success';
             }
           },
+
+
           parseGraphFile: function(text, format) {
             var keys = {vertices: {}, edges: {}};
             try {
@@ -871,7 +954,20 @@ angular.module('dendrite.services', ['ngResource']).
               url: 'api/projects/:projectId/current-branch/export-subset',
               method: 'POST',
               isArray: false
+            },
+            //TODO: implement backend API
+            carveCommunity: {
+              url: 'api/projects/:projectId/current-branch/export-community',
+              method: 'POST',
+              isArray: false
+            },
+            //TODO: implement backend API
+            deleteCommunity: {
+              url: 'api/projects/:projectId/communities/:communityId',
+              method: 'DELETE',
+              isArray: false
             }
+
         });
     }).
     factory('Branch', function($resource) {
@@ -1140,20 +1236,20 @@ angular.module('dendrite.services', ['ngResource']).
                             edges: parseInt(Math.random() * (50000-1000) + 100),
                             metrics: {
                               "Density": 0.110837438424,
-                              "Average Degree": 6.86206896552,
+                              "Avg Degree": 6.86206896552,
                               "FOMD": 0.0,
                               "Expansion": 3.75862068966,
                               "Cut Ratio": 0.0138694490393,
                               "Conductance": 0.0516832622096,
                               "Normalized Cut": 0.105670384547,
-                              "TPR": "Not Yet Implemented",
+                              "TPR": "Not Implemented",
                               "Out Degree Fraction": {
                                           'max': 0.8333333333333334,
                                           'average': 0.4676979151117083,
                                           'flake': 0.5172413793103449
                               },
                               "Separability": 0.825688073394,
-                              "Cohesiveness": "Not Yet Implemented"
+                              "Cohesiveness": "Not Implemented"
                             }
                           },
                           { id: 3,
@@ -1161,20 +1257,20 @@ angular.module('dendrite.services', ['ngResource']).
                             edges: parseInt(Math.random() * (50000-1000) + 100),
                             metrics: {
                               "Density": 0.0642857142857,
-                              "Average Degree": 6.10714285714,
+                              "Avg Degree": 6.10714285714,
                               "FOMD": 0.00666666666667,
                               "Expansion": 2.57142857143,
                               "Cut Ratio": 0.0105386416862,
                               "Conductance": 0.0671641791045,
                               "Normalized Cut": 0.141162123606,
-                              "TPR": "Not Yet Implemented",
+                              "TPR": "Not Implemented",
                               "Out Degree Fraction": {
                                           'max': 0.7142857142857143,
                                           'average': 0.3798449070770499,
                                           'flake': 0.21428571428571427
                               },
                               "Separability": 1.375,
-                              "Cohesiveness": "Not Yet Implemented"
+                              "Cohesiveness": "Not Implemented"
                             }
                           },
                           { id: 4,
@@ -1182,20 +1278,20 @@ angular.module('dendrite.services', ['ngResource']).
                             edges: parseInt(Math.random() * (50000-1000) + 100),
                             metrics: {
                               "Density": 0.124183006536,
-                              "Average Degree": 6.22222222222,
+                              "Avg Degree": 6.22222222222,
                               "FOMD": 0.0,
                               "Expansion": 4.11111111111,
                               "Cut Ratio": 0.0145784081954,
                               "Conductance": 0.0356798457088,
                               "Normalized Cut": 0.0720256217402,
-                              "TPR": "Not Yet Implemented",
+                              "TPR": "Not Implemented",
                               "Out Degree Fraction": {
                                           'max': 0.875,
                                           'average': 0.6404100529100529,
                                           'flake': 0.6666666666666666
                               },
                               "Separability": 0.513513513514,
-                              "Cohesiveness": "Not Yet Implemented"
+                              "Cohesiveness": "Not Implemented"
                             }
                           },
                           { id: 5,
@@ -1203,20 +1299,20 @@ angular.module('dendrite.services', ['ngResource']).
                             edges: parseInt(Math.random() * (50000-1000) + 100),
                             metrics: {
                               "Density": 0.192307692308,
-                              "Average Degree": 6.84615384615,
+                              "Avg Degree": 6.84615384615,
                               "FOMD": 0.0,
                               "Expansion": 4.53846153846,
                               "Cut Ratio": 0.0158134548378,
                               "Conductance": 0.0286546867411,
                               "Normalized Cut": 0.0577330504671,
-                              "TPR": "Not Yet Implemented",
+                              "TPR": "Not Implemented",
                               "Out Degree Fraction": {
                                           'max': 0.9,
                                           'average': 0.6112276612276613,
                                           'flake': 0.6923076923076923
                               },
                               "Separability": 0.508474576271,
-                              "Cohesiveness": "Not Yet Implemented"
+                              "Cohesiveness": "Not Implemented"
                             }
                           },
                           { id: 6,
@@ -1224,20 +1320,20 @@ angular.module('dendrite.services', ['ngResource']).
                             edges: parseInt(Math.random() * (50000-1000) + 100),
                             metrics: {
                               "Density": 0.0767346938776,
-                              "Average Degree": 7.12,
+                              "Avg Degree": 7.12,
                               "FOMD": 0.0133333333333,
                               "Expansion": 3.36,
                               "Cut Ratio": 0.01344,
                               "Conductance": 0.0774907749077,
                               "Normalized Cut": 0.162339259756,
-                              "TPR": "Not Yet Implemented",
+                              "TPR": "Not Implemented",
                               "Out Degree Fraction": {
                                           'max': 0.8,
                                           'average': 0.4411600621600622,
                                           'flake': 0.36
                               },
                               "Separability": 1.11904761905,
-                              "Cohesiveness": "Not Yet Implemented"
+                              "Cohesiveness": "Not Implemented"
                             }
                           },
                           { id: 7,
@@ -1245,20 +1341,20 @@ angular.module('dendrite.services', ['ngResource']).
                             edges: parseInt(Math.random() * (50000-1000) + 100),
                             metrics: {
                               "Density": 0.0836707152497,
-                              "Average Degree": 6.82051282051,
+                              "Avg Degree": 6.82051282051,
                               "FOMD": 0.0,
                               "Expansion": 3.64102564103,
                               "Cut Ratio": 0.0139502898124,
                               "Conductance": 0.0662931839402,
                               "Normalized Cut": 0.136659883643,
-                              "TPR": "Not Yet Implemented",
+                              "TPR": "Not Implemented",
                               "Out Degree Fraction": {
                                           'max': 0.8571428571428571,
                                           'average': 0.483066434989512,
                                           'flake': 0.46153846153846156
                               },
                               "Separability": 0.87323943662,
-                              "Cohesiveness": "Not Yet Implemented"
+                              "Cohesiveness": "Not Implemented"
                             }
                           },
                           { id: 8,
@@ -1266,20 +1362,20 @@ angular.module('dendrite.services', ['ngResource']).
                             edges: parseInt(Math.random() * (50000-1000) + 100),
                             metrics: {
                               "Density": 0.140350877193,
-                              "Average Degree": 7.05263157895,
+                              "Avg Degree": 7.05263157895,
                               "FOMD": 0.0,
                               "Expansion": 4.52631578947,
                               "Cut Ratio": 0.0161078853718,
                               "Conductance": 0.0412272291467,
                               "Normalized Cut": 0.083425462709,
-                              "TPR": "Not Yet Implemented",
+                              "TPR": "Not Implemented",
                               "Out Degree Fraction": {
                                           'max': 0.8888888888888888,
                                           'average': 0.5965329991645781,
                                           'flake': 0.7368421052631579
                               },
                               "Separability": 0.558139534884,
-                              "Cohesiveness": "Not Yet Implemented"
+                              "Cohesiveness": "Not Implemented"
                             }
                           },
                           { id: 9,
@@ -1287,20 +1383,20 @@ angular.module('dendrite.services', ['ngResource']).
                             edges: parseInt(Math.random() * (50000-1000) + 100),
                             metrics: {
                               "Density": 0.25,
-                              "Average Degree": 5.125,
+                              "Avg Degree": 5.125,
                               "FOMD": 0.0,
                               "Expansion": 3.375,
                               "Cut Ratio": 0.0115582191781,
                               "Conductance": 0.0133201776024,
                               "Normalized Cut": 0.0267329942939,
-                              "TPR": "Not Yet Implemented",
+                              "TPR": "Not Implemented",
                               "Out Degree Fraction": {
                                           'max': 0.875,
                                           'average': 0.5790178571428571,
                                           'flake': 0.625
                               },
                               "Separability": 0.518518518519,
-                              "Cohesiveness": "Not Yet Implemented"
+                              "Cohesiveness": "Not Implemented"
                             }
                           }
 
